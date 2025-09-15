@@ -180,7 +180,7 @@ class WC_Subscriptions_Cart {
 	 *
 	 * @return bool
 	 */
-	public function cart_contains_subscription() {
+	public function cart_contains_subscription_instance() {
 		if ( ! WC()->cart ) {
 			return false;
 		}
@@ -299,7 +299,7 @@ class WC_Subscriptions_Cart {
 	 *
 	 * @return bool
 	 */
-	public function cart_contains_renewal() {
+	public function cart_contains_renewal_instance() {
 		if ( ! WC()->cart ) {
 			return false;
 		}
@@ -307,6 +307,48 @@ class WC_Subscriptions_Cart {
 		foreach ( WC()->cart->get_cart() as $cart_item ) {
 			if ( ! empty( $cart_item['subscription_renewal'] ) ) {
 				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Static method to check if cart contains subscription
+	 *
+	 * @return bool
+	 */
+	public static function cart_contains_subscription() {
+		$instance = self::get_instance();
+		return $instance->cart_contains_subscription_instance();
+	}
+
+	/**
+	 * Static method to check if cart contains renewal
+	 *
+	 * @return bool
+	 */
+	public static function cart_contains_renewal() {
+		$instance = self::get_instance();
+		return $instance->cart_contains_renewal_instance();
+	}
+
+	/**
+	 * Static method to check if cart contains free trial
+	 *
+	 * @return bool
+	 */
+	public static function cart_contains_free_trial() {
+		if ( ! WC()->cart ) {
+			return false;
+		}
+
+		foreach ( WC()->cart->get_cart() as $cart_item ) {
+			if ( wcs_is_subscription_product( $cart_item['data'] ) ) {
+				$trial_length = $cart_item['data']->get_meta( '_subscription_trial_length' );
+				if ( $trial_length && $trial_length > 0 ) {
+					return true;
+				}
 			}
 		}
 

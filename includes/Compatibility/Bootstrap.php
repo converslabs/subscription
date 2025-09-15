@@ -142,6 +142,7 @@ class Bootstrap {
 		require_once $compatibility_path . 'Classes/WC_Subscriptions_Product.php';
 		require_once $compatibility_path . 'Classes/WC_Subscriptions_Order.php';
 		require_once $compatibility_path . 'Classes/WC_Subscriptions_Cart.php';
+		require_once $compatibility_path . 'Classes/WC_Subscriptions_Change_Payment_Gateway.php';
 		
 		// Hook management
 		require_once $compatibility_path . 'Hooks/HookManager.php';
@@ -165,9 +166,10 @@ class Bootstrap {
 		require_once $compatibility_path . 'Utils/CompatibilityChecker.php';
 		require_once $compatibility_path . 'Utils/Logger.php';
 		
-		// Test file (only in debug mode)
+		// Test files (only in debug mode)
 		if ( defined( 'WP_SUBSCRIPTION_COMPATIBILITY_DEBUG' ) && WP_SUBSCRIPTION_COMPATIBILITY_DEBUG ) {
 			require_once $compatibility_path . 'test-compatibility.php';
+			require_once $compatibility_path . 'test-payment-gateways.php';
 		}
 	}
 
@@ -195,6 +197,7 @@ class Bootstrap {
 		class_alias( 'SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Product', 'WC_Subscriptions_Product' );
 		class_alias( 'SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Order', 'WC_Subscriptions_Order' );
 		class_alias( 'SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Cart', 'WC_Subscriptions_Cart' );
+		class_alias( 'SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Change_Payment_Gateway', 'WC_Subscriptions_Change_Payment_Gateway' );
 	}
 
 	/**

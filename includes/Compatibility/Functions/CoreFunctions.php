@@ -403,5 +403,96 @@ class CoreFunctions {
 				);
 			}
 		}
+
+		if ( ! function_exists( 'wcs_order_contains_subscription' ) ) {
+			/**
+			 * Check if order contains subscription
+			 *
+			 * @param mixed $order Order object or ID
+			 * @return bool
+			 */
+			function wcs_order_contains_subscription( $order ) {
+				if ( is_numeric( $order ) ) {
+					$order = wc_get_order( $order );
+				}
+
+				if ( ! $order ) {
+					return false;
+				}
+
+				foreach ( $order->get_items() as $item ) {
+					$product = $item->get_product();
+					if ( $product && wcs_is_subscription_product( $product ) ) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
+
+		if ( ! function_exists( 'wcs_order_contains_renewal' ) ) {
+			/**
+			 * Check if order contains renewal
+			 *
+			 * @param mixed $order Order object or ID
+			 * @return bool
+			 */
+			function wcs_order_contains_renewal( $order ) {
+				if ( is_numeric( $order ) ) {
+					$order = wc_get_order( $order );
+				}
+
+				if ( ! $order ) {
+					return false;
+				}
+
+				return $order->get_meta( '_subscription_renewal' ) === 'yes';
+			}
+		}
+
+		if ( ! function_exists( 'wcs_get_subscriptions_for_order' ) ) {
+			/**
+			 * Get subscriptions for order
+			 *
+			 * @param mixed $order Order object or ID
+			 * @return array
+			 */
+			function wcs_get_subscriptions_for_order( $order ) {
+				if ( is_numeric( $order ) ) {
+					$order = wc_get_order( $order );
+				}
+
+				if ( ! $order ) {
+					return array();
+				}
+
+				$subscription_ids = $order->get_meta( '_subscription_id' );
+				if ( ! $subscription_ids ) {
+					return array();
+				}
+
+				$subscriptions = array();
+				foreach ( (array) $subscription_ids as $subscription_id ) {
+					$subscription = wcs_get_subscription( $subscription_id );
+					if ( $subscription ) {
+						$subscriptions[] = $subscription;
+					}
+				}
+
+				return $subscriptions;
+			}
+		}
+
+		if ( ! function_exists( 'wcs_is_manual_renewal_required' ) ) {
+			/**
+			 * Check if manual renewal is required
+			 *
+			 * @return bool
+			 */
+			function wcs_is_manual_renewal_required() {
+				return false; // Not implemented yet
+			}
+		}
 	}
 }

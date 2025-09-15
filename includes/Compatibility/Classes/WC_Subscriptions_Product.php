@@ -298,7 +298,7 @@ class WC_Subscriptions_Product {
 	 * @param mixed $product Product object or ID
 	 * @return bool
 	 */
-	public function is_subscription( $product ) {
+	public function is_subscription_product( $product ) {
 		if ( is_numeric( $product ) ) {
 			$product = wc_get_product( $product );
 		}
@@ -399,4 +399,16 @@ class WC_Subscriptions_Product {
 
 		return $product->get_meta( '_subscription_trial_period', true ) ?: 'day';
 	}
+
+	/**
+	 * Static method to check if product is subscription
+	 *
+	 * @param mixed $product Product object or ID
+	 * @return bool
+	 */
+	public static function is_subscription( $product ) {
+		$instance = self::get_instance();
+		return $instance->is_subscription_product( $product );
+	}
+
 }
