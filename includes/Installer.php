@@ -9,72 +9,72 @@ namespace SpringDevs\Subscription;
  */
 class Installer {
 
-    /**
-     * Run the installer
-     *
-     * @return void
-     */
-    public function run() {
-        $this->add_version();
-        $this->register_schedules();
-        $this->create_tables();
-    }
+	/**
+	 * Run the installer
+	 *
+	 * @return void
+	 */
+	public function run() {
+		$this->add_version();
+		$this->register_schedules();
+		$this->create_tables();
+	}
 
-    /**
-     * Add time and version on DB
-     */
-    public function add_version() {
-        $installed = get_option( 'subscrpt_installed' );
+	/**
+	 * Add time and version on DB
+	 */
+	public function add_version() {
+		$installed = get_option( 'subscrpt_installed' );
 
-        if ( ! $installed ) {
-            update_option( 'subscrpt_installed', time() );
-        }
+		if ( ! $installed ) {
+			update_option( 'subscrpt_installed', time() );
+		}
 
-        update_option( 'subscrpt_version', WP_SUBSCRIPTION_VERSION );
+		update_option( 'subscrpt_version', WP_SUBSCRIPTION_VERSION );
 
-        update_option( 'subscrpt_manual_renew_cart_notice', 'Subscriptional product added to cart. Please complete the checkout to renew subscription.' );
-    }
+		update_option( 'subscrpt_manual_renew_cart_notice', 'Subscriptional product added to cart. Please complete the checkout to renew subscription.' );
+	}
 
-    /**
-     * Register cron events.
-     *
-     * @return void
-     */
-    public function register_schedules() {
-        if ( ! wp_next_scheduled( 'subscrpt_daily_cron' ) ) {
-            wp_schedule_event( time(), 'daily', 'subscrpt_daily_cron' );
-        }
+	/**
+	 * Register cron events.
+	 *
+	 * @return void
+	 */
+	public function register_schedules() {
+		if ( ! wp_next_scheduled( 'subscrpt_daily_cron' ) ) {
+			wp_schedule_event( time(), 'daily', 'subscrpt_daily_cron' );
+		}
 
-        if ( ! wp_next_scheduled( 'subscrpt_renew_reminder_cron' ) ) {
-            wp_schedule_event( time(), 'daily', 'subscrpt_renew_reminder_cron' );
-        }
-    }
+		if ( ! wp_next_scheduled( 'subscrpt_renew_reminder_cron' ) ) {
+			wp_schedule_event( time(), 'daily', 'subscrpt_renew_reminder_cron' );
+		}
+	}
 
-    /**
-     * Create necessary database tables
-     *
-     * @return void
-     */
-    public function create_tables() {
-        if ( ! function_exists( 'dbDelta' ) ) {
-            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        }
+	/**
+	 * Create necessary database tables
+	 *
+	 * @return void
+	 */
+	public function create_tables() {
+		if ( ! function_exists( 'dbDelta' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
 
-        $this->create_histories_table();
-    }
+		$this->create_histories_table();
+	}
 
-    /**
-     * Create histories table
-     *
-     * @return void
-     */
-    public function create_histories_table() {
-        global $wpdb;
+	/**
+	 * Create histories table
+	 *
+	 * @return void
+	 */
+	public function create_histories_table() {
+		global $wpdb;
 
-        $charset_collate = $wpdb->get_charset_collate();
-        $table_name      = $wpdb->prefix . 'subscrpt_order_relation';
+		$charset_collate = $wpdb->get_charset_collate();
+		$table_name      = $wpdb->prefix . 'subscrpt_order_relation';
 
-        $schema = "CREATE TABLE IF NOT EXISTS `{$table_name}` (
+		$schema = "CREATE TABLE IF NOT EXISTS `{$table_name}` (
                       `id` INT(255) NOT NULL AUTO_INCREMENT,
                       `subscription_id` INT(100) NOT NULL,
                       `order_id` INT(100) NOT NULL,
@@ -83,6 +83,6 @@ class Installer {
                       PRIMARY KEY (`id`)
                     ) $charset_collate";
 
-        dbDelta( $schema );
-    }
+		dbDelta( $schema );
+	}
 }

@@ -48,13 +48,7 @@
   "subjectSeparator": " ",
   "scopes": [],
   "skipEmptyScopes": true,
-  "allowBreakingChanges": [
-    "feat: ✨",
-    "fix: 🐛",
-    "refactor: 🛠️",
-    "perf: 🚀",
-    "rollback: 🔙"
-  ],
+  "allowBreakingChanges": ["feat: ✨", "fix: 🐛", "refactor: 🛠️", "perf: 🚀", "rollback: 🔙"],
   "breakingPrefix": "BREAKING CHANGE 🧨",
   "messages": {
     "type": "Select the type of change that you're committing:",

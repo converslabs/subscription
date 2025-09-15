@@ -280,13 +280,13 @@ class Helper {
 		$history_table = $wpdb->prefix . 'subscrpt_order_relation';
 
 		// Check if this is a split payment subscription
-		$payment_type = function_exists( 'subscrpt_get_payment_type' ) ? subscrpt_get_payment_type( $subscription_id ) : 'recurring';
-		$max_payments = function_exists( 'subscrpt_get_max_payments' ) ? subscrpt_get_max_payments( $subscription_id ) : 0;
+		$payment_type  = function_exists( 'subscrpt_get_payment_type' ) ? subscrpt_get_payment_type( $subscription_id ) : 'recurring';
+		$max_payments  = function_exists( 'subscrpt_get_max_payments' ) ? subscrpt_get_max_payments( $subscription_id ) : 0;
 		$payments_made = function_exists( 'subscrpt_count_payments_made' ) ? subscrpt_count_payments_made( $subscription_id ) : 0;
-		
+
 		$comment_content = '';
-		$activity_type = '';
-		
+		$activity_type   = '';
+
 		if ( 'split_payment' === $payment_type && $max_payments ) {
 			$comment_content = sprintf(
 				/* translators: %1$s: order id, %2$d: payment number, %3$d: total payments */
@@ -304,7 +304,7 @@ class Helper {
 			);
 			$activity_type = __( 'Renewal Order', 'wp_subscription' );
 		}
-		
+
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
@@ -324,7 +324,7 @@ class Helper {
 				'type'            => 'renew',
 			)
 		);
-		
+
 		// Fire action when split payment is renewed
 		do_action( 'subscrpt_split_payment_renewed', $subscription_id, $order_id, $order_item_id );
 	}
@@ -353,7 +353,7 @@ class Helper {
 			'timing_option' => $product->get_meta( '_subscrpt_timing_option' ),
 			'price'         => $product->get_price(),
 		);
-		
+
 		// Allow modification of split payment arguments
 		$split_payment_args = apply_filters( 'subscrpt_split_payment_args', $split_payment_args, $order_item, $product );
 
@@ -372,10 +372,10 @@ class Helper {
 		// Check if this is a split payment subscription
 		$payment_type = $product->get_meta( '_subscrpt_payment_type' ) ?: 'recurring';
 		$max_payments = $product->get_meta( '_subscrpt_max_no_payment' );
-		
+
 		$comment_content = '';
-		$activity_type = '';
-		
+		$activity_type   = '';
+
 		if ( 'split_payment' === $payment_type && $max_payments ) {
 			$comment_content = sprintf(
 				/* translators: %1$s: order id, %2$d: max payments */
@@ -392,7 +392,7 @@ class Helper {
 			);
 			$activity_type = __( 'New Subscription', 'wp_subscription' );
 		}
-		
+
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
@@ -414,7 +414,7 @@ class Helper {
 				'type'            => 'new',
 			)
 		);
-		
+
 		// Fire action when split payment plan is created
 		do_action( 'subscrpt_split_payment_created', $subscription_id, $split_payment_args, $order_item );
 
@@ -462,15 +462,17 @@ class Helper {
 		// Check if maximum payment limit has been reached
 		if ( subscrpt_is_max_payments_reached( $subscription_id ) ) {
 			// Mark subscription as expired due to limit reached
-			wp_update_post( array(
-				'ID'          => $subscription_id,
-				'post_status' => 'expired'
-			) );
-			
+			wp_update_post(
+				array(
+					'ID'          => $subscription_id,
+					'post_status' => 'expired',
+				)
+			);
+
 			error_log( "WPS: Maximum payment limit reached for subscription #{$subscription_id}. No renewal order created." );
 			return false;
 		}
-		
+
 		$order_item_id = get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
 		$order_id      = wc_get_order_id_by_order_item_id( $order_item_id );
 		$old_order     = self::check_order_for_renewal( $order_id );
@@ -504,9 +506,9 @@ class Helper {
 
 		// Store Stripe subscription ID if available
 		if ( $old_order->get_payment_method() === 'stripe' ) {
-			$stripe_subscription_id = $old_order->get_meta('_stripe_subscription_id');
+			$stripe_subscription_id = $old_order->get_meta( '_stripe_subscription_id' );
 			if ( $stripe_subscription_id ) {
-				$new_order->update_meta_data('_stripe_subscription_id', $stripe_subscription_id);
+				$new_order->update_meta_data( '_stripe_subscription_id', $stripe_subscription_id );
 				$new_order->save();
 			}
 		}

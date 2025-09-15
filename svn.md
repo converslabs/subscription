@@ -27,7 +27,7 @@ if [ "$CHANGE_TYPE" = "tag" ]; then
     echo "Enter the new version number (e.g., 1.2.3):"
     read -r VERSION
     TAG_DIR="tags/$VERSION"
-    
+
     # Remove old tag if exists
     if [ -d "$TAG_DIR" ]; then
         svn rm "$TAG_DIR" --force
@@ -60,7 +60,6 @@ fi
 - **trunk/**: Always contains the latest development version
 - **tags/**: Contains stable, released versions that users can download
 - **assets/**: Contains plugin metadata (banner, icon, screenshots)
-
 
 ## Important codes example
 

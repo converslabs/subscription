@@ -163,7 +163,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		}
 
 		global $wpdb;
-		$recurring = false;
+		$recurring     = false;
 		$renewal_limit = null;
 		foreach ( $order->get_items() as $order_item ) {
 			$table_name = $wpdb->prefix . 'subscrpt_order_relation';

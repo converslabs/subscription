@@ -20,11 +20,11 @@ class MyAccount {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'flush_rewrite_rules' ) );
-		
+
 		// Prevent duplicate menu creation
 
 		add_filter( 'woocommerce_account_menu_items', array( $this, 'custom_my_account_menu_items' ) );
-		
+
 		add_filter( 'woocommerce_endpoint_view-subscription_title', array( $this, 'change_single_title' ) );
 		add_filter( 'document_title_parts', array( $this, 'change_subscriptions_seo_title' ) );
 		add_filter( 'woocommerce_get_query_vars', array( $this, 'custom_query_vars' ) );
@@ -72,7 +72,7 @@ class MyAccount {
 			if ( in_array( $status, array( 'pending', 'active', 'on_hold' ), true ) && 'yes' === $user_cancel ) {
 				$label = __( 'Cancel', 'wp_subscription' );
 				$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'cancel', $id, $status );
-				
+
 				$action_buttons['cancel'] = array(
 					'url'   => subscrpt_get_action_url( 'cancelled', $subscrpt_nonce, $id ),
 					'label' => $label,
@@ -81,7 +81,7 @@ class MyAccount {
 			} elseif ( trim( $status ) === trim( 'pe_cancelled' ) ) {
 				$label = __( 'Reactive', 'wp_subscription' );
 				$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'reactive', $id, $status );
-				
+
 				$action_buttons['reactive'] = array(
 					'url'   => subscrpt_get_action_url( 'reactive', $subscrpt_nonce, $id ),
 					'label' => $label,
@@ -91,7 +91,7 @@ class MyAccount {
 				if ( ! subscrpt_is_max_payments_reached( $id ) ) {
 					$label = __( 'Renew', 'wp_subscription' );
 					$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'renew', $id, $status );
-					
+
 					$action_buttons['renew'] = array(
 						'url'   => subscrpt_get_action_url( 'renew', $subscrpt_nonce, $id ),
 						'label' => $label,
@@ -102,7 +102,7 @@ class MyAccount {
 			if ( 'pending' === $order->get_status() ) {
 				$label = __( 'Pay now', 'wp_subscription' );
 				$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'pay_now', $id, $status );
-				
+
 				$action_buttons['pay_now'] = array(
 					'url'   => $order->get_checkout_payment_url(),
 					'label' => $label,
@@ -123,7 +123,7 @@ class MyAccount {
 				if ( '0' === $is_auto_renew ) {
 					$label = __( 'Turn on Auto Renewal', 'wp_subscription' );
 					$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'auto-renew-on', $id, $status );
-					
+
 					$action_buttons['auto-renew-on'] = array(
 						'url'   => subscrpt_get_action_url( 'renew-on', $subscrpt_nonce, $id ),
 						'label' => $label,
@@ -131,7 +131,7 @@ class MyAccount {
 				} else {
 					$label = __( 'Turn off Auto Renewal', 'wp_subscription' );
 					$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'auto-renew-off', $id, $status );
-					
+
 					$action_buttons['auto-renew-off'] = array(
 						'url'   => subscrpt_get_action_url( 'renew-off', $subscrpt_nonce, $id ),
 						'label' => $label,
@@ -141,14 +141,14 @@ class MyAccount {
 		}
 
 		$post_status_object = get_post_status_object( $status );
-		
+
 		// Allow programmatically disabling cancel button
 		$disable_cancel = apply_filters( 'subscrpt_split_payment_disable_cancel', false, $id, $status );
 		if ( $disable_cancel && isset( $action_buttons['cancel'] ) ) {
 			unset( $action_buttons['cancel'] );
 		}
-		
-		$action_buttons     = apply_filters( 'subscrpt_single_action_buttons', $action_buttons, $id, $subscrpt_nonce, $status );
+
+		$action_buttons = apply_filters( 'subscrpt_single_action_buttons', $action_buttons, $id, $subscrpt_nonce, $status );
 
 		wc_get_template(
 			'myaccount/single.php',
@@ -199,16 +199,16 @@ class MyAccount {
 	 */
 	public function change_subscriptions_seo_title( array $title_parts ): array {
 		global $wp_query;
-		
+
 		// Only apply on the subscriptions endpoint page
-		$is_subscriptions_endpoint = isset( $wp_query->query_vars['subscriptions'] ) && 
-									  is_account_page() && 
-									  ! is_admin();
-									  
+		$is_subscriptions_endpoint = isset( $wp_query->query_vars['subscriptions'] ) &&
+										is_account_page() &&
+										! is_admin();
+
 		if ( $is_subscriptions_endpoint ) {
 			$title_parts['title'] = __( 'My Subscriptions', 'wp_subscription' );
 		}
-		
+
 		return $title_parts;
 	}
 

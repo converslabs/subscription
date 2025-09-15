@@ -35,16 +35,19 @@ WP Subscription aims to be the go-to subscription management solution for WordPr
 
 1. Clone the repository
 2. Install PHP dependencies:
+
 ```bash
 composer install
 ```
 
 3. Install Node.js dependencies:
+
 ```bash
 pnpm install
 ```
 
 4. Build assets for production:
+
 ```bash
 bash clean.sh
 ```

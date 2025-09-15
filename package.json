@@ -5,19 +5,41 @@
   "license": "GPL-2.0-or-later",
   "main": "build/index.js",
   "scripts": {
+    "install-dev": "yarn install --ignore-engines && composer install --ignore-platform-req=php",
     "build": "wp-scripts build",
     "format": "wp-scripts format",
-    "lint:css": "wp-scripts lint-style",
-    "lint:js": "wp-scripts lint-js",
+    "lint:php": "composer run lint:php",
+    "format:php": "composer run format:php",
+    "format:prettier": "prettier --write \"**/*.{js,ts,jsx,tsx,css,scss,json,md,html}\"",
     "packages-update": "wp-scripts packages-update",
     "plugin-zip": "wp-scripts plugin-zip",
     "start": "wp-scripts start",
-    "commit": "node ./node_modules/cz-customizable/standalone.js"
+    "commit": "node ./node_modules/cz-customizable/standalone.js",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@woocommerce/dependency-extraction-webpack-plugin": "^3.0.1",
     "@woocommerce/eslint-plugin": "^2.3.0",
     "@wordpress/scripts": "^30.16.0",
-    "cz-customizable": "^7.4.0"
+    "cz-customizable": "^7.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "prettier": "^3.6.2"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "yarn",
+      "version": "latest",
+      "onFail": "error"
+    }
+  },
+  "lint-staged": {
+    "*.php": [
+      "sh -c 'composer auto-lint:php -- \"$@\" || true' --",
+      "sh -c 'composer auto-format:php -- \"$@\" || true' --"
+    ],
+    "*.{js,ts,jsx,tsx,css,scss,json,md,html}": [
+      "prettier --write"
+    ]
   }
 }

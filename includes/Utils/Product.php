@@ -117,7 +117,7 @@ abstract class Product {
 	public function get_renewal_limit() {
 		return $this->product->get_meta( '_subscrpt_max_no_payment' );
 	}
-	
+
 	public function get_max_no_payment() {
 		return $this->product->get_meta( '_subscrpt_max_no_payment' );
 	}
@@ -137,7 +137,7 @@ abstract class Product {
 	public function get_signup_fee(): int {
 		return 0;
 	}
-	
+
 	/**
 	 * Get the payment type (recurring or split_payment).
 	 *
@@ -146,7 +146,7 @@ abstract class Product {
 	public function get_payment_type(): string {
 		return $this->product->get_meta( '_subscrpt_payment_type' ) ?: 'recurring';
 	}
-	
+
 	/**
 	 * Check if product uses split payment type.
 	 *
@@ -155,7 +155,7 @@ abstract class Product {
 	public function is_split_payment(): bool {
 		return 'split_payment' === $this->get_payment_type();
 	}
-	
+
 	/**
 	 * Get access ends timing for split payments.
 	 *
@@ -164,7 +164,7 @@ abstract class Product {
 	public function get_access_ends_timing(): string {
 		return $this->product->get_meta( '_subscrpt_access_ends_timing' ) ?: 'after_full_duration';
 	}
-	
+
 	/**
 	 * Get custom access duration time.
 	 *
@@ -173,7 +173,7 @@ abstract class Product {
 	public function get_custom_access_duration_time(): int {
 		return (int) ( $this->product->get_meta( '_subscrpt_custom_access_duration_time' ) ?: 1 );
 	}
-	
+
 	/**
 	 * Get custom access duration type.
 	 *
@@ -182,7 +182,7 @@ abstract class Product {
 	public function get_custom_access_duration_type(): string {
 		return $this->product->get_meta( '_subscrpt_custom_access_duration_type' ) ?: 'months';
 	}
-	
+
 	/**
 	 * Check if product has custom access duration.
 	 *

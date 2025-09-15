@@ -1,0 +1,11 @@
+# Ignore dependencies
+node_modules/
+vendor/
+
+# Ignore build outputs
+dist/
+build/
+*.min.js
+*.min.css
+*.bundle.js
+*.bundle.css

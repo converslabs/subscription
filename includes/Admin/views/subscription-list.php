@@ -60,8 +60,8 @@ for ( $i = 0; $i < 12; $i++ ) {
 				<input type="submit" name="bulk_action" value="<?php esc_attr_e( 'Apply', 'wp_subscription' ); ?>" class="button action">
 				<?php if ( $status === 'trash' && ! empty( $subscriptions ) ) : ?>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=clean_trash&sub_id=all' ) ); ?>" 
-					   class="button button-link-delete" 
-					   onclick="return confirm('<?php esc_attr_e( 'Are you sure you want to permanently delete all items in trash? This action cannot be undone.', 'wp_subscription' ); ?>')">
+						class="button button-link-delete" 
+						onclick="return confirm('<?php esc_attr_e( 'Are you sure you want to permanently delete all items in trash? This action cannot be undone.', 'wp_subscription' ); ?>')">
 						<?php esc_html_e( 'Empty Trash', 'wp_subscription' ); ?>
 					</a>
 				<?php endif; ?>
@@ -118,7 +118,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=trash&sub_id=' . $subscription->ID ) ); ?>" onclick="return confirm('<?php esc_attr_e( 'Move this subscription to trash?', 'wp_subscription' ); ?>')">Trash</a>
 								<?php else : ?>
 									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=restore&sub_id=' . $subscription->ID ) ); ?>">Restore</a>
-									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=delete&sub_id=' . $subscription->ID ) ) ?>" onclick="return confirm('<?php esc_attr_e( 'Delete this subscription permanently? This action cannot be undone.', 'wp_subscription' ); ?>')" style="color:#d93025;">Delete Permanently</a>
+									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=delete&sub_id=' . $subscription->ID ) ); ?>" onclick="return confirm('<?php esc_attr_e( 'Delete this subscription permanently? This action cannot be undone.', 'wp_subscription' ); ?>')" style="color:#d93025;">Delete Permanently</a>
 								<?php endif; ?>
 							</div>
 						</div>

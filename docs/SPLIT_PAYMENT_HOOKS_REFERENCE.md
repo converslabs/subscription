@@ -1,6 +1,7 @@
 # Split Payment Hooks Reference
 
 ## Overview
+
 This document provides a comprehensive reference for the Split Payment feature implementation in WP Subscription Pro. The split payment system allows customers to pay for subscriptions in installments rather than recurring payments.
 
 ## Current Implementation Status
@@ -8,6 +9,7 @@ This document provides a comprehensive reference for the Split Payment feature i
 ### ✅ **COMPLETED FEATURES**
 
 #### 1. Product Page Settings
+
 - **Payment Type Selection**: Choose between 'recurring' and 'split_payment'
 - **Number of Payments**: Set total installments (minimum 2)
 - **Access Ends Timing**: Three options:
@@ -17,11 +19,13 @@ This document provides a comprehensive reference for the Split Payment feature i
 - **Custom Access Duration**: Time and type (days/weeks/months/years) for custom duration
 - **Payment Failure Handling**: Managed globally through WPS Pro Settings (applies to all products)
 
-**Files**: 
+**Files**:
+
 - `includes/Admin/Product/Simple.php` (Simple products)
 - `includes/Admin/Product/Variable.php` (Variable products)
 
 #### 2. Order Page Integration
+
 - **Split Payment Notes**: Orders automatically show split payment information
 - **Payment Progress Tracking**: Shows current payment vs total payments
 - **Order-Subscription Linking**: Proper relationship tracking between orders and subscriptions
@@ -29,6 +33,7 @@ This document provides a comprehensive reference for the Split Payment feature i
 **Files**: `includes/Illuminate/Helper.php`
 
 #### 3. Subscription Admin Page
+
 - **Split Payment Activities**: Complete payment history and status tracking
 - **Payment Progress**: Shows payments made vs total required
 - **Access Control Information**: Displays when access will end based on settings
@@ -38,6 +43,7 @@ This document provides a comprehensive reference for the Split Payment feature i
 **Files**: `includes/Illuminate/SplitPaymentHandler.php`
 
 #### 4. User Subscription Page
+
 - **Payment Progress Display**: Shows "X/Y payments completed"
 - **Payment Type Indicator**: Clearly shows "Split Payment" vs "Recurring"
 - **Remaining Payments**: Displays count of remaining installments
@@ -46,6 +52,7 @@ This document provides a comprehensive reference for the Split Payment feature i
 **Files**: `templates/myaccount/single.php`
 
 #### 5. WPS Settings Page
+
 - **Split Payment Retry Settings**: Global configuration for payment retries
 - **Grace Period Management**: Default grace period settings
 - **Payment Failure Handling**: Comprehensive failure management system
@@ -53,6 +60,7 @@ This document provides a comprehensive reference for the Split Payment feature i
 **Files**: `includes/Admin/Settings.php`
 
 #### 6. Reminder Emails
+
 - **Payment Due Reminders**: Automated emails before next payment
 - **Failure Notifications**: Alerts for failed payments
 - **Completion Notifications**: Emails when split payment plan is completed
@@ -60,19 +68,22 @@ This document provides a comprehensive reference for the Split Payment feature i
 **Files**: `includes/Illuminate/Emails/RenewReminder.php`
 
 #### 6. Email System
+
 - **Payment Due Reminders**: Automated emails before next payment
 - **Payment Failure Notifications**: Professional email templates for failed payments
 - **Delayed Failure Notifications**: Configurable delayed emails to prevent spam
 - **Grace Period Warnings**: Proactive customer communication
 - **Completion Notifications**: Emails when split payment plan is completed
 
-**Files**: 
+**Files**:
+
 - `includes/Illuminate/Emails/RenewReminder.php` (Free)
 - `includes/Illuminate/Emails/PaymentFailure.php` (Pro)
 - `templates/emails/payment-failure-html.php` (Pro)
 - `templates/emails/plains/payment-failure-plain.php` (Pro)
 
 #### 7. Core Split Payment Hooks
+
 - **Payment Completion**: `subscrpt_split_payment_completed`
 - **Payment Failure**: `subscrpt_split_payment_failed`
 - **Arguments Filter**: `subscrpt_split_payment_args`
@@ -85,16 +96,17 @@ This document provides a comprehensive reference for the Split Payment feature i
 ### 🔧 **CORE CLASSES & FUNCTIONS**
 
 #### SplitPaymentHandler Class
+
 ```php
 namespace SpringDevs\SubscriptionPro\Illuminate;
 
 class SplitPaymentHandler {
     // Calculate access end dates
     public static function calculate_access_end_date($subscription_id)
-    
+
     // Handle payment completion
     public static function handle_split_payment_completion($subscription_id, $payments_made, $max_payments)
-    
+
     // Get payment dates
     public static function get_final_payment_date($subscription_id)
     public static function get_first_payment_date($subscription_id)
@@ -102,17 +114,18 @@ class SplitPaymentHandler {
 ```
 
 #### PaymentFailureHandler Class
+
 ```php
 namespace SpringDevs\SubscriptionPro\Illuminate;
 
 class PaymentFailureHandler {
     // Handle payment failures
     public static function handle_payment_failure($subscription_id)
-    
+
     // Manage retries and grace periods
     public static function schedule_payment_retry($subscription_id, $failure_count)
     public static function start_grace_period($subscription_id, $grace_period_days)
-    
+
     // Send notifications
     public static function send_failure_notification($subscription_id, $failure_count, $max_retries)
     public static function send_delayed_failure_notification($subscription_id, $failure_count, $max_retries)
@@ -121,6 +134,7 @@ class PaymentFailureHandler {
 ```
 
 #### Helper Functions
+
 ```php
 // Check if max payments reached
 function subscrpt_is_max_payments_reached($subscription_id)
@@ -138,6 +152,7 @@ function subscrpt_count_payments_made($subscription_id)
 ### 📋 **IMPLEMENTATION DETAILS**
 
 #### Product Meta Fields
+
 - `_subscrpt_payment_type`: 'recurring' or 'split_payment'
 - `_subscrpt_max_no_payment`: Number of total payments
 - `_subscrpt_access_ends_timing`: When access ends
@@ -147,6 +162,7 @@ function subscrpt_count_payments_made($subscription_id)
 - `_subscrpt_payment_grace_period`: Grace period in days
 
 #### Subscription Meta Fields
+
 - `_subscrpt_split_payment_completed_fired`: Prevents duplicate completion actions
 - `_subscrpt_access_end_date`: Calculated access end timestamp
 - `_subscrpt_payment_failure_count`: Current failure count
@@ -154,6 +170,7 @@ function subscrpt_count_payments_made($subscription_id)
 - `_subscrpt_grace_period_warning_sent`: Prevents duplicate grace period warnings
 
 #### Database Tables
+
 - `wp_subscrpt_order_relation`: Links orders to subscriptions
 - `wp_posts`: Subscription posts with custom post type 'subscrpt_order'
 - `wp_comments`: Activity notes and payment history
@@ -161,6 +178,7 @@ function subscrpt_count_payments_made($subscription_id)
 ### 🚀 **AVAILABLE HOOKS FOR DEVELOPERS**
 
 #### Actions (do_action)
+
 ```php
 // Split payment completed
 do_action('subscrpt_split_payment_completed', $subscription_id, $payments_made, $max_payments);
@@ -188,6 +206,7 @@ do_action('subscrpt_grace_period_expired', $subscription_id);
 ```
 
 #### Filters (apply_filters)
+
 ```php
 // Modify split payment arguments
 $args = apply_filters('subscrpt_split_payment_args', $args, $order_item, $product);
@@ -211,6 +230,7 @@ $default_grace_period = apply_filters('subscrpt_default_grace_period_days', $def
 ### 📧 **EMAIL TEMPLATES**
 
 #### Available Email Types
+
 1. **Payment Due Reminders**: Sent before next payment date
 2. **Payment Failure Notifications**: Professional email templates for failed payments
 3. **Delayed Payment Failure Notifications**: Sent after configurable delay to avoid spam
@@ -218,6 +238,7 @@ $default_grace_period = apply_filters('subscrpt_default_grace_period_days', $def
 5. **Completion Notifications**: Inform when split payment plan is finished
 
 #### Email Customization
+
 - **Free Templates**: Located in `templates/emails/` (subscription plugin)
 - **Pro Templates**: Located in `templates/emails/` (subscription-pro plugin)
 - **Customizable**: Subjects, content, and styling
@@ -228,6 +249,7 @@ $default_grace_period = apply_filters('subscrpt_default_grace_period_days', $def
 - **Theme Override**: Templates can be customized in active theme
 
 #### Payment Failure Email Features
+
 - **Professional Design**: WooCommerce-compatible email styling
 - **Dynamic Content**: Shows failure count, remaining attempts, and subscription details
 - **Smart Messaging**: Different content based on failure status
@@ -237,6 +259,7 @@ $default_grace_period = apply_filters('subscrpt_default_grace_period_days', $def
 ### ⚙️ **CONFIGURATION OPTIONS**
 
 #### Global Settings (WPS Pro Settings Page)
+
 - **Default Payment Retries**: 3 attempts (0-10)
 - **Default Grace Period**: 7 days (0-30)
 - **Enable Payment Failure Emails**: Toggle email notifications on/off
@@ -245,12 +268,14 @@ $default_grace_period = apply_filters('subscrpt_default_grace_period_days', $def
 - **Grace Period Warning Days**: 2 days before expiry (1-7 days)
 
 #### Per-Product Settings
+
 - **Payment Type**: Recurring or Split Payment
 - **Installment Count**: 2-∞ payments
 - **Access Timing**: Flexible access control
 - **Failure Handling**: Custom retry and grace settings (overrides global defaults)
 
 #### Email Settings
+
 - **Failure Notification Delay**: Prevents spam during temporary payment issues
 - **Grace Period Warnings**: Proactive customer communication
 - **Configurable Content**: Customizable email templates and messages
@@ -258,6 +283,7 @@ $default_grace_period = apply_filters('subscrpt_default_grace_period_days', $def
 ### 🔍 **DEBUGGING & MONITORING**
 
 #### Debug Logging
+
 - Comprehensive error logging for payment failures
 - Payment progress tracking
 - Access timing calculations
@@ -265,6 +291,7 @@ $default_grace_period = apply_filters('subscrpt_default_grace_period_days', $def
 - Grace period management
 
 #### Admin Notifications
+
 - Payment failure alerts
 - Completion status updates
 - Access suspension notifications
@@ -272,6 +299,7 @@ $default_grace_period = apply_filters('subscrpt_default_grace_period_days', $def
 - Retry attempt logging
 
 #### Customer Communication
+
 - Immediate failure notifications
 - Delayed failure notifications (configurable)
 - Grace period warnings
@@ -280,6 +308,7 @@ $default_grace_period = apply_filters('subscrpt_default_grace_period_days', $def
 ## 🆕 **NEW PAYMENT FAILURE HANDLING FEATURES**
 
 ### Enhanced Settings Integration
+
 The Payment Failure Handling settings are now fully integrated into the WPS Pro Settings page, following the same pattern as the existing API settings. This provides administrators with centralized control over:
 
 1. **Global Defaults**: Set default retry and grace period values for all products
@@ -289,6 +318,7 @@ The Payment Failure Handling settings are now fully integrated into the WPS Pro 
 ## 🆕 **ACCESS TIME SETTINGS EXPLAINED**
 
 ### What Do Access Time Settings Do?
+
 The Access Time Settings control **when customer access ends** for split payment subscriptions. This is crucial for managing customer experience and business revenue:
 
 #### **Three Access Timing Options:**
@@ -309,17 +339,20 @@ The Access Time Settings control **when customer access ends** for split payment
    - **Example**: A 12-month course with 4 payments, but access continues for 6 months after first payment
 
 ### **Why This Matters:**
+
 - **Customer Experience**: Controls how long customers can access your content
 - **Revenue Protection**: Ensures customers pay for the access they receive
 - **Business Flexibility**: Allows different strategies for different products
 - **Access Control**: Prevents customers from getting unlimited access with partial payments
 
 ### **Global vs Per-Product Settings:**
+
 - **Payment Failure Handling**: Now managed globally through WPS Pro Settings (applies to all products)
 - **Access Time Settings**: Still configurable per product for maximum flexibility
 - **Rationale**: Payment failures are business-wide concerns, while access timing is product-specific
 
 ### **Technical Implementation:**
+
 The Access Time Settings are implemented through the `SplitPaymentHandler` class which:
 
 1. **Calculates Access End Dates**: Uses different logic based on the selected timing option
@@ -328,6 +361,7 @@ The Access Time Settings are implemented through the `SplitPaymentHandler` class
 4. **Integrates with Cron**: Automatically expires access when the calculated end date is reached (except for lifetime access)
 
 #### **Key Methods:**
+
 ```php
 // Calculate when access should end
 SplitPaymentHandler::calculate_access_end_date($subscription_id)
@@ -340,12 +374,14 @@ SplitPaymentHandler::should_expire_access($subscription_id)
 ```
 
 ### Smart Email Delivery
+
 - **Configurable Delays**: Prevent spam during temporary payment issues
 - **Grace Period Warnings**: Proactive customer communication
 - **Failure Tracking**: Comprehensive logging of all payment attempts
 - **Customer Support**: Clear communication about next steps
 
 ### Automated Workflow
+
 - **Retry Scheduling**: Exponential backoff for payment retries
 - **Grace Period Management**: Automatic access control during payment issues
 - **Status Tracking**: Real-time subscription status updates
@@ -353,4 +389,4 @@ SplitPaymentHandler::should_expire_access($subscription_id)
 
 ---
 
-*This documentation covers the current implementation as of the latest plugin version. For updates and new features, refer to the plugin changelog and development notes.*
+_This documentation covers the current implementation as of the latest plugin version. For updates and new features, refer to the plugin changelog and development notes._
