@@ -1,58 +1,58 @@
 {
-	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
-	"landingPage": "/wp-admin/plugins.php",
-	"preferredVersions": {
-		"php": "8.0",
-		"wp": "latest"
-	},
-	"phpExtensionBundles": [ "kitchen-sink" ],
-	"features": {
-		"networking": true
-	},
-	"steps": [
-		{
-			"step": "installPlugin",
-			"pluginZipFile": {
-				"resource": "wordpress.org/plugins",
-				"slug": "woocommerce"
-			},
-			"options": {
-				"activate": true
-			}
-		},
-		{
-			"step": "installPlugin",
-			"pluginZipFile": {
-				"resource": "url",
-				"url": "https://downloads.wordpress.org/plugin/subscription.1.1.1.zip"
-			},
-			"options": {
-				"activate": true
-			}
-		},
-		{
-			"step": "importWxr",
-			"file": {
-				"resource": "url",
-				"url": "https://raw.githubusercontent.com/springdevs/subscription/next/site-content.xml"
-			}
-		},
-		{
-			"step": "wp-cli",
-			"command": "wp option patch insert woocommerce_onboarding_profile skipped 1"
-		},
-		{
-			"step": "wp-cli",
-			"command": "wp option patch insert woocommerce_currency BDT"
-		},
-		{
-			"step": "wp-cli",
-			"command": "wp option patch insert woocommerce_default_country BD:BD-13"
-		},
-		{
-			"step": "login",
-			"username": "admin",
-			"password": "password"
-		}
-	]
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "landingPage": "/wp-admin/plugins.php",
+  "preferredVersions": {
+    "php": "8.0",
+    "wp": "latest"
+  },
+  "phpExtensionBundles": ["kitchen-sink"],
+  "features": {
+    "networking": true
+  },
+  "steps": [
+    {
+      "step": "installPlugin",
+      "pluginZipFile": {
+        "resource": "wordpress.org/plugins",
+        "slug": "woocommerce"
+      },
+      "options": {
+        "activate": true
+      }
+    },
+    {
+      "step": "installPlugin",
+      "pluginZipFile": {
+        "resource": "url",
+        "url": "https://downloads.wordpress.org/plugin/subscription.1.1.1.zip"
+      },
+      "options": {
+        "activate": true
+      }
+    },
+    {
+      "step": "importWxr",
+      "file": {
+        "resource": "url",
+        "url": "https://raw.githubusercontent.com/springdevs/subscription/next/site-content.xml"
+      }
+    },
+    {
+      "step": "wp-cli",
+      "command": "wp option patch insert woocommerce_onboarding_profile skipped 1"
+    },
+    {
+      "step": "wp-cli",
+      "command": "wp option patch insert woocommerce_currency BDT"
+    },
+    {
+      "step": "wp-cli",
+      "command": "wp option patch insert woocommerce_default_country BD:BD-13"
+    },
+    {
+      "step": "login",
+      "username": "admin",
+      "password": "password"
+    }
+  ]
 }

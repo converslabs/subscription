@@ -11,7 +11,7 @@ const createLabel = (title, iconUrl) => {
       src: iconUrl,
       alt: title,
       style: { float: "right" },
-    })
+    }),
   );
 };
 const Content = () => {

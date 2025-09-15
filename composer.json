@@ -1,42 +1,42 @@
 {
-	"name": "converswp/subscription",
-	"description": "WooCommerce Subscription Management Plugin",
-	"type": "wordpress-plugin",
-	"license": "GPL-2.0-or-later",
-	"authors": [
-		{
-			"name": "Convers Labs",
-			"email": "contact@converslabs.com",
-			"homepage": "https://wpsubscription.co"
-		}
-	],
-	"minimum-stability": "dev",
-	"require-dev": {
-		"wp-coding-standards/wpcs": "dev-develop",
-		"phpcompatibility/phpcompatibility-wp": "dev-master",
-		"phpstan/phpstan": "1.12.x-dev",
-		"szepeviktor/phpstan-wordpress": "dev-master",
-		"php-stubs/woocommerce-stubs": "dev-master",
-		"symfony/var-dumper": "7.2.x-dev",
-		"squizlabs/php_codesniffer": "^3.0@dev"
-	},
-	"scripts": {
-		"lint:php": "./vendor/bin/phpcs -p --colors --extensions=php .",
-		"format:php": "./vendor/bin/phpcbf -p --colors --extensions=php .",
-		"auto-lint:php": "./vendor/bin/phpcs -p --colors --extensions=php",
-		"auto-format:php": "./vendor/bin/phpcbf -p --colors --extensions=php"
-	},
-	"autoload": {
-		"psr-4": {
-			"SpringDevs\\Subscription\\": "includes/"
-		},
-		"files": [
-			"includes/functions.php"
-		]
-	},
-	"config": {
-		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
-		}
-	}
+  "name": "converswp/subscription",
+  "description": "WooCommerce Subscription Management Plugin",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Convers Labs",
+      "email": "contact@converslabs.com",
+      "homepage": "https://wpsubscription.co"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require-dev": {
+    "wp-coding-standards/wpcs": "dev-develop",
+    "phpcompatibility/phpcompatibility-wp": "dev-master",
+    "phpstan/phpstan": "1.12.x-dev",
+    "szepeviktor/phpstan-wordpress": "dev-master",
+    "php-stubs/woocommerce-stubs": "dev-master",
+    "symfony/var-dumper": "7.2.x-dev",
+    "squizlabs/php_codesniffer": "^3.0@dev"
+  },
+  "scripts": {
+    "lint:php": "./vendor/bin/phpcs -p --colors --extensions=php .",
+    "format:php": "./vendor/bin/phpcbf -p --colors --extensions=php .",
+    "auto-lint:php": "./vendor/bin/phpcs -p --colors --extensions=php",
+    "auto-format:php": "./vendor/bin/phpcbf -p --colors --extensions=php"
+  },
+  "autoload": {
+    "psr-4": {
+      "SpringDevs\\Subscription\\": "includes/"
+    },
+    "files": [
+      "includes/functions.php"
+    ]
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  }
 }
