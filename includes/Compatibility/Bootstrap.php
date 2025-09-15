@@ -82,6 +82,7 @@ class Bootstrap {
 		$this->load_compatibility_classes();
 		$this->register_functions();
 		$this->setup_class_aliases();
+		$this->init_subscription_creator();
 		
 		$this->is_active = true;
 		
@@ -166,6 +167,9 @@ class Bootstrap {
 		require_once $compatibility_path . 'Utils/CompatibilityChecker.php';
 		require_once $compatibility_path . 'Utils/Logger.php';
 		
+		// Subscription Creator
+		require_once $compatibility_path . 'SubscriptionCreator.php';
+		
 		// Test files (only in debug mode)
 		if ( defined( 'WP_SUBSCRIPTION_COMPATIBILITY_DEBUG' ) && WP_SUBSCRIPTION_COMPATIBILITY_DEBUG ) {
 			require_once $compatibility_path . 'test-compatibility.php';
@@ -198,6 +202,16 @@ class Bootstrap {
 		class_alias( 'SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Order', 'WC_Subscriptions_Order' );
 		class_alias( 'SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Cart', 'WC_Subscriptions_Cart' );
 		class_alias( 'SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Change_Payment_Gateway', 'WC_Subscriptions_Change_Payment_Gateway' );
+	}
+
+	/**
+	 * Initialize subscription creator
+	 *
+	 * @return void
+	 */
+	private function init_subscription_creator() {
+		// Initialize subscription creator
+		SubscriptionCreator::get_instance();
 	}
 
 	/**
