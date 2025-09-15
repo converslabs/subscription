@@ -13,16 +13,18 @@
 	"minimum-stability": "dev",
 	"require-dev": {
 		"wp-coding-standards/wpcs": "dev-develop",
-		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"phpcompatibility/phpcompatibility-wp": "dev-master",
 		"phpstan/phpstan": "1.12.x-dev",
 		"szepeviktor/phpstan-wordpress": "dev-master",
 		"php-stubs/woocommerce-stubs": "dev-master",
-		"symfony/var-dumper": "7.2.x-dev"
+		"symfony/var-dumper": "7.2.x-dev",
+		"squizlabs/php_codesniffer": "^3.0@dev"
 	},
 	"scripts": {
-		"phpcs": "phpcs -p . --standard=PHPCompatibilityWP --ignore=vendor/*",
-		"phpstan": "phpstan analyse --debug --memory-limit=2048M"
+		"lint:php": "./vendor/bin/phpcs -p --colors --extensions=php .",
+		"format:php": "./vendor/bin/phpcbf -p --colors --extensions=php .",
+		"auto-lint:php": "./vendor/bin/phpcs -p --colors --extensions=php",
+		"auto-format:php": "./vendor/bin/phpcbf -p --colors --extensions=php"
 	},
 	"autoload": {
 		"psr-4": {
