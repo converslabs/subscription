@@ -99,7 +99,7 @@ class AutoRenewal {
 			error_log( "WPS: Maximum payment limit reached for subscription #{$subscription_id}. Auto-renewal cancelled." );
 			return;
 		}
-		
+
 		if ( subscrpt_is_auto_renew_enabled() ) {
 			Helper::create_renewal_order( $subscription_id );
 		}

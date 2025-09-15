@@ -37,11 +37,11 @@ class Cron {
 					'compare' => '<=',
 				),
 				array(
-					'key'   => '_subscrpt_trial',
+					'key'     => '_subscrpt_trial',
 					'compare' => 'NOT EXISTS',
 				),
-                array(
-					'key'   => '_subscrpt_reminder_mail_sent',
+				array(
+					'key'     => '_subscrpt_reminder_mail_sent',
 					'compare' => 'NOT EXISTS',
 				),
 			),
@@ -49,14 +49,14 @@ class Cron {
 
 		$subscriptions = get_posts( $args );
 
-        if ( 0 === count($subscriptions) ) {
-            return;
-        }
+		if ( 0 === count( $subscriptions ) ) {
+			return;
+		}
 
-        WC()->mailer();
-        foreach ( $subscriptions as $subscription_id ) {
-            do_action( 'subscrpt_renew_reminder_email_notification', $subscription_id );
-        }
+		WC()->mailer();
+		foreach ( $subscriptions as $subscription_id ) {
+			do_action( 'subscrpt_renew_reminder_email_notification', $subscription_id );
+		}
 	}
 
 	/**

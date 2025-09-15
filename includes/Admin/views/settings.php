@@ -1,5 +1,7 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 ?>
 <div class="woocommerce">
 	<h1 class="wp-heading-inline"><?php esc_html_e( 'Subscription Settings', 'wp_subscription' ); ?></h1>
@@ -99,7 +101,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 						</td>
 					</tr>
 					<?php do_action( 'wp_subscription_setting_fields' ); ?>
-					<?php if ( ! class_exists('Sdevs_Wc_Subscription_Pro') ) : ?>
+					<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
 						<!-- PRO Features (subtle, grayed out) -->
 						<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
 							<th scope="row">
@@ -115,7 +117,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 								<label><?php esc_html_e( 'Delivery Schedule', 'wp_subscription' ); ?></label>
 							</th>
 							<td>
-								<select disabled><option><?php esc_html_e('Available in PRO', 'wp_subscription'); ?></option></select>
+								<select disabled><option><?php esc_html_e( 'Available in PRO', 'wp_subscription' ); ?></option></select>
 								<p class="description">Custom delivery intervals for subscriptions <span style="color:#2196f3;font-weight:600;">PRO</span></p>
 							</td>
 						</tr>

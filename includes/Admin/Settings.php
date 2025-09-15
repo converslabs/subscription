@@ -24,11 +24,11 @@ class Settings {
 	 * @return void
 	 */
 	public function admin_menu() {
-		add_submenu_page( 
-			'edit.php?post_type=subscrpt_order', 
+		add_submenu_page(
+			'edit.php?post_type=subscrpt_order',
 			__( 'WP Subscription Settings', 'wp_subscription' ),
-			__( 'Settings', 'wp_subscription' ), 
-			'manage_options', 
+			__( 'Settings', 'wp_subscription' ),
+			'manage_options',
 			'wp_subscription_settings',
 			array( $this, 'settings_content' ),
 			40
@@ -39,51 +39,51 @@ class Settings {
 	 * Register settings options.
 	 **/
 	public function register_settings() {
-		register_setting( 
-			'wp_subscription_settings', 
+		register_setting(
+			'wp_subscription_settings',
 			'wp_subscription_renewal_process',
 			array(
-				'type' => 'string',
+				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
-		register_setting( 
-			'wp_subscription_settings', 
+		register_setting(
+			'wp_subscription_settings',
 			'wp_subscription_manual_renew_cart_notice',
 			array(
-				'type' => 'string',
+				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_textarea_field',
 			)
 		);
-		register_setting( 
-			'wp_subscription_settings', 
+		register_setting(
+			'wp_subscription_settings',
 			'wp_subscription_active_role',
 			array(
-				'type' => 'string',
+				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
-		register_setting( 
-			'wp_subscription_settings', 
+		register_setting(
+			'wp_subscription_settings',
 			'wp_subscription_unactive_role',
 			array(
-				'type' => 'string',
+				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
-		register_setting( 
-			'wp_subscription_settings', 
+		register_setting(
+			'wp_subscription_settings',
 			'wp_subscription_stripe_auto_renew',
 			array(
-				'type' => 'string',
+				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
-		register_setting( 
-			'wp_subscription_settings', 
+		register_setting(
+			'wp_subscription_settings',
 			'wp_subscription_auto_renewal_toggle',
 			array(
-				'type' => 'string',
+				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);

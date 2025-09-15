@@ -68,10 +68,10 @@ class Order {
 			}
 			$next_date = sdevs_wp_strtotime( $recurr_timing, time() );
 		}
-		
+
 		// Allow filtering of next due date logic
 		$next_date = apply_filters( 'subscrpt_split_payment_next_due_date', $next_date, $subscription_id, $recurr_timing, $subscription_history->type );
-		
+
 		update_post_meta( $subscription_id, '_subscrpt_next_date', $next_date );
 	}
 
@@ -245,18 +245,18 @@ class Order {
 		}
 
 		// Get payment progress information
-		$max_payments = function_exists( 'subscrpt_get_max_payments' ) ? subscrpt_get_max_payments( $subscription_id ) : 0;
-		$payments_made = function_exists( 'subscrpt_count_payments_made' ) ? subscrpt_count_payments_made( $subscription_id ) : 0;
+		$max_payments       = function_exists( 'subscrpt_get_max_payments' ) ? subscrpt_get_max_payments( $subscription_id ) : 0;
+		$payments_made      = function_exists( 'subscrpt_count_payments_made' ) ? subscrpt_count_payments_made( $subscription_id ) : 0;
 		$remaining_payments = function_exists( 'subscrpt_get_remaining_payments' ) ? subscrpt_get_remaining_payments( $subscription_id ) : 0;
 
 		// Determine payment number for this order
 		$payment_number = $payments_made;
-		$order_total = $order->get_total();
+		$order_total    = $order->get_total();
 		$order_currency = $order->get_currency();
 
 		// Create enhanced activity note
 		$comment_content = '';
-		$activity_type = '';
+		$activity_type   = '';
 
 		if ( 'new' === $history_type ) {
 			$comment_content = sprintf(
@@ -320,7 +320,7 @@ class Order {
 			return;
 		}
 
-		$percentage = round( ( $payments_made / $max_payments ) * 100 );
+		$percentage    = round( ( $payments_made / $max_payments ) * 100 );
 		$milestone_key = '_subscrpt_milestone_' . $percentage . '_logged';
 
 		// Check if this milestone has already been logged
@@ -329,7 +329,7 @@ class Order {
 		}
 
 		$milestone_note = '';
-		$activity_type = '';
+		$activity_type  = '';
 
 		switch ( $percentage ) {
 			case 25:

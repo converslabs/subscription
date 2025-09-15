@@ -17,8 +17,8 @@ class Action {
 	 * @param bool   $write_comment Write comment?.
 	 */
 	public static function status( string $status, int $subscription_id, bool $write_comment = true ) {
-		$old_status = get_post_status($subscription_id);
-		
+		$old_status = get_post_status( $subscription_id );
+
 		wp_update_post(
 			array(
 				'ID'          => $subscription_id,
@@ -33,11 +33,11 @@ class Action {
 		self::user( $subscription_id );
 
 		// Trigger status change action
-		do_action('subscrpt_subscription_status_changed', $subscription_id, $old_status, $status);
+		do_action( 'subscrpt_subscription_status_changed', $subscription_id, $old_status, $status );
 
 		// Trigger resumption event if subscription is being activated from cancelled or pending cancellation
-		if ($status === 'active' && in_array($old_status, array('cancelled', 'pe_cancelled'))) {
-			do_action('subscrpt_subscription_resumed', $subscription_id, $old_status);
+		if ( $status === 'active' && in_array( $old_status, array( 'cancelled', 'pe_cancelled' ) ) ) {
+			do_action( 'subscrpt_subscription_resumed', $subscription_id, $old_status );
 		}
 	}
 
@@ -141,7 +141,7 @@ class Action {
 		WC()->mailer();
 		do_action( 'subscrpt_subscription_cancelled_email_notification', $subscription_id );
 		do_action( 'subscrpt_subscription_cancelled', $subscription_id );
-		
+
 		// Fire split payment cancelled action
 		do_action( 'subscrpt_split_payment_cancelled', $subscription_id );
 	}
@@ -172,30 +172,30 @@ class Action {
 	private static function user( $subscription_id ) {
 		// Get the subscription owner's user ID
 		$user_id = get_post_field( 'post_author', (int) $subscription_id );
-		
+
 		if ( ! $user_id ) {
 			return;
 		}
 
 		$user = new \WP_User( $user_id );
-		
+
 		// Don't change roles for administrators
 		if ( ! empty( $user->roles ) && is_array( $user->roles ) && in_array( 'administrator', $user->roles, true ) ) {
 			return;
 		}
 
 		$current_status = get_post_status( (int) $subscription_id );
-		
+
 		// Get role settings from options with legacy support
 		$active_role = get_option( 'wp_subscription_active_role' );
 		if ( false === $active_role ) {
 			// Legacy fallback
 			$active_role = get_option( 'subscrpt_active_role', 'subscriber' );
 			if ( false !== $active_role ) {
-				_doing_it_wrong( 
-					'Action::user()', 
-					'The option "subscrpt_active_role" is deprecated. Use "wp_subscription_active_role" instead.', 
-					'1.5.3' 
+				_doing_it_wrong(
+					'Action::user()',
+					'The option "subscrpt_active_role" is deprecated. Use "wp_subscription_active_role" instead.',
+					'1.5.3'
 				);
 			} else {
 				$active_role = 'subscriber';
@@ -207,10 +207,10 @@ class Action {
 			// Legacy fallback
 			$inactive_role = get_option( 'subscrpt_unactive_role', 'customer' );
 			if ( false !== $inactive_role ) {
-				_doing_it_wrong( 
-					'Action::user()', 
-					'The option "subscrpt_unactive_role" is deprecated. Use "wp_subscription_unactive_role" instead.', 
-					'1.5.3' 
+				_doing_it_wrong(
+					'Action::user()',
+					'The option "subscrpt_unactive_role" is deprecated. Use "wp_subscription_unactive_role" instead.',
+					'1.5.3'
 				);
 			} else {
 				$inactive_role = 'customer';

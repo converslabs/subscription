@@ -233,7 +233,7 @@ class Cart {
 						'type'        => array( 'string' ),
 						'readonly'    => true,
 					),
-					'max_no_payment'   => array(
+					'max_no_payment'  => array(
 						'description' => __( 'Maximum Total Payments', 'wp_subscription' ),
 						'type'        => array( 'number' ),
 						'readonly'    => true,
@@ -287,32 +287,32 @@ class Cart {
 	 */
 	public function extend_cart_item_schema() {
 		return array(
-			'time'       => array(
+			'time'           => array(
 				'description' => __( 'time of the subscription type.', 'wp_subscription' ),
 				'type'        => array( 'number', 'null' ),
 				'readonly'    => true,
 			),
-			'type'       => array(
+			'type'           => array(
 				'description' => __( 'the subscription type.', 'wp_subscription' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
-			'trial'      => array(
+			'trial'          => array(
 				'description' => __( 'the subscription trial.', 'wp_subscription' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
-			'signup_fee' => array(
+			'signup_fee'     => array(
 				'description' => __( 'Signup Fee amount.', 'wp_subscription' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
-			'cost'       => array(
+			'cost'           => array(
 				'description' => __( 'Recurring amount.', 'wp_subscription' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
-			'max_no_payment'   => array(
+			'max_no_payment' => array(
 				'description' => __( 'Maximum Total Payments', 'wp_subscription' ),
 				'type'        => array( 'number' ),
 				'readonly'    => true,
@@ -329,14 +329,14 @@ class Cart {
 	 */
 	public function extend_cart_item_data( $cart_item ) {
 		$item_data = array(
-			'time'       => null,
-			'type'       => null,
-			'trial'      => null,
-			'signup_fee' => null,
-			'cost'       => null,
-			'max_no_payment'   => null,
+			'time'           => null,
+			'type'           => null,
+			'trial'          => null,
+			'signup_fee'     => null,
+			'cost'           => null,
+			'max_no_payment' => null,
 		);
-		
+
 		if ( isset( $cart_item['subscription'] ) ) {
 			$item_data = $cart_item['subscription'];
 			unset( $item_data['per_cost'] );
@@ -371,9 +371,9 @@ class Cart {
 			if ( $product->has_trial() ) {
 				$subscription_data['trial'] = $product->get_trial();
 			}
-			$subscription_data['signup_fee'] = null;
-			$subscription_data['per_cost']   = $product->get_price();
-			$cart_item_data['subscription']  = apply_filters( 'subscrpt_block_simple_cart_item_data', $subscription_data, $product, $cart_item_data );
+			$subscription_data['signup_fee']                  = null;
+			$subscription_data['per_cost']                    = $product->get_price();
+			$cart_item_data['subscription']                   = apply_filters( 'subscrpt_block_simple_cart_item_data', $subscription_data, $product, $cart_item_data );
 			$cart_item_data['subscription']['max_no_payment'] = $product->get_meta( '_subscrpt_max_no_payment' );
 		endif;
 
@@ -436,9 +436,10 @@ class Cart {
 							<span>x <?php echo esc_html( $recurr['max_no_payment'] ); ?></span>
 						<?php endif; ?>
 						<br />
-						<small><?php 
+						<small>
+						<?php
 						$billing_text = $recurr['trial_status'] ? 'First billing on' : 'Next billing on';
-						esc_html_e( $billing_text, 'wp_subscription' ); 
+						esc_html_e( $billing_text, 'wp_subscription' );
 						?>
 							: <?php echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] ); ?></small>
 						<?php if ( 'yes' === $recurr['can_user_cancel'] ) : ?>
@@ -474,7 +475,7 @@ class Cart {
 				wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'wp_subscription' ), 'error' );
 				return $cart_item_data; // Don't add renew status
 			}
-			
+
 			$cart_item_data['renew_subscrpt'] = true;
 		}
 
