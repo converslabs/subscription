@@ -164,6 +164,11 @@ class Bootstrap {
 		// Utils
 		require_once $compatibility_path . 'Utils/CompatibilityChecker.php';
 		require_once $compatibility_path . 'Utils/Logger.php';
+		
+		// Test file (only in debug mode)
+		if ( defined( 'WP_SUBSCRIPTION_COMPATIBILITY_DEBUG' ) && WP_SUBSCRIPTION_COMPATIBILITY_DEBUG ) {
+			require_once $compatibility_path . 'test-compatibility.php';
+		}
 	}
 
 	/**
@@ -259,7 +264,7 @@ class Bootstrap {
 	 */
 	public function init_woocommerce_compatibility() {
 		// Initialize WooCommerce specific compatibility features
-		Hooks\HookManager::get_instance()->init_woocommerce_hooks();
+		// HookManager will handle WooCommerce hooks automatically
 	}
 
 	/**
@@ -279,7 +284,7 @@ class Bootstrap {
 	 */
 	public function init_admin_compatibility() {
 		// Initialize admin specific compatibility features
-		Hooks\HookManager::get_instance()->init_admin_hooks();
+		// HookManager will handle admin hooks automatically
 	}
 
 	/**

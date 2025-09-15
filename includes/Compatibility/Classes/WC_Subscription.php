@@ -98,8 +98,8 @@ class WC_Subscription extends \WC_Order {
 		// Initialize parent with mapped ID
 		parent::__construct( $this->wp_subscription_id );
 		
-		// Set order type
-		$this->set_order_type( 'shop_subscription' );
+		// Set order type via meta data
+		$this->update_meta_data( '_order_type', 'shop_subscription' );
 	}
 
 	/**
@@ -166,10 +166,11 @@ class WC_Subscription extends \WC_Order {
 	/**
 	 * Get subscription status
 	 *
+	 * @param string $context Context
 	 * @return string
 	 */
-	public function get_status() {
-		$status = parent::get_status();
+	public function get_status( $context = 'view' ) {
+		$status = parent::get_status( $context );
 		
 		// Map WooCommerce Subscriptions statuses to WPSubscription statuses
 		$status_map = array(
@@ -189,8 +190,9 @@ class WC_Subscription extends \WC_Order {
 	 *
 	 * @param string $new_status New status
 	 * @param string $note Optional note
+	 * @param bool $manual Manual update
 	 */
-	public function update_status( $new_status, $note = '' ) {
+	public function update_status( $new_status, $note = '', $manual = false ) {
 		// Map WPSubscription statuses to WooCommerce Subscriptions statuses
 		$status_map = array(
 			'pending'        => 'wc-pending',
@@ -203,7 +205,7 @@ class WC_Subscription extends \WC_Order {
 
 		$wc_status = isset( $status_map[ $new_status ] ) ? $status_map[ $new_status ] : $new_status;
 		
-		parent::update_status( $wc_status, $note );
+		parent::update_status( $wc_status, $note, $manual );
 	}
 
 	/**
@@ -311,27 +313,29 @@ class WC_Subscription extends \WC_Order {
 	/**
 	 * Get payment method
 	 *
+	 * @param string $context Context
 	 * @return string
 	 */
-	public function get_payment_method() {
+	public function get_payment_method( $context = 'view' ) {
 		return $this->get_meta( '_payment_method', true );
 	}
 
 	/**
 	 * Set payment method
 	 *
-	 * @param string $method Payment method
+	 * @param string $payment_method Payment method
 	 */
-	public function set_payment_method( $method ) {
-		$this->update_meta_data( '_payment_method', $method );
+	public function set_payment_method( $payment_method = '' ) {
+		$this->update_meta_data( '_payment_method', $payment_method );
 	}
 
 	/**
 	 * Get payment method title
 	 *
+	 * @param string $context Context
 	 * @return string
 	 */
-	public function get_payment_method_title() {
+	public function get_payment_method_title( $context = 'view' ) {
 		return $this->get_meta( '_payment_method_title', true );
 	}
 

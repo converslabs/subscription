@@ -49,9 +49,10 @@ class SubscriptionDataStore extends \WC_Order_Data_Store_CPT {
 	/**
 	 * Get order type
 	 *
+	 * @param \WC_Order $order Order object
 	 * @return string
 	 */
-	public function get_order_type() {
+	public function get_order_type( $order ) {
 		return 'shop_subscription';
 	}
 
@@ -65,14 +66,14 @@ class SubscriptionDataStore extends \WC_Order_Data_Store_CPT {
 		parent::read( $subscription );
 		
 		// Read subscription-specific data
-		$subscription->set_billing_period( $this->get_meta( $subscription->get_id(), '_billing_period', true ) ?: 'month' );
-		$subscription->set_billing_interval( (int) $this->get_meta( $subscription->get_id(), '_billing_interval', true ) ?: 1 );
-		$subscription->set_suspension_count( (int) $this->get_meta( $subscription->get_id(), '_suspension_count', true ) ?: 0 );
-		$subscription->set_requires_manual_renewal( 'true' === $this->get_meta( $subscription->get_id(), '_requires_manual_renewal', true ) );
-		$subscription->set_cancelled_email_sent( 'true' === $this->get_meta( $subscription->get_id(), '_cancelled_email_sent', true ) );
-		$subscription->set_trial_period( $this->get_meta( $subscription->get_id(), '_trial_period', true ) ?: '' );
-		$subscription->set_switch_data( $this->get_meta( $subscription->get_id(), '_switch_data', true ) ?: array() );
-		$subscription->set_payment_count( (int) $this->get_meta( $subscription->get_id(), '_payment_count', true ) ?: 0 );
+		$subscription->set_billing_period( $subscription->get_meta( '_billing_period', true ) ?: 'month' );
+		$subscription->set_billing_interval( (int) $subscription->get_meta( '_billing_interval', true ) ?: 1 );
+		$subscription->set_suspension_count( (int) $subscription->get_meta( '_suspension_count', true ) ?: 0 );
+		$subscription->set_requires_manual_renewal( 'true' === $subscription->get_meta( '_requires_manual_renewal', true ) );
+		$subscription->set_cancelled_email_sent( 'true' === $subscription->get_meta( '_cancelled_email_sent', true ) );
+		$subscription->set_trial_period( $subscription->get_meta( '_trial_period', true ) ?: '' );
+		$subscription->set_switch_data( $subscription->get_meta( '_switch_data', true ) ?: array() );
+		$subscription->set_payment_count( (int) $subscription->get_meta( '_payment_count', true ) ?: 0 );
 	}
 
 	/**
@@ -85,14 +86,14 @@ class SubscriptionDataStore extends \WC_Order_Data_Store_CPT {
 		parent::update( $subscription );
 		
 		// Save subscription-specific data
-		$this->update_meta( $subscription->get_id(), '_billing_period', $subscription->get_billing_period() );
-		$this->update_meta( $subscription->get_id(), '_billing_interval', $subscription->get_billing_interval() );
-		$this->update_meta( $subscription->get_id(), '_suspension_count', $subscription->get_suspension_count() );
-		$this->update_meta( $subscription->get_id(), '_requires_manual_renewal', $subscription->get_requires_manual_renewal() ? 'true' : 'false' );
-		$this->update_meta( $subscription->get_id(), '_cancelled_email_sent', $subscription->get_cancelled_email_sent() ? 'true' : 'false' );
-		$this->update_meta( $subscription->get_id(), '_trial_period', $subscription->get_trial_period() );
-		$this->update_meta( $subscription->get_id(), '_switch_data', $subscription->get_switch_data() );
-		$this->update_meta( $subscription->get_id(), '_payment_count', $subscription->get_payment_count() );
+		$subscription->update_meta_data( '_billing_period', $subscription->get_billing_period() );
+		$subscription->update_meta_data( '_billing_interval', $subscription->get_billing_interval() );
+		$subscription->update_meta_data( '_suspension_count', $subscription->get_suspension_count() );
+		$subscription->update_meta_data( '_requires_manual_renewal', $subscription->get_requires_manual_renewal() ? 'true' : 'false' );
+		$subscription->update_meta_data( '_cancelled_email_sent', $subscription->get_cancelled_email_sent() ? 'true' : 'false' );
+		$subscription->update_meta_data( '_trial_period', $subscription->get_trial_period() );
+		$subscription->update_meta_data( '_switch_data', $subscription->get_switch_data() );
+		$subscription->update_meta_data( '_payment_count', $subscription->get_payment_count() );
 	}
 
 	/**

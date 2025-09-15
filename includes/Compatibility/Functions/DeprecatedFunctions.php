@@ -46,42 +46,42 @@ class DeprecatedFunctions {
 	 */
 	private static function register_deprecated_subscription_functions() {
 		if ( ! function_exists( 'WC_Subscriptions_Manager' ) ) {
-			/**
-			 * Get WC_Subscriptions_Manager instance
-			 *
-			 * @deprecated Use WC_Subscriptions_Manager::get_instance() instead
-			 * @return WC_Subscriptions_Manager
-			 */
-			function WC_Subscriptions_Manager() {
-				wc_deprecated_function( __FUNCTION__, '2.0', 'WC_Subscriptions_Manager::get_instance()' );
-				return \SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Manager::get_instance();
-			}
+	/**
+	 * Get WC_Subscriptions_Manager instance
+	 *
+	 * @deprecated Use WC_Subscriptions_Manager::get_instance() instead
+	 * @return \SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Manager
+	 */
+	function WC_Subscriptions_Manager() {
+		wc_deprecated_function( __FUNCTION__, '2.0', 'WC_Subscriptions_Manager::get_instance()' );
+		return \SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Manager::get_instance();
+	}
 		}
 
 		if ( ! function_exists( 'WC_Subscriptions_Product' ) ) {
-			/**
-			 * Get WC_Subscriptions_Product instance
-			 *
-			 * @deprecated Use WC_Subscriptions_Product::get_instance() instead
-			 * @return WC_Subscriptions_Product
-			 */
-			function WC_Subscriptions_Product() {
-				wc_deprecated_function( __FUNCTION__, '2.0', 'WC_Subscriptions_Product::get_instance()' );
-				return \SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Product::get_instance();
-			}
+	/**
+	 * Get WC_Subscriptions_Product instance
+	 *
+	 * @deprecated Use WC_Subscriptions_Product::get_instance() instead
+	 * @return \SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Product
+	 */
+	function WC_Subscriptions_Product() {
+		wc_deprecated_function( __FUNCTION__, '2.0', 'WC_Subscriptions_Product::get_instance()' );
+		return \SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Product::get_instance();
+	}
 		}
 
 		if ( ! function_exists( 'WC_Subscriptions_Order' ) ) {
-			/**
-			 * Get WC_Subscriptions_Order instance
-			 *
-			 * @deprecated Use WC_Subscriptions_Order::get_instance() instead
-			 * @return WC_Subscriptions_Order
-			 */
-			function WC_Subscriptions_Order() {
-				wc_deprecated_function( __FUNCTION__, '2.0', 'WC_Subscriptions_Order::get_instance()' );
-				return \SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Order::get_instance();
-			}
+	/**
+	 * Get WC_Subscriptions_Order instance
+	 *
+	 * @deprecated Use WC_Subscriptions_Order::get_instance() instead
+	 * @return \SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Order
+	 */
+	function WC_Subscriptions_Order() {
+		wc_deprecated_function( __FUNCTION__, '2.0', 'WC_Subscriptions_Order::get_instance()' );
+		return \SpringDevs\Subscription\Compatibility\Classes\WC_Subscriptions_Order::get_instance();
+	}
 		}
 	}
 
@@ -92,32 +92,38 @@ class DeprecatedFunctions {
 	 */
 	private static function register_deprecated_order_functions() {
 		if ( ! function_exists( 'wcs_get_subscription_from_order' ) ) {
-			/**
-			 * Get subscription from order
-			 *
-			 * @deprecated Use wcs_get_subscription_by_order() instead
-			 * @param int $order_id Order ID
-			 * @return WC_Subscription|false
-			 */
-			function wcs_get_subscription_from_order( $order_id ) {
-				wc_deprecated_function( __FUNCTION__, '2.0', 'wcs_get_subscription_by_order()' );
-				return wcs_get_subscription_by_order( $order_id );
-			}
+	/**
+	 * Get subscription from order
+	 *
+	 * @deprecated Use wcs_get_subscription_by_order() instead
+	 * @param int $order_id Order ID
+	 * @return \WC_Subscription|false
+	 */
+	function wcs_get_subscription_from_order( $order_id ) {
+		wc_deprecated_function( __FUNCTION__, '2.0', 'wcs_get_subscription_by_order()' );
+		if ( function_exists( 'wcs_get_subscription_by_order' ) ) {
+			return wcs_get_subscription_by_order( $order_id );
+		}
+		return false;
+	}
 		}
 
 		if ( ! function_exists( 'wcs_get_subscription_id_from_order' ) ) {
-			/**
-			 * Get subscription ID from order
-			 *
-			 * @deprecated Use wcs_get_subscription_by_order() instead
-			 * @param int $order_id Order ID
-			 * @return int|false
-			 */
-			function wcs_get_subscription_id_from_order( $order_id ) {
-				wc_deprecated_function( __FUNCTION__, '2.0', 'wcs_get_subscription_by_order()' );
-				$subscription = wcs_get_subscription_by_order( $order_id );
-				return $subscription ? $subscription->get_id() : false;
-			}
+	/**
+	 * Get subscription ID from order
+	 *
+	 * @deprecated Use wcs_get_subscription_by_order() instead
+	 * @param int $order_id Order ID
+	 * @return int|false
+	 */
+	function wcs_get_subscription_id_from_order( $order_id ) {
+		wc_deprecated_function( __FUNCTION__, '2.0', 'wcs_get_subscription_by_order()' );
+		if ( function_exists( 'wcs_get_subscription_by_order' ) ) {
+			$subscription = wcs_get_subscription_by_order( $order_id );
+			return $subscription ? $subscription->get_id() : false;
+		}
+		return false;
+	}
 		}
 	}
 

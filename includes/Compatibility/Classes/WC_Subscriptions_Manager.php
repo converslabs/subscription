@@ -124,7 +124,8 @@ class WC_Subscriptions_Manager {
 		}
 
 		foreach ( $order->get_items() as $item ) {
-			if ( wcs_is_subscription_product( $item->get_product() ) ) {
+			$product = $item->get_product();
+			if ( $product && function_exists( 'wcs_is_subscription_product' ) && wcs_is_subscription_product( $product ) ) {
 				// Handle subscription order status change
 				do_action( 'wp_subscription_order_status_changed', $order, $old_status, $new_status );
 				break;
@@ -142,7 +143,8 @@ class WC_Subscriptions_Manager {
 		// Check if order contains subscription products
 		$has_subscription = false;
 		foreach ( $order->get_items() as $item ) {
-			if ( wcs_is_subscription_product( $item->get_product() ) ) {
+			$product = $item->get_product();
+			if ( $product && function_exists( 'wcs_is_subscription_product' ) && wcs_is_subscription_product( $product ) ) {
 				$has_subscription = true;
 				break;
 			}
@@ -254,7 +256,7 @@ class WC_Subscriptions_Manager {
 			
 			// Check if subscription contains the product
 			foreach ( $subscription->get_items() as $item ) {
-				if ( $item->get_product_id() === $product_id ) {
+				if ( method_exists( $item, 'get_product_id' ) && $item->get_product_id() === $product_id ) {
 					$subscription_objects[] = $subscription;
 					break;
 				}

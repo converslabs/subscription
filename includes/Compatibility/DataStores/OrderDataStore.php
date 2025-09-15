@@ -37,9 +37,10 @@ class OrderDataStore extends \WC_Order_Data_Store_CPT {
 	/**
 	 * Get order type
 	 *
+	 * @param \WC_Order $order Order object
 	 * @return string
 	 */
-	public function get_order_type() {
+	public function get_order_type( $order ) {
 		return 'shop_order';
 	}
 
