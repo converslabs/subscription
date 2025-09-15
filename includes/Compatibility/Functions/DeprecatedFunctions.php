@@ -139,7 +139,7 @@ class DeprecatedFunctions {
 			 *
 			 * @deprecated Use wc_get_product() instead
 			 * @param int $product_id Product ID
-			 * @return WC_Product|false
+			 * @return \WC_Product|false
 			 */
 			function wcs_get_subscription_product( $product_id ) {
 				wc_deprecated_function( __FUNCTION__, '2.0', 'wc_get_product()' );
@@ -147,18 +147,8 @@ class DeprecatedFunctions {
 			}
 		}
 
-		if ( ! function_exists( 'wcs_get_subscription_products' ) ) {
-			/**
-			 * Get subscription products
-			 *
-			 * @deprecated Use wcs_get_subscription_products() instead
-			 * @return array
-			 */
-			function wcs_get_subscription_products() {
-				wc_deprecated_function( __FUNCTION__, '2.0', 'wcs_get_subscription_products()' );
-				return wcs_get_subscription_products();
-			}
-		}
+		// wcs_get_subscription_products() is already declared in CoreFunctions.php
+		// No need to redeclare it here
 	}
 
 	/**
@@ -167,34 +157,7 @@ class DeprecatedFunctions {
 	 * @return void
 	 */
 	private static function register_deprecated_user_functions() {
-		if ( ! function_exists( 'wcs_get_user_subscriptions' ) ) {
-			/**
-			 * Get user subscriptions
-			 *
-			 * @deprecated Use wcs_get_users_subscriptions() instead
-			 * @param int $user_id User ID
-			 * @return array
-			 */
-			function wcs_get_user_subscriptions( $user_id ) {
-				wc_deprecated_function( __FUNCTION__, '2.0', 'wcs_get_users_subscriptions()' );
-				return wcs_get_users_subscriptions( $user_id );
-			}
-		}
-
-		if ( ! function_exists( 'wcs_user_has_subscription' ) ) {
-			/**
-			 * Check if user has subscription
-			 *
-			 * @deprecated Use wcs_user_has_subscription() instead
-			 * @param int $user_id User ID
-			 * @param int $product_id Product ID
-			 * @param string $status Subscription status
-			 * @return bool
-			 */
-			function wcs_user_has_subscription( $user_id, $product_id = '', $status = 'any' ) {
-				wc_deprecated_function( __FUNCTION__, '2.0', 'wcs_user_has_subscription()' );
-				return wcs_user_has_subscription( $user_id, $product_id, $status );
-			}
-		}
+		// wcs_get_user_subscriptions() and wcs_user_has_subscription() are already declared in CoreFunctions.php
+		// No need to redeclare them here
 	}
 }
