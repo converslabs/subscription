@@ -14,7 +14,8 @@
     "packages-update": "wp-scripts packages-update",
     "plugin-zip": "wp-scripts plugin-zip",
     "start": "wp-scripts start",
-    "commit": "node ./node_modules/cz-customizable/standalone.js"
+    "commit": "node ./node_modules/cz-customizable/standalone.js",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@woocommerce/dependency-extraction-webpack-plugin": "^3.0.1",
@@ -31,5 +32,14 @@
       "version": "latest",
       "onFail": "error"
     }
+  },
+  "lint-staged": {
+    "*.php": [
+      "sh -c 'composer auto-lint:php -- \"$@\" || true' --",
+      "sh -c 'composer auto-format:php -- \"$@\" || true' --"
+    ],
+    "*.{js,ts,jsx,tsx,css,scss,json,md,html}": [
+      "prettier --write"
+    ]
   }
 }
