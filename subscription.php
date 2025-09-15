@@ -131,6 +131,7 @@ final class Sdevs_Subscription {
 	public function init_plugin() {
 		$this->includes();
 		$this->init_hooks();
+		$this->init_compatibility();
 	}
 
 	/**
@@ -247,6 +248,16 @@ final class Sdevs_Subscription {
 	public function localization_setup() {
 		// WordPress automatically loads translations for plugins hosted on WordPress.org
 		// No manual loading required since WordPress 4.6
+	}
+
+	/**
+	 * Initialize compatibility layer
+	 *
+	 * @return void
+	 */
+	private function init_compatibility() {
+		// Initialize WooCommerce Subscriptions compatibility
+		\SpringDevs\Subscription\Compatibility\Bootstrap::get_instance();
 	}
 
 	/**
