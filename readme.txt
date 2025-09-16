@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71
 Tags: woocommerce-subscriptions, subscriptions, subscriptions-billing, recurring-payments, woocommerce-extensions
 Requires at least: 6.0
 Tested up to: 6.8
-Stable tag: 1.5.7
+Stable tag: 1.5.8
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -228,129 +228,134 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 
 == Changelog ==
 
+= 1.5.8 - Sep 16, 2025 =
+-   fix: Removed unused codes and hooks.
+-   new: Added language base file.
+
 = 1.5.7 - Aug 24, 2025 =
-* fix: PayPal data conflict for Live and SandBox modes.
+-   fix: PayPal data conflict for Live and SandBox modes.  
 
 = 1.5.6 - Aug 18, 2025 =
-* fix: 🐛 PayPal update order by webhook
-* fix: 🐛 Some subscription query dependency
-* Improved: ✨ Core plugin to support more hooks and events
+-   fix: PayPal update order by webhook  
+-   fix: Some subscription query dependency  
+-   improved: Core plugin to support more hooks and events  
 
 = 1.5.5 - Jul 22, 2025 =
-* fix: 🐛 Subscription history in descending order view.
-* fix: 🐛 Changed view subs button to text
-* feat: ✨ Add subscription switch info on order - Feature support core.
-* fix: 🐛 Fixed Subscription menu duplication bug
+-   fix: Subscription history in descending order view.  
+-   fix: Changed view subs button to text  
+-   new: Add subscription switch info on order - Feature support core.  
+-   fix: Fixed Subscription menu duplication bug  
 
 = 1.5.4 - Jul 17, 2025 =
-- **Improved**: Enhanced settings page with better user interface and organization
-- **Improved**: Fixed user role conflicts between subscription customers and administrators
-- **Fix**: User roles now properly change based on subscription status (active/inactive)
-- **Fix**: Corrected role assignment system to work with subscription status changes
+-   improved: Enhanced settings page with better user interface and organization  
+-   improved: Fixed user role conflicts between subscription customers and administrators  
+-   fix: User roles now properly change based on subscription status (active/inactive)  
+-   fix: Corrected role assignment system to work with subscription status changes  
 
 = 1.5.3 - Jul 16, 2025 =
-- **Improved**: PayPal Integration Improvements.
-- **Fix**: Subscription Initialization & Compatibility.
-- **Fix**: Fetal error - legacy method names support.
+-   improved: PayPal Integration Improvements.  
+-   fix: Subscription Initialization & Compatibility.  
+-   fix: Fetal error - legacy method names support.  
 
 = 1.5.2 - Jul 09, 2025 =
-- **Fix**: Security vulnerabilities - Added proper sanitization to all register_setting() calls
-- **Fix**: Nonce verification sanitization - Added wp_unslash() and sanitize_text_field() 
-- **Fix**: JSON decode sanitization - Sanitized data before json_decode() in PayPal webhook
-- **Fix**: Direct file access prevention - Added ABSPATH checks to all template files
-- **Fix**: Internationalization issues - Fixed variable usage in translation functions
-- **Fix**: Unescaped translation functions - Replaced _e() with esc_html_e() and esc_attr_e()
-- **Fix**: Removed discouraged load_plugin_textdomain() function
-- **Fix**: Unordered placeholders in translatable strings - Used ordered placeholders
-- **Fix**: Plugin headers - Added missing "Requires at least" and "Requires PHP" headers
-- **Fix**: Plugin readme - Shortened description to under 150 characters
-- **Fix**: Naming conventions - Updated generic function names to use wps_subscription_ prefix
-- **Update**: WordPress.org compliance - All Plugin Check issues resolved
-- **Update**: Improved code quality and security standards
+-   fix: Security vulnerabilities - Added proper sanitization to all register_setting() calls  
+-   fix: Nonce verification sanitization - Added wp_unslash() and sanitize_text_field()  
+-   fix: JSON decode sanitization - Sanitized data before json_decode() in PayPal webhook  
+-   fix: Direct file access prevention - Added ABSPATH checks to all template files  
+-   fix: Internationalization issues - Fixed variable usage in translation functions  
+-   fix: Unescaped translation functions - Replaced _e() with esc_html_e() and esc_attr_e()  
+-   fix: Removed discouraged load_plugin_textdomain() function  
+-   fix: Unordered placeholders in translatable strings - Used ordered placeholders  
+-   fix: Plugin headers - Added missing "Requires at least" and "Requires PHP" headers  
+-   fix: Plugin readme - Shortened description to under 150 characters  
+-   fix: Naming conventions - Updated generic function names to use wps_subscription_ prefix  
+-   update: WordPress.org compliance - All Plugin Check issues resolved  
+-   update: Improved code quality and security standards  
 
 = 1.5.1 - Jul 08, 2025 =
-- **Fix**: Naming conversions fixed
+-   fix: Naming conversions fixed  
 
 = 1.5.0 - Jun 03, 2025 =
-- **New**: API and Authentication.
-- **New**: Stripe auto renewal.
-- **New**: Paypal auto renewal support.
-- **New**: New actions and Hooks for subscriptions.
-- **Fix**: Language strings 
+-   new: API and Authentication.  
+-   new: Stripe auto renewal.  
+-   new: Paypal auto renewal support.  
+-   new: New actions and Hooks for subscriptions.  
+-   fix: Language strings  
 
 = 1.4.3 - Jun 03, 2025 =
-- **Fix**: Plugin description and Documentation link update
+-   fix: Plugin description and Documentation link update  
 
 = 1.4.2 - May 20, 2025 =
-- **Doc**: Plugin description and Documentation link update
+-   doc: Plugin description and Documentation link update  
 
 = 1.4.1 - May 13, 2025 =
-- **Fix**: Table style.
-- **Fix**: Doc links and details.
+-   fix: Table style.  
+-   fix: Doc links and details.  
 
 = 1.4.0 - May 20, 2025 =
-- **New**: New Admin interface
-- **New**: Improved user experience
+-   new: New Admin interface  
+-   new: Improved user experience  
 
-= 1.3.2 - April 24, 2025 =
-- **Fix**: Astra theme support added.
+= 1.3.2 - Apr 24, 2025 =
+-   fix: Astra theme support added.  
 
-= 1.3.1 - April 21, 2025 =
-- **Fix**: Add to cart button in product page was not showing certain themes are is used.
+= 1.3.1 - Apr 21, 2025 =
+-   fix: Add to cart button in product page was not showing certain themes are is used.  
 
-= 1.3 =
-- **New**: Stripe renewal added.
-- **New**: Trial feature added.
-- **New**: Subscription limit added.
-- **Fix**: Cancel by customer.
-- **Update**: Improve user experience and bug fixing!
+= 1.3.0 - Apr 20, 2025 =
+-   new: Stripe renewal added.  
+-   new: Trial feature added.  
+-   new: Subscription limit added.  
+-   fix: Cancel by customer.  
+-   update: Improve user experience and bug fixing!  
 
-= 1.2.1 =
-- **Fix**: pagination bug on `subscriptions` template.
-- **Fix**: Variable product exists on cart when pro plugin is deactivated!
-- **Fix**: Display '1' inside cart-price after recurring type.
-- **Update**: Improve order's **Related Subscriptions** description and status.
+= 1.2.1 - Aug 11, 2024 =
+-   fix: Pagination bug on `subscriptions` template.  
+-   fix: Variable product exists on cart when pro plugin is deactivated!  
+-   fix: Display '1' inside cart-price after recurring type.  
+-   update: Improve order's Related Subscriptions description and status.  
 
-= 1.2 =
-- **New**: Block pages support added.
-- **Update**: Rebuild the plugin for better long term support.
+= 1.2.0 - Aug 11, 2024 =
+-   new: Block pages support added.  
+-   update: Rebuild the plugin for better long term support.  
 
-= 1.1.4 =
-- **Update:** Subscription status will be `pending` when order status is `processing`.
-- **New**: `subscript_order_status_to_post_status` hook added to filter post status during order status changed event.
+= 1.1.4 - May 19, 2024 =
+-   update: Subscription status will be `pending` when order status is `processing`.  
+-   new: `subscript_order_status_to_post_status` hook added to filter post status during order status changed event.  
 
-= 1.1.3 =
-- **New**: Subscription storeAPI checkout support added.
+= 1.1.3 - May 19, 2024 =
+-   new: Subscription storeAPI checkout support added.  
 
-= 1.1.2 = 
-- **Fix:** Handle order deletion.
-- **Update:** WP timezone setting support added.
-- **New:** Compatible with pro version.
+= 1.1.2 - May 09, 2024 =
+-   fix: Handle order deletion.  
+-   update: WP timezone setting support added.  
+-   new: Compatible with pro version.  
 
-= 1.1.1 =
-- **Fix:** Displaying `/1{type}` inside product details.
+= 1.1.1 - May 09, 2024 =
+-   fix: Displaying `/1{type}` inside product details.  
 
-= 1.1 =
-- **Update:** We rebuild our plugin from scratch to provide better & long terms supports
-- **Fix:** Severals UI & compatibility issues
+= 1.1 - Jun 18, 2023 =
+-   update: We rebuild our plugin from scratch to provide better & long terms supports  
+-   fix: Severals UI & compatibility issues  
 
-= 1.0.4 =
-- **New:** Display color based subscription status
-- **New:** Add required plugin installer
-- **Fix:** Subscription customer box overflow issue
-- Plugin action links added
+= 1.0.4 - Oct 11, 2022 =
+-   new: Display color based subscription status  
+-   new: Add required plugin installer  
+-   fix: Subscription customer box overflow issue  
+-   update: Plugin action links added  
 
-= 1.0.3 =
-- **Update:** Code clean-up
-- **Fix:** Some minor issues
+= 1.0.3 - Apr 13, 2022 =
+-   update: Code clean-up  
+-   fix: Some minor issues  
 
-= 1.0.2 =
-- **Update:** Change plugin name
-- **Update:** Did some Code refactoring
-- **Fix:** WPCodingStandard related issues using `phpcbf`
+= 1.0.2 - Apr 12, 2022 =
+-   update: Change plugin name  
+-   update: Did some Code refactoring  
+-   fix: WPCodingStandard related issues using `phpcbf`  
 
-= 1.0.1 =
-- **Fix:** "total" amount not display in "My Subscription's"
+= 1.0.1 - Feb 28, 2022 =
+-   fix: "total" amount not display in "My Subscription's"  
 
-= 1.0.0 =
-- **New:** Initial release
+= 1.0.0 - Feb 28, 2022 =
+-   new: Initial release  
+
