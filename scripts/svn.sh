@@ -2,8 +2,7 @@
 
 SVN_URL="https://plugins.svn.wordpress.org/subscription/"
 SVN_DIR="svn"
-RELEASE_DIR="../release/subscription"
-
+RELEASE_DIR="./releases/subscription"
 
 # Check if svn folder exists
 if [ ! -d "$SVN_DIR" ]; then
