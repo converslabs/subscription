@@ -43,7 +43,8 @@ class SubscriptionCreator {
 	 * Constructor
 	 */
 	private function __construct() {
-		$this->init();
+		// Wait for functions to be available
+		add_action( 'init', array( $this, 'init' ), 20 );
 	}
 
 	/**
@@ -51,7 +52,12 @@ class SubscriptionCreator {
 	 *
 	 * @return void
 	 */
-	private function init() {
+	public function init() {
+		// Only initialize if functions are available
+		if ( ! function_exists( 'wcs_order_contains_subscription' ) || ! function_exists( 'wcs_is_subscription_product' ) ) {
+			return;
+		}
+
 		// Hook into order processing
 		add_action( 'woocommerce_checkout_order_processed', array( $this, 'maybe_create_subscriptions' ), 10, 1 );
 		add_action( 'woocommerce_order_status_completed', array( $this, 'maybe_create_subscriptions' ), 10, 1 );
@@ -71,7 +77,7 @@ class SubscriptionCreator {
 		}
 
 		// Check if order contains subscription products
-		if ( ! wcs_order_contains_subscription( $order ) ) {
+		if ( ! function_exists( 'wcs_order_contains_subscription' ) || ! wcs_order_contains_subscription( $order ) ) {
 			return;
 		}
 
@@ -90,7 +96,7 @@ class SubscriptionCreator {
 
 		foreach ( $order->get_items() as $item ) {
 			$product = $item->get_product();
-			if ( ! $product || ! wcs_is_subscription_product( $product ) ) {
+			if ( ! $product || ! function_exists( 'wcs_is_subscription_product' ) || ! wcs_is_subscription_product( $product ) ) {
 				continue;
 			}
 
@@ -132,6 +138,9 @@ class SubscriptionCreator {
 		}
 
 		// Create subscription object
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return false;
+		}
 		$subscription = wcs_get_subscription( $subscription_id );
 		if ( ! $subscription ) {
 			return false;
@@ -280,15 +289,19 @@ class SubscriptionCreator {
 	private function set_next_payment_date( $subscription, $trial_length, $trial_period ) {
 		if ( $trial_length > 0 ) {
 			// Has trial period
-			$trial_end = wcs_add_time( $trial_length, $trial_period, $subscription->get_date_created() );
-			$subscription->set_trial_end( $trial_end );
-			$subscription->set_next_payment( $trial_end );
+			if ( function_exists( 'wcs_add_time' ) ) {
+				$trial_end = wcs_add_time( $trial_length, $trial_period, $subscription->get_date_created() );
+				$subscription->set_trial_end( $trial_end );
+				$subscription->set_next_payment( $trial_end );
+			}
 		} else {
 			// No trial period, next payment is based on billing period
 			$billing_interval = $subscription->get_billing_interval();
 			$billing_period = $subscription->get_billing_period();
-			$next_payment = wcs_add_time( $billing_interval, $billing_period, $subscription->get_date_created() );
-			$subscription->set_next_payment( $next_payment );
+			if ( function_exists( 'wcs_add_time' ) ) {
+				$next_payment = wcs_add_time( $billing_interval, $billing_period, $subscription->get_date_created() );
+				$subscription->set_next_payment( $next_payment );
+			}
 		}
 	}
 }

@@ -82,6 +82,7 @@ class Bootstrap {
 		$this->load_compatibility_classes();
 		$this->register_functions();
 		$this->setup_class_aliases();
+		// Initialize subscription creator after functions are registered
 		$this->init_subscription_creator();
 		
 		$this->is_active = true;
@@ -210,8 +211,10 @@ class Bootstrap {
 	 * @return void
 	 */
 	private function init_subscription_creator() {
-		// Initialize subscription creator
-		SubscriptionCreator::get_instance();
+		// Ensure functions are loaded before initializing subscription creator
+		if ( function_exists( 'wcs_order_contains_subscription' ) && function_exists( 'wcs_is_subscription_product' ) ) {
+			SubscriptionCreator::get_instance();
+		}
 	}
 
 	/**
