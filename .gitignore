@@ -3,6 +3,6 @@
 /node_modules
 /.idea
 .phpunit.result.cache
-/release
+/releases
 /svn
 .vscode
