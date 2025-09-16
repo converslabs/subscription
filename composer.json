@@ -17,7 +17,6 @@
     "phpstan/phpstan": "1.12.x-dev",
     "szepeviktor/phpstan-wordpress": "dev-master",
     "php-stubs/woocommerce-stubs": "dev-master",
-    "symfony/var-dumper": "7.2.x-dev",
     "squizlabs/php_codesniffer": "^3.0@dev"
   },
   "scripts": {

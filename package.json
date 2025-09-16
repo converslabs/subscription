@@ -15,7 +15,8 @@
     "plugin-zip": "wp-scripts plugin-zip",
     "start": "wp-scripts start",
     "commit": "node ./node_modules/cz-customizable/standalone.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "scripts/release.sh"
   },
   "devDependencies": {
     "@woocommerce/dependency-extraction-webpack-plugin": "^3.0.1",

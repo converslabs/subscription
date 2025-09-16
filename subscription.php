@@ -3,7 +3,7 @@
  * Plugin Name: WPSubscription - Subscription & Recurring Payment Plugin for WooCommerce
  * Plugin URI: https://wpsubscription.co/
  * Description: WPSubscription allow WooCommerce to enables recurring payments, subscriptions, and auto-renewals for digital and physical products. Supports Stripe, PayPal, Paddle, and more.
- * Version: 1.5.7
+ * Version: #WPSUBS_VERSION
  * Author: ConversWP
  * Author URI: https://wpsubscription.co/
  * Text Domain: wp_subscription
@@ -40,7 +40,7 @@ final class Sdevs_Subscription {
 	 *
 	 * @var string
 	 */
-	const version = '1.5.7';
+	const version = '#WPSUBS_VERSION';
 
 	/**
 	 * Holds various class instances
