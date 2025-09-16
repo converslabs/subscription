@@ -2,7 +2,6 @@
 
 namespace SpringDevs\Subscription\Illuminate;
 
-use SpringDevs\Subscription\Illuminate\Emails\RenewReminder;
 use SpringDevs\Subscription\Illuminate\Emails\StatusChangedAdmin;
 use SpringDevs\Subscription\Illuminate\Emails\SubscriptionCancelled;
 use SpringDevs\Subscription\Illuminate\Emails\SubscriptionExpired;
@@ -48,7 +47,6 @@ class Email {
 		$emails['subscrpt_status_changed_admin_email']   = new StatusChangedAdmin();
 		$emails['subscrpt_subscription_expired_email']   = new SubscriptionExpired();
 		$emails['subscrpt_subscription_cancelled_email'] = new SubscriptionCancelled();
-		$emails['subscrpt_renew_reminder']               = new RenewReminder();
 		return $emails;
 	}
 
