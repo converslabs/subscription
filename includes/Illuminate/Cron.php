@@ -36,10 +36,10 @@ class Cron {
 					'value'   => $time,
 					'compare' => '<=',
 				),
-				array(
-					'key'     => '_subscrpt_trial',
-					'compare' => 'NOT EXISTS',
-				),
+				// array(
+				// 'key'     => '_subscrpt_trial',
+				// 'compare' => 'NOT EXISTS',
+				// ),
 				array(
 					'key'     => '_subscrpt_reminder_mail_sent',
 					'compare' => 'NOT EXISTS',
