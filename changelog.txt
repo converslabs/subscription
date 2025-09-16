@@ -1,5 +1,9 @@
 *** WPSubscription Changelog ***
 
+2025-09-16 - version 1.5.8
+* fix: Removed unused codes and hooks.
+* new: Added language base file.
+
 2025-08-24 - version 1.5.7  
 * fix: PayPal data conflict for Live and SandBox modes.  
 

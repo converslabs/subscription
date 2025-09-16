@@ -20,6 +20,7 @@ build() {
   cp -r ./assets ./releases/$PLUGIN_NAME
   cp -r ./build ./releases/$PLUGIN_NAME
   cp -r ./includes ./releases/$PLUGIN_NAME
+  cp -r ./languages ./releases/$PLUGIN_NAME
   cp -r ./src ./releases/$PLUGIN_NAME
   cp -r ./templates ./releases/$PLUGIN_NAME
   cp -r ./vendor ./releases/$PLUGIN_NAME
