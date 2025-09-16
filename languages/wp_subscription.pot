@@ -1,0 +1,1800 @@
+# Copyright (C) 2025 ConversWP
+# This file is distributed under the same license as the WPSubscription - Subscription & Recurring Payment Plugin for WooCommerce plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: WPSubscription - Subscription & Recurring Payment Plugin for WooCommerce #WPSUBS_VERSION\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/subscription\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-09-16T11:24:46+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wp_subscription\n"
+
+#. Plugin Name of the plugin
+#: subscription.php
+msgid "WPSubscription - Subscription & Recurring Payment Plugin for WooCommerce"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: subscription.php
+msgid "https://wpsubscription.co/"
+msgstr ""
+
+#. Description of the plugin
+#: subscription.php
+msgid "WPSubscription allow WooCommerce to enables recurring payments, subscriptions, and auto-renewals for digital and physical products. Supports Stripe, PayPal, Paddle, and more."
+msgstr ""
+
+#. Author of the plugin
+#: subscription.php
+msgid "ConversWP"
+msgstr ""
+
+#: includes/Admin/Integrations.php:61
+#: includes/Admin/Integrations.php:62
+#: includes/Admin/Integrations.php:79
+msgid "Integrations"
+msgstr ""
+
+#: includes/Admin/Links.php:28
+msgid "Upgrade to premium"
+msgstr ""
+
+#: includes/Admin/Links.php:30
+#: includes/Admin/Menu.php:108
+#: includes/Admin/Menu.php:109
+#: includes/Admin/Menu.php:170
+msgid "Support"
+msgstr ""
+
+#: includes/Admin/Links.php:31
+msgid "Review"
+msgstr ""
+
+#: includes/Admin/Menu.php:66
+#: includes/Admin/Menu.php:67
+#: includes/Admin/Menu.php:118
+#: includes/Admin/Menu.php:119
+msgid "WP Subscription"
+msgstr ""
+
+#: includes/Admin/Menu.php:78
+#: includes/Admin/Menu.php:79
+#: includes/Admin/Menu.php:149
+#: includes/Frontend/MyAccount.php:226
+#: includes/Illuminate/Post.php:58
+#: includes/Illuminate/Post.php:64
+#: includes/Illuminate/Post.php:78
+msgid "Subscriptions"
+msgstr ""
+
+#: includes/Admin/Menu.php:88
+#: includes/Admin/Menu.php:89
+#: includes/Admin/Menu.php:154
+msgid "Reports"
+msgstr ""
+
+#: includes/Admin/Menu.php:98
+#: includes/Admin/Menu.php:99
+#: includes/Admin/Menu.php:159
+#: includes/Admin/Settings.php:30
+msgid "Settings"
+msgstr ""
+
+#: includes/Admin/Menu.php:190
+#: includes/Admin/Subscriptions.php:942
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: includes/Admin/Menu.php:571
+msgid "Security check failed."
+msgstr ""
+
+#: includes/Admin/Menu.php:576
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+#: includes/Admin/Menu.php:584
+msgid "No subscriptions selected."
+msgstr ""
+
+#: includes/Admin/Menu.php:594
+#, php-format
+msgid "Subscription #%d not found."
+msgstr ""
+
+#: includes/Admin/Menu.php:604
+#, php-format
+msgid "Failed to move subscription #%d to trash."
+msgstr ""
+
+#: includes/Admin/Menu.php:612
+#, php-format
+msgid "Failed to restore subscription #%d."
+msgstr ""
+
+#: includes/Admin/Menu.php:620
+#, php-format
+msgid "Failed to delete subscription #%d."
+msgstr ""
+
+#: includes/Admin/Menu.php:625
+#, php-format
+msgid "Unknown action: %s"
+msgstr ""
+
+#: includes/Admin/Menu.php:629
+#, php-format
+msgid "Error processing subscription #%1$d: %2$s"
+msgstr ""
+
+#: includes/Admin/Menu.php:638
+#, php-format
+msgid "%d subscription moved to trash."
+msgid_plural "%d subscriptions moved to trash."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/Menu.php:641
+#, php-format
+msgid "%d subscription restored."
+msgid_plural "%d subscriptions restored."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/Menu.php:644
+#, php-format
+msgid "%d subscription permanently deleted."
+msgid_plural "%d subscriptions permanently deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/Menu.php:650
+msgid "Some errors occurred:"
+msgstr ""
+
+#: includes/Admin/Menu.php:656
+msgid "No subscriptions were processed."
+msgstr ""
+
+#: includes/Admin/Order.php:38
+msgid "Subscription order"
+msgstr ""
+
+#: includes/Admin/Order.php:56
+#: includes/Frontend/Order.php:30
+#: includes/Illuminate/views/subscription-table.php:21
+msgid "Related Subscriptions"
+msgstr ""
+
+#: includes/Admin/Product.php:75
+#: includes/Admin/Product.php:104
+#: includes/Illuminate/Post.php:59
+#: templates/myaccount/subscriptions.php:21
+msgid "Subscription"
+msgstr ""
+
+#: includes/Admin/Product.php:105
+msgid "Enable Subscriptions"
+msgstr ""
+
+#: includes/Admin/Product.php:121
+msgid "Daily"
+msgstr ""
+
+#: includes/Admin/Product.php:122
+msgid "Weekly"
+msgstr ""
+
+#: includes/Admin/Product.php:123
+msgid "Monthly"
+msgstr ""
+
+#: includes/Admin/Product.php:124
+msgid "Yearly"
+msgstr ""
+
+#: includes/Admin/Required.php:53
+msgid "Activate Woocommerce"
+msgstr ""
+
+#: includes/Admin/Required.php:56
+msgid "Install Woocommerce"
+msgstr ""
+
+#: includes/Admin/Settings.php:29
+msgid "WP Subscription Settings"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:112
+msgid "Start Date"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:113
+msgid "Customer"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:114
+msgid "Next Date"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:115
+#: includes/Admin/Subscriptions.php:384
+#: includes/Admin/Subscriptions.php:521
+#: includes/Admin/views/order-history.php:22
+#: includes/Admin/views/related-subscriptions.php:12
+#: includes/Frontend/Order.php:67
+#: templates/myaccount/single.php:50
+#: templates/myaccount/single.php:319
+#: templates/myaccount/subscriptions.php:22
+msgid "Status"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:160
+msgid "Order not found !!"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:171
+msgid "Subscription Action"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:180
+msgid "Customer Details"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:191
+#: templates/myaccount/single.php:312
+msgid "Related Orders"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:200
+msgid "Subscription Activities"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:272
+msgid "Activate Subscription"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:276
+msgid "Pending Subscription"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:280
+msgid "Expire Subscription"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:284
+msgid "Pending Cancel Subscription"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:288
+msgid "Cancel Subscription"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:353
+#: includes/Admin/Subscriptions.php:525
+#: templates/emails/renew-reminder-html.php:31
+#: templates/emails/status-changed-admin-html.php:31
+#: templates/emails/subscription-cancelled-html.php:30
+#: templates/emails/subscription-expired-html.php:34
+#: templates/myaccount/single.php:264
+#: templates/myaccount/subscriptions.php:23
+msgid "Product"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:357
+msgid "Cost"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:361
+#: templates/emails/renew-reminder-html.php:35
+#: templates/emails/status-changed-admin-html.php:35
+#: templates/emails/subscription-cancelled-html.php:34
+#: templates/emails/subscription-expired-html.php:38
+msgid "Qty"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:369
+#: includes/Admin/Subscriptions.php:561
+#: includes/Admin/views/subscription-info.php:109
+#: templates/myaccount/single.php:156
+msgid "Total Payments"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:376
+msgid "Started date"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:380
+msgid "Payment due date"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:388
+msgid "Payment Method"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:392
+#: includes/Admin/Subscriptions.php:536
+msgid "Billing"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:393
+#: includes/Admin/views/subscription-customer.php:25
+msgid "No billing address set."
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:396
+msgid "Shipping"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:397
+#: includes/Admin/views/subscription-customer.php:30
+msgid "No shipping address set."
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:403
+#: includes/Frontend/Order.php:85
+#: includes/Illuminate/views/subscription-table.php:78
+#: templates/myaccount/single.php:55
+msgid "Trial"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:407
+msgid "Trial Period"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:408
+msgid "Trial isn't activated yet! "
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:420
+#: includes/Admin/views/settings.php:67
+msgid "Stripe Auto Renewal"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:503
+#: includes/Admin/Subscriptions.php:506
+msgid "N/A"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:512
+#, php-format
+msgid "Subscription #%d details"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:518
+msgid "General"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:533
+msgid "Subscription Terms"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:549
+msgid "Signup Fee"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:555
+#: includes/Frontend/Cart.php:122
+msgid "Free Trial"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:570
+msgid "Schedule Dates"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:573
+msgid "Started"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:577
+#: templates/myaccount/subscriptions.php:24
+msgid "Next Payment"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:777
+#: includes/Admin/Subscriptions.php:778
+msgid "Overview"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:786
+#: includes/Admin/Subscriptions.php:787
+msgid "All Subscriptions"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:796
+#: includes/Admin/Subscriptions.php:797
+msgid "Go Pro"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:812
+msgid "WP Subscription Overview"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:814
+msgid "WP Subscription is the most seamless and reliable WooCommerce subscription solution for store owners looking to grow recurring revenue. Easily manage recurring payments, automate renewals, and delight your customers with flexible plans."
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:817
+msgid "Documentation"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:818
+msgid "Website"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:827
+msgid "What does Subscriptions for WooCommerce do?"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:829
+msgid "Subscriptions for WooCommerce enables you to create and manage recurring payment products and services with ease. Automate renewals, offer flexible billing schedules, and provide your customers with a seamless subscription experience. Whether you sell digital content, physical goods, or memberships, WP Subscription gives you the tools to grow your recurring revenue."
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:833
+msgid "Highlights"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:890
+msgid "Upgrade to WP Subscription Pro"
+msgstr ""
+
+#: includes/Admin/Subscriptions.php:892
+msgid "Unlock the full power of subscriptions for WooCommerce. Get advanced features, priority support, and more ways to grow your recurring revenue."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:16
+msgid "Payment Gateways"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:19
+msgid "Configure your store's payment gateways for subscription products. Enable, disable, and manage available payment methods that support recurring billing."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:45
+#: includes/Admin/views/subscription-list.php:21
+msgid "Active"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:49
+msgid "Inactive"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:53
+msgid "Not Available"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:70
+msgid "Supports automatic recurring payments."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:79
+msgid "Manual renewals only."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:114
+msgid "About Payment Gateways"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:116
+msgid "For subscription products to work properly, you need to use payment gateways that support recurring payments. Some payment methods only support manual renewals, which requires customers to manually pay for each renewal period."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:119
+msgid "Automatic recurring billing requires a compatible payment gateway"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:120
+msgid "Manual renewal methods work with any payment gateway"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:121
+msgid "Some gateways may require additional configuration for subscriptions"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:128
+msgid "Payment Gateway Documentation"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:130
+msgid "Learn how to set up and configure payment gateways for subscription products."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:133
+msgid "View Documentation"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:137
+msgid "Need Help?"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:139
+msgid "If you're having trouble with a payment gateway, our support team can help."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:142
+msgid "Get Support"
+msgstr ""
+
+#: includes/Admin/views/order-history.php:10
+#: templates/myaccount/single.php:376
+msgid "No related orders found."
+msgstr ""
+
+#: includes/Admin/views/order-history.php:19
+#: templates/myaccount/single.php:46
+#: templates/myaccount/single.php:316
+msgid "Order"
+msgstr ""
+
+#: includes/Admin/views/order-history.php:20
+#: templates/myaccount/single.php:317
+msgid "Type"
+msgstr ""
+
+#: includes/Admin/views/order-history.php:21
+#: templates/myaccount/single.php:318
+msgid "Date"
+msgstr ""
+
+#: includes/Admin/views/order-history.php:23
+#: templates/myaccount/single.php:265
+#: templates/myaccount/single.php:320
+#: templates/myaccount/subscriptions.php:25
+msgid "Total"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:6
+#: includes/Admin/views/settings.php:7
+msgid "Subscription Settings"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:12
+msgid "Users will pay"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:15
+msgid "Set the length of each recurring subscription period to daily, weekly, monthly or annually."
+msgstr ""
+
+#: includes/Admin/views/product-form.php:21
+msgid "\tFree Trial Duration"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:36
+msgid "Let users try the subscription for free before the first payment is collected."
+msgstr ""
+
+#: includes/Admin/views/product-form.php:44
+msgid "Button Text (Custom)"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:47
+msgid "Customize the button label shown on the product or shop page. Default is \"Subscribe\""
+msgstr ""
+
+#: includes/Admin/views/product-form.php:55
+#: includes/Frontend/Cart.php:232
+msgid "Allow User Cancellation?"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:58
+msgid "Yes"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:59
+msgid "No"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:61
+msgid "Allow subscribers to cancel their subscription manually from their account dashboard."
+msgstr ""
+
+#: includes/Admin/views/product-form.php:69
+msgid "Limit subscription"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:71
+msgid "Do not limit"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:72
+msgid "allow only one active subscription"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:73
+msgid "allow only one subscription of any status"
+msgstr ""
+
+#: includes/Admin/views/product-form.php:76
+msgid "Set optional limits for this product subscription."
+msgstr ""
+
+#: includes/Admin/views/related-subscriptions.php:9
+msgid "Started on"
+msgstr ""
+
+#: includes/Admin/views/related-subscriptions.php:10
+#: includes/Admin/views/subscription-info.php:163
+#: includes/Illuminate/Order.php:85
+#: templates/myaccount/single.php:168
+msgid "Recurring"
+msgstr ""
+
+#: includes/Admin/views/related-subscriptions.php:11
+msgid "Expiry date"
+msgstr ""
+
+#: includes/Admin/views/related-subscriptions.php:31
+msgid "free trial"
+msgstr ""
+
+#: includes/Admin/views/required-notice.php:16
+msgid "Thanks for using Subscription for WooCommerce"
+msgstr ""
+
+#: includes/Admin/views/settings.php:18
+msgid "Renewal Process"
+msgstr ""
+
+#: includes/Admin/views/settings.php:23
+msgid "Automatic"
+msgstr ""
+
+#: includes/Admin/views/settings.php:24
+msgid "Manual"
+msgstr ""
+
+#: includes/Admin/views/settings.php:26
+msgid "How renewal process will be done after Subscription Expired."
+msgstr ""
+
+#: includes/Admin/views/settings.php:32
+msgid "Renewal Cart Notice"
+msgstr ""
+
+#: includes/Admin/views/settings.php:37
+msgid "Display Notice when Renewal Subscription product add to cart. Only available for Manual Renewal Process."
+msgstr ""
+
+#: includes/Admin/views/settings.php:43
+msgid "Subscriber Default Role"
+msgstr ""
+
+#: includes/Admin/views/settings.php:50
+msgid "When a subscription is activated, either manually or after a successful purchase, new users will be assigned this role."
+msgstr ""
+
+#: includes/Admin/views/settings.php:56
+msgid "Subscriber Inactive Role"
+msgstr ""
+
+#: includes/Admin/views/settings.php:63
+msgid "If a subscriber's subscription is manually cancelled or expires, they will be assigned this role."
+msgstr ""
+
+#: includes/Admin/views/settings.php:70
+#: includes/Admin/views/settings.php:73
+msgid "Accept Stripe Auto Renewals"
+msgstr ""
+
+#. translators: HTML tags
+#: includes/Admin/views/settings.php:80
+#, php-format
+msgid "%1$s WooCommerce Stripe Payment Gateway %2$s plugin is required!"
+msgstr ""
+
+#: includes/Admin/views/settings.php:91
+#: includes/Admin/views/settings.php:94
+msgid "Auto Renewal Toggle"
+msgstr ""
+
+#: includes/Admin/views/settings.php:97
+msgid "Display the auto renewal toggle"
+msgstr ""
+
+#: includes/Admin/views/settings.php:99
+msgid "Allow customers to turn on and off automatic renewals from their Subscription details page."
+msgstr ""
+
+#: includes/Admin/views/settings.php:108
+msgid "Variable Product Options"
+msgstr ""
+
+#: includes/Admin/views/settings.php:117
+msgid "Delivery Schedule"
+msgstr ""
+
+#: includes/Admin/views/settings.php:120
+msgid "Available in PRO"
+msgstr ""
+
+#: includes/Admin/views/settings.php:126
+msgid "Subscription History"
+msgstr ""
+
+#: includes/Admin/views/settings.php:135
+msgid "More Subscription Durations"
+msgstr ""
+
+#: includes/Admin/views/settings.php:144
+msgid "Sign Up Fee"
+msgstr ""
+
+#: includes/Admin/views/settings.php:153
+msgid "Early Renewal"
+msgstr ""
+
+#: includes/Admin/views/settings.php:162
+msgid "Renewal Price"
+msgstr ""
+
+#: includes/Admin/views/settings.php:172
+msgid "Save changes"
+msgstr ""
+
+#: includes/Admin/views/subscription-customer.php:2
+msgid "Name:"
+msgstr ""
+
+#: includes/Admin/views/subscription-customer.php:13
+msgid "Email:"
+msgstr ""
+
+#: includes/Admin/views/subscription-customer.php:18
+msgid "Phone:"
+msgstr ""
+
+#: includes/Admin/views/subscription-customer.php:24
+msgid "Billing Address:"
+msgstr ""
+
+#: includes/Admin/views/subscription-customer.php:29
+msgid "Shipping Address:"
+msgstr ""
+
+#: includes/Admin/views/subscription-customer.php:34
+msgid "Quick Actions:"
+msgstr ""
+
+#: includes/Admin/views/subscription-customer.php:36
+msgid "View Order"
+msgstr ""
+
+#: includes/Admin/views/subscription-customer.php:39
+msgid "View Frontend"
+msgstr ""
+
+#: includes/Admin/views/subscription-info.php:157
+#: templates/myaccount/single.php:162
+msgid "Payment Type"
+msgstr ""
+
+#: includes/Admin/views/subscription-info.php:161
+#: templates/myaccount/single.php:166
+msgid "Split Payment"
+msgstr ""
+
+#: includes/Admin/views/subscription-info.php:185
+#: templates/myaccount/single.php:197
+msgid "Access Duration"
+msgstr ""
+
+#: includes/Admin/views/subscription-info.php:190
+#: templates/myaccount/single.php:202
+msgid "Lifetime access after completion"
+msgstr ""
+
+#: includes/Admin/views/subscription-info.php:193
+#: includes/Admin/views/subscription-info.php:204
+#: templates/myaccount/single.php:205
+#: templates/myaccount/single.php:216
+msgid "Full subscription duration"
+msgstr ""
+
+#. translators: %1$s: duration time, %2$s: duration type
+#: includes/Admin/views/subscription-info.php:198
+#: templates/myaccount/single.php:210
+#, php-format
+msgid "%1$s %2$s after first payment"
+msgstr ""
+
+#: includes/Admin/views/subscription-info.php:214
+#: templates/myaccount/single.php:226
+msgid "Access Ends On"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:20
+msgid "All Status"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:22
+msgid "Pending"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:23
+msgid "Cancelled"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:24
+msgid "Expired"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:25
+msgid "Draft"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:26
+msgid "Trash"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:29
+msgid "All Dates"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:34
+msgid "Search by subscription ID..."
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:52
+#: includes/Admin/views/subscription-list.php:162
+msgid "Bulk Actions"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:54
+#: includes/Admin/views/subscription-list.php:164
+msgid "Restore"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:55
+#: includes/Admin/views/subscription-list.php:165
+msgid "Delete Permanently"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:57
+#: includes/Admin/views/subscription-list.php:167
+msgid "Move to Trash"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:60
+#: includes/Admin/views/subscription-list.php:170
+msgid "Apply"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:64
+msgid "Are you sure you want to permanently delete all items in trash? This action cannot be undone."
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:65
+msgid "Empty Trash"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:118
+msgid "Move this subscription to trash?"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:121
+msgid "Delete this subscription permanently? This action cannot be undone."
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:144
+msgid "Edit"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:151
+#: includes/Illuminate/Post.php:73
+msgid "No subscriptions found."
+msgstr ""
+
+#: includes/Admin/views/subscription-save-meta.php:10
+msgid "Choose Action"
+msgstr ""
+
+#: includes/Ajax.php:64
+#, php-format
+msgid "Installing Plugin: %s"
+msgstr ""
+
+#: includes/Frontend/ActionController.php:34
+msgid "Sorry !! You cannot permit to access."
+msgstr ""
+
+#: includes/Frontend/ActionController.php:40
+#: includes/Frontend/ActionController.php:70
+#: includes/Frontend/Cart.php:475
+msgid "This subscription has reached its maximum payment limit and cannot be renewed further."
+msgstr ""
+
+#: includes/Frontend/Cart.php:52
+msgid "Currently You have an another Subscriptional product on cart !!"
+msgstr ""
+
+#: includes/Frontend/Cart.php:54
+msgid "Currently You have Subscriptional product in a cart !!"
+msgstr ""
+
+#: includes/Frontend/Cart.php:59
+msgid "Your cart isn't empty !!"
+msgstr ""
+
+#: includes/Frontend/Cart.php:156
+#: includes/Frontend/Cart.php:161
+#: includes/Frontend/Cart.php:166
+msgid "An item which is no longer available was removed from your cart."
+msgstr ""
+
+#: includes/Frontend/Cart.php:207
+msgid "List of recurring totals in cart."
+msgstr ""
+
+#: includes/Frontend/Cart.php:212
+msgid "price of the subscription."
+msgstr ""
+
+#: includes/Frontend/Cart.php:217
+msgid "time of the subscription."
+msgstr ""
+
+#: includes/Frontend/Cart.php:222
+msgid "type of the subscription."
+msgstr ""
+
+#: includes/Frontend/Cart.php:227
+msgid "price of the subscription description."
+msgstr ""
+
+#: includes/Frontend/Cart.php:237
+#: includes/Frontend/Cart.php:316
+msgid "Maximum Total Payments"
+msgstr ""
+
+#: includes/Frontend/Cart.php:291
+msgid "time of the subscription type."
+msgstr ""
+
+#: includes/Frontend/Cart.php:296
+msgid "the subscription type."
+msgstr ""
+
+#: includes/Frontend/Cart.php:301
+msgid "the subscription trial."
+msgstr ""
+
+#: includes/Frontend/Cart.php:306
+msgid "Signup Fee amount."
+msgstr ""
+
+#: includes/Frontend/Cart.php:311
+msgid "Recurring amount."
+msgstr ""
+
+#: includes/Frontend/Cart.php:430
+#: includes/Frontend/Cart.php:431
+#: build/index.js:1
+#: src/index.js:71
+msgid "Recurring totals"
+msgstr ""
+
+#: includes/Frontend/Cart.php:447
+#: build/index.js:1
+#: src/index.js:90
+msgid "You can cancel subscription at any time!"
+msgstr ""
+
+#: includes/Frontend/Cart.php:453
+#: build/index.js:1
+#: src/index.js:97
+msgid "This subscription will be built for"
+msgstr ""
+
+#: includes/Frontend/Cart.php:453
+#: build/index.js:1
+#: src/index.js:98
+msgid "times."
+msgstr ""
+
+#: includes/Frontend/MyAccount.php:73
+msgid "Cancel"
+msgstr ""
+
+#: includes/Frontend/MyAccount.php:82
+msgid "Reactive"
+msgstr ""
+
+#: includes/Frontend/MyAccount.php:92
+#: includes/Frontend/Product.php:249
+#: templates/myaccount/single.php:299
+msgid "Renew"
+msgstr ""
+
+#: includes/Frontend/MyAccount.php:103
+msgid "Pay now"
+msgstr ""
+
+#: includes/Frontend/MyAccount.php:124
+msgid "Turn on Auto Renewal"
+msgstr ""
+
+#: includes/Frontend/MyAccount.php:132
+msgid "Turn off Auto Renewal"
+msgstr ""
+
+#. translators: %s: Subscription ID
+#: includes/Frontend/MyAccount.php:190
+#, php-format
+msgid "Subscription #%s"
+msgstr ""
+
+#: includes/Frontend/MyAccount.php:209
+msgid "My Subscriptions"
+msgstr ""
+
+#: includes/Frontend/Order.php:71
+msgid "Recurring amount"
+msgstr ""
+
+#: includes/Frontend/Order.php:80
+#: includes/Illuminate/views/subscription-table.php:69
+msgid "Next billing on"
+msgstr ""
+
+#: includes/Frontend/Order.php:89
+#: includes/Illuminate/views/subscription-table.php:86
+msgid "First billing on"
+msgstr ""
+
+#: includes/Frontend/Product.php:116
+#: includes/Frontend/Product.php:121
+msgid "You Already Subscribed These Product!"
+msgstr ""
+
+#: includes/functions.php:31
+#: includes/Illuminate/Helper.php:27
+msgid "day"
+msgstr ""
+
+#: includes/functions.php:33
+#: includes/Illuminate/Helper.php:29
+msgid "week"
+msgstr ""
+
+#: includes/functions.php:35
+#: includes/Illuminate/Helper.php:31
+msgid "month"
+msgstr ""
+
+#: includes/functions.php:37
+#: includes/Illuminate/Helper.php:33
+msgid "year"
+msgstr ""
+
+#: includes/functions.php:399
+msgid "New Subscription Order"
+msgstr ""
+
+#: includes/functions.php:400
+#: includes/Illuminate/Helper.php:305
+msgid "Renewal Order"
+msgstr ""
+
+#: includes/functions.php:476
+msgid "Day"
+msgstr ""
+
+#: includes/functions.php:480
+msgid "Week"
+msgstr ""
+
+#: includes/functions.php:484
+msgid "Month"
+msgstr ""
+
+#: includes/functions.php:488
+msgid "Year"
+msgstr ""
+
+#. translators: %1$d: payments made, %2$d: total payments
+#: includes/functions.php:554
+#, php-format
+msgid "🎉 Split payment plan completed successfully! %1$d of %2$d payments received."
+msgstr ""
+
+#: includes/functions.php:568
+msgid "Split Payment - Plan Complete"
+msgstr ""
+
+#. translators: %1$d: payments made, %2$d: total payments, %3$s: completion date
+#: includes/functions.php:573
+#, php-format
+msgid "Payment Summary: %1$d of %2$d installments completed on %3$s. All payments received successfully."
+msgstr ""
+
+#: includes/functions.php:587
+msgid "Payment Summary - Complete"
+msgstr ""
+
+#: includes/Illuminate/AutoRenewal.php:37
+#: includes/Illuminate/AutoRenewal.php:46
+msgid "Subscription early renewal order creation failed due to product deletion !"
+msgstr ""
+
+#: includes/Illuminate/Emails/RenewReminder.php:23
+msgid "Subscription Renewal Reminder"
+msgstr ""
+
+#: includes/Illuminate/Emails/RenewReminder.php:24
+msgid "This email is sent to customer for renewing subscription before expire."
+msgstr ""
+
+#: includes/Illuminate/Emails/RenewReminder.php:42
+msgid "Reminder for the Subscription renewal #{subscription_id}"
+msgstr ""
+
+#: includes/Illuminate/Emails/RenewReminder.php:91
+msgid "Number of days before the next subscription payment."
+msgstr ""
+
+#: includes/Illuminate/Emails/StatusChangedAdmin.php:22
+msgid "Subscription status changed ( Admin )"
+msgstr ""
+
+#: includes/Illuminate/Emails/StatusChangedAdmin.php:23
+msgid "This email is received when a subscription status changed."
+msgstr ""
+
+#: includes/Illuminate/Emails/StatusChangedAdmin.php:44
+msgid "#{subscription_id} subscription status changed"
+msgstr ""
+
+#: includes/Illuminate/Emails/SubscriptionCancelled.php:22
+msgid "Subscription cancelled"
+msgstr ""
+
+#: includes/Illuminate/Emails/SubscriptionCancelled.php:23
+msgid "This email is sent to customer when a subscription canceled."
+msgstr ""
+
+#: includes/Illuminate/Emails/SubscriptionCancelled.php:41
+msgid "#{subscription_id} subscription cancelled!"
+msgstr ""
+
+#: includes/Illuminate/Emails/SubscriptionExpired.php:23
+msgid "Subscription expired"
+msgstr ""
+
+#: includes/Illuminate/Emails/SubscriptionExpired.php:24
+msgid "This email is sent to customer when a subscription expired."
+msgstr ""
+
+#: includes/Illuminate/Emails/SubscriptionExpired.php:42
+msgid "#{subscription_id} subscription expired!"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:62
+msgid "PayPal for WPSubscription"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:63
+msgid "Accept wp subscription recurring payments through PayPal. Only WP Subscription is supported."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:134
+msgid "Enable/Disable"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:136
+msgid "Enable PayPal for WPSubscription"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:138
+msgid "Enable or Disable PayPal for WPSubscription payment gateway"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:143
+msgid "Test Mode"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:145
+msgid "Enable PayPal Sandbox"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:147
+msgid "PayPal sandbox can be used to test payments without using real money."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:153
+msgid "Title"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:155
+msgid "This controls the title which the user sees during checkout."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:156
+#: assets/js/wp_subscription_paypal-block.js:27
+msgid "PayPal"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:160
+msgid "Description"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:162
+msgid "This controls the description which the user sees during checkout."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:163
+msgid "Pay via PayPal; you can pay with your credit card if you do not have a PayPal account."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:169
+msgid "PayPal Credentials"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:175
+msgid "PayPal Sandbox Credentials"
+msgstr ""
+
+#. Translators: %1$s is the link to PayPal developer account, %2$s is the link to My Apps & Credentials.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:186
+#, php-format
+msgid "Create a <a href=\"%1$s\" target=\"_blank\">PayPal developer account</a>, go to <a href=\"%2$s\" target=\"_blank\">My Apps & Credentials</a>, select the toggle ( Sandbox or Live ), create an app, and copy <b>Client ID</b> and <b>Secret</b>."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:192
+msgid "Email"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:194
+msgid "PayPal Email Address (used to receive payments)"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:201
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:227
+msgid "Client ID"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:203
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:229
+msgid "Enter your PayPal Client ID copied from PayPal Apps & Credentials."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:209
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:235
+msgid "Secret"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:211
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:237
+msgid "Enter your PayPal Secret copied from PayPal Apps & Credentials."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:217
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:243
+msgid "Webhook ID"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:219
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:245
+msgid "Enter your Webhook ID copied from PayPal Apps & Credentials for webhook validation."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:252
+msgid "Webhook URL"
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:254
+msgid "<p>In the <strong style=\"color:#1d4ed8\">Apps & Credentials</strong> page of PayPal developer account open the newly created application and click <strong style=\"color:#1d4ed8\">Add Webhook</strong> button.<br> On the <strong>Webhook URL</strong> field use this webhook link"
+msgstr ""
+
+#. Translators: %s is the title of the payment gateway.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:289
+#, php-format
+msgid "<strong>%s</strong> options are disabled. PayPal Standard does not support your store currency."
+msgstr ""
+
+#. Translators: %d is the order ID.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:334
+#, php-format
+msgid "Order %d was already completed. Skipping PayPal check."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:380
+msgid "PayPal payment completed successfully."
+msgstr ""
+
+#. translators: %1$s: alert name; %2$s: order id.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:500
+#, php-format
+msgid "PayPal webhook received [%s]. Order not found."
+msgstr ""
+
+#. translators: %1$s: alert name; %2$s: order id.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:516
+#, php-format
+msgid "PayPal webhook received [%s]. No actions taken."
+msgstr ""
+
+#. translators: %1$s: alert name; %2$s: subscription id.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:807
+#, php-format
+msgid "Transaction webhook received [%1$s]. No order found for subscription ID [%2$s]."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:820
+msgid "Payment completed by paypal webhook."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:825
+msgid "Failed to complete payment. Requested by paypal webhook."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:834
+msgid "Payment refunded by paypal webhook."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:839
+msgid "Failed to refund payment. Requested by paypal webhook."
+msgstr ""
+
+#. translators: %s: alert name.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:849
+#, php-format
+msgid "Transaction webhook received [%s]. No actions taken."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:875
+msgid "Subscription not found. Attempting to get from order item."
+msgstr ""
+
+#. translators: %s: alert name.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:894
+#, php-format
+msgid "Subscription webhook received [%s]. Subscription not found."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:907
+msgid "Subscription activated by PayPal webhook."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:913
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:926
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:939
+msgid "Subscription webhook received. No actions taken."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:920
+msgid "Subscription expired by PayPal webhook."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:933
+msgid "Subscription cancelled by PayPal webhook."
+msgstr ""
+
+#. translators: %s: alert name.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:945
+#, php-format
+msgid "Subscription webhook received [%s]. No actions taken."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1257
+msgid "PayPal Product Creation Error: Product data is incomplete. Name and type are required."
+msgstr ""
+
+#. translators: %1$s: order id, %2$d: payment number, %3$d: total payments
+#: includes/Illuminate/Helper.php:293
+#, php-format
+msgid "Split payment installment %2$d of %3$d. Order %1$s created for subscription."
+msgstr ""
+
+#: includes/Illuminate/Helper.php:298
+msgid "Split Payment - Renewal"
+msgstr ""
+
+#. translators: order id.
+#: includes/Illuminate/Helper.php:302
+#, php-format
+msgid "The order %s has been created for the subscription"
+msgstr ""
+
+#. translators: %1$s: order id, %2$d: max payments
+#: includes/Illuminate/Helper.php:382
+#, php-format
+msgid "Split payment subscription created successfully. Order: %1$s. Total installments: %2$d."
+msgstr ""
+
+#: includes/Illuminate/Helper.php:386
+msgid "Split Payment - New Subscription"
+msgstr ""
+
+#. translators: Order Id.
+#: includes/Illuminate/Helper.php:390
+#, php-format
+msgid "Subscription successfully created. Order is %s"
+msgstr ""
+
+#: includes/Illuminate/Helper.php:393
+#: includes/Illuminate/Post.php:67
+msgid "New Subscription"
+msgstr ""
+
+#: includes/Illuminate/Helper.php:741
+msgid "Subscription renewal isn't possible due to previous order not completed or deletion."
+msgstr ""
+
+#. translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency
+#: includes/Illuminate/Order.php:264
+#, php-format
+msgid "Split payment %1$d of %2$d received (%3$s %4$s). Initial access granted."
+msgstr ""
+
+#: includes/Illuminate/Order.php:270
+msgid "Split Payment - Initial"
+msgstr ""
+
+#. translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency, %5$d: remaining
+#: includes/Illuminate/Order.php:274
+#, php-format
+msgid "Split payment %1$d of %2$d received (%3$s %4$s). %5$d payments remaining."
+msgstr ""
+
+#: includes/Illuminate/Order.php:281
+msgid "Split Payment - Installment"
+msgstr ""
+
+#. translators: %1$d: payment number, %2$d: total payments, %3$d: subscription id
+#: includes/Illuminate/Order.php:299
+#, php-format
+msgid "Split payment %1$d of %2$d received for subscription #%3$d"
+msgstr ""
+
+#. translators: %1$d: payments made, %2$d: total payments
+#: includes/Illuminate/Order.php:338
+#, php-format
+msgid "Payment milestone reached: %1$d of %2$d payments completed (25%%)."
+msgstr ""
+
+#: includes/Illuminate/Order.php:342
+msgid "Payment Milestone - 25%"
+msgstr ""
+
+#. translators: %1$d: payments made, %2$d: total payments
+#: includes/Illuminate/Order.php:348
+#, php-format
+msgid "Payment milestone reached: %1$d of %2$d payments completed (50%%). Halfway there!"
+msgstr ""
+
+#: includes/Illuminate/Order.php:352
+msgid "Payment Milestone - 50%"
+msgstr ""
+
+#. translators: %1$d: payments made, %2$d: total payments
+#: includes/Illuminate/Order.php:358
+#, php-format
+msgid "Payment milestone reached: %1$d of %2$d payments completed (75%%). Almost complete!"
+msgstr ""
+
+#: includes/Illuminate/Order.php:362
+msgid "Payment Milestone - 75%"
+msgstr ""
+
+#. translators: %1$d: payments made, %2$d: total payments
+#: includes/Illuminate/Order.php:368
+#, php-format
+msgid "Payment milestone reached: %1$d of %2$d payments completed (100%%). Split payment plan complete!"
+msgstr ""
+
+#: includes/Illuminate/Order.php:372
+msgid "Payment Milestone - 100%"
+msgstr ""
+
+#: includes/Illuminate/Post.php:27
+#: includes/Illuminate/Post.php:28
+#: includes/Illuminate/Post.php:31
+#: includes/Illuminate/Post.php:74
+msgid "Subscription updated."
+msgstr ""
+
+#: includes/Illuminate/Post.php:33
+msgid "Subscription published."
+msgstr ""
+
+#: includes/Illuminate/Post.php:34
+msgid "Subscription saved."
+msgstr ""
+
+#: includes/Illuminate/Post.php:35
+msgid "Subscription submitted."
+msgstr ""
+
+#: includes/Illuminate/Post.php:37
+msgid "Subscription draft updated."
+msgstr ""
+
+#: includes/Illuminate/Post.php:60
+msgid "Subscription's"
+msgstr ""
+
+#: includes/Illuminate/Post.php:61
+msgid "Item Archives"
+msgstr ""
+
+#: includes/Illuminate/Post.php:62
+msgid "Item Attributes"
+msgstr ""
+
+#: includes/Illuminate/Post.php:63
+msgid "Parent :"
+msgstr ""
+
+#: includes/Illuminate/Post.php:65
+msgid "Add New Subscription"
+msgstr ""
+
+#: includes/Illuminate/Post.php:66
+msgid "Add Subscription"
+msgstr ""
+
+#: includes/Illuminate/Post.php:68
+msgid "Edit Subscription"
+msgstr ""
+
+#: includes/Illuminate/Post.php:69
+msgid "Update Subscription"
+msgstr ""
+
+#: includes/Illuminate/Post.php:70
+#: includes/Illuminate/Post.php:71
+msgid "View Subscription"
+msgstr ""
+
+#: includes/Illuminate/Post.php:72
+msgid "Search Subscription"
+msgstr ""
+
+#: includes/Illuminate/Post.php:116
+msgid "Subscription Items"
+msgstr ""
+
+#: includes/Illuminate/Post.php:158
+msgctxt "post status label"
+msgid "Pending"
+msgstr ""
+
+#. translators: pending posts count.
+#: includes/Illuminate/Post.php:161
+#, php-format
+msgid "Pending <span class=\"count\">(%s)</span>"
+msgid_plural "Pending <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Illuminate/Post.php:174
+msgctxt "post status label"
+msgid "Active"
+msgstr ""
+
+#. translators: active posts count.
+#: includes/Illuminate/Post.php:177
+#, php-format
+msgid "Active <span class=\"count\">(%s)</span>"
+msgid_plural "Active <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Illuminate/Post.php:190
+msgctxt "post status label"
+msgid "On Hold"
+msgstr ""
+
+#. translators: on-hold posts count.
+#: includes/Illuminate/Post.php:193
+#, php-format
+msgid "On Hold <span class=\"count\">(%s)</span>"
+msgid_plural "On Hold <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Illuminate/Post.php:206
+msgctxt "post status label"
+msgid "Cancelled"
+msgstr ""
+
+#. translators: cancelled posts count.
+#: includes/Illuminate/Post.php:209
+#, php-format
+msgid "Cancelled <span class=\"count\">(%s)</span>"
+msgid_plural "Cancelled <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Illuminate/Post.php:222
+msgctxt "post status label"
+msgid "Expired"
+msgstr ""
+
+#. translators: expired posts count.
+#: includes/Illuminate/Post.php:225
+#, php-format
+msgid "Expired <span class=\"count\">(%s)</span>"
+msgid_plural "Expired <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Illuminate/Post.php:238
+msgctxt "post status label"
+msgid "Pending Cancellation"
+msgstr ""
+
+#. translators: pending cancellation posts count.
+#: includes/Illuminate/Post.php:241
+#, php-format
+msgid "Pending Cancellation <span class=\"count\">(%s)</span>"
+msgid_plural "Pending Cancellation <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Illuminate/Stripe.php:56
+msgid "Customer not found"
+msgstr ""
+
+#: includes/Illuminate/views/subscription-table.php:55
+msgid "Status:"
+msgstr ""
+
+#: includes/Illuminate/views/subscription-table.php:62
+msgid "Recurring amount:"
+msgstr ""
+
+#: includes/Traits/Email.php:95
+msgid "Subscription: #{subscription_id}"
+msgstr ""
+
+#. translators: first is older status and last is newly updated status.
+#. translators: Number of days before & day|days.
+#: templates/emails/plains/renew-reminder-plain.php:16
+#: templates/emails/renew-reminder-html.php:20
+#, php-format
+msgid "You have only %1$s %2$s left! Please renew the subscription before expired"
+msgstr ""
+
+#. translators: Subscription id.
+#: templates/emails/plains/renew-reminder-plain.php:23
+#: templates/emails/plains/status-changed-admin-plain.php:25
+#: templates/emails/plains/subscription-cancelled-plain.php:22
+#: templates/emails/plains/subscription-expired-plain.php:22
+#, php-format
+msgid "Subscription Id: %s"
+msgstr ""
+
+#. translators: Product name.
+#: templates/emails/plains/renew-reminder-plain.php:26
+#: templates/emails/plains/status-changed-admin-plain.php:28
+#: templates/emails/plains/subscription-cancelled-plain.php:25
+#: templates/emails/plains/subscription-expired-plain.php:25
+#, php-format
+msgid "Product: %s"
+msgstr ""
+
+#. translators: Subscription quantity.
+#: templates/emails/plains/renew-reminder-plain.php:29
+#: templates/emails/plains/status-changed-admin-plain.php:31
+#: templates/emails/plains/subscription-cancelled-plain.php:28
+#: templates/emails/plains/subscription-expired-plain.php:28
+#, php-format
+msgid "Qty: %s"
+msgstr ""
+
+#. translators: Subscription amount.
+#: templates/emails/plains/renew-reminder-plain.php:32
+#: templates/emails/plains/status-changed-admin-plain.php:34
+#: templates/emails/plains/subscription-cancelled-plain.php:31
+#: templates/emails/plains/subscription-expired-plain.php:31
+#, php-format
+msgid "Amount: %s"
+msgstr ""
+
+#. translators: subscription id.
+#: templates/emails/plains/renew-reminder-plain.php:41
+#: templates/emails/plains/status-changed-admin-plain.php:43
+#: templates/emails/plains/subscription-cancelled-plain.php:40
+#: templates/emails/plains/subscription-expired-plain.php:40
+#: templates/emails/renew-reminder-html.php:51
+#: templates/emails/status-changed-admin-html.php:51
+#: templates/emails/subscription-cancelled-html.php:50
+#: templates/emails/subscription-expired-html.php:54
+#, php-format
+msgid "You can view and edit this subscription in the dashboard here: %s"
+msgstr ""
+
+#. translators: first is older status and last is newly updated status.
+#: templates/emails/plains/status-changed-admin-plain.php:18
+#: templates/emails/status-changed-admin-html.php:16
+#, php-format
+msgid "Subscription status changed from %1$s to %2$s"
+msgstr ""
+
+#. translators: first is older status and last is newly updated status.
+#. translators: <b></b> tag.
+#: templates/emails/plains/subscription-cancelled-plain.php:15
+#: templates/emails/subscription-cancelled-html.php:19
+#, php-format
+msgid "Your subscription is %1$s Cancelled! %2$s"
+msgstr ""
+
+#. translators: first is older status and last is newly updated status.
+#. translators: <b></b> tag.
+#: templates/emails/plains/subscription-expired-plain.php:15
+#: templates/emails/subscription-expired-html.php:23
+#, php-format
+msgid "Your subscription is %1$s Expired! %2$s"
+msgstr ""
+
+#: templates/emails/renew-reminder-html.php:27
+#: templates/emails/status-changed-admin-html.php:27
+#: templates/emails/subscription-cancelled-html.php:26
+#: templates/emails/subscription-expired-html.php:30
+msgid "Subscription Id"
+msgstr ""
+
+#: templates/emails/renew-reminder-html.php:39
+#: templates/emails/status-changed-admin-html.php:39
+#: templates/emails/subscription-cancelled-html.php:38
+#: templates/emails/subscription-expired-html.php:42
+msgid "Amount"
+msgstr ""
+
+#: templates/myaccount/single.php:72
+msgid "Next payment date"
+msgstr ""
+
+#: templates/myaccount/single.php:234
+msgid "Payment"
+msgstr ""
+
+#: templates/myaccount/single.php:242
+msgid "Actions"
+msgstr ""
+
+#: templates/myaccount/single.php:260
+msgid "Subscription Totals"
+msgstr ""
+
+#: templates/myaccount/single.php:293
+msgid "Subtotal"
+msgstr ""
+
+#: templates/myaccount/single.php:386
+msgid "Billing address"
+msgstr ""
+
+#: templates/myaccount/subscriptions.php:72
+msgid "View"
+msgstr ""
+
+#: templates/myaccount/subscriptions.php:84
+msgid "No subscriptions available yet."
+msgstr ""
+
+#: templates/myaccount/subscriptions.php:97
+msgid "Previous"
+msgstr ""
+
+#: templates/myaccount/subscriptions.php:101
+msgid "Next"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:18
+msgid "Due Today"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:45
+msgid "Every"
+msgstr ""
