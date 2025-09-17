@@ -9,7 +9,7 @@ use SpringDevs\Subscription\Illuminate\Cron;
 use SpringDevs\Subscription\Illuminate\Email;
 use SpringDevs\Subscription\Illuminate\Order;
 use SpringDevs\Subscription\Illuminate\Post;
-use SpringDevs\Subscription\Illuminate\Stripe;
+use SpringDevs\Subscription\Illuminate\UniversalPaymentProcessor;
 
 /**
  * Globally Load Scripts.
@@ -29,6 +29,7 @@ class Illuminate {
 		new Checkout();
 		new AutoRenewal();
 		new Email();
+		new UniversalPaymentProcessor();
 	}
 
 	/**
