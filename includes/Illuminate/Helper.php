@@ -503,7 +503,7 @@ class Helper {
 		self::clone_stripe_metadata_for_renewal( $subscription_id, $old_order, $new_order );
 
 		// Store Stripe subscription ID if available
-		if ( $old_order->get_payment_method() === 'stripe' ) {
+		if ( $old_order->get_payment_method() === 'stripe_cc' ) {
 			$stripe_subscription_id = $old_order->get_meta('_stripe_subscription_id');
 			if ( $stripe_subscription_id ) {
 				$new_order->update_meta_data('_stripe_subscription_id', $stripe_subscription_id);
@@ -540,7 +540,7 @@ class Helper {
 			update_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
 		}
 
-		$stripe_enabled = ( 'stripe' === $old_order->get_payment_method() && in_array( $is_auto_renew, array( '1', 1, true ), true ) && subscrpt_is_auto_renew_enabled() && '1' === get_option( 'subscrpt_stripe_auto_renew', '1' ) );
+		$stripe_enabled = ( 'stripe_cc' === $old_order->get_payment_method() && in_array( $is_auto_renew, array( '1', 1, true ), true ) && subscrpt_is_auto_renew_enabled() && '1' === get_option( 'subscrpt_stripe_auto_renew', '1' ) );
 
 		if ( $stripe_enabled ) {
 			$new_order->update_meta_data( '_stripe_customer_id', $old_order->get_meta( '_stripe_customer_id' ) );
@@ -701,6 +701,15 @@ class Helper {
 			return false;
 		}
 
+		// Ensure product_meta is an array
+		if ( ! is_array( $product_meta ) ) {
+			$product_meta = array(
+				'time'  => 1,
+				'type'  => 'days',
+				'trial' => null,
+			);
+		}
+
 		$new_order_item_id = $new_order->add_product(
 			$product,
 			$order_item->get_quantity(),
@@ -710,8 +719,8 @@ class Helper {
 			$new_order_item_id,
 			'_subscrpt_meta',
 			array(
-				'time'  => $product_meta['time'],
-				'type'  => $product_meta['type'],
+				'time'  => isset( $product_meta['time'] ) ? $product_meta['time'] : 1,
+				'type'  => isset( $product_meta['type'] ) ? $product_meta['type'] : 'days',
 				'trial' => null,
 			)
 		);
