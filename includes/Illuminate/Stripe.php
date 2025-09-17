@@ -38,16 +38,29 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	 */
 	public function after_create_renew_order( $new_order, $old_order, $subscription_id ) {
 		$is_auto_renew = get_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
-		// Accept both option keys for compatibility with settings page.
-		$opt_subscrpt    = get_option( 'subscrpt_stripe_auto_renew', '1' );
-		$opt_wp_subs     = get_option( 'wp_subscription_stripe_auto_renew', '1' );
-		$auto_opt_on     = in_array( '1', array( $opt_subscrpt, $opt_wp_subs ), true );
-		$old_method      = $old_order->get_payment_method();
-		$is_stripe_pm    = is_string( $old_method ) && 0 === strpos( $old_method, 'stripe' );
+		$is_auto_renew = in_array( $is_auto_renew, [ 1,'1' ], true );
+
+		$is_global_auto_renew = get_option( 'wp_subscription_stripe_auto_renew', '1' );
+		$is_global_auto_renew = in_array( $is_global_auto_renew, [ 1,'1' ], true );
+
+		$stripe_supported_methods = [ 'stripe', 'stripe_ideal', 'stripe_sepa', 'sepa_debit' ];
+		$old_method               = $old_order->get_payment_method();
+		$is_stripe_pm             = ! empty( $old_method ) && in_array( $old_method, $stripe_supported_methods, true );
+
 		$has_stripe_meta = ! empty( $old_order->get_meta( '_stripe_customer_id' ) ) || ! empty( $old_order->get_meta( '_stripe_source_id' ) );
-		$stripe_enabled  = ( ( $is_stripe_pm || $has_stripe_meta ) && in_array( $is_auto_renew, array( 1, '1' ), true ) && subscrpt_is_auto_renew_enabled() && $auto_opt_on );
+
+		$stripe_enabled = ( ( $is_stripe_pm || $has_stripe_meta ) && $is_auto_renew && $is_global_auto_renew && subscrpt_is_auto_renew_enabled() );
 
 		if ( ! $stripe_enabled ) {
+			$log_message = "Stripe auto renewal not enabled. [ Subscription: {$subscription_id}, Order #{$new_order->get_id()} ]";
+			wp_subscrpt_write_log( $log_message );
+
+			// Log details for debugging.
+			wp_subscrpt_write_debug_log( $log_message );
+			wp_subscrpt_write_debug_log( 'is_auto_renew: ' . ( $is_auto_renew ? 'true' : 'false' ) );
+			wp_subscrpt_write_debug_log( 'is_global_auto_renew: ' . ( $is_global_auto_renew ? 'true' : 'false' ) );
+			wp_subscrpt_write_debug_log( 'is_stripe_pm: ' . ( $is_stripe_pm ? 'true' : 'false' ) . ' (old method: ' . $old_method . ')' );
+			wp_subscrpt_write_debug_log( 'has_stripe_meta: ' . ( $has_stripe_meta ? 'true' : 'false' ) );
 			return;
 		}
 
