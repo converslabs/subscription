@@ -23,8 +23,10 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	public function __construct() {
 		add_action( 'subscrpt_after_create_renew_order', array( $this, 'after_create_renew_order' ), 10, 3 );
 		add_filter( 'wc_stripe_payment_metadata', array( $this, 'add_payment_metadata' ), 10, 2 );
+
 		// Ensure a reusable payment method is stored for subscription checkouts (needed for iDEAL/SEPA auto-renewals).
 		add_filter( 'wc_stripe_force_save_payment_method', array( $this, 'force_save_payment_method_for_subscriptions' ), 10, 2 );
+
 		// Inject mandate data for SEPA off-session (mandate_data offline acceptance).
 		add_filter( 'wc_stripe_payment_intent_confirmation_args', array( $this, 'add_confirmation_args' ), 10, 3 );
 	}
@@ -343,14 +345,12 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	 * @return bool
 	 */
 	private function cart_has_subscription_items(): bool {
-		if ( function_exists( 'WC' ) && WC()->cart && is_object( WC()->cart ) ) {
-			$cart = WC()->cart->get_cart();
-			if ( is_array( $cart ) ) {
-				foreach ( $cart as $cart_item ) {
-					if ( isset( $cart_item['subscription'] ) ) {
-						return true;
-					}
-				}
+		if ( function_exists( 'WC' ) && WC()->cart ) {
+			$cart_items = WC()->cart->get_cart_contents() ?? [];
+			$recurs     = Helper::get_recurrs_from_cart( $cart_items );
+
+			if ( ! empty( $recurs ) ) {
+				return true;
 			}
 		}
 		return false;

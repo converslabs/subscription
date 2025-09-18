@@ -428,7 +428,7 @@ class Helper {
 	 *
 	 * @return array
 	 */
-	public static function get_recurrs_for_cart( $cart_items ) {
+	public static function get_recurrs_from_cart( $cart_items ) {
 		$recurrs = array();
 		foreach ( $cart_items as $key => $cart_item ) {
 			$product = $cart_item['data'];
@@ -448,7 +448,7 @@ class Helper {
 			}
 		}
 
-		return apply_filters( 'subscrpt_cart_recurring_items', $recurrs, $cart_items );
+		return apply_filters( 'wpsubs_cart_recurring_items', $recurrs, $cart_items );
 	}
 
 	/**
