@@ -43,7 +43,8 @@ setVersion(){
 
   for FILE in "${FILES[@]}"; do
     if [[ -f "$FILE" ]]; then
-      sed -i '' "s/#${PLUGIN_CONSTANT}_VERSION/$VERSION/g" "$FILE"
+      # Cross-platform approach using temporary file
+      sed "s/#${PLUGIN_CONSTANT}_VERSION/$VERSION/g" "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
     else
       echo "[+] File $FILE not found!"
     fi
@@ -77,22 +78,26 @@ buildChangelogs(){
   ROOT_README_FILE="./readme.txt"
   TMP_CHANGELOG_FILE="./releases/$PLUGIN_NAME/tmp_changelog.txt"
 
+  # Use a more portable date formatting approach
   awk '
-      BEGIN { 
-          output = ""; 
-          skip_header = 1
+      function format_date(date_str) {
+          split(date_str, parts, "-")
+          year = parts[1]
+          month = parts[2] + 0  # Convert to number to remove leading zero
+          day = parts[3] + 0
+          
           # Month names array
-          months[1] = "Jan"; months[2] = "Feb"; months[3] = "Mar"; months[4] = "Apr"
-          months[5] = "May"; months[6] = "Jun"; months[7] = "Jul"; months[8] = "Aug"
-          months[9] = "Sep"; months[10] = "Oct"; months[11] = "Nov"; months[12] = "Dec"
+          months["1"] = "Jan"; months["2"] = "Feb"; months["3"] = "Mar"
+          months["4"] = "Apr"; months["5"] = "May"; months["6"] = "Jun"
+          months["7"] = "Jul"; months["8"] = "Aug"; months["9"] = "Sep"
+          months["10"] = "Oct"; months["11"] = "Nov"; months["12"] = "Dec"
+          
+          return months[month] " " day ", " year
       }
+      BEGIN { output = ""; skip_header = 1 }
       /^[*]{3}/ { next }
       /^202[0-9]/ {
-          split($1, date_parts, "-")
-          year = date_parts[1]
-          month = date_parts[2] + 0  # Strip leading zero if present
-          day = date_parts[3] + 0    # Strip leading zero if present
-          formatted_date = months[month] " " day ", " year
+          formatted_date = format_date($1)
           version = $4
           output = output "\n= " version " - " formatted_date " =\n"
           next
@@ -104,10 +109,11 @@ buildChangelogs(){
       END { print output }
   ' "$CHANGELOG_FILE" > "$TMP_CHANGELOG_FILE"
 
-  sed -i '' "/\[autofill_changelogs___DO_NOT_TOUCH_THIS_LINE\]/{
-      r $TMP_CHANGELOG_FILE
-      d
-  }" "$README_TEMPLATE_FILE"
+  # Cross-platform sed approach using temporary file
+  sed "/\[autofill_changelogs___DO_NOT_TOUCH_THIS_LINE\]/{
+    r $TMP_CHANGELOG_FILE
+    d
+  }" "$README_TEMPLATE_FILE" > "$README_TEMPLATE_FILE.tmp" && mv "$README_TEMPLATE_FILE.tmp" "$README_TEMPLATE_FILE"
 
   cp "$README_TEMPLATE_FILE" "$ROOT_README_FILE"
   mv "$README_TEMPLATE_FILE" "$README_FILE"
@@ -125,7 +131,9 @@ buildThePackage() {
   reInstallPackages
 }
 
-echo "[+] ${PLUGIN_NAME} is packaging..."
+# Fixed: Use parameter expansion that works on both macOS and Ubuntu
+CAPITALIZED_PLUGIN_NAME="$(echo ${PLUGIN_NAME:0:1} | tr '[:lower:]' '[:upper:]')${PLUGIN_NAME:1}"
+echo "[+] $CAPITALIZED_PLUGIN_NAME is packaging..."
 
 buildThePackage
 

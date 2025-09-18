@@ -420,8 +420,8 @@ class Cart {
 	 * @return void
 	 */
 	public function add_rows_order_total() {
-		$cart_items = WC()->cart->cart_contents;
-		$recurrs    = Helper::get_recurrs_for_cart( $cart_items );
+		$cart_items = WC()->cart->get_cart_contents();
+		$recurrs    = Helper::get_recurrs_from_cart( $cart_items );
 		if ( 0 === count( $recurrs ) ) {
 			return;
 		}
