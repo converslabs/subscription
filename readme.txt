@@ -257,7 +257,7 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 -   fix: Subscription Initialization & Compatibility.  
 -   fix: Fetal error - legacy method names support.  
 
-= 1.5.2 - Jul 09, 2025 =
+= 1.5.2 - Jul 9, 2025 =
 -   fix: Security vulnerabilities - Added proper sanitization to all register_setting() calls  
 -   fix: Nonce verification sanitization - Added wp_unslash() and sanitize_text_field()  
 -   fix: JSON decode sanitization - Sanitized data before json_decode() in PayPal webhook  
@@ -272,17 +272,17 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 -   update: WordPress.org compliance - All Plugin Check issues resolved  
 -   update: Improved code quality and security standards  
 
-= 1.5.1 - Jul 08, 2025 =
+= 1.5.1 - Jul 8, 2025 =
 -   fix: Naming conversions fixed  
 
-= 1.5.0 - Jun 03, 2025 =
+= 1.5.0 - Jun 3, 2025 =
 -   new: API and Authentication.  
 -   new: Stripe auto renewal.  
 -   new: Paypal auto renewal support.  
 -   new: New actions and Hooks for subscriptions.  
 -   fix: Language strings  
 
-= 1.4.3 - Jun 03, 2025 =
+= 1.4.3 - Jun 3, 2025 =
 -   fix: Plugin description and Documentation link update  
 
 = 1.4.2 - May 20, 2025 =
@@ -326,12 +326,12 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 = 1.1.3 - May 19, 2024 =
 -   new: Subscription storeAPI checkout support added.  
 
-= 1.1.2 - May 09, 2024 =
+= 1.1.2 - May 9, 2024 =
 -   fix: Handle order deletion.  
 -   update: WP timezone setting support added.  
 -   new: Compatible with pro version.  
 
-= 1.1.1 - May 09, 2024 =
+= 1.1.1 - May 9, 2024 =
 -   fix: Displaying `/1{type}` inside product details.  
 
 = 1.1 - Jun 18, 2023 =

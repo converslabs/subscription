@@ -43,7 +43,7 @@ setVersion(){
 
   for FILE in "${FILES[@]}"; do
     if [[ -f "$FILE" ]]; then
-      sed -i "s/#${PLUGIN_CONSTANT}_VERSION/$VERSION/g" "$FILE"
+      sed -i '' "s/#${PLUGIN_CONSTANT}_VERSION/$VERSION/g" "$FILE"
     else
       echo "[+] File $FILE not found!"
     fi
@@ -78,12 +78,21 @@ buildChangelogs(){
   TMP_CHANGELOG_FILE="./releases/$PLUGIN_NAME/tmp_changelog.txt"
 
   awk '
-      BEGIN { output = ""; skip_header = 1 }
+      BEGIN { 
+          output = ""; 
+          skip_header = 1
+          # Month names array
+          months[1] = "Jan"; months[2] = "Feb"; months[3] = "Mar"; months[4] = "Apr"
+          months[5] = "May"; months[6] = "Jun"; months[7] = "Jul"; months[8] = "Aug"
+          months[9] = "Sep"; months[10] = "Oct"; months[11] = "Nov"; months[12] = "Dec"
+      }
       /^[*]{3}/ { next }
       /^202[0-9]/ {
           split($1, date_parts, "-")
+          year = date_parts[1]
           month = date_parts[2] + 0  # Strip leading zero if present
-          formatted_date = strftime("%b %d, %Y", mktime(date_parts[1] " " month " " date_parts[3] " 00 00 00"))
+          day = date_parts[3] + 0    # Strip leading zero if present
+          formatted_date = months[month] " " day ", " year
           version = $4
           output = output "\n= " version " - " formatted_date " =\n"
           next
@@ -95,7 +104,7 @@ buildChangelogs(){
       END { print output }
   ' "$CHANGELOG_FILE" > "$TMP_CHANGELOG_FILE"
 
-  sed -i "/\[autofill_changelogs___DO_NOT_TOUCH_THIS_LINE\]/{
+  sed -i '' "/\[autofill_changelogs___DO_NOT_TOUCH_THIS_LINE\]/{
       r $TMP_CHANGELOG_FILE
       d
   }" "$README_TEMPLATE_FILE"
@@ -116,7 +125,7 @@ buildThePackage() {
   reInstallPackages
 }
 
-echo "[+] ${PLUGIN_NAME^} is packaging..."
+echo "[+] ${PLUGIN_NAME} is packaging..."
 
 buildThePackage
 
