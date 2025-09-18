@@ -10,6 +10,8 @@
 
 namespace SpringDevs\Subscription\Illuminate\Gateways\Stripe;
 
+use SpringDevs\Subscription\Illuminate\Helper;
+
 /**
  * Class Stripe
  *
