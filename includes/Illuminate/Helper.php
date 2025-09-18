@@ -428,7 +428,7 @@ class Helper {
 	 *
 	 * @return array
 	 */
-	public static function get_recurrs_for_cart( $cart_items ) {
+	public static function get_recurrs_from_cart( $cart_items ) {
 		$recurrs = array();
 		foreach ( $cart_items as $key => $cart_item ) {
 			$product = $cart_item['data'];
@@ -448,7 +448,7 @@ class Helper {
 			}
 		}
 
-		return apply_filters( 'subscrpt_cart_recurring_items', $recurrs, $cart_items );
+		return apply_filters( 'wpsubs_cart_recurring_items', $recurrs, $cart_items );
 	}
 
 	/**
@@ -542,7 +542,19 @@ class Helper {
 			update_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
 		}
 
-		$stripe_enabled = ( 'stripe' === $old_order->get_payment_method() && in_array( $is_auto_renew, array( '1', 1, true ), true ) && subscrpt_is_auto_renew_enabled() && '1' === get_option( 'subscrpt_stripe_auto_renew', '1' ) );
+		$is_auto_renew = get_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
+		$is_auto_renew = in_array( $is_auto_renew, [ 1,'1' ], true );
+
+		$is_global_auto_renew = get_option( 'wp_subscription_stripe_auto_renew', '1' );
+		$is_global_auto_renew = in_array( $is_global_auto_renew, [ 1,'1' ], true );
+
+		$stripe_supported_methods = [ 'stripe', 'stripe_ideal', 'stripe_sepa', 'sepa_debit' ];
+		$old_method               = $old_order->get_payment_method();
+		$is_stripe_pm             = ! empty( $old_method ) && in_array( $old_method, $stripe_supported_methods, true );
+
+		$has_stripe_meta = ! empty( $old_order->get_meta( '_stripe_customer_id' ) ) || ! empty( $old_order->get_meta( '_stripe_source_id' ) );
+
+		$stripe_enabled = ( ( $is_stripe_pm || $has_stripe_meta ) && $is_auto_renew && $is_global_auto_renew && subscrpt_is_auto_renew_enabled() );
 
 		if ( $stripe_enabled ) {
 			$new_order->update_meta_data( '_stripe_customer_id', $old_order->get_meta( '_stripe_customer_id' ) );
