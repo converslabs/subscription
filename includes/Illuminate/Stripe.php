@@ -363,11 +363,8 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	 * @return bool
 	 */
 	private function order_has_subscription_relation( int $order_id ): bool {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'subscrpt_order_relation';
-		// @phpcs:ignore
-		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT id FROM %i WHERE order_id=%d', array( $table_name, $order_id ) ) );
-		return ! empty( $rows );
+		$histories = Helper::get_subscriptions_from_order( $order_id );
+		return ! empty( $histories );
 	}
 
 	/**
