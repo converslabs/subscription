@@ -8,7 +8,7 @@
  * @package SpringDevs\Subscription
  */
 
-namespace SpringDevs\Subscription\Illuminate;
+namespace SpringDevs\Subscription\Illuminate\Gateways\Stripe;
 
 /**
  * Class Stripe
