@@ -121,6 +121,14 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			\WC_Stripe_Logger::log( 'Error: ' . $e->getMessage() );
 			wp_subscrpt_write_debug_log( "Error processing renewal order #{$renewal_order->get_id()}: " . $e->getMessage() );
 			do_action( 'wc_gateway_stripe_process_payment_error', $e, $renewal_order );
+
+			// Get subscription ID.
+			$subscription    = Helper::get_subscriptions_from_order( $renewal_order->get_id() ?? 0 );
+			$subscription    = reset( $subscription );
+			$subscription_id = $subscription->subscription_id ?? 0;
+
+			// Trigger failed payment mail.
+			do_action( 'subscrpt_payment_failure_email_notification', $subscription_id );
 		}
 	}
 
