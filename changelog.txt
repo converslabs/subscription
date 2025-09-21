@@ -1,5 +1,9 @@
 *** WPSubscription Changelog ***
 
+2025-09-18 - version 1.6.0
+* new: Stripe iDeal integration.
+* new: Stripe SEPA integration.
+
 2025-09-16 - version 1.5.8
 * fix: Removed unused codes and hooks.
 * new: Added language base file.
