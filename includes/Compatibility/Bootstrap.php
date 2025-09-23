@@ -85,6 +85,9 @@ class Bootstrap {
 		// Initialize subscription creator after functions are registered
 		$this->init_subscription_creator();
 		
+		// Initialize gateway compatibility
+		$this->init_gateway_compatibility();
+		
 		$this->is_active = true;
 		
 		// Log compatibility activation
@@ -215,6 +218,17 @@ class Bootstrap {
 		if ( function_exists( 'wcs_order_contains_subscription' ) && function_exists( 'wcs_is_subscription_product' ) ) {
 			SubscriptionCreator::get_instance();
 		}
+	}
+
+	/**
+	 * Initialize gateway compatibility
+	 *
+	 * @return void
+	 */
+	private function init_gateway_compatibility() {
+		// Initialize gateway compatibility
+		\SpringDevs\Subscription\Compatibility\Gateways\GatewayCompatibility::get_instance();
+		\SpringDevs\Subscription\Compatibility\Gateways\GatewayManager::get_instance();
 	}
 
 	/**

@@ -11,6 +11,8 @@
 
 namespace SpringDevs\Subscription\Compatibility;
 
+use SpringDevs\Subscription\Illuminate\PaymentMethodManager;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -37,6 +39,58 @@ class SubscriptionCreator {
 			self::$instance = new self();
 		}
 		return self::$instance;
+	}
+
+	/**
+	 * Save payment method for subscription
+	 *
+	 * @param int       $subscription_id Subscription ID
+	 * @param \WC_Order $order Order object
+	 * @return void
+	 */
+	private function save_payment_method_for_subscription( $subscription_id, $order ) {
+		$payment_method = $order->get_payment_method();
+		if ( empty( $payment_method ) ) {
+			return;
+		}
+
+		// Get payment method token
+		$payment_method_token = $order->get_meta( '_payment_method_token' );
+		if ( empty( $payment_method_token ) ) {
+			// Try to get from gateway-specific meta
+			$payment_method_token = $order->get_meta( '_stripe_payment_method_id' );
+			if ( empty( $payment_method_token ) ) {
+				$payment_method_token = $order->get_meta( '_stripe_source_id' );
+			}
+		}
+
+		if ( empty( $payment_method_token ) ) {
+			wp_subscrpt_write_debug_log( "SubscriptionCreator: No payment method token found for order #{$order->get_id()}" );
+			return;
+		}
+
+		// Get customer IDs
+		$customer_id = $order->get_customer_id();
+		$gateway_customer_id = $order->get_meta( '_stripe_customer_id' );
+		if ( empty( $gateway_customer_id ) ) {
+			$gateway_customer_id = $order->get_meta( '_paypal_customer_id' );
+		}
+
+		// Save payment method
+		$result = PaymentMethodManager::save_payment_method(
+			$subscription_id,
+			$payment_method,
+			$payment_method_token,
+			$customer_id,
+			$gateway_customer_id,
+			true // Set as default
+		);
+
+		if ( $result ) {
+			wp_subscrpt_write_debug_log( "SubscriptionCreator: Payment method saved for subscription #{$subscription_id}, gateway: {$payment_method}" );
+		} else {
+			wp_subscrpt_write_debug_log( "SubscriptionCreator: Failed to save payment method for subscription #{$subscription_id}" );
+		}
 	}
 
 	/**
@@ -148,6 +202,9 @@ class SubscriptionCreator {
 
 		// Set subscription data
 		$this->set_subscription_data( $subscription, $order, $item, $product );
+		
+		// Save payment method for future renewals
+		$this->save_payment_method_for_subscription( $subscription_id, $order );
 
 		// Add subscription item
 		$this->add_subscription_item( $subscription, $item, $product );

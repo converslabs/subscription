@@ -81,12 +81,184 @@ class GatewayCompatibility {
 	 * @return array
 	 */
 	public function add_subscription_support( $gateways ) {
-		foreach ( $gateways as $gateway ) {
-			if ( method_exists( $gateway, 'supports' ) ) {
+		// Get available payment gateways
+		$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+		
+		foreach ( $available_gateways as $gateway_id => $gateway ) {
+			if ( $this->is_gateway_subscription_compatible( $gateway ) ) {
+				// Add subscription support to gateway
 				$gateway->supports[] = 'subscriptions';
+				$gateway->supports[] = 'subscription_cancellation';
+				$gateway->supports[] = 'subscription_suspension';
+				$gateway->supports[] = 'subscription_reactivation';
+				$gateway->supports[] = 'subscription_amount_changes';
+				$gateway->supports[] = 'subscription_date_changes';
+				$gateway->supports[] = 'subscription_payment_method_change_admin';
+				$gateway->supports[] = 'subscription_payment_method_change_customer';
+				$gateway->supports[] = 'multiple_subscriptions';
+				
+				// Add scheduled payment hook
+				add_action( "woocommerce_scheduled_subscription_payment_{$gateway_id}", array( $this, 'handle_scheduled_payment' ), 10, 2 );
 			}
 		}
+		
 		return $gateways;
+	}
+
+	/**
+	 * Check if gateway is subscription compatible
+	 *
+	 * @param \WC_Payment_Gateway $gateway Gateway object
+	 * @return bool
+	 */
+	private function is_gateway_subscription_compatible( $gateway ) {
+		// Check if gateway already supports subscriptions
+		if ( method_exists( $gateway, 'supports' ) && $gateway->supports( 'subscriptions' ) ) {
+			return true;
+		}
+		
+		// Check specific gateway types that we know support subscriptions
+		$compatible_gateways = array(
+			'stripe_cc',
+			'stripe',
+			'paypal',
+			'ppec_paypal',
+			'square',
+			'razorpay',
+			'mollie',
+			'authorize_net',
+			'stripe_apple_pay',
+			'stripe_google_pay',
+		);
+		
+		return in_array( $gateway->id, $compatible_gateways, true );
+	}
+
+	/**
+	 * Handle scheduled subscription payment
+	 *
+	 * @param float    $amount Payment amount
+	 * @param \WC_Order $order Order object
+	 * @return void
+	 */
+	public function handle_scheduled_payment( $amount, $order ) {
+		wp_subscrpt_write_debug_log( "GatewayCompatibility: Handling scheduled payment for order #{$order->get_id()}, amount: {$amount}" );
+
+		// Get subscription ID from order
+		$subscription_id = self::get_subscription_from_order( $order );
+		if ( ! $subscription_id ) {
+			wp_subscrpt_write_debug_log( "GatewayCompatibility: No subscription found for order #{$order->get_id()}" );
+			return;
+		}
+
+		// Get payment method
+		$payment_method = PaymentMethodManager::get_payment_method( $subscription_id, $order->get_payment_method() );
+		if ( ! $payment_method ) {
+			wp_subscrpt_write_debug_log( "GatewayCompatibility: No payment method found for subscription #{$subscription_id}" );
+			$order->update_status( 'failed', 'No payment method found for renewal' );
+			return;
+		}
+
+		// Set payment method token on order
+		$order->update_meta_data( '_payment_method_token', $payment_method['payment_method_token'] );
+		if ( ! empty( $payment_method['gateway_customer_id'] ) ) {
+			$order->update_meta_data( '_gateway_customer_id', $payment_method['gateway_customer_id'] );
+		}
+		$order->save();
+
+		// Process payment using the gateway's method
+		$gateway = WC()->payment_gateways()->payment_gateways()[ $order->get_payment_method() ];
+		if ( $gateway && method_exists( $gateway, 'scheduled_subscription_payment' ) ) {
+			try {
+				$result = $gateway->scheduled_subscription_payment( $amount, $order );
+				
+				if ( $result ) {
+					wp_subscrpt_write_debug_log( "GatewayCompatibility: Payment processed successfully for order #{$order->get_id()}" );
+					do_action( 'subscrpt_payment_success', $subscription_id, $order->get_id(), $order->get_payment_method() );
+				} else {
+					wp_subscrpt_write_debug_log( "GatewayCompatibility: Payment failed for order #{$order->get_id()}" );
+					do_action( 'subscrpt_payment_failed', $subscription_id, $order->get_id(), $order->get_payment_method(), 'Gateway returned false' );
+				}
+			} catch ( Exception $e ) {
+				wp_subscrpt_write_debug_log( "GatewayCompatibility: Payment error for order #{$order->get_id()}: " . $e->getMessage() );
+				do_action( 'subscrpt_payment_failed', $subscription_id, $order->get_id(), $order->get_payment_method(), $e->getMessage() );
+			}
+		}
+	}
+
+	/**
+	 * Get subscription ID from order
+	 *
+	 * @param \WC_Order $order Order object
+	 * @return int|false Subscription ID or false if not found
+	 */
+	private static function get_subscription_from_order( $order ) {
+		// Check if order has subscription meta
+		$subscription_id = $order->get_meta( '_subscription_id' );
+		if ( $subscription_id ) {
+			return $subscription_id;
+		}
+
+		// Check order relation table
+		global $wpdb;
+		$subscription_id = $wpdb->get_var( $wpdb->prepare(
+			"SELECT subscription_id FROM {$wpdb->prefix}subscrpt_order_relation WHERE order_id = %d",
+			$order->get_id()
+		) );
+
+		return $subscription_id ? (int) $subscription_id : false;
+	}
+
+	/**
+	 * Handle payment complete
+	 *
+	 * @param \WC_Order $order Order object
+	 * @return void
+	 */
+	public function handle_payment_complete( $order ) {
+		$subscription_id = self::get_subscription_from_order( $order );
+		if ( $subscription_id ) {
+			do_action( 'subscrpt_payment_success', $subscription_id, $order->get_id(), $order->get_payment_method() );
+		}
+	}
+
+	/**
+	 * Handle payment failed
+	 *
+	 * @param \WC_Order $order Order object
+	 * @return void
+	 */
+	public function handle_payment_failed( $order ) {
+		$subscription_id = self::get_subscription_from_order( $order );
+		if ( $subscription_id ) {
+			do_action( 'subscrpt_payment_failed', $subscription_id, $order->get_id(), $order->get_payment_method(), 'Payment failed' );
+		}
+	}
+
+	/**
+	 * Handle renewal payment complete
+	 *
+	 * @param \WC_Order $order Order object
+	 * @return void
+	 */
+	public function handle_renewal_payment_complete( $order ) {
+		$subscription_id = self::get_subscription_from_order( $order );
+		if ( $subscription_id ) {
+			do_action( 'subscrpt_payment_success', $subscription_id, $order->get_id(), $order->get_payment_method() );
+		}
+	}
+
+	/**
+	 * Handle renewal payment failed
+	 *
+	 * @param \WC_Order $order Order object
+	 * @return void
+	 */
+	public function handle_renewal_payment_failed( $order ) {
+		$subscription_id = self::get_subscription_from_order( $order );
+		if ( $subscription_id ) {
+			do_action( 'subscrpt_payment_failed', $subscription_id, $order->get_id(), $order->get_payment_method(), 'Renewal payment failed' );
+		}
 	}
 
 	/**

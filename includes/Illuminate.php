@@ -10,6 +10,16 @@ use SpringDevs\Subscription\Illuminate\Email;
 use SpringDevs\Subscription\Illuminate\Order;
 use SpringDevs\Subscription\Illuminate\Post;
 use SpringDevs\Subscription\Illuminate\UniversalPaymentProcessor;
+use SpringDevs\Subscription\Illuminate\PaymentMethodManager;
+use SpringDevs\Subscription\Illuminate\ScheduledPaymentProcessor;
+use SpringDevs\Subscription\Illuminate\DatabaseSchema;
+use SpringDevs\Subscription\Illuminate\Gateways\Stripe;
+use SpringDevs\Subscription\Illuminate\Gateways\PayPal;
+use SpringDevs\Subscription\Illuminate\Gateways\Square;
+use SpringDevs\Subscription\Illuminate\WebhookHandler;
+use SpringDevs\Subscription\Illuminate\PaymentRetryManager;
+use SpringDevs\Subscription\Illuminate\Analytics\PaymentAnalytics;
+use SpringDevs\Subscription\Illuminate\Monitoring\SubscriptionHealth;
 
 /**
  * Globally Load Scripts.
@@ -30,6 +40,15 @@ class Illuminate {
 		new AutoRenewal();
 		new Email();
 		new UniversalPaymentProcessor();
+		
+		// Initialize auto-renewal payment system
+		$this->init_auto_renewal_system();
+		
+		// Initialize payment gateways
+		$this->init_payment_gateways();
+		
+		// Initialize advanced features
+		$this->init_advanced_features();
 	}
 
 	/**
@@ -63,6 +82,61 @@ class Illuminate {
 		if ( $is_paypal_integration_enabled ) {
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'register_paypal_gateway' ) );
 		}
+	}
+
+	/**
+	 * Initialize auto-renewal payment system
+	 *
+	 * @return void
+	 */
+	private function init_auto_renewal_system() {
+		// Create database tables if needed
+		if ( DatabaseSchema::needs_update() ) {
+			DatabaseSchema::create_tables();
+			DatabaseSchema::update_table_version();
+		}
+
+		// Initialize scheduled payment processor
+		ScheduledPaymentProcessor::init();
+	}
+
+	/**
+	 * Initialize payment gateways
+	 *
+	 * @return void
+	 */
+	private function init_payment_gateways() {
+		// Initialize Stripe integration
+		if ( class_exists( '\Stripe\StripeClient' ) ) {
+			new Stripe();
+		}
+
+		// Initialize PayPal integration
+		if ( class_exists( '\PayPal\Rest\ApiContext' ) ) {
+			new PayPal();
+		}
+
+		// Initialize Square integration
+		if ( class_exists( '\Square\SquareClient' ) ) {
+			new Square();
+		}
+	}
+
+	/**
+	 * Initialize advanced features
+	 *
+	 * @return void
+	 */
+	private function init_advanced_features() {
+		// Initialize webhook handler
+		new WebhookHandler();
+		
+		// Initialize payment retry manager
+		new PaymentRetryManager();
+		
+		// Initialize analytics and monitoring
+		new PaymentAnalytics();
+		new SubscriptionHealth();
 	}
 
 	/**
