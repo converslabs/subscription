@@ -20,6 +20,7 @@ use SpringDevs\Subscription\Illuminate\WebhookHandler;
 use SpringDevs\Subscription\Illuminate\PaymentRetryManager;
 use SpringDevs\Subscription\Illuminate\Analytics\PaymentAnalytics;
 use SpringDevs\Subscription\Illuminate\Monitoring\SubscriptionHealth;
+use SpringDevs\Subscription\Illuminate\Debug\DebugManager;
 
 /**
  * Globally Load Scripts.
@@ -137,6 +138,9 @@ class Illuminate {
 		// Initialize analytics and monitoring
 		new PaymentAnalytics();
 		new SubscriptionHealth();
+		
+		// Initialize debug manager
+		new DebugManager();
 	}
 
 	/**

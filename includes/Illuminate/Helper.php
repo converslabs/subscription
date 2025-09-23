@@ -735,6 +735,21 @@ class Helper {
 	}
 
 	/**
+	 * Write debug log
+	 *
+	 * @param string $message Debug message
+	 * @param mixed  $data Optional data to log
+	 * @param string $level Log level (info, warning, error)
+	 * @return void
+	 */
+	public static function wp_subscrpt_write_debug_log( $message, $data = null, $level = 'info' ) {
+		if ( defined( 'WP_SUBSCRIPTION_DEBUG' ) && WP_SUBSCRIPTION_DEBUG ) {
+			// Use enhanced debug logging
+			\SpringDevs\Subscription\Illuminate\Debug\DebugHelpers::log( $message, $data, $level );
+		}
+	}
+
+	/**
 	 * Check if old order is completed or deleted!
 	 *
 	 * @param mixed $old_order_id Old Order Id.
@@ -752,7 +767,7 @@ class Helper {
 
 		return $old_order;
 	}
-
+	
 	/**
 	 * Save meta-data from old order
 	 *
