@@ -807,4 +807,19 @@ class Helper {
 	}
 }
 
+/**
+ * Global debug logging function
+ *
+ * @param string $message Debug message
+ * @param mixed  $data Optional data to log
+ * @param string $level Log level (info, warning, error)
+ * @return void
+ */
+function wp_subscrpt_write_debug_log( $message, $data = null, $level = 'info' ) {
+	if ( defined( 'WP_SUBSCRIPTION_DEBUG' ) && WP_SUBSCRIPTION_DEBUG ) {
+		// Use enhanced debug logging
+		\SpringDevs\Subscription\Illuminate\Debug\DebugHelpers::log( $message, $data, $level );
+	}
+}
+
 // HPOS: All order data access below uses WooCommerce CRUD and is HPOS compatible.

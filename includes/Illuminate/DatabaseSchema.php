@@ -1,4 +1,3 @@
-git status
 <?php
 
 namespace SpringDevs\Subscription\Illuminate;

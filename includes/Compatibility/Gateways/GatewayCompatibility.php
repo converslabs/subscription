@@ -152,7 +152,7 @@ class GatewayCompatibility {
 		}
 
 		// Get payment method
-		$payment_method = PaymentMethodManager::get_payment_method( $subscription_id, $order->get_payment_method() );
+		$payment_method = \SpringDevs\Subscription\Illuminate\PaymentMethodManager::get_payment_method( $subscription_id, $order->get_payment_method() );
 		if ( ! $payment_method ) {
 			wp_subscrpt_write_debug_log( "GatewayCompatibility: No payment method found for subscription #{$subscription_id}" );
 			$order->update_status( 'failed', 'No payment method found for renewal' );
@@ -179,7 +179,7 @@ class GatewayCompatibility {
 					wp_subscrpt_write_debug_log( "GatewayCompatibility: Payment failed for order #{$order->get_id()}" );
 					do_action( 'subscrpt_payment_failed', $subscription_id, $order->get_id(), $order->get_payment_method(), 'Gateway returned false' );
 				}
-			} catch ( Exception $e ) {
+			} catch ( \Exception $e ) {
 				wp_subscrpt_write_debug_log( "GatewayCompatibility: Payment error for order #{$order->get_id()}: " . $e->getMessage() );
 				do_action( 'subscrpt_payment_failed', $subscription_id, $order->get_id(), $order->get_payment_method(), $e->getMessage() );
 			}
@@ -217,7 +217,7 @@ class GatewayCompatibility {
 	 */
 	public function handle_payment_complete( $order ) {
 		$subscription_id = self::get_subscription_from_order( $order );
-		if ( $subscription_id ) {
+		if ( $subscription_id ) {		
 			do_action( 'subscrpt_payment_success', $subscription_id, $order->get_id(), $order->get_payment_method() );
 		}
 	}
@@ -262,59 +262,13 @@ class GatewayCompatibility {
 	}
 
 	/**
-	 * Handle payment complete
-	 *
-	 * @param \WC_Subscription $subscription Subscription object
-	 * @return void
-	 */
-	public function handle_payment_complete( $subscription ) {
-		// Map to WPSubscription functionality
-		do_action( 'wp_subscription_payment_complete', $subscription );
-	}
-
-	/**
-	 * Handle payment failed
-	 *
-	 * @param \WC_Subscription $subscription Subscription object
-	 * @return void
-	 */
-	public function handle_payment_failed( $subscription ) {
-		// Map to WPSubscription functionality
-		do_action( 'wp_subscription_payment_failed', $subscription );
-	}
-
-	/**
-	 * Handle renewal payment complete
-	 *
-	 * @param \WC_Subscription $subscription Subscription object
-	 * @param \WC_Order $renewal_order Renewal order
-	 * @return void
-	 */
-	public function handle_renewal_payment_complete( $subscription, $renewal_order ) {
-		// Map to WPSubscription functionality
-		do_action( 'wp_subscription_renewal_payment_complete', $subscription, $renewal_order );
-	}
-
-	/**
-	 * Handle renewal payment failed
-	 *
-	 * @param \WC_Subscription $subscription Subscription object
-	 * @param \WC_Order $renewal_order Renewal order
-	 * @return void
-	 */
-	public function handle_renewal_payment_failed( $subscription, $renewal_order ) {
-		// Map to WPSubscription functionality
-		do_action( 'wp_subscription_renewal_payment_failed', $subscription, $renewal_order );
-	}
-
-	/**
 	 * Check if gateway supports subscriptions
 	 *
 	 * @param string $gateway_id Gateway ID
 	 * @return bool
 	 */
 	public function gateway_supports_subscriptions( $gateway_id ) {
-		$gateway = WC()->payment_gateways()->get_available_payment_gateway( $gateway_id );
+		$gateway = WC()->payment_gateways()->payment_gateways()[ $gateway_id ];
 		if ( ! $gateway ) {
 			return false;
 		}
@@ -367,7 +321,7 @@ class GatewayCompatibility {
 	 * @return array
 	 */
 	public function get_gateway_subscription_settings( $gateway_id ) {
-		$gateway = WC()->payment_gateways()->get_available_payment_gateway( $gateway_id );
+		$gateway = WC()->payment_gateways()->payment_gateways()[ $gateway_id ];
 		if ( ! $gateway ) {
 			return array();
 		}
