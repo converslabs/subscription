@@ -37,8 +37,8 @@ echo wp_kses_post(
 	make_clickable(
 		sprintf(
 		// translators: subscription id.
-			__( 'You can view and edit this subscription in the dashboard here: %s', 'wp_subscription' ),
-			admin_url( 'post.php?post=' . $id . '&action=edit' )
+			__( 'You can view the subscription here: %s', 'wp_subscription' ),
+			wc_get_endpoint_url( 'view-subscription', $id, wc_get_page_permalink( 'myaccount' ) )
 		)
 	)
 );
