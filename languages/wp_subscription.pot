@@ -1,8 +1,8 @@
 # Copyright (C) 2025 ConversWP
-# This file is distributed under the same license as the WPSubscription - Subscription & Recurring Payment Plugin for WooCommerce plugin.
+# This file is distributed under the same license as the Subscription for WooCommerce - WPSubscription plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPSubscription - Subscription & Recurring Payment Plugin for WooCommerce #WPSUBS_VERSION\n"
+"Project-Id-Version: Subscription for WooCommerce - WPSubscription #WPSUBS_VERSION\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/subscription\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: subscription.php
-msgid "WPSubscription - Subscription & Recurring Payment Plugin for WooCommerce"
+msgid "Subscription for WooCommerce - WPSubscription"
 msgstr ""
 
 #. Plugin URI of the plugin
