@@ -16,8 +16,14 @@
 
 <p>
 <?php
-// translators: Number of days before & day|days.
-echo esc_html( sprintf( __( 'You have only %1$s %2$s left! Please renew the subscription before expired', 'wp_subscription' ), $num_of_days_before, $num_of_days_before > 1 ? 'days' : 'day' ) );
+echo esc_html(
+	sprintf(
+	// translators: Number of days before & day|days.
+		__( 'You have only %1$s %2$s left! Please renew the subscription before expired', 'wp_subscription' ),
+		$num_of_days_before,
+		$num_of_days_before > 1 ? 'days' : 'day'
+	)
+);
 ?>
 </p>
 

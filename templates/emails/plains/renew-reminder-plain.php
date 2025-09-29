@@ -12,7 +12,7 @@
 
 echo esc_html( '= ' . $email_heading . " =\n\n" );
 
-// translators: first is older status and last is newly updated status.
+// translators: Number of days before & day|days.
 $opening_paragraph = __( 'You have only %1$s %2$s left! Please renew the subscription before expired', 'wp_subscription' );
 
 echo wp_kses_post( sprintf( $opening_paragraph, $num_of_days_before, $num_of_days_before > 1 ? 'days' : 'day' ) . "\n\n" );

@@ -591,6 +591,7 @@ class Menu {
 			$post = get_post( $subscription_id );
 
 			if ( ! $post || $post->post_type !== 'subscrpt_order' ) {
+				// translators: Subscription ID.
 				$errors[] = sprintf( __( 'Subscription #%d not found.', 'wp_subscription' ), $subscription_id );
 				continue;
 			}
@@ -601,7 +602,11 @@ class Menu {
 						if ( wp_trash_post( $subscription_id ) ) {
 							++$processed_count;
 						} else {
-							$errors[] = sprintf( __( 'Failed to move subscription #%d to trash.', 'wp_subscription' ), $subscription_id );
+							$errors[] = sprintf(
+								// translators: Subscription ID.
+								__( 'Failed to move subscription #%d to trash.', 'wp_subscription' ),
+								$subscription_id
+							);
 						}
 						break;
 
@@ -609,7 +614,11 @@ class Menu {
 						if ( wp_untrash_post( $subscription_id ) ) {
 							++$processed_count;
 						} else {
-							$errors[] = sprintf( __( 'Failed to restore subscription #%d.', 'wp_subscription' ), $subscription_id );
+							$errors[] = sprintf(
+								// translators: Subscription ID.
+								__( 'Failed to restore subscription #%d.', 'wp_subscription' ),
+								$subscription_id
+							);
 						}
 						break;
 
@@ -617,16 +626,29 @@ class Menu {
 						if ( wp_delete_post( $subscription_id, true ) ) {
 							++$processed_count;
 						} else {
-							$errors[] = sprintf( __( 'Failed to delete subscription #%d.', 'wp_subscription' ), $subscription_id );
+							$errors[] = sprintf(
+								// translators: Subscription ID.
+								__( 'Failed to delete subscription #%d.', 'wp_subscription' ),
+								$subscription_id
+							);
 						}
 						break;
 
 					default:
-						$errors[] = sprintf( __( 'Unknown action: %s', 'wp_subscription' ), $bulk_action );
+						$errors[] = sprintf(
+							// translators: Bulk action.
+							__( 'Unknown action: %s', 'wp_subscription' ),
+							$bulk_action
+						);
 						break;
 				}
 			} catch ( Exception $e ) {
-				$errors[] = sprintf( __( 'Error processing subscription #%1$d: %2$s', 'wp_subscription' ), $subscription_id, $e->getMessage() );
+				$errors[] = sprintf(
+					// translators: Subscription ID, Error message.
+					__( 'Error processing subscription #%1$d: %2$s', 'wp_subscription' ),
+					$subscription_id,
+					$e->getMessage()
+				);
 			}
 		}
 
@@ -635,13 +657,25 @@ class Menu {
 		if ( $processed_count > 0 ) {
 			switch ( $bulk_action ) {
 				case 'trash':
-					$message = sprintf( _n( '%d subscription moved to trash.', '%d subscriptions moved to trash.', $processed_count, 'wp_subscription' ), $processed_count );
+					$message = sprintf(
+						// translators: Number of subscriptions.
+						_n( '%d subscription moved to trash.', '%d subscriptions moved to trash.', $processed_count, 'wp_subscription' ),
+						$processed_count
+					);
 					break;
 				case 'restore':
-					$message = sprintf( _n( '%d subscription restored.', '%d subscriptions restored.', $processed_count, 'wp_subscription' ), $processed_count );
+					$message = sprintf(
+						// translators: Number of subscriptions.
+						_n( '%d subscription restored.', '%d subscriptions restored.', $processed_count, 'wp_subscription' ),
+						$processed_count
+					);
 					break;
 				case 'delete':
-					$message = sprintf( _n( '%d subscription permanently deleted.', '%d subscriptions permanently deleted.', $processed_count, 'wp_subscription' ), $processed_count );
+					$message = sprintf(
+						// translators: Number of subscriptions.
+						_n( '%d subscription permanently deleted.', '%d subscriptions permanently deleted.', $processed_count, 'wp_subscription' ),
+						$processed_count
+					);
 					break;
 			}
 		}
