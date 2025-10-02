@@ -20,6 +20,11 @@ use SpringDevs\Subscription\Illuminate\Helper;
 class Stripe extends \WC_Stripe_Payment_Gateway {
 
 	/**
+	 * WPSubscription supported Stripe payment methods.
+	 */
+	public const WPSUBS_SUPPORTED_METHODS = [ 'stripe', 'stripe_ideal', 'stripe_sepa', 'sepa_debit', 'stripe_bancontact' ];
+
+	/**
 	 * Initialize the class
 	 */
 	public function __construct() {
@@ -47,7 +52,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		$is_global_auto_renew = get_option( 'wp_subscription_stripe_auto_renew', '1' );
 		$is_global_auto_renew = in_array( $is_global_auto_renew, [ 1,'1' ], true );
 
-		$stripe_supported_methods = [ 'stripe', 'stripe_ideal', 'stripe_sepa', 'sepa_debit' ];
+		$stripe_supported_methods = self::WPSUBS_SUPPORTED_METHODS;
 		$old_method               = $old_order->get_payment_method();
 		$is_stripe_pm             = ! empty( $old_method ) && in_array( $old_method, $stripe_supported_methods, true );
 

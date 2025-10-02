@@ -2,6 +2,8 @@
 
 namespace SpringDevs\Subscription\Illuminate;
 
+use SpringDevs\Subscription\Illuminate\Gateways\Stripe\Stripe;
+
 // HPOS: This file is compatible with WooCommerce High-Performance Order Storage (HPOS).
 // All WooCommerce order data is accessed via WooCommerce CRUD methods (wc_get_order, wc_get_orders, etc.).
 // All direct post meta access is for subscription data only, not WooCommerce order data.
@@ -13,7 +15,6 @@ namespace SpringDevs\Subscription\Illuminate;
  * @package SpringDevs\Subscription\Illuminate
  */
 class Helper {
-
 	/**
 	 * Get type's singular or plural from time_per.
 	 *
@@ -505,7 +506,8 @@ class Helper {
 		self::clone_stripe_metadata_for_renewal( $subscription_id, $old_order, $new_order );
 
 		// Store Stripe subscription ID if available
-		if ( $old_order->get_payment_method() === 'stripe' ) {
+		$stripe_supported_methods = Stripe::WPSUBS_SUPPORTED_METHODS;
+		if ( in_array( $old_order->get_payment_method(), $stripe_supported_methods, true ) ) {
 			$stripe_subscription_id = $old_order->get_meta( '_stripe_subscription_id' );
 			if ( $stripe_subscription_id ) {
 				$new_order->update_meta_data( '_stripe_subscription_id', $stripe_subscription_id );
@@ -548,7 +550,7 @@ class Helper {
 		$is_global_auto_renew = get_option( 'wp_subscription_stripe_auto_renew', '1' );
 		$is_global_auto_renew = in_array( $is_global_auto_renew, [ 1,'1' ], true );
 
-		$stripe_supported_methods = [ 'stripe', 'stripe_ideal', 'stripe_sepa', 'sepa_debit' ];
+		$stripe_supported_methods = Stripe::WPSUBS_SUPPORTED_METHODS;
 		$old_method               = $old_order->get_payment_method();
 		$is_stripe_pm             = ! empty( $old_method ) && in_array( $old_method, $stripe_supported_methods, true );
 
