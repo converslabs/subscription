@@ -68,7 +68,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			wp_subscrpt_write_debug_log( $log_message );
 			wp_subscrpt_write_debug_log( 'is_auto_renew: ' . ( $is_auto_renew ? 'true' : 'false' ) );
 			wp_subscrpt_write_debug_log( 'is_global_auto_renew: ' . ( $is_global_auto_renew ? 'true' : 'false' ) );
-			wp_subscrpt_write_debug_log( 'is_stripe_pm: ' . ( $is_stripe_pm ? 'true' : 'false' ) . ' (old method: ' . $old_method . ')' );
+			wp_subscrpt_write_debug_log( 'is_stripe_payment_method: ' . ( $is_stripe_pm ? 'true' : 'false' ) . ' (old method: ' . $old_method . ')' );
 			wp_subscrpt_write_debug_log( 'has_stripe_meta: ' . ( $has_stripe_meta ? 'true' : 'false' ) );
 			return;
 		}
@@ -83,6 +83,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	 * @throws \WC_Stripe_Exception $e excepttion.
 	 */
 	public function pay_renew_order( $renewal_order ) {
+		wp_subscrpt_write_log( "Processing renewal order #{$renewal_order->get_id()} for payment." );
 		wp_subscrpt_write_debug_log( "Processing renewal order #{$renewal_order->get_id()} for payment." );
 
 		try {
@@ -94,6 +95,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			// Get source from order.
 			$prepared_source = $this->prepare_order_source( $renewal_order );
 			if ( ! $prepared_source->customer ) {
+				wp_subscrpt_write_log( "Customer not found for renewal order #{$renewal_order->get_id()}. Skipping payment." );
 				return new \WP_Error( 'stripe_error', __( 'Customer not found', 'wp_subscription' ) );
 			}
 
@@ -124,7 +126,11 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			$this->unlock_order_payment( $renewal_order );
 		} catch ( \WC_Stripe_Exception $e ) {
 			\WC_Stripe_Logger::log( 'Error: ' . $e->getMessage() );
-			wp_subscrpt_write_debug_log( "Error processing renewal order #{$renewal_order->get_id()}: " . $e->getMessage() );
+
+			$log_message = "Error processing renewal order #{$renewal_order->get_id()}: " . $e->getMessage();
+			wp_subscrpt_write_log( $log_message );
+			wp_subscrpt_write_debug_log( $log_message );
+
 			do_action( 'wc_gateway_stripe_process_payment_error', $e, $renewal_order );
 
 			// Get subscription ID.
