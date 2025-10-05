@@ -1,5 +1,11 @@
 *** WPSubscription Changelog ***
 
+2025-10-05 - version 1.7.0
+* new: PolyLang support.
+* new: WPML support.
+* improved: Updated language template files.
+* improved: Some helpers for 3rd party integrations.
+
 2025-09-25 - version 1.6.1
 * fix: Wrong subscription URL in emails.
 

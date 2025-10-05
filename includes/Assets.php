@@ -10,7 +10,7 @@ class Assets {
 	/**
 	 * Assets constructor.
 	 */
-	function __construct() {
+	public function __construct() {
 		if ( is_admin() ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'register' ), 5 );
 		} else {
@@ -31,7 +31,7 @@ class Assets {
 	/**
 	 * Register scripts
 	 *
-	 * @param array $scripts
+	 * @param array $scripts scripts.
 	 *
 	 * @return void
 	 */
@@ -42,13 +42,18 @@ class Assets {
 			$version   = isset( $script['version'] ) ? $script['version'] : WP_SUBSCRIPTION_VERSION;
 
 			wp_register_script( $handle, $script['src'], $deps, $version, $in_footer );
+
+			// Register script translations for scripts that use wp-i18n (e.g., block assets).
+			if ( function_exists( 'wp_set_script_translations' ) && 'sdevs_subscrpt_cart_block' === $handle ) {
+				wp_set_script_translations( $handle, 'wp_subscription', WP_SUBSCRIPTION_PATH . '/languages' );
+			}
 		}
 	}
 
 	/**
 	 * Register styles
 	 *
-	 * @param array $styles
+	 * @param array $styles styles.
 	 *
 	 * @return void
 	 */

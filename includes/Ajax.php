@@ -61,7 +61,11 @@ class Ajax {
 			wp_die( $api );
 		}
 
-		$title = sprintf( __( 'Installing Plugin: %s', 'wp_subscription' ), $api->name . ' ' . $api->version );
+		$title = sprintf(
+			// translators: Plugin name and version.
+			__( 'Installing Plugin: %s', 'wp_subscription' ),
+			$api->name . ' ' . $api->version
+		);
 		$nonce = 'install-plugin_' . $plugin;
 		$url   = 'update.php?action=install-plugin&plugin=' . urlencode( $plugin );
 
