@@ -517,8 +517,13 @@ class Helper {
 			}
 		}
 
+		// Allow modification of the renewal order before saving.
+		$new_order = apply_filters( 'subscrpt_before_saving_renewal_order', $new_order, $old_order, $subscription_id );
+
+		// Save the new order.
 		$new_order->calculate_totals();
 		$new_order->save();
+
 		if ( ! is_admin() && function_exists( 'wc_add_notice' ) ) {
 			$message = 'Renewal Order(#' . $new_order->get_id() . ') Created.';
 			if ( $new_order->has_status( 'pending' ) ) {
