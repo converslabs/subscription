@@ -20,6 +20,11 @@ use SpringDevs\Subscription\Illuminate\Helper;
 class Stripe extends \WC_Stripe_Payment_Gateway {
 
 	/**
+	 * WPSubscription supported Stripe payment methods.
+	 */
+	public const WPSUBS_SUPPORTED_METHODS = [ 'stripe', 'stripe_ideal', 'stripe_sepa', 'sepa_debit', 'stripe_bancontact' ];
+
+	/**
 	 * Initialize the class
 	 */
 	public function __construct() {
@@ -47,7 +52,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		$is_global_auto_renew = get_option( 'wp_subscription_stripe_auto_renew', '1' );
 		$is_global_auto_renew = in_array( $is_global_auto_renew, [ 1,'1' ], true );
 
-		$stripe_supported_methods = [ 'stripe', 'stripe_ideal', 'stripe_sepa', 'sepa_debit' ];
+		$stripe_supported_methods = self::WPSUBS_SUPPORTED_METHODS;
 		$old_method               = $old_order->get_payment_method();
 		$is_stripe_pm             = ! empty( $old_method ) && in_array( $old_method, $stripe_supported_methods, true );
 
@@ -63,7 +68,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			wp_subscrpt_write_debug_log( $log_message );
 			wp_subscrpt_write_debug_log( 'is_auto_renew: ' . ( $is_auto_renew ? 'true' : 'false' ) );
 			wp_subscrpt_write_debug_log( 'is_global_auto_renew: ' . ( $is_global_auto_renew ? 'true' : 'false' ) );
-			wp_subscrpt_write_debug_log( 'is_stripe_pm: ' . ( $is_stripe_pm ? 'true' : 'false' ) . ' (old method: ' . $old_method . ')' );
+			wp_subscrpt_write_debug_log( 'is_stripe_payment_method: ' . ( $is_stripe_pm ? 'true' : 'false' ) . ' (old method: ' . $old_method . ')' );
 			wp_subscrpt_write_debug_log( 'has_stripe_meta: ' . ( $has_stripe_meta ? 'true' : 'false' ) );
 			return;
 		}
@@ -78,6 +83,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	 * @throws \WC_Stripe_Exception $e excepttion.
 	 */
 	public function pay_renew_order( $renewal_order ) {
+		wp_subscrpt_write_log( "Processing renewal order #{$renewal_order->get_id()} for payment." );
 		wp_subscrpt_write_debug_log( "Processing renewal order #{$renewal_order->get_id()} for payment." );
 
 		try {
@@ -89,6 +95,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			// Get source from order.
 			$prepared_source = $this->prepare_order_source( $renewal_order );
 			if ( ! $prepared_source->customer ) {
+				wp_subscrpt_write_log( "Customer not found for renewal order #{$renewal_order->get_id()}. Skipping payment." );
 				return new \WP_Error( 'stripe_error', __( 'Customer not found', 'wp_subscription' ) );
 			}
 
@@ -119,7 +126,11 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			$this->unlock_order_payment( $renewal_order );
 		} catch ( \WC_Stripe_Exception $e ) {
 			\WC_Stripe_Logger::log( 'Error: ' . $e->getMessage() );
-			wp_subscrpt_write_debug_log( "Error processing renewal order #{$renewal_order->get_id()}: " . $e->getMessage() );
+
+			$log_message = "Error processing renewal order #{$renewal_order->get_id()}: " . $e->getMessage();
+			wp_subscrpt_write_log( $log_message );
+			wp_subscrpt_write_debug_log( $log_message );
+
 			do_action( 'wc_gateway_stripe_process_payment_error', $e, $renewal_order );
 
 			// Get subscription ID.
