@@ -11,7 +11,7 @@
 
 echo esc_html( '= ' . $email_heading . " =\n\n" );
 
-// translators: first is older status and last is newly updated status.
+// translators: <b></b> tag.
 $opening_paragraph = __( 'Your subscription is %1$s Expired! %2$s', 'wp_subscription' );
 
 echo wp_kses_post( sprintf( $opening_paragraph, '<b>', '</b>' ) . "\n\n" );

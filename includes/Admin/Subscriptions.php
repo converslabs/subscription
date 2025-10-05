@@ -509,7 +509,14 @@ class Subscriptions {
 		?>
 		<div class="wp-subscription-details-section">
 			<h2 style="margin: 0 0 20px 0; padding: 0; border-bottom: 1px solid #ddd; padding-bottom: 12px;">
-				<?php printf( esc_html__( 'Subscription #%d details', 'wp_subscription' ), $post->ID ); ?>
+				<?php
+				$text = sprintf(
+					// translators: Subscription ID.
+					__( 'Subscription #%d details', 'wp_subscription' ),
+					$post->ID
+				);
+				echo esc_html( $text );
+				?>
 			</h2>
 			
 			<div class="subscription-details-grid">

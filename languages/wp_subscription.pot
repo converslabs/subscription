@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-16T11:24:46+00:00\n"
+"POT-Creation-Date: 2025-09-29T08:31:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp_subscription\n"
@@ -87,7 +87,7 @@ msgid "Settings"
 msgstr ""
 
 #: includes/Admin/Menu.php:190
-#: includes/Admin/Subscriptions.php:942
+#: includes/Admin/Subscriptions.php:949
 msgid "Upgrade to Pro"
 msgstr ""
 
@@ -103,62 +103,71 @@ msgstr ""
 msgid "No subscriptions selected."
 msgstr ""
 
-#: includes/Admin/Menu.php:594
+#. translators: Subscription ID.
+#: includes/Admin/Menu.php:595
 #, php-format
 msgid "Subscription #%d not found."
 msgstr ""
 
-#: includes/Admin/Menu.php:604
+#. translators: Subscription ID.
+#: includes/Admin/Menu.php:607
 #, php-format
 msgid "Failed to move subscription #%d to trash."
 msgstr ""
 
-#: includes/Admin/Menu.php:612
+#. translators: Subscription ID.
+#: includes/Admin/Menu.php:619
 #, php-format
 msgid "Failed to restore subscription #%d."
 msgstr ""
 
-#: includes/Admin/Menu.php:620
+#. translators: Subscription ID.
+#: includes/Admin/Menu.php:631
 #, php-format
 msgid "Failed to delete subscription #%d."
 msgstr ""
 
-#: includes/Admin/Menu.php:625
+#. translators: Bulk action.
+#: includes/Admin/Menu.php:640
 #, php-format
 msgid "Unknown action: %s"
 msgstr ""
 
-#: includes/Admin/Menu.php:629
+#. translators: Subscription ID, Error message.
+#: includes/Admin/Menu.php:648
 #, php-format
 msgid "Error processing subscription #%1$d: %2$s"
 msgstr ""
 
-#: includes/Admin/Menu.php:638
+#. translators: Number of subscriptions.
+#: includes/Admin/Menu.php:662
 #, php-format
 msgid "%d subscription moved to trash."
 msgid_plural "%d subscriptions moved to trash."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Menu.php:641
+#. translators: Number of subscriptions.
+#: includes/Admin/Menu.php:669
 #, php-format
 msgid "%d subscription restored."
 msgid_plural "%d subscriptions restored."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Menu.php:644
+#. translators: Number of subscriptions.
+#: includes/Admin/Menu.php:676
 #, php-format
 msgid "%d subscription permanently deleted."
 msgid_plural "%d subscriptions permanently deleted."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Menu.php:650
+#: includes/Admin/Menu.php:684
 msgid "Some errors occurred:"
 msgstr ""
 
-#: includes/Admin/Menu.php:656
+#: includes/Admin/Menu.php:690
 msgid "No subscriptions were processed."
 msgstr ""
 
@@ -225,7 +234,7 @@ msgstr ""
 
 #: includes/Admin/Subscriptions.php:115
 #: includes/Admin/Subscriptions.php:384
-#: includes/Admin/Subscriptions.php:521
+#: includes/Admin/Subscriptions.php:528
 #: includes/Admin/views/order-history.php:22
 #: includes/Admin/views/related-subscriptions.php:12
 #: includes/Frontend/Order.php:67
@@ -277,8 +286,8 @@ msgid "Cancel Subscription"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:353
-#: includes/Admin/Subscriptions.php:525
-#: templates/emails/renew-reminder-html.php:31
+#: includes/Admin/Subscriptions.php:532
+#: templates/emails/renew-reminder-html.php:34
 #: templates/emails/status-changed-admin-html.php:31
 #: templates/emails/subscription-cancelled-html.php:30
 #: templates/emails/subscription-expired-html.php:34
@@ -292,7 +301,7 @@ msgid "Cost"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:361
-#: templates/emails/renew-reminder-html.php:35
+#: templates/emails/renew-reminder-html.php:38
 #: templates/emails/status-changed-admin-html.php:35
 #: templates/emails/subscription-cancelled-html.php:34
 #: templates/emails/subscription-expired-html.php:38
@@ -300,7 +309,7 @@ msgid "Qty"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:369
-#: includes/Admin/Subscriptions.php:561
+#: includes/Admin/Subscriptions.php:568
 #: includes/Admin/views/subscription-info.php:109
 #: templates/myaccount/single.php:156
 msgid "Total Payments"
@@ -319,7 +328,7 @@ msgid "Payment Method"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:392
-#: includes/Admin/Subscriptions.php:536
+#: includes/Admin/Subscriptions.php:543
 msgid "Billing"
 msgstr ""
 
@@ -362,89 +371,90 @@ msgstr ""
 msgid "N/A"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:512
+#. translators: Subscription ID.
+#: includes/Admin/Subscriptions.php:515
 #, php-format
 msgid "Subscription #%d details"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:518
+#: includes/Admin/Subscriptions.php:525
 msgid "General"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:533
+#: includes/Admin/Subscriptions.php:540
 msgid "Subscription Terms"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:549
+#: includes/Admin/Subscriptions.php:556
 msgid "Signup Fee"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:555
+#: includes/Admin/Subscriptions.php:562
 #: includes/Frontend/Cart.php:122
 msgid "Free Trial"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:570
+#: includes/Admin/Subscriptions.php:577
 msgid "Schedule Dates"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:573
+#: includes/Admin/Subscriptions.php:580
 msgid "Started"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:577
+#: includes/Admin/Subscriptions.php:584
 #: templates/myaccount/subscriptions.php:24
 msgid "Next Payment"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:777
-#: includes/Admin/Subscriptions.php:778
+#: includes/Admin/Subscriptions.php:784
+#: includes/Admin/Subscriptions.php:785
 msgid "Overview"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:786
-#: includes/Admin/Subscriptions.php:787
+#: includes/Admin/Subscriptions.php:793
+#: includes/Admin/Subscriptions.php:794
 msgid "All Subscriptions"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:796
-#: includes/Admin/Subscriptions.php:797
+#: includes/Admin/Subscriptions.php:803
+#: includes/Admin/Subscriptions.php:804
 msgid "Go Pro"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:812
+#: includes/Admin/Subscriptions.php:819
 msgid "WP Subscription Overview"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:814
+#: includes/Admin/Subscriptions.php:821
 msgid "WP Subscription is the most seamless and reliable WooCommerce subscription solution for store owners looking to grow recurring revenue. Easily manage recurring payments, automate renewals, and delight your customers with flexible plans."
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:817
+#: includes/Admin/Subscriptions.php:824
 msgid "Documentation"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:818
+#: includes/Admin/Subscriptions.php:825
 msgid "Website"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:827
+#: includes/Admin/Subscriptions.php:834
 msgid "What does Subscriptions for WooCommerce do?"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:829
+#: includes/Admin/Subscriptions.php:836
 msgid "Subscriptions for WooCommerce enables you to create and manage recurring payment products and services with ease. Automate renewals, offer flexible billing schedules, and provide your customers with a seamless subscription experience. Whether you sell digital content, physical goods, or memberships, WP Subscription gives you the tools to grow your recurring revenue."
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:833
+#: includes/Admin/Subscriptions.php:840
 msgid "Highlights"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:890
+#: includes/Admin/Subscriptions.php:897
 msgid "Upgrade to WP Subscription Pro"
 msgstr ""
 
-#: includes/Admin/Subscriptions.php:892
+#: includes/Admin/Subscriptions.php:899
 msgid "Unlock the full power of subscriptions for WooCommerce. Get advanced features, priority support, and more ways to grow your recurring revenue."
 msgstr ""
 
@@ -895,7 +905,8 @@ msgstr ""
 msgid "Choose Action"
 msgstr ""
 
-#: includes/Ajax.php:64
+#. translators: Plugin name and version.
+#: includes/Ajax.php:66
 #, php-format
 msgid "Installing Plugin: %s"
 msgstr ""
@@ -1121,22 +1132,6 @@ msgstr ""
 #: includes/Illuminate/AutoRenewal.php:37
 #: includes/Illuminate/AutoRenewal.php:46
 msgid "Subscription early renewal order creation failed due to product deletion !"
-msgstr ""
-
-#: includes/Illuminate/Emails/RenewReminder.php:23
-msgid "Subscription Renewal Reminder"
-msgstr ""
-
-#: includes/Illuminate/Emails/RenewReminder.php:24
-msgid "This email is sent to customer for renewing subscription before expire."
-msgstr ""
-
-#: includes/Illuminate/Emails/RenewReminder.php:42
-msgid "Reminder for the Subscription renewal #{subscription_id}"
-msgstr ""
-
-#: includes/Illuminate/Emails/RenewReminder.php:91
-msgid "Number of days before the next subscription payment."
 msgstr ""
 
 #: includes/Illuminate/Emails/StatusChangedAdmin.php:22
@@ -1386,6 +1381,10 @@ msgstr ""
 msgid "PayPal Product Creation Error: Product data is incomplete. Name and type are required."
 msgstr ""
 
+#: includes/Illuminate/Gateways/Stripe/Stripe.php:92
+msgid "Customer not found"
+msgstr ""
+
 #. translators: %1$s: order id, %2$d: payment number, %3$d: total payments
 #: includes/Illuminate/Helper.php:293
 #, php-format
@@ -1423,7 +1422,7 @@ msgstr ""
 msgid "New Subscription"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:741
+#: includes/Illuminate/Helper.php:753
 msgid "Subscription renewal isn't possible due to previous order not completed or deletion."
 msgstr ""
 
@@ -1639,10 +1638,6 @@ msgid_plural "Pending Cancellation <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Illuminate/Stripe.php:56
-msgid "Customer not found"
-msgstr ""
-
 #: includes/Illuminate/views/subscription-table.php:55
 msgid "Status:"
 msgstr ""
@@ -1655,10 +1650,9 @@ msgstr ""
 msgid "Subscription: #{subscription_id}"
 msgstr ""
 
-#. translators: first is older status and last is newly updated status.
 #. translators: Number of days before & day|days.
 #: templates/emails/plains/renew-reminder-plain.php:16
-#: templates/emails/renew-reminder-html.php:20
+#: templates/emails/renew-reminder-html.php:21
 #, php-format
 msgid "You have only %1$s %2$s left! Please renew the subscription before expired"
 msgstr ""
@@ -1704,12 +1698,12 @@ msgstr ""
 #: templates/emails/plains/status-changed-admin-plain.php:43
 #: templates/emails/plains/subscription-cancelled-plain.php:40
 #: templates/emails/plains/subscription-expired-plain.php:40
-#: templates/emails/renew-reminder-html.php:51
+#: templates/emails/renew-reminder-html.php:54
 #: templates/emails/status-changed-admin-html.php:51
 #: templates/emails/subscription-cancelled-html.php:50
 #: templates/emails/subscription-expired-html.php:54
 #, php-format
-msgid "You can view and edit this subscription in the dashboard here: %s"
+msgid "You can view the subscription here: %s"
 msgstr ""
 
 #. translators: first is older status and last is newly updated status.
@@ -1719,7 +1713,6 @@ msgstr ""
 msgid "Subscription status changed from %1$s to %2$s"
 msgstr ""
 
-#. translators: first is older status and last is newly updated status.
 #. translators: <b></b> tag.
 #: templates/emails/plains/subscription-cancelled-plain.php:15
 #: templates/emails/subscription-cancelled-html.php:19
@@ -1727,7 +1720,6 @@ msgstr ""
 msgid "Your subscription is %1$s Cancelled! %2$s"
 msgstr ""
 
-#. translators: first is older status and last is newly updated status.
 #. translators: <b></b> tag.
 #: templates/emails/plains/subscription-expired-plain.php:15
 #: templates/emails/subscription-expired-html.php:23
@@ -1735,14 +1727,14 @@ msgstr ""
 msgid "Your subscription is %1$s Expired! %2$s"
 msgstr ""
 
-#: templates/emails/renew-reminder-html.php:27
+#: templates/emails/renew-reminder-html.php:30
 #: templates/emails/status-changed-admin-html.php:27
 #: templates/emails/subscription-cancelled-html.php:26
 #: templates/emails/subscription-expired-html.php:30
 msgid "Subscription Id"
 msgstr ""
 
-#: templates/emails/renew-reminder-html.php:39
+#: templates/emails/renew-reminder-html.php:42
 #: templates/emails/status-changed-admin-html.php:39
 #: templates/emails/subscription-cancelled-html.php:38
 #: templates/emails/subscription-expired-html.php:42
