@@ -15,7 +15,8 @@ wp_enqueue_style( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/c
 ?>
 <div class="woocommerce">
 	<h1 class="wp-heading-inline"><?php esc_html_e( 'Subscription Settings', 'wp_subscription' ); ?></h1>
-	<hr class="wp-header-end">
+	<hr class="wp-header-end"><br/>
+
 	<form method="post" action="options.php" class="woocommerce-settings">
 		<div class="woocommerce-card">
 			<?php settings_fields( 'wp_subscription_settings' ); ?>
@@ -203,7 +204,10 @@ wp_enqueue_style( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/c
 					<?php endif; ?>
 				</tbody>
 			</table>
-			<?php submit_button( __( 'Save changes', 'wp_subscription' ), 'primary large' ); ?>
+			
+			<div style="margin-top: 20px;">
+				<?php submit_button( __( 'Save changes', 'wp_subscription' ), 'primary', 'submit', false ); ?>
+			</div>
 		</div>
 	</form>
 </div>
