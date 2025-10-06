@@ -1,0 +1,68 @@
+/* Scoped toggle styles for this settings screen only */
+.woocommerce .form-table .forminp-checkbox label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle-ui {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  border-radius: 999px;
+  background: #cbd5e1; /* slate-300 */
+  transition: all 0.2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
+  vertical-align: middle;
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle-ui::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle:checked + .wp-subscription-toggle-ui {
+  background: #2271b1; /* WP primary */
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle:checked + .wp-subscription-toggle-ui::after {
+  transform: translateX(20px);
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle:focus + .wp-subscription-toggle-ui {
+  outline: none;
+  outline-offset: 0;
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle:disabled + .wp-subscription-toggle-ui {
+  background: #e5e7eb; /* gray-200 */
+  cursor: not-allowed;
+}
+
+/* Consistent minimum widths for inputs/selects on this screen */
+.woocommerce .form-table td input[type="text"],
+.woocommerce .form-table td input[type="number"],
+.woocommerce .form-table td select,
+.woocommerce .form-table td .select2-container .select2-selection--single {
+  min-width: 25em;
+}
+
+/* Ensure Select2 container reflects min width nicely */
+.woocommerce .form-table td .select2-container {
+  min-width: 25em !important;
+}
