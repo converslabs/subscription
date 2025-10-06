@@ -100,7 +100,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 							</fieldset>
 						</td>
 					</tr>
+					<tr valign="top">
+						<th scope="row" class="titledesc"><?php esc_html_e( 'Allow Guest Checkout', 'wp_subscription' ); ?></th>
+						<td class="forminp forminp-checkbox">
+							<fieldset>
+								<legend class="screen-reader-text"><span><?php esc_html_e( 'Allow Guest Checkout', 'wp_subscription' ); ?></span></legend>
+								<label for="wp_subscription_allow_guest_checkout">
+									<input name="wp_subscription_allow_guest_checkout" id="wp_subscription_allow_guest_checkout" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_allow_guest_checkout', '1' ), '1' ); ?> />
+								</label>
+								<p class="description">
+									<?php esc_html_e( 'Allow customers to checkout without logging in.', 'wp_subscription' ); ?>
+									<br/>
+									<sub>
+										<?php esc_html_e( 'Note: New accounts will be created for guests, if account not exists.', 'wp_subscription' ); ?>
+									</sub>
+								</p>
+							</fieldset>
+						</td>
+					</tr>
+
 					<?php do_action( 'wp_subscription_setting_fields' ); ?>
+
 					<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
 						<!-- PRO Features (subtle, grayed out) -->
 						<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">

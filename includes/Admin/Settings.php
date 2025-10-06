@@ -87,6 +87,14 @@ class Settings {
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
+		register_setting(
+			'wp_subscription_settings',
+			'wp_subscription_allow_guest_checkout',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
 
 		do_action( 'subscrpt_register_settings', 'subscrpt_settings' );
 	}
