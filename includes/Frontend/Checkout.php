@@ -1,4 +1,9 @@
 <?php
+/**
+ * Checkout handlers for subscription plugin.
+ *
+ * @package wp_subscription
+ */
 
 namespace SpringDevs\Subscription\Frontend;
 
@@ -13,10 +18,59 @@ class Checkout {
 	 * Initialize the class
 	 */
 	public function __construct() {
+		// Guest checkout validation.
+		add_action( 'woocommerce_checkout_process', [ $this, 'validate_guest_checkout' ] );
+		add_action( 'woocommerce_store_api_cart_errors', [ $this, 'validate_guest_checkout_storeapi' ] );
+
 		add_action( 'woocommerce_checkout_order_processed', array( $this, 'create_subscription_after_checkout' ) );
 		add_action( 'woocommerce_store_api_checkout_order_processed', array( $this, 'create_subscription_after_checkout_storeapi' ) );
 		add_action( 'woocommerce_resume_order', array( $this, 'remove_subscriptions' ) );
 		add_action( 'woocommerce_checkout_create_order_line_item', array( $this, 'save_order_item_product_meta' ), 10, 3 );
+	}
+
+	/**
+	 * Check if cart/order has subscription and guest checkout are allowed.
+	 */
+	public function is_subs_and_guest_checkout_allowed() {
+		$is_user_logged_in         = is_user_logged_in();
+		$is_guest_checkout_allowed = in_array( get_option( 'wp_subscription_allow_guest_checkout', '1' ), [ 1, '1', 'yes', 'on' ], true );
+		$cart_have_subscription    = false;
+
+		// Check in cart.
+		if ( function_exists( 'WC' ) ) {
+			$cart_items             = WC()->cart->get_cart();
+			$recurrs                = Helper::get_recurrs_from_cart( $cart_items );
+			$cart_have_subscription = count( $recurrs ) > 0;
+		}
+
+		if ( $cart_have_subscription ) {
+			return $is_user_logged_in || $is_guest_checkout_allowed;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Validate guest checkout.
+	 */
+	public function validate_guest_checkout() {
+		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
+			wc_add_notice( __( 'You must be logged in to subscribe.', 'wp_subscription' ), 'error' );
+			return;
+		}
+	}
+
+	/**
+	 * Validate guest checkout on storeAPI.
+	 *
+	 * @param \WP_Error $errors Errors object.
+	 * @return \WP_Error
+	 */
+	public function validate_guest_checkout_storeapi( $errors ) {
+		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
+			$errors->add( 'wp_subscription_login_required', __( 'You must be logged in to subscribe.', 'wp_subscription' ) );
+			return $errors;
+		}
 	}
 
 	/**
