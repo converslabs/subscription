@@ -66,9 +66,13 @@ class ProductList {
 	 * @return void
 	 */
 	public function render_page() {
-		// Get products
-		$products       = $this->get_subscription_products();
-		$total_products = count( $products );
+		// Get products with pagination
+		$result         = $this->get_subscription_products();
+		$products       = $result['products'];
+		$total_products = $result['total'];
+		$max_pages      = $result['max_pages'];
+		$paged          = $result['paged'];
+		$per_page       = $result['per_page'];
 
 		// Load view file
 		include 'views/product-list.php';
@@ -76,16 +80,22 @@ class ProductList {
 
 
 	/**
-	 * Get subscription products
+	 * Get subscription products with pagination
 	 *
-	 * @return array Array of WC_Product objects
+	 * @return array Array with 'products' and 'total' keys
 	 */
 	private function get_subscription_products() {
+		// Get current page
+		$paged    = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
+		$per_page = 10; // Products per page
+
 		$args = array(
 			'post_type'      => 'product',
-			'posts_per_page' => -1,
-			// 'post_status'    => array( 'publish', 'draft', 'private' ),
+			'posts_per_page' => $per_page,
+			'paged'          => $paged,
+			'post_status'    => array( 'publish', 'draft', 'private' ),
 			'meta_query'     => array(
+				'relation' => 'OR',
 				array(
 					'key'     => '_subscrpt_enabled',
 					'value'   => '1',
@@ -96,8 +106,8 @@ class ProductList {
 			'order'          => 'ASC',
 		);
 
-		$products = array();
 		$query    = new \WP_Query( $args );
+		$products = array();
 
 		if ( $query->have_posts() ) {
 			while ( $query->have_posts() ) {
@@ -110,7 +120,13 @@ class ProductList {
 			wp_reset_postdata();
 		}
 
-		return $products;
+		return array(
+			'products'  => $products,
+			'total'     => $query->found_posts,
+			'max_pages' => $query->max_num_pages,
+			'paged'     => $paged,
+			'per_page'  => $per_page,
+		);
 	}
 
 	/**

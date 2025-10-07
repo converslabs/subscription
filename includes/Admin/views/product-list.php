@@ -23,18 +23,52 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<hr class="wp-header-end">
 
 	<?php if ( $total_products > 0 ) : ?>
-		<p class="search-box">
-			<?php
-			printf(
-				/* translators: %d: number of products */
-				esc_html( _n( '%d subscription product found', '%d subscription products found', $total_products, 'sdevs_wc_subs' ) ),
-				$total_products
-			);
-			?>
-		</p>
+		<div class="tablenav top">
+			<div class="alignleft actions">
+				<span class="displaying-num">
+					<?php
+					printf(
+						/* translators: %d: number of products */
+						esc_html( _n( '%d item', '%d items', $total_products, 'sdevs_wc_subs' ) ),
+						$total_products
+					);
+					?>
+				</span>
+			</div>
+			
+			<?php if ( $max_pages > 1 ) : ?>
+				<div class="tablenav-pages">
+					<span class="displaying-num">
+						<?php
+						printf(
+							/* translators: 1: current page, 2: total pages */
+							esc_html__( 'Page %1$d of %2$d', 'sdevs_wc_subs' ),
+							$paged,
+							$max_pages
+						);
+						?>
+					</span>
+					<span class="pagination-links">
+						<?php
+						$page_links = paginate_links(
+							array(
+								'base'      => add_query_arg( 'paged', '%#%' ),
+								'format'    => '',
+								'prev_text' => '&lsaquo;',
+								'next_text' => '&rsaquo;',
+								'total'     => $max_pages,
+								'current'   => $paged,
+								'type'      => 'list',
+							)
+						);
+						echo $page_links;
+						?>
+					</span>
+				</div>
+			<?php endif; ?>
+		</div>
 
 		<form id="posts-filter" method="get">
-			<input type="hidden" name="post_type" value="subscrpt_order" />
 			<input type="hidden" name="page" value="wp-subscription-products" />
 
 			<table class="wp-list-table widefat fixed striped table-view-list posts">
@@ -194,6 +228,40 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</table>
 		</form>
 
+		<?php if ( $max_pages > 1 ) : ?>
+			<div class="tablenav bottom">
+				<div class="alignleft actions"></div>
+				<div class="tablenav-pages">
+					<span class="displaying-num">
+						<?php
+						printf(
+							/* translators: 1: current page, 2: total pages */
+							esc_html__( 'Page %1$d of %2$d', 'sdevs_wc_subs' ),
+							$paged,
+							$max_pages
+						);
+						?>
+					</span>
+					<span class="pagination-links">
+						<?php
+						$page_links = paginate_links(
+							array(
+								'base'      => add_query_arg( 'paged', '%#%' ),
+								'format'    => '',
+								'prev_text' => '&lsaquo;',
+								'next_text' => '&rsaquo;',
+								'total'     => $max_pages,
+								'current'   => $paged,
+								'type'      => 'list',
+							)
+						);
+						echo $page_links;
+						?>
+					</span>
+				</div>
+			</div>
+		<?php endif; ?>
+
 	<?php else : ?>
 		<div class="notice notice-info inline">
 			<p>
@@ -265,6 +333,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 	.row-actions {
 		color: #dcdcde;
 	}
+	.tablenav {
+		height: 100%;
+		clear: both;
+	}
+	.tablenav .displaying-num {
+		margin-right: 10px;
+		padding-top: 8px;
+		color: #646970;
+		font-size: 13px;
+		font-style: normal;
+	}
+	.tablenav-pages {
+		float: right;
+		margin: 0;
+	}
+	.pagination-links {
+		padding-top: 4px;
+	}
+	.pagination-links .page-numbers {
+		display: inline-block;
+		min-width: 24px;
+		padding: 5px 10px;
+		font-size: 14px;
+		line-height: 1;
+		text-align: center;
+		text-decoration: none;
+	}
+	.pagination-links .page-numbers.current {
+		background-color: #2271b1;
+		color: #fff;
+		border-radius: 3px;
+	}
 	@media screen and (max-width: 782px) {
 		.column-thumb,
 		.column-type,
@@ -273,6 +373,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 		.column-status,
 		.column-subscriptions {
 			display: none;
+		}
+		.tablenav-pages {
+			float: none;
+			margin: 20px 0;
 		}
 	}
 </style>
