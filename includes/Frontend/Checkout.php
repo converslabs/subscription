@@ -226,6 +226,54 @@ class Checkout {
 
 			// User creation notification.
 			do_action( 'woocommerce_created_customer', $user_id, [], true );
+
+			// Copy billing data to user meta.
+			$billing_first_name = $order->get_billing_first_name();
+			$billing_last_name  = $order->get_billing_last_name();
+			$billing_company    = $order->get_billing_company();
+			$billing_address_1  = $order->get_billing_address_1();
+			$billing_address_2  = $order->get_billing_address_2();
+			$billing_city       = $order->get_billing_city();
+			$billing_postcode   = $order->get_billing_postcode();
+			$billing_country    = $order->get_billing_country();
+			$billing_state      = $order->get_billing_state();
+			$billing_email      = $order->get_billing_email();
+			$billing_phone      = $order->get_billing_phone();
+
+			update_user_meta( $user_id, 'billing_first_name', $billing_first_name );
+			update_user_meta( $user_id, 'billing_last_name', $billing_last_name );
+			update_user_meta( $user_id, 'billing_company', $billing_company );
+			update_user_meta( $user_id, 'billing_address_1', $billing_address_1 );
+			update_user_meta( $user_id, 'billing_address_2', $billing_address_2 );
+			update_user_meta( $user_id, 'billing_city', $billing_city );
+			update_user_meta( $user_id, 'billing_postcode', $billing_postcode );
+			update_user_meta( $user_id, 'billing_country', $billing_country );
+			update_user_meta( $user_id, 'billing_state', $billing_state );
+			update_user_meta( $user_id, 'billing_email', $billing_email );
+			update_user_meta( $user_id, 'billing_phone', $billing_phone );
+
+			// Copy shipping data to user meta.
+			$shipping_first_name = ! empty( $order->get_shipping_first_name() ) ? $order->get_shipping_first_name() : $billing_first_name;
+			$shipping_last_name  = ! empty( $order->get_shipping_last_name() ) ? $order->get_shipping_last_name() : $billing_last_name;
+			$shipping_company    = ! empty( $order->get_shipping_company() ) ? $order->get_shipping_company() : $billing_company;
+			$shipping_address_1  = ! empty( $order->get_shipping_address_1() ) ? $order->get_shipping_address_1() : $billing_address_1;
+			$shipping_address_2  = ! empty( $order->get_shipping_address_2() ) ? $order->get_shipping_address_2() : $billing_address_2;
+			$shipping_city       = ! empty( $order->get_shipping_city() ) ? $order->get_shipping_city() : $billing_city;
+			$shipping_postcode   = ! empty( $order->get_shipping_postcode() ) ? $order->get_shipping_postcode() : $billing_postcode;
+			$shipping_country    = ! empty( $order->get_shipping_country() ) ? $order->get_shipping_country() : $billing_country;
+			$shipping_state      = ! empty( $order->get_shipping_state() ) ? $order->get_shipping_state() : $billing_state;
+			$shipping_phone      = ! empty( $order->get_shipping_phone() ) ? $order->get_shipping_phone() : $billing_phone;
+
+			update_user_meta( $user_id, 'shipping_first_name', $shipping_first_name );
+			update_user_meta( $user_id, 'shipping_last_name', $shipping_last_name );
+			update_user_meta( $user_id, 'shipping_company', $shipping_company );
+			update_user_meta( $user_id, 'shipping_address_1', $shipping_address_1 );
+			update_user_meta( $user_id, 'shipping_address_2', $shipping_address_2 );
+			update_user_meta( $user_id, 'shipping_city', $shipping_city );
+			update_user_meta( $user_id, 'shipping_postcode', $shipping_postcode );
+			update_user_meta( $user_id, 'shipping_country', $shipping_country );
+			update_user_meta( $user_id, 'shipping_state', $shipping_state );
+			update_user_meta( $user_id, 'shipping_phone', $shipping_phone );
 		}
 
 		$order->set_customer_id( $user_id );
