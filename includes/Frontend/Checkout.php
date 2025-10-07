@@ -22,10 +22,14 @@ class Checkout {
 		add_action( 'woocommerce_checkout_process', [ $this, 'validate_guest_checkout' ] );
 		add_action( 'woocommerce_store_api_cart_errors', [ $this, 'validate_guest_checkout_storeapi' ] );
 
-		add_action( 'woocommerce_checkout_order_processed', array( $this, 'create_subscription_after_checkout' ) );
-		add_action( 'woocommerce_store_api_checkout_order_processed', array( $this, 'create_subscription_after_checkout_storeapi' ) );
-		add_action( 'woocommerce_resume_order', array( $this, 'remove_subscriptions' ) );
-		add_action( 'woocommerce_checkout_create_order_line_item', array( $this, 'save_order_item_product_meta' ), 10, 3 );
+		// Guest account creation.
+		add_action( 'woocommerce_checkout_create_order', [ $this, 'check_guest_and_maybe_assign_user' ], 10, 2 );
+		add_action( 'woocommerce_store_api_checkout_update_order_meta', [ $this, 'check_guest_and_maybe_assign_user_storeapi' ], 10, 1 );
+
+		add_action( 'woocommerce_checkout_order_processed', [ $this, 'create_subscription_after_checkout' ] );
+		add_action( 'woocommerce_store_api_checkout_order_processed', [ $this, 'create_subscription_after_checkout_storeapi' ] );
+		add_action( 'woocommerce_resume_order', [ $this, 'remove_subscriptions' ] );
+		add_action( 'woocommerce_checkout_create_order_line_item', [ $this, 'save_order_item_product_meta' ], 10, 3 );
 	}
 
 	/**
@@ -88,9 +92,6 @@ class Checkout {
 	 * @param int $order_id Order ID.
 	 */
 	public function create_subscription_after_checkout( $order_id ) {
-		// Assign user to order if needed.
-		$this->maybe_assign_user_to_order( $order_id );
-
 		$order = wc_get_order( $order_id );
 
 		// Grab the post status based on order status.
@@ -169,6 +170,25 @@ class Checkout {
 	}
 
 	/**
+	 * Check guest and maybe assign user.
+	 *
+	 * @param \WC_Order $order Order object.
+	 * @param array     $data Order data.
+	 */
+	public function check_guest_and_maybe_assign_user( $order, $data ) {
+		$this->maybe_assign_user_to_order( $order->get_id() );
+	}
+
+	/**
+	 * Check guest and maybe assign user on storeAPI.
+	 *
+	 * @param \WC_Order $order Order object.
+	 */
+	public function check_guest_and_maybe_assign_user_storeapi( $order ) {
+		$this->maybe_assign_user_to_order( $order->get_id() );
+	}
+
+	/**
 	 * Maybe assign user to order.
 	 *
 	 * @param int $order_id Order ID.
@@ -191,6 +211,11 @@ class Checkout {
 		$email      = $order->get_billing_email();
 		$first_name = $order->get_billing_first_name();
 		$last_name  = $order->get_billing_last_name();
+
+		// Don't proceed if email is empty. (safety check)
+		if ( empty( $email ) ) {
+			return;
+		}
 
 		// Check if user exists with email.
 		$user    = get_user_by( 'email', $email );
