@@ -88,6 +88,9 @@ class Checkout {
 	 * @param int $order_id Order ID.
 	 */
 	public function create_subscription_after_checkout( $order_id ) {
+		// Assign user to order if needed.
+		$this->maybe_assign_user_to_order( $order_id );
+
 		$order = wc_get_order( $order_id );
 
 		// Grab the post status based on order status.
@@ -163,6 +166,70 @@ class Checkout {
 
 			do_action( 'subscrpt_product_checkout', $order_item, $product, $post_status );
 		}
+	}
+
+	/**
+	 * Maybe assign user to order.
+	 *
+	 * @param int $order_id Order ID.
+	 */
+	public function maybe_assign_user_to_order( $order_id ) {
+		// Don't proceed if guest checkout is not allowed.
+		$is_guest_checkout_allowed = in_array( get_option( 'wp_subscription_allow_guest_checkout', '1' ), [ 1, '1', 'yes', 'on' ], true );
+		if ( ! $is_guest_checkout_allowed ) {
+			return;
+		}
+
+		$order = wc_get_order( $order_id );
+
+		// Don't proceed if order already have an user.
+		if ( $order->get_customer_id() ) {
+			return;
+		}
+
+		// Order not have an user. Proceed to create/assign user.
+		$email      = $order->get_billing_email();
+		$first_name = $order->get_billing_first_name();
+		$last_name  = $order->get_billing_last_name();
+
+		// Check if user exists with email.
+		$user    = get_user_by( 'email', $email );
+		$user_id = $user ? $user->ID : 0;
+
+		if ( ! $user ) {
+			$username = sanitize_user( current( explode( '@', $email ) ), true );
+			if ( username_exists( $username ) ) {
+				$username .= '_' . wp_generate_password( 4, false );
+			}
+
+			// Create user.
+			$args = [
+				'user_login'   => $username,
+				'user_email'   => $email,
+				'first_name'   => $first_name,
+				'last_name'    => $last_name,
+				'display_name' => trim( "$first_name $last_name" ),
+				'role'         => 'customer',
+			];
+
+			$user_id = wp_insert_user( $args );
+
+			if ( is_wp_error( $user_id ) ) {
+				// Translators: %s: Error message.
+				$order->add_order_note( __( 'Failed to auto-create user. Please assign a user to the order manually. Otherwise, renewals may not work properly.', 'wp_subscription' ) );
+
+				wp_subscrpt_write_log( 'Failed to auto-create user during checkout. Error: ' . $user_id->get_error_message() );
+				return;
+			}
+
+			$order->add_order_note( __( 'A user account auto created and assigned to the order.', 'wp_subscription' ) );
+
+			// User creation notification.
+			do_action( 'woocommerce_created_customer', $user_id, [], true );
+		}
+
+		$order->set_customer_id( $user_id );
+		$order->save();
 	}
 
 	/**
