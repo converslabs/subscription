@@ -33,7 +33,6 @@ class ProductList {
 	 * @return void
 	 */
 	public function add_menu_page() {
-		// Add under WP Subscription menu
 		add_submenu_page(
 			'wp-subscription',
 			__( 'Subscription Products', 'sdevs_wc_subs' ),
@@ -41,7 +40,7 @@ class ProductList {
 			'manage_woocommerce',
 			'wp-subscription-products',
 			array( $this, 'render_page' ),
-			01
+			1
 		);
 	}
 
@@ -52,11 +51,10 @@ class ProductList {
 	 * @return void
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( 'subscrpt_order_page_wp-subscription-products' !== $hook ) {
+		if ( 'wp-subscription_page_wp-subscription-products' !== $hook ) {
 			return;
 		}
 
-		// Enqueue WooCommerce admin styles
 		wp_enqueue_style( 'woocommerce_admin_styles' );
 	}
 
@@ -82,48 +80,74 @@ class ProductList {
 	/**
 	 * Get subscription products with pagination
 	 *
-	 * @return array Array with 'products' and 'total' keys
+	 * @return array Array with products and pagination data
 	 */
 	private function get_subscription_products() {
-		// Get current page
-		$paged    = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
-		$per_page = 10; // Products per page
+		$paged    = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;
+		$per_page = 10;
 
-		$args = array(
-			'post_type'      => 'product',
-			'posts_per_page' => $per_page,
-			'paged'          => $paged,
-			'post_status'    => array( 'publish', 'draft', 'private' ),
-			'meta_query'     => array(
-				'relation' => 'OR',
+		$base_args = array(
+			'type'       => array( 'simple', 'variable' ),
+			'status'     => array( 'publish', 'draft', 'private' ),
+			'meta_query' => array(
 				array(
 					'key'     => '_subscrpt_enabled',
 					'value'   => '1',
 					'compare' => '=',
 				),
 			),
-			'orderby'        => 'title',
-			'order'          => 'ASC',
+			'orderby'    => 'name',
+			'order'      => 'ASC',
 		);
 
-		$query    = new \WP_Query( $args );
-		$products = array();
+		// Get total count
+		$count_args = array_merge(
+			$base_args,
+			array(
+				'limit'  => -1,
+				'return' => 'ids',
+			)
+		);
 
-		if ( $query->have_posts() ) {
-			while ( $query->have_posts() ) {
-				$query->the_post();
-				$product = wc_get_product( get_the_ID() );
-				if ( $product ) {
-					$products[] = $product;
-				}
-			}
-			wp_reset_postdata();
+		$all_product_ids = wc_get_products( $count_args );
+		$total           = count( $all_product_ids );
+
+		if ( empty( $all_product_ids ) ) {
+			return $this->get_empty_result( $paged, $per_page );
 		}
+
+		// Get paginated products
+		$product_args = array_merge(
+			$base_args,
+			array(
+				'limit'  => $per_page,
+				'offset' => ( $paged - 1 ) * $per_page,
+			)
+		);
+
+		$products = wc_get_products( $product_args );
 
 		return array(
 			'products'  => $products,
-			'total'     => $query->found_posts,
-			'max_pages' => $query->max_num_pages,
+			'total'     => $total,
+			'max_pages' => ceil( $total / $per_page ),
+			'paged'     => $paged,
+			'per_page'  => $per_page,
+		);
+	}
+
+	/**
+	 * Get empty result array
+	 *
+	 * @param int $paged Current page
+	 * @param int $per_page Items per page
+	 * @return array
+	 */
+	private function get_empty_result( $paged, $per_page ) {
+		return array(
+			'products'  => array(),
+			'total'     => 0,
+			'max_pages' => 0,
 			'paged'     => $paged,
 			'per_page'  => $per_page,
 		);
@@ -235,5 +259,48 @@ class ProductList {
 
 		$query = new \WP_Query( $args );
 		return $query->found_posts;
+	}
+
+	/**
+	 * Render pagination
+	 *
+	 * @param int $paged Current page
+	 * @param int $max_pages Maximum pages
+	 * @return void
+	 */
+	public function render_pagination( $paged, $max_pages ) {
+		if ( $max_pages <= 1 ) {
+			return;
+		}
+		?>
+		<div class="tablenav-pages">
+			<span class="displaying-num">
+				<?php
+				printf(
+					/* translators: 1: current page, 2: total pages */
+					esc_html__( 'Page %1$d of %2$d', 'sdevs_wc_subs' ),
+					$paged,
+					$max_pages
+				);
+				?>
+			</span>
+			<span class="pagination-links">
+				<?php
+				$page_links = paginate_links(
+					array(
+						'base'      => add_query_arg( 'paged', '%#%' ),
+						'format'    => '',
+						'prev_text' => '&lsaquo;',
+						'next_text' => '&rsaquo;',
+						'total'     => $max_pages,
+						'current'   => $paged,
+						'type'      => 'list',
+					)
+				);
+				echo $page_links;
+				?>
+			</span>
+		</div>
+		<?php
 	}
 }

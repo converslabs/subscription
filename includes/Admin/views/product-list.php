@@ -36,36 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</span>
 			</div>
 			
-			<?php if ( $max_pages > 1 ) : ?>
-				<div class="tablenav-pages">
-					<span class="displaying-num">
-						<?php
-						printf(
-							/* translators: 1: current page, 2: total pages */
-							esc_html__( 'Page %1$d of %2$d', 'sdevs_wc_subs' ),
-							$paged,
-							$max_pages
-						);
-						?>
-					</span>
-					<span class="pagination-links">
-						<?php
-						$page_links = paginate_links(
-							array(
-								'base'      => add_query_arg( 'paged', '%#%' ),
-								'format'    => '',
-								'prev_text' => '&lsaquo;',
-								'next_text' => '&rsaquo;',
-								'total'     => $max_pages,
-								'current'   => $paged,
-								'type'      => 'list',
-							)
-						);
-						echo $page_links;
-						?>
-					</span>
-				</div>
-			<?php endif; ?>
+			<?php $this->render_pagination( $paged, $max_pages ); ?>
 		</div>
 
 		<form id="posts-filter" method="get">
@@ -228,39 +199,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</table>
 		</form>
 
-		<?php if ( $max_pages > 1 ) : ?>
-			<div class="tablenav bottom">
-				<div class="alignleft actions"></div>
-				<div class="tablenav-pages">
-					<span class="displaying-num">
-						<?php
-						printf(
-							/* translators: 1: current page, 2: total pages */
-							esc_html__( 'Page %1$d of %2$d', 'sdevs_wc_subs' ),
-							$paged,
-							$max_pages
-						);
-						?>
-					</span>
-					<span class="pagination-links">
-						<?php
-						$page_links = paginate_links(
-							array(
-								'base'      => add_query_arg( 'paged', '%#%' ),
-								'format'    => '',
-								'prev_text' => '&lsaquo;',
-								'next_text' => '&rsaquo;',
-								'total'     => $max_pages,
-								'current'   => $paged,
-								'type'      => 'list',
-							)
-						);
-						echo $page_links;
-						?>
-					</span>
-				</div>
-			</div>
-		<?php endif; ?>
+		<div class="tablenav bottom">
+			<div class="alignleft actions"></div>
+			<?php $this->render_pagination( $paged, $max_pages ); ?>
+		</div>
 
 	<?php else : ?>
 		<div class="notice notice-info inline">
