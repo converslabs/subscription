@@ -8,6 +8,7 @@ use SpringDevs\Subscription\Admin\Links;
 use SpringDevs\Subscription\Admin\Menu;
 use SpringDevs\Subscription\Admin\Order as AdminOrder;
 use SpringDevs\Subscription\Admin\Product;
+use SpringDevs\Subscription\Admin\ProductList;
 use SpringDevs\Subscription\Admin\Settings;
 use SpringDevs\Subscription\Admin\Subscriptions;
 use SpringDevs\Subscription\Illuminate\Comments;
@@ -40,6 +41,7 @@ class Admin {
 			new Menu();
 			new Integrations();
 			new Product();
+			new ProductList();
 			new Subscriptions();
 			new AdminOrder();
 			new Comments();
