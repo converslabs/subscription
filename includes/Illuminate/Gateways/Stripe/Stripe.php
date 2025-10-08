@@ -235,7 +235,12 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 
 		$force_save_source = apply_filters( 'wc_stripe_force_save_payment_method', false, $order->get_id() );
 
-		if ( $this->save_payment_method_requested() || $this->has_subscription( $order->get_id() ) || $force_save_source ) {
+		// Only ask Stripe to set up future usage when we actually have a Stripe customer
+		// (logged-in user or a customer created for this order). For guest + iDEAL, this can
+		// leave orders pending if webhooks are not completing the flow.
+		$has_stripe_customer = ! empty( $prepared_source->customer );
+
+		if ( $has_stripe_customer && ( $this->save_payment_method_requested() || $this->has_subscription( $order->get_id() ) || $force_save_source ) ) {
 			$request['setup_future_usage']              = 'off_session';
 			$request['metadata']['save_payment_method'] = 'true';
 		}

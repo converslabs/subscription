@@ -25,6 +25,7 @@ class Checkout {
 		// Guest account creation.
 		add_action( 'woocommerce_checkout_create_order', [ $this, 'check_guest_and_maybe_assign_user' ], 10, 2 );
 		add_action( 'woocommerce_store_api_checkout_update_order_meta', [ $this, 'check_guest_and_maybe_assign_user_storeapi' ], 10, 1 );
+		add_action( 'woocommerce_store_api_checkout_update_customer_from_request', [ $this, 'ensure_user_for_blocks_checkout' ], 10, 1 );
 
 		add_action( 'woocommerce_checkout_order_processed', [ $this, 'create_subscription_after_checkout' ] );
 		add_action( 'woocommerce_store_api_checkout_order_processed', [ $this, 'create_subscription_after_checkout_storeapi' ] );
@@ -189,6 +190,143 @@ class Checkout {
 	}
 
 	/**
+	 * Ensure a WP user exists early in the Blocks checkout lifecycle.
+	 * This allows the Stripe gateway to create/attach a Stripe customer on the PaymentIntent
+	 * for redirect methods (e.g., iDEAL) even for guests.
+	 *
+	 * @param \WC_Customer $customer Customer object.
+	 * @return void
+	 */
+	public function ensure_user_for_blocks_checkout( $customer ) {
+		// If already associated with a user, nothing to do.
+		if ( $customer->get_id() ) {
+			return;
+		}
+
+		$billing_email = $customer->get_billing_email();
+		if ( empty( $billing_email ) ) {
+			// Cannot proceed without an email.
+			return;
+		}
+
+		// Build and maybe create a user.
+		$user_info = $this->build_user_info( $customer );
+		$user_id   = $this->maybe_create_user( $user_info );
+
+		if ( $user_id ) {
+			$customer->set_id( $user_id );
+			$customer->save();
+		}
+	}
+
+	/**
+	 * Build user info from order or customer object.
+	 *
+	 * @param \WC_Order|\WC_Customer $order_or_customer Order or Customer object.
+	 */
+	public function build_user_info( $order_or_customer ): array {
+		$user_info = [];
+
+		// Billing info.
+		$user_info['billing_first_name'] = $order_or_customer->get_billing_first_name();
+		$user_info['billing_last_name']  = $order_or_customer->get_billing_last_name();
+		$user_info['billing_company']    = $order_or_customer->get_billing_company();
+		$user_info['billing_address_1']  = $order_or_customer->get_billing_address_1();
+		$user_info['billing_address_2']  = $order_or_customer->get_billing_address_2();
+		$user_info['billing_city']       = $order_or_customer->get_billing_city();
+		$user_info['billing_postcode']   = $order_or_customer->get_billing_postcode();
+		$user_info['billing_country']    = $order_or_customer->get_billing_country();
+		$user_info['billing_state']      = $order_or_customer->get_billing_state();
+		$user_info['billing_email']      = $order_or_customer->get_billing_email();
+		$user_info['billing_phone']      = $order_or_customer->get_billing_phone();
+
+		// Shipping info.
+		$user_info['shipping_first_name'] = ! empty( $order_or_customer->get_shipping_first_name() ) ? $order_or_customer->get_shipping_first_name() : $user_info['billing_first_name'];
+		$user_info['shipping_last_name']  = ! empty( $order_or_customer->get_shipping_last_name() ) ? $order_or_customer->get_shipping_last_name() : $user_info['billing_last_name'];
+		$user_info['shipping_company']    = ! empty( $order_or_customer->get_shipping_company() ) ? $order_or_customer->get_shipping_company() : $user_info['billing_company'];
+		$user_info['shipping_address_1']  = ! empty( $order_or_customer->get_shipping_address_1() ) ? $order_or_customer->get_shipping_address_1() : $user_info['billing_address_1'];
+		$user_info['shipping_address_2']  = ! empty( $order_or_customer->get_shipping_address_2() ) ? $order_or_customer->get_shipping_address_2() : $user_info['billing_address_2'];
+		$user_info['shipping_city']       = ! empty( $order_or_customer->get_shipping_city() ) ? $order_or_customer->get_shipping_city() : $user_info['billing_city'];
+		$user_info['shipping_postcode']   = ! empty( $order_or_customer->get_shipping_postcode() ) ? $order_or_customer->get_shipping_postcode() : $user_info['billing_postcode'];
+		$user_info['shipping_country']    = ! empty( $order_or_customer->get_shipping_country() ) ? $order_or_customer->get_shipping_country() : $user_info['billing_country'];
+		$user_info['shipping_state']      = ! empty( $order_or_customer->get_shipping_state() ) ? $order_or_customer->get_shipping_state() : $user_info['billing_state'];
+		$user_info['shipping_phone']      = ! empty( $order_or_customer->get_shipping_phone() ) ? $order_or_customer->get_shipping_phone() : $user_info['billing_phone'];
+
+		return $user_info;
+	}
+
+	/**
+	 * Maybe create user from user info.
+	 *
+	 * @param array $user_info User info array.
+	 */
+	public function maybe_create_user( $user_info ): ?int {
+		// Don't proceed if guest checkout is not allowed.
+		$is_guest_checkout_allowed = in_array( get_option( 'wp_subscription_allow_guest_checkout', '1' ), [ 1, '1', 'yes', 'on' ], true );
+		if ( ! $is_guest_checkout_allowed ) {
+			return null;
+		}
+
+		// Check if user exists with email.
+		$user    = get_user_by( 'email', $user_info['billing_email'] );
+		$user_id = $user ? $user->ID : 0;
+
+		if ( ! $user_id ) {
+			$username = sanitize_user( current( explode( '@', $user_info['billing_email'] ) ), true );
+			if ( username_exists( $username ) ) {
+				$username .= '_' . wp_generate_password( 4, false );
+			}
+
+			// Create user.
+			$args = [
+				'user_login'   => $username,
+				'user_email'   => $user_info['billing_email'],
+				'first_name'   => $user_info['billing_first_name'],
+				'last_name'    => $user_info['billing_last_name'],
+				'display_name' => trim( "{$user_info['billing_first_name']} {$user_info['billing_last_name']}" ),
+				'role'         => 'customer',
+			];
+
+			$user_id = wp_insert_user( $args );
+
+			if ( is_wp_error( $user_id ) ) {
+				wp_subscrpt_write_log( 'Failed to auto-create user during checkout. Error: ' . $user_id->get_error_message() );
+				return null;
+			}
+
+			// Set billing info.
+			update_user_meta( $user_id, 'billing_first_name', $user_info['billing_first_name'] );
+			update_user_meta( $user_id, 'billing_last_name', $user_info['billing_last_name'] );
+			update_user_meta( $user_id, 'billing_company', $user_info['billing_company'] );
+			update_user_meta( $user_id, 'billing_address_1', $user_info['billing_address_1'] );
+			update_user_meta( $user_id, 'billing_address_2', $user_info['billing_address_2'] );
+			update_user_meta( $user_id, 'billing_city', $user_info['billing_city'] );
+			update_user_meta( $user_id, 'billing_postcode', $user_info['billing_postcode'] );
+			update_user_meta( $user_id, 'billing_country', $user_info['billing_country'] );
+			update_user_meta( $user_id, 'billing_state', $user_info['billing_state'] );
+			update_user_meta( $user_id, 'billing_email', $user_info['billing_email'] );
+			update_user_meta( $user_id, 'billing_phone', $user_info['billing_phone'] );
+
+			// Set shipping info.
+			update_user_meta( $user_id, 'shipping_first_name', $user_info['shipping_first_name'] );
+			update_user_meta( $user_id, 'shipping_last_name', $user_info['shipping_last_name'] );
+			update_user_meta( $user_id, 'shipping_company', $user_info['shipping_company'] );
+			update_user_meta( $user_id, 'shipping_address_1', $user_info['shipping_address_1'] );
+			update_user_meta( $user_id, 'shipping_address_2', $user_info['shipping_address_2'] );
+			update_user_meta( $user_id, 'shipping_city', $user_info['shipping_city'] );
+			update_user_meta( $user_id, 'shipping_postcode', $user_info['shipping_postcode'] );
+			update_user_meta( $user_id, 'shipping_country', $user_info['shipping_country'] );
+			update_user_meta( $user_id, 'shipping_state', $user_info['shipping_state'] );
+			update_user_meta( $user_id, 'shipping_phone', $user_info['shipping_phone'] );
+
+			// User creation notification.
+			do_action( 'woocommerce_created_customer', $user_id, [], true );
+		}
+
+		return $user_id;
+	}
+
+	/**
 	 * Maybe assign user to order.
 	 *
 	 * @param int $order_id Order ID.
@@ -207,102 +345,14 @@ class Checkout {
 			return;
 		}
 
-		// Order not have an user. Proceed to create/assign user.
-		$email      = $order->get_billing_email();
-		$first_name = $order->get_billing_first_name();
-		$last_name  = $order->get_billing_last_name();
+		// Build and maybe create a user.
+		$user_info = $this->build_user_info( $order );
+		$user_id   = $this->maybe_create_user( $user_info );
 
-		// Don't proceed if email is empty. (safety check)
-		if ( empty( $email ) ) {
-			return;
+		if ( $user_id ) {
+			$order->set_customer_id( $user_id );
+			$order->save();
 		}
-
-		// Check if user exists with email.
-		$user    = get_user_by( 'email', $email );
-		$user_id = $user ? $user->ID : 0;
-
-		if ( ! $user ) {
-			$username = sanitize_user( current( explode( '@', $email ) ), true );
-			if ( username_exists( $username ) ) {
-				$username .= '_' . wp_generate_password( 4, false );
-			}
-
-			// Create user.
-			$args = [
-				'user_login'   => $username,
-				'user_email'   => $email,
-				'first_name'   => $first_name,
-				'last_name'    => $last_name,
-				'display_name' => trim( "$first_name $last_name" ),
-				'role'         => 'customer',
-			];
-
-			$user_id = wp_insert_user( $args );
-
-			if ( is_wp_error( $user_id ) ) {
-				// Translators: %s: Error message.
-				$order->add_order_note( __( 'Failed to auto-create user. Please assign a user to the order manually. Otherwise, renewals may not work properly.', 'wp_subscription' ) );
-
-				wp_subscrpt_write_log( 'Failed to auto-create user during checkout. Error: ' . $user_id->get_error_message() );
-				return;
-			}
-
-			$order->add_order_note( __( 'A user account auto created and assigned to the order.', 'wp_subscription' ) );
-
-			// User creation notification.
-			do_action( 'woocommerce_created_customer', $user_id, [], true );
-
-			// Copy billing data to user meta.
-			$billing_first_name = $order->get_billing_first_name();
-			$billing_last_name  = $order->get_billing_last_name();
-			$billing_company    = $order->get_billing_company();
-			$billing_address_1  = $order->get_billing_address_1();
-			$billing_address_2  = $order->get_billing_address_2();
-			$billing_city       = $order->get_billing_city();
-			$billing_postcode   = $order->get_billing_postcode();
-			$billing_country    = $order->get_billing_country();
-			$billing_state      = $order->get_billing_state();
-			$billing_email      = $order->get_billing_email();
-			$billing_phone      = $order->get_billing_phone();
-
-			update_user_meta( $user_id, 'billing_first_name', $billing_first_name );
-			update_user_meta( $user_id, 'billing_last_name', $billing_last_name );
-			update_user_meta( $user_id, 'billing_company', $billing_company );
-			update_user_meta( $user_id, 'billing_address_1', $billing_address_1 );
-			update_user_meta( $user_id, 'billing_address_2', $billing_address_2 );
-			update_user_meta( $user_id, 'billing_city', $billing_city );
-			update_user_meta( $user_id, 'billing_postcode', $billing_postcode );
-			update_user_meta( $user_id, 'billing_country', $billing_country );
-			update_user_meta( $user_id, 'billing_state', $billing_state );
-			update_user_meta( $user_id, 'billing_email', $billing_email );
-			update_user_meta( $user_id, 'billing_phone', $billing_phone );
-
-			// Copy shipping data to user meta.
-			$shipping_first_name = ! empty( $order->get_shipping_first_name() ) ? $order->get_shipping_first_name() : $billing_first_name;
-			$shipping_last_name  = ! empty( $order->get_shipping_last_name() ) ? $order->get_shipping_last_name() : $billing_last_name;
-			$shipping_company    = ! empty( $order->get_shipping_company() ) ? $order->get_shipping_company() : $billing_company;
-			$shipping_address_1  = ! empty( $order->get_shipping_address_1() ) ? $order->get_shipping_address_1() : $billing_address_1;
-			$shipping_address_2  = ! empty( $order->get_shipping_address_2() ) ? $order->get_shipping_address_2() : $billing_address_2;
-			$shipping_city       = ! empty( $order->get_shipping_city() ) ? $order->get_shipping_city() : $billing_city;
-			$shipping_postcode   = ! empty( $order->get_shipping_postcode() ) ? $order->get_shipping_postcode() : $billing_postcode;
-			$shipping_country    = ! empty( $order->get_shipping_country() ) ? $order->get_shipping_country() : $billing_country;
-			$shipping_state      = ! empty( $order->get_shipping_state() ) ? $order->get_shipping_state() : $billing_state;
-			$shipping_phone      = ! empty( $order->get_shipping_phone() ) ? $order->get_shipping_phone() : $billing_phone;
-
-			update_user_meta( $user_id, 'shipping_first_name', $shipping_first_name );
-			update_user_meta( $user_id, 'shipping_last_name', $shipping_last_name );
-			update_user_meta( $user_id, 'shipping_company', $shipping_company );
-			update_user_meta( $user_id, 'shipping_address_1', $shipping_address_1 );
-			update_user_meta( $user_id, 'shipping_address_2', $shipping_address_2 );
-			update_user_meta( $user_id, 'shipping_city', $shipping_city );
-			update_user_meta( $user_id, 'shipping_postcode', $shipping_postcode );
-			update_user_meta( $user_id, 'shipping_country', $shipping_country );
-			update_user_meta( $user_id, 'shipping_state', $shipping_state );
-			update_user_meta( $user_id, 'shipping_phone', $shipping_phone );
-		}
-
-		$order->set_customer_id( $user_id );
-		$order->save();
 	}
 
 	/**
