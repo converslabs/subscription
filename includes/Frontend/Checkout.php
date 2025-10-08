@@ -177,6 +177,11 @@ class Checkout {
 	 * @param array     $data Order data.
 	 */
 	public function check_guest_and_maybe_assign_user( $order, $data ) {
+		// Don't proceed if user logged in.
+		if ( is_user_logged_in() ) {
+			return;
+		}
+
 		$this->maybe_assign_user_to_order( $order->get_id() );
 	}
 
@@ -186,6 +191,11 @@ class Checkout {
 	 * @param \WC_Order $order Order object.
 	 */
 	public function check_guest_and_maybe_assign_user_storeapi( $order ) {
+		// Don't proceed if user logged in.
+		if ( is_user_logged_in() ) {
+			return;
+		}
+
 		$this->maybe_assign_user_to_order( $order->get_id() );
 	}
 
@@ -198,6 +208,11 @@ class Checkout {
 	 * @return void
 	 */
 	public function ensure_user_for_blocks_checkout( $customer ) {
+		// Don't proceed if user logged in.
+		if ( is_user_logged_in() ) {
+			return;
+		}
+
 		// If already associated with a user, nothing to do.
 		if ( $customer->get_id() ) {
 			return;
