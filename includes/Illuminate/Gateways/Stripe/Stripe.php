@@ -25,6 +25,11 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	public const WPSUBS_SUPPORTED_METHODS = [ 'stripe', 'stripe_ideal', 'stripe_sepa', 'sepa_debit', 'stripe_bancontact' ];
 
 	/**
+	 * Mandate needed methods.
+	 */
+	public const WPSUBS_MANDATE_NEEDED_METHODS = [ 'stripe_ideal', 'stripe_sepa', 'sepa_debit', 'stripe_bancontact' ];
+
+	/**
 	 * Initialize the class
 	 */
 	public function __construct() {
@@ -33,9 +38,6 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 
 		// Ensure a reusable payment method is stored for subscription checkouts (needed for iDEAL/SEPA auto-renewals).
 		add_filter( 'wc_stripe_force_save_payment_method', array( $this, 'force_save_payment_method_for_subscriptions' ), 10, 2 );
-
-		// Inject mandate data for SEPA off-session (mandate_data offline acceptance).
-		add_filter( 'wc_stripe_payment_intent_confirmation_args', array( $this, 'add_confirmation_args' ), 10, 3 );
 
 		// Modify create intent request to add setup_future_usage and customer when needed.
 		add_filter( 'wc_stripe_generate_create_intent_request', [ $this, 'modify_create_intent_request_for_subscriptions' ], 20, 3 );
@@ -281,28 +283,6 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	}
 
 	/**
-	 * Add confirmation args for SEPA off-session (mandate_data offline acceptance).
-	 *
-	 * @param array     $args Confirmation args.
-	 * @param \stdClass $intent PaymentIntent object.
-	 * @param \WC_Order $order Order being confirmed.
-	 * @return array
-	 */
-	public function add_confirmation_args( $args, $intent, $order ) {
-		// When confirming SEPA debit with setup_future_usage off_session, mandate_data is required.
-		if ( isset( $intent->payment_method_types ) && is_array( $intent->payment_method_types ) && in_array( 'sepa_debit', $intent->payment_method_types, true ) ) {
-			if ( ! isset( $args['mandate_data'] ) ) {
-				$args['mandate_data'] = array(
-					'customer_acceptance' => array(
-						'type' => 'offline',
-					),
-				);
-			}
-		}
-		return $args;
-	}
-
-	/**
 	 * Add metadata to stripe payment.
 	 *
 	 * @param array     $metadata Metadata.
@@ -419,10 +399,28 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	 */
 	public function modify_create_intent_request_for_subscriptions( $request, $order, $prepared_source ) {
 		$is_subscription_order = $this->order_has_subscription_relation( $order->get_id() );
-		if ( $is_subscription_order ) {
-			$request['setup_future_usage']              = 'off_session';
-			$request['metadata']['save_payment_method'] = 'true';
+		if ( ! $is_subscription_order ) {
+			return $request;
 		}
+
+		$request['setup_future_usage']              = 'off_session';
+		$request['metadata']['save_payment_method'] = 'true';
+
+		// Ensure we have a customer for future payments
+		if ( ! empty( $prepared_source->customer ) ) {
+			$request['customer'] = $prepared_source->customer;
+		}
+
+		if ( isset( $request['confirm'] ) && true === $request['confirm'] ) {
+			if ( in_array( $order->get_payment_method(), self::WPSUBS_MANDATE_NEEDED_METHODS, true ) ) {
+				$request['mandate_data'] = [
+					'customer_acceptance' => [
+						'type' => 'offline',
+					],
+				];
+			}
+		}
+
 		return $request;
 	}
 }
