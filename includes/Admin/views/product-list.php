@@ -22,25 +22,52 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<hr class="wp-header-end">
 
-	<?php if ( $total_products > 0 ) : ?>
+	<form id="posts-filter" method="get">
+		<input type="hidden" name="page" value="wp-subscription-products" />
+
 		<div class="tablenav top">
 			<div class="alignleft actions">
-				<span class="displaying-num">
-					<?php
-					printf(
-						/* translators: %d: number of products */
-						esc_html( _n( '%d item', '%d items', $total_products, 'sdevs_wc_subs' ) ),
-						$total_products
-					);
-					?>
-				</span>
+				<label for="filter-product-type" class="screen-reader-text"><?php esc_html_e( 'Filter by product type', 'sdevs_wc_subs' ); ?></label>
+				<select name="product_type" id="filter-product-type">
+					<option value=""><?php esc_html_e( 'All product types', 'sdevs_wc_subs' ); ?></option>
+					<option value="simple" <?php selected( isset( $_GET['product_type'] ) ? $_GET['product_type'] : '', 'simple' ); ?>><?php esc_html_e( 'Simple', 'sdevs_wc_subs' ); ?></option>
+					<option value="variable" <?php selected( isset( $_GET['product_type'] ) ? $_GET['product_type'] : '', 'variable' ); ?>><?php esc_html_e( 'Variable', 'sdevs_wc_subs' ); ?></option>
+				</select>
+
+				<label for="filter-payment-type" class="screen-reader-text"><?php esc_html_e( 'Filter by payment type', 'sdevs_wc_subs' ); ?></label>
+				<select name="payment_type" id="filter-payment-type">
+					<option value=""><?php esc_html_e( 'All payment types', 'sdevs_wc_subs' ); ?></option>
+					<option value="recurring" <?php selected( isset( $_GET['payment_type'] ) ? $_GET['payment_type'] : '', 'recurring' ); ?>><?php esc_html_e( 'Recurring', 'sdevs_wc_subs' ); ?></option>
+					<option value="split_payment" <?php selected( isset( $_GET['payment_type'] ) ? $_GET['payment_type'] : '', 'split_payment' ); ?>><?php esc_html_e( 'Split Payment', 'sdevs_wc_subs' ); ?></option>
+				</select>
+
+				<input type="submit" class="button" value="<?php esc_attr_e( 'Filter', 'sdevs_wc_subs' ); ?>">
 			</div>
+
+			<div class="alignleft actions">
+				<label for="post-search-input" class="screen-reader-text"><?php esc_html_e( 'Search Products', 'sdevs_wc_subs' ); ?></label>
+				<input type="search" id="post-search-input" name="s" value="<?php echo esc_attr( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>" placeholder="<?php esc_attr_e( 'Search products...', 'sdevs_wc_subs' ); ?>">
+				<input type="submit" class="button" value="<?php esc_attr_e( 'Search', 'sdevs_wc_subs' ); ?>">
+			</div>
+
+			<?php if ( $total_products > 0 ) : ?>
+				<div class="alignleft actions">
+					<span class="displaying-num">
+						<?php
+						printf(
+							/* translators: %d: number of products */
+							esc_html( _n( '%d item', '%d items', $total_products, 'sdevs_wc_subs' ) ),
+							$total_products
+						);
+						?>
+					</span>
+				</div>
+			<?php endif; ?>
 			
 			<?php $this->render_pagination( $paged, $max_pages ); ?>
 		</div>
 
-		<form id="posts-filter" method="get">
-			<input type="hidden" name="page" value="wp-subscription-products" />
+		<?php if ( $total_products > 0 ) : ?>
 
 			<table class="wp-list-table widefat fixed striped table-view-list posts">
 				<thead>
@@ -62,9 +89,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</th>
 						<th scope="col" class="manage-column column-status">
 							<?php esc_html_e( 'Status', 'sdevs_wc_subs' ); ?>
-						</th>
-						<th scope="col" class="manage-column column-subscriptions">
-							<?php esc_html_e( 'Active Subscriptions', 'sdevs_wc_subs' ); ?>
 						</th>
 					</tr>
 				</thead>
@@ -97,33 +121,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 								</span>
 							</td>
 
-							<!-- Product Name -->
-							<td class="name column-name has-row-actions column-primary" data-colname="<?php esc_attr_e( 'Product Name', 'sdevs_wc_subs' ); ?>">
-								<strong>
-									<a class="row-title" href="<?php echo esc_url( $edit_link ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Edit "%s"', 'sdevs_wc_subs' ), $product_name ) ); ?>">
-										<?php echo esc_html( $product_name ); ?>
-									</a>
-								</strong>
+			<!-- Product Name -->
+			<td class="name column-name has-row-actions column-primary" data-colname="<?php esc_attr_e( 'Product Name', 'sdevs_wc_subs' ); ?>">
+				<strong>
+					<a href="<?php echo esc_url( $edit_link ); ?>" class="row-title" aria-label="<?php echo esc_attr( sprintf( __( 'Edit "%s"', 'sdevs_wc_subs' ), $product_name ) ); ?>">
+						<?php echo esc_html( $product_name ); ?>
+					</a>
+				</strong>
 
-								<div class="row-actions">
-									<span class="edit">
-										<a href="<?php echo esc_url( $edit_link ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Edit "%s"', 'sdevs_wc_subs' ), $product_name ) ); ?>">
-											<?php esc_html_e( 'Edit', 'sdevs_wc_subs' ); ?>
-										</a> | 
-									</span>
-									<span class="view">
-										<a href="<?php echo esc_url( $view_link ); ?>" rel="bookmark" aria-label="<?php echo esc_attr( sprintf( __( 'View "%s"', 'sdevs_wc_subs' ), $product_name ) ); ?>" target="_blank">
-											<?php esc_html_e( 'View', 'sdevs_wc_subs' ); ?>
-										</a>
-									</span>
-									<?php if ( $active_subscriptions > 0 ) : ?>
-										| <span class="subscriptions">
-											<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=subscrpt_order&product_id=' . $product_id ) ); ?>">
-												<?php esc_html_e( 'View Subscriptions', 'sdevs_wc_subs' ); ?>
-											</a>
-										</span>
-									<?php endif; ?>
-								</div>
+				<div class="row-actions">
+					<span class="edit">
+						<a href="<?php echo esc_url( $edit_link ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Edit "%s"', 'sdevs_wc_subs' ), $product_name ) ); ?>">
+							<?php esc_html_e( 'Edit', 'sdevs_wc_subs' ); ?>
+						</a> | 
+					</span>
+					<span class="view">
+						<a href="<?php echo esc_url( $view_link ); ?>" rel="bookmark" aria-label="<?php echo esc_attr( sprintf( __( 'View "%s"', 'sdevs_wc_subs' ), $product_name ) ); ?>" target="_blank">
+							<?php esc_html_e( 'View', 'sdevs_wc_subs' ); ?>
+						</a>
+					</span>
+				</div>
 
 								<button type="button" class="toggle-row">
 									<span class="screen-reader-text"><?php esc_html_e( 'Show more details', 'sdevs_wc_subs' ); ?></span>
@@ -150,24 +167,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php echo $this->get_price_display( $product ); ?>
 							</td>
 
-							<!-- Status -->
-							<td class="column-status" data-colname="<?php esc_attr_e( 'Status', 'sdevs_wc_subs' ); ?>">
-								<mark class="order-status status-<?php echo esc_attr( $status ); ?>">
-									<span><?php echo esc_html( $status_label ); ?></span>
-								</mark>
-							</td>
-
-							<!-- Active Subscriptions -->
-							<td class="column-subscriptions" data-colname="<?php esc_attr_e( 'Active Subscriptions', 'sdevs_wc_subs' ); ?>">
-								<?php if ( $active_subscriptions > 0 ) : ?>
-									<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=subscrpt_order&product_id=' . $product_id ) ); ?>">
-										<?php echo esc_html( $active_subscriptions ); ?>
-									</a>
-								<?php else : ?>
-									<span style="color: #999;">0</span>
-								<?php endif; ?>
-							</td>
-						</tr>
+			<!-- Status -->
+			<td class="column-status" data-colname="<?php esc_attr_e( 'Status', 'sdevs_wc_subs' ); ?>">
+				<mark class="order-status status-<?php echo esc_attr( $status ); ?>">
+					<span><?php echo esc_html( $status_label ); ?></span>
+				</mark>
+			</td>
+		</tr>
 					<?php endforeach; ?>
 				</tbody>
 
@@ -191,20 +197,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<th scope="col" class="manage-column column-status">
 							<?php esc_html_e( 'Status', 'sdevs_wc_subs' ); ?>
 						</th>
-						<th scope="col" class="manage-column column-subscriptions">
-							<?php esc_html_e( 'Active Subscriptions', 'sdevs_wc_subs' ); ?>
-						</th>
 					</tr>
 				</tfoot>
 			</table>
-		</form>
 
-		<div class="tablenav bottom">
-			<div class="alignleft actions"></div>
-			<?php $this->render_pagination( $paged, $max_pages ); ?>
-		</div>
+			<div class="tablenav bottom">
+				<div class="alignleft actions"></div>
+				<?php $this->render_pagination( $paged, $max_pages ); ?>
+			</div>
 
-	<?php else : ?>
+		<?php else : ?>
+			<p><?php esc_html_e( 'No products found matching the selected criteria.', 'sdevs_wc_subs' ); ?></p>
+		<?php endif; ?>
+
+	</form>
+
+	<?php if ( $total_products === 0 && ! isset( $_GET['s'] ) && ! isset( $_GET['product_type'] ) && ! isset( $_GET['payment_type'] ) ) : ?>
 		<div class="notice notice-info inline">
 			<p>
 				<?php esc_html_e( 'No subscription products found.', 'sdevs_wc_subs' ); ?>
@@ -226,15 +234,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		width: 12%;
 	}
 	.column-payment-type {
-		width: 15%;
+		width: 18%;
 	}
 	.column-price {
-		width: 15%;
+		width: 18%;
 	}
 	.column-status {
-		width: 10%;
-	}
-	.column-subscriptions {
 		width: 12%;
 	}
 	.product-thumb {
@@ -260,7 +265,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		background-color: #2271b1;
 		color: #fff;
 	}
-	.payment-type-split {
+	.payment-type-split,
+	.payment-type-split_payment {
 		background-color: #d63638;
 		color: #fff;
 	}
@@ -294,13 +300,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 		padding-top: 4px;
 	}
 	.pagination-links .page-numbers {
-		display: inline-block;
+		display: flex;
 		min-width: 24px;
 		padding: 5px 10px;
 		font-size: 14px;
 		line-height: 1;
 		text-align: center;
 		text-decoration: none;
+		justify-content: center;
 	}
 	.pagination-links .page-numbers.current {
 		background-color: #2271b1;
@@ -312,8 +319,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		.column-type,
 		.column-payment-type,
 		.column-price,
-		.column-status,
-		.column-subscriptions {
+		.column-status {
 			display: none;
 		}
 		.tablenav-pages {
