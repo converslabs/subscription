@@ -27,6 +27,9 @@ class Checkout {
 		add_action( 'woocommerce_store_api_checkout_update_order_meta', [ $this, 'check_guest_and_maybe_assign_user_storeapi' ], 10, 1 );
 		add_action( 'woocommerce_store_api_checkout_update_customer_from_request', [ $this, 'ensure_user_for_blocks_checkout' ], 10, 1 );
 
+		// Guest account logout after checkout.
+		add_action( 'template_redirect', [ $this, 'maybe_logout_guest' ] );
+
 		add_action( 'woocommerce_checkout_order_processed', [ $this, 'create_subscription_after_checkout' ] );
 		add_action( 'woocommerce_store_api_checkout_order_processed', [ $this, 'create_subscription_after_checkout_storeapi' ] );
 		add_action( 'woocommerce_resume_order', [ $this, 'remove_subscriptions' ] );
@@ -338,7 +341,38 @@ class Checkout {
 			do_action( 'woocommerce_created_customer', $user_id, [], true );
 		}
 
+		// Login the user.
+		// ? this is temporary, user will be logged out after the checkout.
+		if ( ! is_user_logged_in() ) {
+			// Log the user in
+			wp_set_current_user( $user_id );
+			wp_set_auth_cookie( $user_id );
+
+			// Optional: trigger login action
+			do_action( 'wp_login', get_userdata( $user_id )->user_login, get_userdata( $user_id ) );
+
+			// Set flag for manual login tracking.
+			set_transient( 'subscrpt_manual_login_' . $user_id, true, 15 * MINUTE_IN_SECONDS );
+
+			wp_subscrpt_write_debug_log( 'Auto-logged in user ID: ' . $user_id . ' after checkout.' );
+		}
+
 		return $user_id;
+	}
+
+	/**
+	 * Maybe logout guest user after checkout.
+	 *
+	 * @return void
+	 */
+	public function maybe_logout_guest() {
+		$user_id = get_current_user_id();
+		if ( $user_id && get_transient( 'subscrpt_manual_login_' . $user_id ) ) {
+			wp_logout();
+			delete_transient( 'subscrpt_manual_login_' . $user_id );
+
+			wp_subscrpt_write_debug_log( 'Auto-logged out user ID: ' . $user_id . ' after checkout.' );
+		}
 	}
 
 	/**
