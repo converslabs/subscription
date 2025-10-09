@@ -36,6 +36,9 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 
 		// Inject mandate data for SEPA off-session (mandate_data offline acceptance).
 		add_filter( 'wc_stripe_payment_intent_confirmation_args', array( $this, 'add_confirmation_args' ), 10, 3 );
+
+		// Modify create intent request to add setup_future_usage and customer when needed.
+		add_filter( 'wc_stripe_generate_create_intent_request', [ $this, 'modify_create_intent_request_for_subscriptions' ], 20, 3 );
 	}
 
 	/**
@@ -405,5 +408,21 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		// @phpcs:ignore
 		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT type FROM %i WHERE order_id=%d ORDER BY id DESC', array( $table_name, $order_id ) ) );
 		return ( $row && isset( $row->type ) && 'renew' === $row->type );
+	}
+
+	/**
+	 * Modify create intent request to add setup_future_usage and customer when needed.
+	 *
+	 * @param array     $request         The arguments for the request.
+	 * @param \WC_Order $order           The order that is being paid for.
+	 * @param object    $prepared_source The source that is used for the payment.
+	 */
+	public function modify_create_intent_request_for_subscriptions( $request, $order, $prepared_source ) {
+		$is_subscription_order = $this->order_has_subscription_relation( $order->get_id() );
+		if ( $is_subscription_order ) {
+			$request['setup_future_usage']              = 'off_session';
+			$request['metadata']['save_payment_method'] = 'true';
+		}
+		return $request;
 	}
 }
