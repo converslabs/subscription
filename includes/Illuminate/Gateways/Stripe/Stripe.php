@@ -25,6 +25,11 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	public const WPSUBS_SUPPORTED_METHODS = [ 'stripe', 'stripe_ideal', 'stripe_sepa', 'sepa_debit', 'stripe_bancontact' ];
 
 	/**
+	 * Mandate needed methods.
+	 */
+	public const WPSUBS_MANDATE_NEEDED_METHODS = [ 'stripe_ideal', 'stripe_sepa', 'sepa_debit', 'stripe_bancontact' ];
+
+	/**
 	 * Initialize the class
 	 */
 	public function __construct() {
@@ -34,8 +39,8 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		// Ensure a reusable payment method is stored for subscription checkouts (needed for iDEAL/SEPA auto-renewals).
 		add_filter( 'wc_stripe_force_save_payment_method', array( $this, 'force_save_payment_method_for_subscriptions' ), 10, 2 );
 
-		// Inject mandate data for SEPA off-session (mandate_data offline acceptance).
-		add_filter( 'wc_stripe_payment_intent_confirmation_args', array( $this, 'add_confirmation_args' ), 10, 3 );
+		// Modify create intent request to add setup_future_usage and customer when needed.
+		add_filter( 'wc_stripe_generate_create_intent_request', [ $this, 'modify_create_intent_request_for_subscriptions' ], 20, 3 );
 	}
 
 	/**
@@ -235,7 +240,12 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 
 		$force_save_source = apply_filters( 'wc_stripe_force_save_payment_method', false, $order->get_id() );
 
-		if ( $this->save_payment_method_requested() || $this->has_subscription( $order->get_id() ) || $force_save_source ) {
+		// Only ask Stripe to set up future usage when we actually have a Stripe customer
+		// (logged-in user or a customer created for this order). For guest + iDEAL, this can
+		// leave orders pending if webhooks are not completing the flow.
+		$has_stripe_customer = ! empty( $prepared_source->customer );
+
+		if ( $has_stripe_customer && ( $this->save_payment_method_requested() || $this->has_subscription( $order->get_id() ) || $force_save_source ) ) {
 			$request['setup_future_usage']              = 'off_session';
 			$request['metadata']['save_payment_method'] = 'true';
 		}
@@ -270,28 +280,6 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		 * @param object $source
 		 */
 		return apply_filters( 'wc_stripe_generate_create_intent_request', $request, $order, $prepared_source );
-	}
-
-	/**
-	 * Add confirmation args for SEPA off-session (mandate_data offline acceptance).
-	 *
-	 * @param array     $args Confirmation args.
-	 * @param \stdClass $intent PaymentIntent object.
-	 * @param \WC_Order $order Order being confirmed.
-	 * @return array
-	 */
-	public function add_confirmation_args( $args, $intent, $order ) {
-		// When confirming SEPA debit with setup_future_usage off_session, mandate_data is required.
-		if ( isset( $intent->payment_method_types ) && is_array( $intent->payment_method_types ) && in_array( 'sepa_debit', $intent->payment_method_types, true ) ) {
-			if ( ! isset( $args['mandate_data'] ) ) {
-				$args['mandate_data'] = array(
-					'customer_acceptance' => array(
-						'type' => 'offline',
-					),
-				);
-			}
-		}
-		return $args;
 	}
 
 	/**
@@ -400,5 +388,39 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		// @phpcs:ignore
 		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT type FROM %i WHERE order_id=%d ORDER BY id DESC', array( $table_name, $order_id ) ) );
 		return ( $row && isset( $row->type ) && 'renew' === $row->type );
+	}
+
+	/**
+	 * Modify create intent request to add setup_future_usage and customer when needed.
+	 *
+	 * @param array     $request         The arguments for the request.
+	 * @param \WC_Order $order           The order that is being paid for.
+	 * @param object    $prepared_source The source that is used for the payment.
+	 */
+	public function modify_create_intent_request_for_subscriptions( $request, $order, $prepared_source ) {
+		$is_subscription_order = $this->order_has_subscription_relation( $order->get_id() );
+		if ( ! $is_subscription_order ) {
+			return $request;
+		}
+
+		$request['setup_future_usage']              = 'off_session';
+		$request['metadata']['save_payment_method'] = 'true';
+
+		// Ensure we have a customer for future payments
+		if ( ! empty( $prepared_source->customer ) ) {
+			$request['customer'] = $prepared_source->customer;
+		}
+
+		if ( isset( $request['confirm'] ) && true === $request['confirm'] ) {
+			if ( in_array( $order->get_payment_method(), self::WPSUBS_MANDATE_NEEDED_METHODS, true ) ) {
+				$request['mandate_data'] = [
+					'customer_acceptance' => [
+						'type' => 'offline',
+					],
+				];
+			}
+		}
+
+		return $request;
 	}
 }
