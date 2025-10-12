@@ -723,6 +723,18 @@ class Subscriptions {
 					border-bottom: 1px solid #eee;
 					background: #fafafa;
 				}
+
+				/* Remove extra styling from meta boxes */
+				#subscrpt_order_history .inside,
+				#subscrpt_order_activities .inside {
+					margin: 0;
+					padding: 0;
+				}
+
+				#subscrpt_order_history .inside table,
+				#subscrpt_order_activities .inside table {
+					border: none;
+				}
 			</style>
 			<?php
 		endif;
