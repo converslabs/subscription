@@ -1,0 +1,145 @@
+/* Scoped toggle styles for this settings screen only */
+.woocommerce .form-table .forminp-checkbox label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle-ui {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  border-radius: 999px;
+  background: #cbd5e1; /* slate-300 */
+  transition: all 0.2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
+  vertical-align: middle;
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle-ui::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle:checked + .wp-subscription-toggle-ui {
+  background: #2271b1; /* WP primary */
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle:checked + .wp-subscription-toggle-ui::after {
+  transform: translateX(20px);
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle:focus + .wp-subscription-toggle-ui {
+  outline: none;
+  outline-offset: 0;
+}
+
+.woocommerce .form-table .forminp-checkbox .wp-subscription-toggle:disabled + .wp-subscription-toggle-ui {
+  background: #e5e7eb; /* gray-200 */
+  cursor: not-allowed;
+}
+
+/* Consistent minimum widths for inputs/selects on this screen */
+.woocommerce .form-table td input[type="text"],
+.woocommerce .form-table td input[type="number"],
+.woocommerce .form-table td select,
+.woocommerce .form-table td .select2-container .select2-selection--single {
+  min-width: 25em;
+}
+
+/* Ensure Select2 container reflects min width nicely */
+.woocommerce .form-table td .select2-container {
+  min-width: 25em !important;
+}
+
+/* Minimal, consistent spacing and typography */
+.woocommerce .woocommerce-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.woocommerce .form-table th label {
+  font-weight: 600;
+}
+
+.woocommerce .form-table tr {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.woocommerce .form-table th,
+.woocommerce .form-table td {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.woocommerce .form-table p.description {
+  color: #64748b; /* slate-500 */
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* Inputs/selects: subtle, consistent look */
+.woocommerce .form-table td input[type="text"],
+.woocommerce .form-table td input[type="number"],
+.woocommerce .form-table td select {
+  padding: 6px 10px;
+  min-height: 34px;
+  border-radius: 6px;
+  border: 1px solid #d0d7de;
+  transition: all 0.15s cubic-bezier(0.27, 0.2, 0.25, 1.2);
+}
+
+.woocommerce .form-table td input[type="text"]:focus,
+.woocommerce .form-table td input[type="number"]:focus,
+.woocommerce .form-table td select:focus {
+  outline: none;
+  border-color: #2271b1;
+  box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.1);
+}
+
+/* Select2 alignment with inputs */
+.woocommerce .form-table td .select2-container .select2-selection--single {
+  height: 34px;
+  border-radius: 6px;
+  border-color: #d0d7de;
+}
+
+.woocommerce .form-table td .select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 34px;
+}
+
+.woocommerce .form-table td .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 34px;
+}
+
+/* Buttons: match input height and visual rhythm */
+.woocommerce .form-table td .button,
+.woocommerce .form-table td .button-primary,
+.woocommerce .form-table td .button-secondary,
+.woocommerce .woocommerce-card .button,
+.woocommerce .woocommerce-card .button-primary,
+.woocommerce .woocommerce-card .button-secondary,
+.woocommerce .form-table td .button-large,
+.woocommerce .woocommerce-card .button-large {
+  min-height: 34px;
+  line-height: 32px; /* 34px height minus 1px border top/bottom */
+  padding: 4px 12px;
+  border-radius: 6px;
+}

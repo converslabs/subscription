@@ -87,6 +87,14 @@ class Settings {
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
+		register_setting(
+			'wp_subscription_settings',
+			'wp_subscription_allow_guest_checkout',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
 
 		do_action( 'subscrpt_register_settings', 'subscrpt_settings' );
 	}
@@ -105,9 +113,9 @@ class Settings {
 		// Only load on our settings page
 		if ( isset( $_GET['post_type'] ) && strpos( $_GET['post_type'], 'subscrpt_order' ) !== false ) {
 			// WooCommerce admin styles
-			wp_enqueue_style( 'woocommerce_admin_styles', WC()->plugin_url() . '/assets/css/admin.css', array(), WC_VERSION );
+			wp_enqueue_style( 'woocommerce_admin_styles', WC()->plugin_url() . '/assets/css/admin.css', array(), WP_SUBSCRIPTION_VERSION );
 			// Optional: WooCommerce enhanced select2
-			wp_enqueue_style( 'woocommerce_admin_select2', WC()->plugin_url() . '/assets/css/select2.css', array(), WC_VERSION );
+			wp_enqueue_style( 'woocommerce_admin_select2', WC()->plugin_url() . '/assets/css/select2.css', array(), WP_SUBSCRIPTION_VERSION );
 			wp_enqueue_script( 'select2' );
 		}
 	}

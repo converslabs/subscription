@@ -1,11 +1,22 @@
 <?php
+/**
+ * Subscription settings admin view.
+ *
+ * @package wp_subscription
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+// Add admin settings styles.
+wp_enqueue_style( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/css/admin-settings.css', [], WP_SUBSCRIPTION_VERSION );
+
 ?>
 <div class="woocommerce">
 	<h1 class="wp-heading-inline"><?php esc_html_e( 'Subscription Settings', 'wp_subscription' ); ?></h1>
-	<hr class="wp-header-end">
+	<hr class="wp-header-end"><br/>
+
 	<form method="post" action="options.php" class="woocommerce-settings">
 		<div class="woocommerce-card">
 			<?php settings_fields( 'wp_subscription_settings' ); ?>
@@ -33,7 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							</label>
 						</th>
 						<td>
-							<input id="wp_subscription_manual_renew_cart_notice" name="wp_subscription_manual_renew_cart_notice" class="large-text" value="<?php echo esc_attr( get_option( 'wp_subscription_manual_renew_cart_notice' ) ); ?>" type="text"/>
+							<input id="wp_subscription_manual_renew_cart_notice" name="wp_subscription_manual_renew_cart_notice" value="<?php echo esc_attr( get_option( 'wp_subscription_manual_renew_cart_notice' ) ); ?>" type="text"/>
 							<p class="description"><?php esc_html_e( 'Display Notice when Renewal Subscription product add to cart. Only available for Manual Renewal Process.', 'wp_subscription' ); ?></p>
 						</td>
 					</tr>
@@ -69,7 +80,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<fieldset>
 								<legend class="screen-reader-text"><span><?php esc_html_e( 'Accept Stripe Auto Renewals', 'wp_subscription' ); ?></span></legend>
 								<label for="wp_subscription_stripe_auto_renew">
-									<input name="wp_subscription_stripe_auto_renew" id="wp_subscription_stripe_auto_renew" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_stripe_auto_renew', '1' ), '1' ); ?> />
+								<input class="wp-subscription-toggle" name="wp_subscription_stripe_auto_renew" id="wp_subscription_stripe_auto_renew" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_stripe_auto_renew', '1' ), '1' ); ?> />
+								<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
 									<?php esc_html_e( 'Accept Stripe Auto Renewals', 'wp_subscription' ); ?>
 								</label>
 								<p class="description">
@@ -93,14 +105,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<fieldset>
 								<legend class="screen-reader-text"><span><?php esc_html_e( 'Auto Renewal Toggle', 'wp_subscription' ); ?></span></legend>
 								<label for="wp_subscription_auto_renewal_toggle">
-									<input name="wp_subscription_auto_renewal_toggle" id="wp_subscription_auto_renewal_toggle" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_auto_renewal_toggle', '1' ), '1' ); ?> />
+								<input class="wp-subscription-toggle" name="wp_subscription_auto_renewal_toggle" id="wp_subscription_auto_renewal_toggle" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_auto_renewal_toggle', '1' ), '1' ); ?> />
+								<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
 									<?php esc_html_e( 'Display the auto renewal toggle', 'wp_subscription' ); ?>
 								</label>
 								<p class="description"><?php esc_html_e( 'Allow customers to turn on and off automatic renewals from their Subscription details page.', 'wp_subscription' ); ?></p>
 							</fieldset>
 						</td>
 					</tr>
+					<tr valign="top">
+						<th scope="row" class="titledesc"><?php esc_html_e( 'Allow Guest Checkout', 'wp_subscription' ); ?></th>
+						<td class="forminp forminp-checkbox">
+							<fieldset>
+								<legend class="screen-reader-text"><span><?php esc_html_e( 'Allow Guest Checkout', 'wp_subscription' ); ?></span></legend>
+								<label for="wp_subscription_allow_guest_checkout">
+								<input class="wp-subscription-toggle" name="wp_subscription_allow_guest_checkout" id="wp_subscription_allow_guest_checkout" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_allow_guest_checkout', '0' ), '1' ); ?> />
+								<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
+								</label>
+								<p class="description">
+									<?php esc_html_e( 'Allow customers to checkout without logging in.', 'wp_subscription' ); ?>
+									<br/>
+									<sub>
+										<?php esc_html_e( 'Note: New accounts will be created for guests, if account not exists.', 'wp_subscription' ); ?>
+									</sub>
+								</p>
+							</fieldset>
+						</td>
+					</tr>
+
 					<?php do_action( 'wp_subscription_setting_fields' ); ?>
+
 					<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
 						<!-- PRO Features (subtle, grayed out) -->
 						<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
@@ -153,7 +187,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<label><?php esc_html_e( 'Early Renewal', 'wp_subscription' ); ?></label>
 							</th>
 							<td>
-								<input type="checkbox" disabled />
+								<input class="wp-subscription-toggle" type="checkbox" disabled />
+								<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
 								<p class="description">Allow early renewal for subscriptions <span style="color:#2196f3;font-weight:600;">PRO</span></p>
 							</td>
 						</tr>
@@ -169,7 +204,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php endif; ?>
 				</tbody>
 			</table>
-			<?php submit_button( __( 'Save changes', 'wp_subscription' ), 'primary large' ); ?>
+			
+			<div style="margin-top: 20px;">
+				<?php submit_button( __( 'Save changes', 'wp_subscription' ), 'primary', 'submit', false ); ?>
+			</div>
 		</div>
 	</form>
 </div>
