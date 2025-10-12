@@ -45,7 +45,17 @@ use SpringDevs\Subscription\Illuminate\Helper;
 				$post_status_object = get_post_status_object( get_post_status() );
 				$product_name       = $order_item->get_name();
 				$product_link       = get_the_permalink( $product_id );
-				$product_price_html = Helper::format_price_with_order_item( get_post_meta( get_the_ID(), '_subscrpt_price', true ), $order_item->get_id() );
+
+				$price          = get_post_meta( get_the_ID(), '_subscrpt_price', true );
+				$price_excl_tax = (float) $order_item->get_total();
+				$tax_amount     = (float) $order_item->get_total_tax();
+
+				if ( $tax_amount > 0 ) {
+					$price = $price_excl_tax + $tax_amount;
+					$price = number_format( (float) $price, 2, '.', '' );
+				}
+
+				$product_price_html = Helper::format_price_with_order_item( $price, $order_item->get_id() );
 				?>
 
 				<tr>

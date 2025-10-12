@@ -33,22 +33,29 @@ class Order {
 			<?php endif; ?>
 			<?php
 			foreach ( $histories as $history ) :
-					$order_item      = $order->get_item( $history->order_item_id );
-					$order_item_meta = wc_get_order_item_meta( $history->order_item_id, '_subscrpt_meta', true );
+				$order_item      = $order->get_item( $history->order_item_id );
+				$order_item_meta = wc_get_order_item_meta( $history->order_item_id, '_subscrpt_meta', true );
 
-					$product_name = $order_item->get_name();
-					$product_link = get_the_permalink( $order_item->get_product_id() );
-					$post         = $history->subscription_id;
-					$cost         = get_post_meta( $post, '_subscrpt_price', true );
-					$order        = $order_item->get_order();
-					$start_date   = get_post_meta( $history->subscription_id, '_subscrpt_start_date', true );
+				$product_name = $order_item->get_name();
+				$product_link = get_the_permalink( $order_item->get_product_id() );
+				$post         = $history->subscription_id;
+				$start_date   = get_post_meta( $history->subscription_id, '_subscrpt_start_date', true );
 
-					$trial_status = null !== $order_item_meta['trial'];
+				$cost           = get_post_meta( $post, '_subscrpt_price', true );
+				$price_excl_tax = (float) $order_item->get_total();
+				$tax_amount     = (float) $order_item->get_total_tax();
+
+				if ( $tax_amount > 0 ) {
+					$cost = $price_excl_tax + $tax_amount;
+					$cost = number_format( (float) $cost, 2, '.', '' );
+				}
+
+				$trial_status = null !== $order_item_meta['trial'];
 				?>
 					<table class="woocommerce-table woocommerce-table--order-details shop_table order_details">
 						<thead>
 						<tr>
-							<th class="woocommerce-table__product-name product-name"><?php echo get_the_title( $post ); ?></th>
+							<th class="woocommerce-table__product-name product-name"><?php echo esc_html( get_the_title( $post ) ); ?></th>
 							<th class="woocommerce-table__product-table product-total"></th>
 						</tr>
 						</thead>

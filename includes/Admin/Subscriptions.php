@@ -488,6 +488,13 @@ class Subscriptions {
 			$cost = $order_item->get_total();
 		}
 
+		$price_excl_tax = (float) $order_item->get_total();
+		$tax_amount     = (float) $order_item->get_total_tax();
+		if ( $tax_amount > 0 ) {
+			$cost = $price_excl_tax + $tax_amount;
+			$cost = number_format( (float) $cost, 2, '.', '' );
+		}
+
 		$subscrpt_status = get_post_status( $post->ID );
 		$started_date    = get_the_date( 'F j, Y g:i A', $post->ID );
 		$next_payment    = get_post_meta( $post->ID, '_subscrpt_next_date', true );

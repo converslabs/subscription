@@ -261,10 +261,31 @@ class Cart {
 						$cart_subscription['trial']
 					);
 
+					// Calculate price including tax
+					$product        = $cart_item['data'];
+					$price_excl_tax = (float) $cart_item['subscription']['per_cost'];
+					$qty            = $cart_item['quantity'];
+
+					// Get tax rate for the product
+					$tax_rates      = \WC_Tax::get_rates( $product->get_tax_class() );
+					$price_incl_tax = $price_excl_tax;
+
+					if ( wc_prices_include_tax() ) {
+						// If prices are inclusive of tax, we already have the right price
+						$price_incl_tax = $price_excl_tax;
+					} else {
+						// If prices are exclusive of tax, calculate tax and add it
+						$tax_amount     = \WC_Tax::calc_tax( $price_excl_tax, $tax_rates, false );
+						$price_incl_tax = $price_excl_tax + array_sum( $tax_amount );
+					}
+
+					// Multiply by quantity and convert to cents for Stripe
+					$total_amount = ( $price_incl_tax * $qty ) * 100;
+
 					$recurrings[] = apply_filters(
 						'subscrpt_cart_recurring_data',
 						array(
-							'price'           => ( (float) $cart_item['subscription']['per_cost'] * $cart_item['quantity'] ) * 100,
+							'price'           => $total_amount,
 							'time'            => $cart_subscription['time'],
 							'type'            => $cart_subscription['type'],
 							'description'     => empty( $cart_subscription['trial'] ) ? 'Next billing on: ' . $next_date : 'First billing on: ' . $start_date,
