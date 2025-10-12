@@ -2,7 +2,7 @@
 
 2025-10-12 - version 1.8.0
 * new: Guest Checkout.
-* fix: Subscription prices with vat.
+* fix: Subscription prices with VAT.
 * improved: Subscription settings page.
 
 2025-10-05 - version 1.7.0

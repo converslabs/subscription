@@ -230,7 +230,7 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 
 = 1.8.0 - Oct 12, 2025 =
 -   new: Guest Checkout.
--   fix: Subscription prices with vat.
+-   fix: Subscription prices with VAT.
 -   improved: Subscription settings page.
 
 = 1.7.0 - Oct 5, 2025 =
