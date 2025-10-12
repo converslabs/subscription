@@ -131,6 +131,27 @@ final class Sdevs_Subscription {
 	public function init_plugin() {
 		$this->includes();
 		$this->init_hooks();
+		$this->init_compatibility();
+	}
+
+	/**
+	 * Initialize WooCommerce Subscriptions compatibility layer.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function init_compatibility() {
+		// Load WooCommerce Subscriptions compatibility layer.
+		$bootstrap_file = WP_SUBSCRIPTION_INCLUDES . '/Compatibility/Bootstrap.php';
+
+		if ( file_exists( $bootstrap_file ) ) {
+			require_once $bootstrap_file;
+
+			// Initialize the compatibility layer.
+			if ( class_exists( '\\SpringDevs\\Subscription\\Compatibility\\Bootstrap' ) ) {
+				\SpringDevs\Subscription\Compatibility\Bootstrap::init();
+			}
+		}
 	}
 
 	/**
