@@ -65,6 +65,17 @@ class MyAccount {
 		$trial       = get_post_meta( $id, '_subscrpt_trial', true );
 		$trial_mode  = get_post_meta( $id, '_subscrpt_trial_mode', true );
 
+		$price          = get_post_meta( $id, '_subscrpt_price', true );
+		$price_excl_tax = (float) $order_item->get_total();
+		$tax_amount     = (float) $order_item->get_total_tax();
+
+		if ( $tax_amount > 0 ) {
+			$price = $price_excl_tax + $tax_amount;
+			$price = number_format( (float) $price, 2, '.', '' );
+		} else {
+			$tax_amount = 0;
+		}
+
 		$subscrpt_nonce = wp_create_nonce( 'subscrpt_nonce' );
 		$action_buttons = array();
 
@@ -160,6 +171,9 @@ class MyAccount {
 				'trial_mode'      => empty( $trial_mode ) ? 'off' : $trial_mode,
 				'order'           => $order,
 				'order_item'      => $order_item,
+				'price'           => $price,
+				'price_excl_tax'  => $price_excl_tax,
+				'tax'             => $tax_amount,
 				'status'          => $post_status_object,
 				'user_cancel'     => $user_cancel,
 				'action_buttons'  => $action_buttons,

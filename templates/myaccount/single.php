@@ -272,7 +272,7 @@ do_action( 'before_single_subscrpt_content' );
 		$order_item_meta    = $order_item->get_meta( '_subscrpt_meta', true );
 		$time               = '1' === $order_item_meta['time'] ? null : $order_item_meta['time'];
 		$type               = subscrpt_get_typos( $order_item_meta['time'], $order_item_meta['type'] );
-		$product_price_html = Helper::format_price_with_order_item( get_post_meta( $id, '_subscrpt_price', true ), $order_item->get_id() );
+		$product_price_html = Helper::format_price_with_order_item( $price, $order_item->get_id() );
 		?>
 		<tr class="order_item">
 			<td class="product-name">
@@ -292,9 +292,23 @@ do_action( 'before_single_subscrpt_content' );
 		<tr>
 			<th scope="row"><?php esc_html_e( 'Subtotal', 'wp_subscription' ); ?>:</th>
 			<td>
-				<span class="woocommerce-Price-amount amount"><?php echo wp_kses_post( wc_price( get_post_meta( $id, '_subscrpt_price', true ), array( 'currency' => $order->get_currency() ) ) ); ?></span>
+				<span class="woocommerce-Price-amount amount">
+					<?php echo wp_kses_post( wc_price( $price_excl_tax, array( 'currency' => $order->get_currency() ) ) ); ?>
+				</span>
 			</td>
 		</tr>
+
+		<?php if ( $tax > 0 ) : ?>
+		<tr>
+			<th scope="row"><?php esc_html_e( 'Tax', 'wp_subscription' ); ?>:</th>
+			<td>
+				<span class="woocommerce-Price-amount amount">
+					<?php echo wp_kses_post( wc_price( $tax, array( 'currency' => $order->get_currency() ) ) ); ?>
+				</span>
+			</td>
+		</tr>
+		<?php endif; ?>
+
 		<tr>
 			<th scope="row"><?php esc_html_e( 'Renew', 'wp_subscription' ); ?>:</th>
 			<td>
@@ -364,7 +378,7 @@ do_action( 'before_single_subscrpt_content' );
 						</span>
 					</td>
 					<td class="order-total">
-						<?php echo wp_kses_post( wc_price( $order_item->get_total(), array( 'currency' => $related_order->get_currency() ) ) ); ?>
+						<?php echo wp_kses_post( wc_price( $order->get_total(), array( 'currency' => $related_order->get_currency() ) ) ); ?>
 					</td>
 				</tr>
 				<?php
