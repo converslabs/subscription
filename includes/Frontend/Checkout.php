@@ -41,7 +41,7 @@ class Checkout {
 	 */
 	public function is_subs_and_guest_checkout_allowed() {
 		$is_user_logged_in         = is_user_logged_in();
-		$is_guest_checkout_allowed = in_array( get_option( 'wp_subscription_allow_guest_checkout', '1' ), [ 1, '1', 'yes', 'on' ], true );
+		$is_guest_checkout_allowed = in_array( get_option( 'wp_subscription_allow_guest_checkout', '0' ), [ 1, '1', 'yes', 'on' ], true );
 		$cart_have_subscription    = false;
 
 		// Check in cart.
@@ -280,7 +280,7 @@ class Checkout {
 	 */
 	public function maybe_create_user( $user_info ): ?int {
 		// Don't proceed if guest checkout is not allowed.
-		$is_guest_checkout_allowed = in_array( get_option( 'wp_subscription_allow_guest_checkout', '1' ), [ 1, '1', 'yes', 'on' ], true );
+		$is_guest_checkout_allowed = in_array( get_option( 'wp_subscription_allow_guest_checkout', '0' ), [ 1, '1', 'yes', 'on' ], true );
 		if ( ! $is_guest_checkout_allowed ) {
 			return null;
 		}
@@ -382,7 +382,7 @@ class Checkout {
 	 */
 	public function maybe_assign_user_to_order( $order_id ) {
 		// Don't proceed if guest checkout is not allowed.
-		$is_guest_checkout_allowed = in_array( get_option( 'wp_subscription_allow_guest_checkout', '1' ), [ 1, '1', 'yes', 'on' ], true );
+		$is_guest_checkout_allowed = in_array( get_option( 'wp_subscription_allow_guest_checkout', '0' ), [ 1, '1', 'yes', 'on' ], true );
 		if ( ! $is_guest_checkout_allowed ) {
 			return;
 		}

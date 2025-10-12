@@ -119,7 +119,7 @@ wp_enqueue_style( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/c
 							<fieldset>
 								<legend class="screen-reader-text"><span><?php esc_html_e( 'Allow Guest Checkout', 'wp_subscription' ); ?></span></legend>
 								<label for="wp_subscription_allow_guest_checkout">
-								<input class="wp-subscription-toggle" name="wp_subscription_allow_guest_checkout" id="wp_subscription_allow_guest_checkout" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_allow_guest_checkout', '1' ), '1' ); ?> />
+								<input class="wp-subscription-toggle" name="wp_subscription_allow_guest_checkout" id="wp_subscription_allow_guest_checkout" type="checkbox" value="0" <?php checked( get_option( 'wp_subscription_allow_guest_checkout', '0' ), '1' ); ?> />
 								<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
 								</label>
 								<p class="description">
