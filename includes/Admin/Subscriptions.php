@@ -724,15 +724,9 @@ class Subscriptions {
 					background: #fafafa;
 				}
 
-				/* Remove extra styling from meta boxes */
-				#subscrpt_order_history .inside,
-				#subscrpt_order_activities .inside {
-					margin: 0;
-					padding: 0;
-				}
-
 				#subscrpt_order_history .inside table,
-				#subscrpt_order_activities .inside table {
+				#subscrpt_order_activities .inside table,
+				#subscription_lmfwc_license .inside table {
 					border: none;
 				}
 			</style>
