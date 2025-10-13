@@ -94,7 +94,7 @@ const RecurringTotals = ({ cart, extensions }) => {
                   <>
                     <br />
                     <small>
-                      {__("This subscription will be built for", "wp_subscription")} {recurring.max_no_payment}{" "}
+                      {__("This subscription will be billed for", "wp_subscription")} {recurring.max_no_payment}{" "}
                       {__("times.", "wp_subscription")}
                     </small>
                   </>
