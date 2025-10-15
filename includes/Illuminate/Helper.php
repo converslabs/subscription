@@ -640,16 +640,21 @@ class Helper {
 
 		$can_user_cancel = get_post_meta( $subscription_id, '_subscrpt_user_cancel', true ) === 'yes';
 
-		$start_date = get_post_meta( $subscription_id, '_subscrpt_start_date', true );
-		$start_date = ! empty( $start_date ) ? gmdate( DATE_RFC2822, $start_date ) : null;
+		$start_datetime = get_post_meta( $subscription_id, '_subscrpt_start_date', true );
+		$start_date     = ! empty( $start_datetime ) ? gmdate( DATE_RFC2822, $start_datetime ) : null;
 
-		$next_date = get_post_meta( $subscription_id, '_subscrpt_next_date', true );
-		$next_date = ! empty( $next_date ) ? gmdate( DATE_RFC2822, $next_date ) : null;
+		$next_datetime = get_post_meta( $subscription_id, '_subscrpt_next_date', true );
+		$next_date     = ! empty( $next_datetime ) ? gmdate( DATE_RFC2822, $next_datetime ) : null;
 
 		$timing_per    = get_post_meta( $subscription_id, '_subscrpt_timing_per', true );
 		$timing_option = get_post_meta( $subscription_id, '_subscrpt_timing_option', true );
 
 		$is_auto_renew = get_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
+
+		$default_grace_period = get_option( 'subscrpt_default_payment_grace_period', '7' );
+		$grace_end_datetime   = $next_datetime + ( (int) $default_grace_period * DAY_IN_SECONDS );
+		$grace_end_date       = gmdate( DATE_RFC2822, $grace_end_datetime );
+		$grace_remaining_days = floor( max( 0, $grace_end_datetime - time() ) / DAY_IN_SECONDS );
 
 		$subscription_data = [
 			'id'              => $subscription_id,
@@ -673,6 +678,13 @@ class Helper {
 			'can_user_cancel' => $can_user_cancel,
 			'is_auto_renew'   => (bool) $is_auto_renew,
 		];
+
+		if ( $next_datetime - time() <= 0 && (int) $default_grace_period > 0 ) {
+			$subscription_data['grace_period'] = [
+				'remaining_days' => $grace_remaining_days,
+				'end_date'       => $grace_end_date,
+			];
+		}
 
 		return $subscription_data;
 	}

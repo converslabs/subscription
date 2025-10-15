@@ -1,4 +1,8 @@
-<?php if ( ! isset( $date_filter ) ) {
+<?php
+
+use SpringDevs\Subscription\Illuminate\Helper;
+
+if ( ! isset( $date_filter ) ) {
 	$date_filter = ''; } ?>
 <?php
 // Determine if filters are active
@@ -87,19 +91,28 @@ for ( $i = 0; $i < 12; $i++ ) {
 			<?php if ( ! empty( $subscriptions ) ) : ?>
 				<?php
 				foreach ( $subscriptions as $subscription ) :
-					$order_id       = get_post_meta( $subscription->ID, '_subscrpt_order_id', true );
-					$order          = wc_get_order( $order_id );
-					$order_item_id  = get_post_meta( $subscription->ID, '_subscrpt_order_item_id', true );
-					$order_item     = $order ? $order->get_item( $order_item_id ) : null;
-					$product_name   = $order_item ? $order_item->get_name() : '-';
+					$subscription_data = Helper::get_subscription_data( $subscription->ID );
+
+					$order_id      = $subscription_data['order']['order_id'] ?? 0;
+					$order_item_id = $subscription_data['order']['order_item_id'] ?? 0;
+					$order         = $order_id ? wc_get_order( $order_id ) : null;
+					$order_item    = $order ? $order->get_item( $order_item_id ) : null;
+					$product_name  = $order_item ? $order_item->get_name() : '-';
+
 					$customer       = $order ? $order->get_formatted_billing_full_name() : '-';
 					$customer_id    = $order ? $order->get_customer_id() : 0;
 					$customer_url   = $customer_id ? admin_url( 'user-edit.php?user_id=' . $customer_id ) : '';
 					$customer_email = $order ? $order->get_billing_email() : '';
-					$start_date     = get_post_meta( $subscription->ID, '_subscrpt_start_date', true );
-					$renewal_date   = get_post_meta( $subscription->ID, '_subscrpt_next_date', true );
-					$status_obj     = get_post_status_object( get_post_status( $subscription->ID ) );
-					$is_trash       = $subscription->post_status === 'trash';
+
+					$start_date   = $subscription_data['start_date'] ? strtotime( $subscription_data['start_date'] ) : 0;
+					$renewal_date = $subscription_data['next_date'] ? strtotime( $subscription_data['next_date'] ) : 0;
+					$status_obj   = get_post_status_object( get_post_status( $subscription->ID ) );
+
+					$is_trash = $subscription->post_status === 'trash';
+
+					$is_grace_period = isset( $subscription_data['grace_period'] ) && $subscription_data['grace_period']['remaining_days'] > 0;
+
+					// dd( '🔽 subscription', $subscription_data, $subscription );
 					?>
 				<tr>
 					<td><input type="checkbox" name="subscription_ids[]" value="<?php echo esc_attr( $subscription->ID ); ?>"></td>
