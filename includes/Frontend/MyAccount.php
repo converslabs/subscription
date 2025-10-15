@@ -72,10 +72,10 @@ class MyAccount {
 		$user_cancel = $subscription_data['user_cancel'] ?? false;
 
 		$start_date = $subscription_data['start_date'] ?? '';
-		$start_date = ! empty( $start_date ) ? gmdate( 'F j, Y', strtotime( $start_date ) ) : __( 'N/A', 'wp_subscription' );
+		$start_date = ! empty( $start_date ) ? gmdate( 'F j, Y', strtotime( $start_date ) ) : '-';
 
 		$next_date = $subscription_data['next_date'] ?? '';
-		$next_date = ! empty( $next_date ) ? gmdate( 'F j, Y', strtotime( $next_date ) ) : __( 'N/A', 'wp_subscription' );
+		$next_date = ! empty( $next_date ) ? gmdate( 'F j, Y', strtotime( $next_date ) ) : '-';
 
 		$trial      = get_post_meta( $id, '_subscrpt_trial', true );
 		$trial_mode = get_post_meta( $id, '_subscrpt_trial_mode', true );

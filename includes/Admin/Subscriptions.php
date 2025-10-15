@@ -485,10 +485,10 @@ class Subscriptions {
 		$verbose_status  = Helper::get_verbose_status( $subscrpt_status );
 
 		$started_date = $subscription_data['start_date'] ?? '';
-		$started_date = ! empty( $started_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $started_date ) ) : __( 'N/A', 'wp_subscription' );
+		$started_date = ! empty( $started_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $started_date ) ) : '-';
 
 		$next_payment_date = $subscription_data['next_date'] ?? '';
-		$next_payment_date = ! empty( $next_payment_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $next_payment_date ) ) : __( 'N/A', 'wp_subscription' );
+		$next_payment_date = ! empty( $next_payment_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $next_payment_date ) ) : '-';
 
 		$is_grace_period = isset( $subscription_data['grace_period'] );
 		$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;

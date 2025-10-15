@@ -40,10 +40,10 @@ use SpringDevs\Subscription\Illuminate\Helper;
 			$trial = get_post_meta( $history->subscription_id, '_subscrpt_trial', true );
 
 			$start_date = $subscription_data['start_date'] ?? '';
-			$start_date = ! empty( $start_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $start_date ) ) : __( 'N/A', 'wp_subscription' );
+			$start_date = ! empty( $start_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $start_date ) ) : '-';
 
 			$next_date = $subscription_data['next_date'] ?? '';
-			$next_date = ! empty( $next_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $next_date ) ) : __( 'N/A', 'wp_subscription' );
+			$next_date = ! empty( $next_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $next_date ) ) : '-';
 
 			$price          = $subscription_data['price'] ?? 0;
 			$price_excl_tax = (float) $order_item->get_total();
