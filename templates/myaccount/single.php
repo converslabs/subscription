@@ -8,8 +8,10 @@
  * @var string $next_date
  * @var string|null $trial
  * @var string|null $trial_mode
- * @var stdClass $status
+ * @var string $status
  * @var array $action_buttons
+ * @var bool $is_grace_period
+ * @var int $grace_remaining
  *
  * This template can be overridden by copying it to <your_theme>/subscription/myaccount/single.php
  *
@@ -48,8 +50,37 @@ do_action( 'before_single_subscrpt_content' );
 		</tr>
 		<tr>
 			<td><?php esc_html_e( 'Status', 'wp_subscription' ); ?></td>
-			<td><span class="subscrpt-<?php echo esc_html( $status->name ); ?>"><?php echo esc_html( $status->label ); ?></span></td>
+			<td>
+				<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
+					<span class="subscrpt-active grace-active">
+						Active
+
+						<?php
+							$grace_remaining_text = sprintf(
+								// translators: Number of days remaining in grace period.
+								__( '%d days remaining!', 'wp_subscription' ),
+								$grace_remaining
+							);
+						?>
+						<span class="grace-icon" data-tooltip="<?php echo esc_attr( $grace_remaining_text ); ?>">
+							<span class="dashicons dashicons-warning"></span>
+						</span>
+					</span>
+				<?php else : ?>
+					<span class="subscrpt-<?php echo esc_attr( strtolower( $status ) ); ?>">
+						<?php echo esc_html( $verbose_status ); ?>
+					</span>
+				<?php endif; ?>
+			</td>
 		</tr>
+
+		<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
+			<tr>
+				<td><?php esc_html_e( 'Grace Period Ends On', 'wp_subscription' ); ?></td>
+				<td><?php echo esc_html( $grace_end_date ); ?></td>
+			</tr>
+		<?php endif; ?>
+
 		<?php if ( null != $trial && 'off' !== $trial ) : ?>
 		<tr>
 			<td><?php esc_html_e( 'Trial', 'wp_subscription' ); ?></td>
@@ -63,7 +94,7 @@ do_action( 'before_single_subscrpt_content' );
 			esc_html_e( $date_label, 'wp_subscription' );
 			?>
 			</td>
-			<td><?php echo esc_html( ! empty( $start_date ) ? gmdate( 'F d, Y', $start_date ) : '-' ); ?></td>
+			<td><?php echo esc_html( $start_date ); ?></td>
 		</tr>
 		<?php if ( null == $trial || in_array( $trial_mode, array( 'off', 'extended' ), true ) ) : ?>
 			<tr>
@@ -73,7 +104,7 @@ do_action( 'before_single_subscrpt_content' );
 				?>
 				</td>
 				<td>
-					<?php echo esc_html( ! empty( $next_date ) ? gmdate( 'F d, Y', $next_date ) : '-' ); ?>
+					<?php echo esc_html( $next_date ); ?>
 				</td>
 			</tr>
 		<?php endif; ?>

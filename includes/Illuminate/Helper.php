@@ -661,7 +661,7 @@ class Helper {
 		$order_id      = get_post_meta( $subscription_id, '_subscrpt_order_id', true );
 		$order_item_id = get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
 
-		$can_user_cancel = get_post_meta( $subscription_id, '_subscrpt_user_cancel', true ) === 'yes';
+		$can_user_cancel = in_array( get_post_meta( $subscription_id, '_subscrpt_user_cancel', true ), [ 1,'1','true','yes' ], true );
 
 		$start_datetime = get_post_meta( $subscription_id, '_subscrpt_start_date', true );
 		$start_date     = ! empty( $start_datetime ) ? gmdate( DATE_RFC2822, $start_datetime ) : null;
