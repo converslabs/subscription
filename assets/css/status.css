@@ -42,3 +42,43 @@ span.subscrpt-draft {
   background: #f3f3f3;
   color: #888;
 }
+
+/* Grace Period */
+span.grace-active {
+  position: relative;
+  display: inline-block;
+  padding-right: 16px;
+}
+
+span.grace-icon {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #fffbeb;
+  border-radius: 50%;
+  padding: 0px;
+}
+
+span.grace-icon .dashicons {
+  color: #f59e0b;
+}
+
+span.grace-icon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: -28px;
+  right: 50%;
+  transform: translateX(50%);
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+span.grace-icon:hover::after {
+  opacity: 1;
+}

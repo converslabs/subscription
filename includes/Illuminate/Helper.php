@@ -623,17 +623,19 @@ class Helper {
 			return null;
 		}
 
-		$status = get_post_status( $subscription_id );
-		$price  = get_post_meta( $subscription_id, '_subscrpt_price', true );
-
-		$signup_fee = get_post_meta( $subscription_id, '_subscrpt_signup_fee', true );
-		$signup_fee = ! empty( $signup_fee ) ? $signup_fee : 0;
-
 		$product_id = get_post_meta( $subscription_id, '_subscrpt_product_id', true );
 		$product_id = ! empty( $product_id ) ? (int) $product_id : 0;
 
 		$variation_id = get_post_meta( $subscription_id, '_subscrpt_variation_id', true );
 		$variation_id = ! empty( $variation_id ) ? (int) $variation_id : 0;
+
+		$chk_product_id = $variation_id ? $variation_id : $product_id;
+
+		$status = get_post_status( $subscription_id );
+		$price  = get_post_meta( $subscription_id, '_subscrpt_price', true );
+
+		$signup_fee = get_post_meta( $subscription_id, '_subscrpt_signup_fee', true );
+		$signup_fee = ! empty( $signup_fee ) ? $signup_fee : 0;
 
 		$order_id      = get_post_meta( $subscription_id, '_subscrpt_order_id', true );
 		$order_item_id = get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
@@ -646,15 +648,24 @@ class Helper {
 		$next_datetime = get_post_meta( $subscription_id, '_subscrpt_next_date', true );
 		$next_date     = ! empty( $next_datetime ) ? gmdate( DATE_RFC2822, $next_datetime ) : null;
 
-		$timing_per    = get_post_meta( $subscription_id, '_subscrpt_timing_per', true );
+		$timing_per = get_post_meta( $subscription_id, '_subscrpt_timing_per', true );
+		$timing_per = empty( $timing_per ) ? get_post_meta( $chk_product_id, '_subscrpt_timing_per', true ) : $timing_per;
+
 		$timing_option = get_post_meta( $subscription_id, '_subscrpt_timing_option', true );
+		$timing_option = empty( $timing_option ) ? get_post_meta( $chk_product_id, '_subscrpt_timing_option', true ) : $timing_option;
+
+		$trial_timing_per = get_post_meta( $subscription_id, '_subscrpt_trial_timing_per', true );
+		$trial_timing_per = empty( $trial_timing_per ) ? get_post_meta( $chk_product_id, '_subscrpt_trial_timing_per', true ) : $trial_timing_per;
+
+		$trial_timing_option = get_post_meta( $subscription_id, '_subscrpt_trial_timing_option', true );
+		$trial_timing_option = empty( $trial_timing_option ) ? get_post_meta( $chk_product_id, '_subscrpt_trial_timing_option', true ) : $trial_timing_option;
 
 		$is_auto_renew = get_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
 
 		$default_grace_period = get_option( 'subscrpt_default_payment_grace_period', '7' );
 		$grace_end_datetime   = $next_datetime + ( (int) $default_grace_period * DAY_IN_SECONDS );
 		$grace_end_date       = gmdate( DATE_RFC2822, $grace_end_datetime );
-		$grace_remaining_days = floor( max( 0, $grace_end_datetime - time() ) / DAY_IN_SECONDS );
+		$grace_remaining_days = ceil( max( 0, $grace_end_datetime - time() ) / DAY_IN_SECONDS );
 
 		$subscription_data = [
 			'id'              => $subscription_id,
@@ -679,7 +690,18 @@ class Helper {
 			'is_auto_renew'   => (bool) $is_auto_renew,
 		];
 
-		if ( $next_datetime - time() <= 0 && (int) $default_grace_period > 0 ) {
+		if ( ! empty( $trial_timing_per ) ) {
+			$subscription_data['trial'] = [
+				'timing_per'    => $trial_timing_per,
+				'timing_option' => $trial_timing_option,
+			];
+		}
+
+		if (
+			! in_array( strtolower( $status ), [ 'cancelled', 'pending' ], true )
+			&& $next_datetime - time() <= 0
+			&& (int) $default_grace_period > 0
+		) {
 			$subscription_data['grace_period'] = [
 				'remaining_days' => $grace_remaining_days,
 				'end_date'       => $grace_end_date,
