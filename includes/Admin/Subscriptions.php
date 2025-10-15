@@ -481,7 +481,8 @@ class Subscriptions {
 			$cost = number_format( (float) $cost, 2, '.', '' );
 		}
 
-		$subscrpt_status = get_post_status( $subscription_id );
+		$subscrpt_status = $subscription_data['status'] ?? '';
+		$verbose_status  = Helper::get_verbose_status( $subscrpt_status );
 
 		$started_date = $subscription_data['start_date'] ?? '';
 		$started_date = ! empty( $started_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $started_date ) ) : __( 'N/A', 'wp_subscription' );
@@ -532,7 +533,7 @@ class Subscriptions {
 									</span>
 								<?php else : ?>
 									<span class="subscrpt-<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
-										<?php echo esc_html( $subscrpt_status ); ?>
+										<?php echo esc_html( $verbose_status ); ?>
 									</span>
 								<?php endif; ?>
 							</td>

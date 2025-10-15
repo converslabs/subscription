@@ -169,7 +169,10 @@ for ( $i = 0; $i < 12; $i++ ) {
 							</span>
 						<?php else : ?>
 							<span class="subscrpt-<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
-								<?php echo esc_html( strlen( $subscrpt_status ) > 9 ? substr( $subscrpt_status, 0, 9 ) . '...' : $subscrpt_status ); ?>
+								<?php
+									$verbose_status = Helper::get_verbose_status( $subscrpt_status );
+									echo esc_html( strlen( $verbose_status ) > 9 ? substr( $verbose_status, 0, 9 ) . '...' : $verbose_status );
+								?>
 							</span>
 						<?php endif; ?>
 					</td>

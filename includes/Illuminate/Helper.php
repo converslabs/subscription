@@ -38,6 +38,27 @@ class Helper {
 	}
 
 	/**
+	 * Get verbose status from status slug.
+	 *
+	 * @param string $status Status.
+	 */
+	public static function get_verbose_status( $status ): string {
+		$statuses = array(
+			'pending'      => __( 'Pending', 'wp_subscription' ),
+			'active'       => __( 'Active', 'wp_subscription' ),
+			'on-hold'      => __( 'On Hold', 'wp_subscription' ),
+			'expired'      => __( 'Expired', 'wp_subscription' ),
+			'pe_cancelled' => __( 'Pending Cancellation', 'wp_subscription' ),
+			'cancelled'    => __( 'Cancelled', 'wp_subscription' ),
+			'draft'        => __( 'Draft', 'wp_subscription' ),
+			'trash'        => __( 'Trash', 'wp_subscription' ),
+		);
+
+		$status = strtolower( $status );
+		return isset( $statuses[ $status ] ) ? $statuses[ $status ] : '';
+	}
+
+	/**
 	 * Generate start date
 	 *
 	 * @param null|string $trial Trial.
