@@ -91,7 +91,11 @@ for ( $i = 0; $i < 12; $i++ ) {
 			<?php if ( ! empty( $subscriptions ) ) : ?>
 				<?php
 				foreach ( $subscriptions as $subscription ) :
-					$subscription_data = Helper::get_subscription_data( $subscription->ID );
+					$subscription_id   = $subscription->ID;
+					$subscription_data = Helper::get_subscription_data( $subscription_id );
+
+					$subscrpt_status = $subscription_data['status'] ?? '';
+					$subscrpt_status = empty( $subscrpt_status ) ? get_post_status( $subscription_id ) : $subscrpt_status;
 
 					$order_id      = $subscription_data['order']['order_id'] ?? 0;
 					$order_item_id = $subscription_data['order']['order_item_id'] ?? 0;
@@ -110,9 +114,8 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 					$is_trash = $subscription->post_status === 'trash';
 
-					$is_grace_period = isset( $subscription_data['grace_period'] ) && $subscription_data['grace_period']['remaining_days'] > 0;
-
-					// dd( '🔽 subscription', $subscription_data, $subscription );
+					$is_grace_period = isset( $subscription_data['grace_period'] );
+					$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
 					?>
 				<tr>
 					<td><input type="checkbox" name="subscription_ids[]" value="<?php echo esc_attr( $subscription->ID ); ?>"></td>
@@ -149,9 +152,26 @@ for ( $i = 0; $i < 12; $i++ ) {
 					<td><?php echo $start_date ? esc_html( gmdate( 'F d, Y', $start_date ) ) : '-'; ?></td>
 					<td><?php echo $renewal_date ? esc_html( gmdate( 'F d, Y', $renewal_date ) ) : '-'; ?></td>
 					<td>
-						<span class="subscrpt-<?php echo esc_attr( $status_obj->name ); ?>">
-							<?php echo esc_html( strlen( $status_obj->label ) > 9 ? substr( $status_obj->label, 0, 9 ) . '...' : $status_obj->label ); ?>
-						</span>
+						<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
+							<span class="subscrpt-active grace-active">
+								Active
+
+								<?php
+									$grace_remaining_text = sprintf(
+										// translators: Number of days remaining in grace period.
+										__( '%d days remaining!', 'wp_subscription' ),
+										$grace_remaining
+									);
+								?>
+								<span class="grace-icon" data-tooltip="<?php echo esc_attr( $grace_remaining_text ); ?>">
+									<span class="dashicons dashicons-warning"></span>
+								</span>
+							</span>
+						<?php else : ?>
+							<span class="subscrpt-<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
+								<?php echo esc_html( strlen( $subscrpt_status ) > 9 ? substr( $subscrpt_status, 0, 9 ) . '...' : $subscrpt_status ); ?>
+							</span>
+						<?php endif; ?>
 					</td>
 					<td>
 						<a href="<?php echo esc_url( get_edit_post_link( $subscription->ID ) ); ?>" class="button button-small"><?php esc_html_e( 'Edit', 'wp_subscription' ); ?></a>

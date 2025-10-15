@@ -515,11 +515,18 @@ class Subscriptions {
 						<tr>
 							<th><?php esc_html_e( 'Status', 'wp_subscription' ); ?></th>
 							<td>
-								<?php if ( $is_grace_period ) : ?>
+								<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
 									<span class="subscrpt-active grace-active">
 										Active
 
-										<span class="grace-icon" data-tooltip="<?php echo esc_attr( 5 . ' days remaining' ); ?>">
+										<?php
+											$grace_remaining_text = sprintf(
+												// translators: Number of days remaining in grace period.
+												__( '%d days remaining!', 'wp_subscription' ),
+												$grace_remaining
+											);
+										?>
+										<span class="grace-icon" data-tooltip="<?php echo esc_attr( $grace_remaining_text ); ?>">
 											<span class="dashicons dashicons-warning"></span>
 										</span>
 									</span>
