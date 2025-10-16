@@ -20,6 +20,9 @@ class AutoRenewal {
 		// Grace period hooks.
 		add_action( 'subscrpt_subscription_expired', [ $this, 'maybe_trigger_grace_start_hook' ] );
 		add_action( 'subscrpt_scheduled_grace_end', [ $this, 'trigger_grace_end_hook' ] );
+
+		// Clear grace period on subscription re-activation.
+		add_action( 'subscrpt_subscription_activated', [ $this, 'clear_grace_period_schedules' ] );
 	}
 
 	/**
@@ -155,5 +158,18 @@ class AutoRenewal {
 
 		// Grace period ended.
 		do_action( 'subscrpt_grace_period_ended', $subscription_id );
+	}
+
+	/**
+	 * Clear grace period schedules.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 */
+	public function clear_grace_period_schedules( $subscription_id ) {
+		$hook = 'subscrpt_scheduled_grace_end';
+		if ( function_exists( 'as_unschedule_action' ) ) {
+			as_unschedule_action( $hook, [ 'subscription_id' => $subscription_id ] );
+		}
+		wp_clear_scheduled_hook( $hook, [ $subscription_id ] );
 	}
 }
