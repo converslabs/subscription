@@ -16,6 +16,10 @@ class AutoRenewal {
 		add_action( 'subscrpt_subscription_expired', array( $this, 'after_subscription_expired' ) );
 		add_filter( 'subscrpt_renewal_item_meta', array( $this, 'filter_renewal_item_meta' ), 10, 2 );
 		add_filter( 'subscrpt_renewal_product_args', array( $this, 'filter_renewal_product_args' ), 10, 3 );
+
+		// Grace period hooks.
+		add_action( 'subscrpt_subscription_expired', [ $this, 'maybe_trigger_grace_start_hook' ] );
+		add_action( 'subscrpt_scheduled_grace_end', [ $this, 'trigger_grace_end_hook' ] );
 	}
 
 	/**
@@ -103,5 +107,53 @@ class AutoRenewal {
 		if ( subscrpt_is_auto_renew_enabled() ) {
 			Helper::create_renewal_order( $subscription_id );
 		}
+	}
+
+	/**
+	 * Maybe run grace period hook.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 */
+	public function maybe_trigger_grace_start_hook( $subscription_id ) {
+		$default_grace_period = get_option( 'subscrpt_default_payment_grace_period', '7' );
+		if ( (int) $default_grace_period <= 0 ) {
+			return;
+		}
+
+		$subscription_data  = Helper::get_subscription_data( $subscription_id );
+		$next_datetime      = ! empty( $subscription_data['next_date'] ) ? strtotime( $subscription_data['next_date'] ) : 0;
+		$grace_end_datetime = $next_datetime + ( (int) $default_grace_period * DAY_IN_SECONDS );
+
+		// If grace period already ended.
+		if ( time() >= $grace_end_datetime ) {
+			return;
+		}
+
+		// Grace period started.
+		do_action( 'subscrpt_grace_period_started', $subscription_id );
+
+		wp_subscrpt_write_log( "Subscription #{$subscription_id} grace period started." );
+
+		// Set hook to run when grace period ends.
+		$hook = 'subscrpt_scheduled_grace_end';
+		if ( function_exists( 'as_schedule_single_action' ) ) {
+			as_unschedule_action( $hook, [ 'subscription_id' => $subscription_id ] );
+			as_schedule_single_action( $grace_end_datetime, $hook, [ 'subscription_id' => $subscription_id ], 'WPSubscription' );
+		} else {
+			wp_clear_scheduled_hook( $hook, [ $subscription_id ] );
+			wp_schedule_single_event( $grace_end_datetime, $hook, [ $subscription_id ] );
+		}
+	}
+
+	/**
+	 * Trigger grace end hook.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 */
+	public function trigger_grace_end_hook( $subscription_id ) {
+		wp_subscrpt_write_log( "Subscription #{$subscription_id} grace period ended." );
+
+		// Grace period ended.
+		do_action( 'subscrpt_grace_period_ended', $subscription_id );
 	}
 }
