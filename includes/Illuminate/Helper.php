@@ -684,6 +684,7 @@ class Helper {
 		$is_auto_renew = get_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
 
 		$default_grace_period = get_option( 'subscrpt_default_payment_grace_period', '7' );
+		$default_grace_period = subscrpt_pro_activated() ? $default_grace_period : 0;
 		$grace_end_datetime   = $next_datetime + ( (int) $default_grace_period * DAY_IN_SECONDS );
 		$grace_end_date       = gmdate( DATE_RFC2822, $grace_end_datetime );
 		$grace_remaining_days = ceil( max( 0, $grace_end_datetime - time() ) / DAY_IN_SECONDS );
