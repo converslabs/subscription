@@ -35,6 +35,7 @@ class GatewayDetector {
 		'ppec_paypal',
 		'mollie_wc_gateway_creditcard',
 		'mollie_wc_gateway_ideal',
+		'mollie_wc_gateway_klarna',
 		'razorpay',
 		'square_credit_card',
 		'woocommerce_payments',

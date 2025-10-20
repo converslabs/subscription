@@ -40,7 +40,18 @@ use SpringDevs\Subscription\Illuminate\Helper;
 				$start_date    = get_post_meta( get_the_ID(), '_subscrpt_start_date', true );
 				$next_date     = get_post_meta( get_the_ID(), '_subscrpt_next_date', true );
 				$order         = wc_get_order( $order_id );
-				$order_item    = $order->get_item( $order_item_id );
+
+				// Check if order and order item exist.
+				if ( ! $order ) {
+					continue;
+				}
+
+				$order_item = $order->get_item( $order_item_id );
+
+				// Skip if order item doesn't exist.
+				if ( ! $order_item ) {
+					continue;
+				}
 
 				$post_status_object = get_post_status_object( get_post_status() );
 				$product_name       = $order_item->get_name();
