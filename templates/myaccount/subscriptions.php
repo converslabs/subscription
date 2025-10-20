@@ -31,22 +31,33 @@ use SpringDevs\Subscription\Illuminate\Helper;
 		if ( $postslist->have_posts() ) :
 			while ( $postslist->have_posts() ) :
 				$postslist->the_post();
-				$product_id    = get_post_meta( get_the_ID(), '_subscrpt_product_id', true );
-				$order_id      = get_post_meta( get_the_ID(), '_subscrpt_order_id', true );
-				$order_item_id = get_post_meta( get_the_ID(), '_subscrpt_order_item_id', true );
-				$trial         = get_post_meta( get_the_ID(), '_subscrpt_trial', true );
-				$trial_mode    = get_post_meta( get_the_ID(), '_subscrpt_trial_mode', true );
-				$trial_mode    = empty( $trial_mode ) ? 'off' : $trial_mode;
-				$start_date    = get_post_meta( get_the_ID(), '_subscrpt_start_date', true );
-				$next_date     = get_post_meta( get_the_ID(), '_subscrpt_next_date', true );
-				$order         = wc_get_order( $order_id );
-				$order_item    = $order->get_item( $order_item_id );
 
-				$post_status_object = get_post_status_object( get_post_status() );
-				$product_name       = $order_item->get_name();
-				$product_link       = get_the_permalink( $product_id );
+				$subscription_id   = get_the_ID();
+				$subscription_data = Helper::get_subscription_data( $subscription_id );
 
-				$price          = get_post_meta( get_the_ID(), '_subscrpt_price', true );
+				$subscrpt_status = $subscription_data['status'] ?? '';
+				$verbose_status  = Helper::get_verbose_status( $subscrpt_status );
+
+				$order_id      = $subscription_data['order']['order_id'] ?? 0;
+				$order_item_id = $subscription_data['order']['order_item_id'] ?? 0;
+
+				$order      = wc_get_order( $order_id );
+				$order_item = $order->get_item( $order_item_id );
+
+				$product_id   = $subscription_data['product']['product_id'] ?? 0;
+				$product_name = $order_item->get_name();
+
+				$start_date = $subscription_data['start_date'] ?? '';
+				$start_date = ! empty( $start_date ) ? gmdate( 'F j, Y', strtotime( $start_date ) ) : '-';
+
+				$next_date = $subscription_data['next_date'] ?? '';
+				$next_date = ! empty( $next_date ) ? gmdate( 'F j, Y', strtotime( $next_date ) ) : '-';
+
+				$trial      = get_post_meta( get_the_ID(), '_subscrpt_trial', true );
+				$trial_mode = get_post_meta( get_the_ID(), '_subscrpt_trial_mode', true );
+				$trial_mode = empty( $trial_mode ) ? 'off' : $trial_mode;
+
+				$price          = $subscription_data['price'] ?? 0;
 				$price_excl_tax = (float) $order_item->get_total();
 				$tax_amount     = (float) $order_item->get_total_tax();
 
@@ -56,23 +67,43 @@ use SpringDevs\Subscription\Illuminate\Helper;
 				}
 
 				$product_price_html = Helper::format_price_with_order_item( $price, $order_item->get_id() );
+
+				$is_grace_period = isset( $subscription_data['grace_period'] );
+				$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
 				?>
 
 				<tr>
 					<td data-title="Subscription"><?php the_ID(); ?></td>
 
 					<td data-title="Status">
-						<span class="subscrpt-<?php echo esc_attr( $post_status_object->name ); ?>">
-							<?php echo esc_html( strlen( $post_status_object->label ) > 9 ? substr( $post_status_object->label, 0, 9 ) . '...' : $post_status_object->label ); ?>
-						</span>
+						<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
+							<span class="subscrpt-active grace-active">
+								Active
+
+								<?php
+									$grace_remaining_text = sprintf(
+										// translators: Number of days remaining in grace period.
+										__( '%d days remaining!', 'wp_subscription' ),
+										$grace_remaining
+									);
+								?>
+								<span class="grace-icon" data-tooltip="<?php echo esc_attr( $grace_remaining_text ); ?>">
+									<span class="dashicons dashicons-warning"></span>
+								</span>
+							</span>
+						<?php else : ?>
+							<span class="subscrpt-<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
+								<?php echo esc_html( strlen( $verbose_status ) > 9 ? substr( $verbose_status, 0, 9 ) . '...' : $verbose_status ); ?>
+							</span>
+						<?php endif; ?>
 					</td>
 					
 					<td data-title="Product"><?php echo esc_html( $product_name ); ?></td>
 					
 					<?php if ( 'on' !== $trial_mode ) : ?>
-						<td data-title="Next Payment"><?php echo esc_html( $next_date ? gmdate( 'F d, Y', $next_date ) : '-' ); ?></td>
+						<td data-title="Next Payment"><?php echo esc_html( $next_date ); ?></td>
 					<?php else : ?>
-						<td data-title="Next Payment"><small>First Billing : </small><?php echo esc_html( gmdate( 'F d, Y', $start_date ) ); ?></td>
+						<td data-title="Next Payment"><small>First Billing : </small><?php echo esc_html( $start_date ); ?></td>
 					<?php endif; ?>
 
 					<td data-title="Total"><?php echo wp_kses_post( $product_price_html ); ?></td>

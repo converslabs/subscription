@@ -39,7 +39,7 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 <div class="wp-subscription-admin-content">
 	<div class="wp-subscription-info-grid" style="display:flex;gap:28px;align-items:flex-start;flex-wrap:nowrap;">
 		<!-- Left: Main Info -->
-		<div class="wp-subscription-admin-box wp-subscription-info-left" style="    box-shadow: 0 1px 3px rgb(29 35 39 / 30%);flex:1 1 50%;max-width:50%;margin:25px 0 18px 18px;">
+		<div class="wp-subscription-admin-box wp-subscription-info-left" style="box-shadow: 0 1px 3px rgb(29 35 39 / 30%);flex:1 1 50%;max-width:50%;margin:25px 0 18px 18px;">
 			<table class="widefat striped wp-subscription-list-table" style="border-radius:8px;overflow:hidden;margin-bottom:16px;">
 				<tbody>
 					<tr>
@@ -237,7 +237,7 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 			</table>
 		</div>
 		<!-- Right: Billing & Shipping -->
-		<div class="wp-subscription-admin-box wp-subscription-info-right" style="    box-shadow: 0 1px 3px rgb(29 35 39 / 30%);background:#fff;flex:1 1 50%;max-width:50%;margin:25px 0 18px 0;">
+		<div class="wp-subscription-admin-box wp-subscription-info-right" style="box-shadow: 0 1px 3px rgb(29 35 39 / 30%);background:#fff;flex:1 1 50%;max-width:50%;margin:25px 0 18px 0;">
 			<table class="widefat wp-subscription-list-table" style="border-radius:8px;overflow:hidden;margin-bottom:0;background:none;">
 				<tbody>
 					<tr>

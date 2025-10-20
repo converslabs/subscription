@@ -471,7 +471,7 @@ class Cart {
 						<!-- add how many times will be build if _subscrpt_renewal_limit is not 0 -->
 						<?php if ( $recurr['max_no_payment'] > 0 ) : ?>
 							<br>
-							<small><?php esc_html_e( 'This subscription will be built for', 'wp_subscription' ); ?> <?php echo esc_html( $recurr['max_no_payment'] ); ?> <?php esc_html_e( 'times.', 'wp_subscription' ); ?></small>
+							<small><?php esc_html_e( 'This subscription will be billed for', 'wp_subscription' ); ?> <?php echo esc_html( $recurr['max_no_payment'] ); ?> <?php esc_html_e( 'times.', 'wp_subscription' ); ?></small>
 						<?php endif; ?>
 					</p>
 				<?php endforeach; ?>
