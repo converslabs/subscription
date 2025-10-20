@@ -444,49 +444,35 @@ class Subscriptions {
 			return;
 		}
 
-		$order_id = get_post_meta( $post->ID, '_subscrpt_order_id', true );
-		$order    = wc_get_order( $order_id );
+		$subscription_id   = $post->ID;
+		$subscription_data = Helper::get_subscription_data( $subscription_id );
 
-		if ( ! $order ) {
+		$order_id = $subscription_data['order']['order_id'] ?? 0;
+		$order    = $order_id ? wc_get_order( $order_id ) : null;
+
+		$order_item_id = $subscription_data['order']['order_item_id'] ?? 0;
+		$order_item    = $order ? $order->get_item( $order_item_id ) : null;
+
+		if ( ! $order || ! $order_item ) {
 			return;
 		}
 
-		$order_item_id = get_post_meta( $post->ID, '_subscrpt_order_item_id', true );
-		$order_item    = $order->get_item( $order_item_id );
-
-		if ( ! $order_item ) {
-			return;
-		}
-
-		// Get payment information
-		$product_id    = get_post_meta( $post->ID, '_subscrpt_product_id', true );
-		$max_payments  = subscrpt_get_max_payments( $post->ID ) ?: 0;
-		$payments_made = subscrpt_count_payments_made( $post->ID );
+		$product_id    = $subscription_data['product']['product_id'] ?? 0;
+		$max_payments  = ! empty( subscrpt_get_max_payments( $subscription_id ) ) ? subscrpt_get_max_payments( $subscription_id ) : 0;
+		$payments_made = subscrpt_count_payments_made( $subscription_id );
 
 		// Get subscription details
-		$product       = $order_item->get_product();
-		$subscrpt_type = $product ? get_post_meta( $product->get_id(), '_subscrpt_type', true ) : '';
-		$subscrpt_time = $product ? get_post_meta( $product->get_id(), '_subscrpt_time', true ) : '';
+		$product       = wc_get_product( $product_id );
+		$subscrpt_type = $subscription_data['schedule']['timing_option'] ?? '';
+		$subscrpt_time = $subscription_data['schedule']['timing_per'] ?? '';
 
-		// If subscrpt_type is empty, try alternate meta keys
-		if ( empty( $subscrpt_type ) ) {
-			$subscrpt_type = $product ? get_post_meta( $product->get_id(), '_subscrpt_timing_option', true ) : '';
-		}
-		if ( empty( $subscrpt_time ) ) {
-			$subscrpt_time = $product ? get_post_meta( $product->get_id(), '_subscrpt_timing_per', true ) : '';
-		}
+		$trial_type = $subscription_data['trial']['timing_option'] ?? 'days';
+		$trial_time = $subscription_data['trial']['timing_per'] ?? 0;
 
-		$trial_days = $product ? get_post_meta( $product->get_id(), '_subscrpt_trial_days', true ) : '';
-		$signup_fee = $product ? get_post_meta( $product->get_id(), '_subscrpt_sign_up_fee', true ) : '';
+		$signup_fee = $subscription_data['signup_fee'] ?? '';
 
-		// Get subscription cost - try multiple sources
-		$cost = get_post_meta( $post->ID, '_subscrpt_price', true );
-		if ( empty( $cost ) || $cost == 0 ) {
-			$cost = $product ? get_post_meta( $product->get_id(), '_subscrpt_cost', true ) : '';
-		}
-		if ( empty( $cost ) || $cost == 0 ) {
-			$cost = $order_item->get_total();
-		}
+		$cost = $subscription_data['price'] ?? 0;
+		$cost = empty( $cost ) ? $order_item->get_total() : $cost;
 
 		$price_excl_tax = (float) $order_item->get_total();
 		$tax_amount     = (float) $order_item->get_total_tax();
@@ -495,23 +481,19 @@ class Subscriptions {
 			$cost = number_format( (float) $cost, 2, '.', '' );
 		}
 
-		$subscrpt_status = get_post_status( $post->ID );
-		$started_date    = get_the_date( 'F j, Y g:i A', $post->ID );
-		$next_payment    = get_post_meta( $post->ID, '_subscrpt_next_date', true );
+		$subscrpt_status = $subscription_data['status'] ?? '';
+		$verbose_status  = Helper::get_verbose_status( $subscrpt_status );
 
-		// Fix: Handle next_payment as timestamp, not string
-		if ( ! empty( $next_payment ) ) {
-			// Check if it's already a timestamp (numeric) or needs conversion
-			if ( is_numeric( $next_payment ) ) {
-				$next_payment_formatted = gmdate( 'F j, Y g:i A', $next_payment );
-			} else {
-				// If it's a string, try to convert it
-				$timestamp              = strtotime( $next_payment );
-				$next_payment_formatted = $timestamp ? gmdate( 'F j, Y g:i A', $timestamp ) : __( 'N/A', 'wp_subscription' );
-			}
-		} else {
-			$next_payment_formatted = __( 'N/A', 'wp_subscription' );
-		}
+		$started_date = $subscription_data['start_date'] ?? '';
+		$started_date = ! empty( $started_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $started_date ) ) : '-';
+
+		$next_payment_date = $subscription_data['next_date'] ?? '';
+		$next_payment_date = ! empty( $next_payment_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $next_payment_date ) ) : '-';
+
+		$is_grace_period = isset( $subscription_data['grace_period'] );
+		$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
+		$grace_end_date  = $subscription_data['grace_period']['end_date'] ?? '';
+		$grace_end_date  = ! empty( $grace_end_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $grace_end_date ) ) : '';
 
 		?>
 		<div class="wp-subscription-details-section">
@@ -533,7 +515,28 @@ class Subscriptions {
 					<table>
 						<tr>
 							<th><?php esc_html_e( 'Status', 'wp_subscription' ); ?></th>
-							<td><span class="status-badge status-<?php echo esc_attr( $subscrpt_status ); ?>"><?php echo esc_html( ucfirst( str_replace( 'subscrpt_', '', $subscrpt_status ) ) ); ?></span></td>
+							<td>
+								<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
+									<span class="subscrpt-active grace-active">
+										Active
+
+										<?php
+											$grace_remaining_text = sprintf(
+												// translators: Number of days remaining in grace period.
+												__( '%d days remaining!', 'wp_subscription' ),
+												$grace_remaining
+											);
+										?>
+										<span class="grace-icon" data-tooltip="<?php echo esc_attr( $grace_remaining_text ); ?>">
+											<span class="dashicons dashicons-warning"></span>
+										</span>
+									</span>
+								<?php else : ?>
+									<span class="subscrpt-<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
+										<?php echo esc_html( $verbose_status ); ?>
+									</span>
+								<?php endif; ?>
+							</td>
 						</tr>
 						<tr>
 							<th><?php esc_html_e( 'Product', 'wp_subscription' ); ?></th>
@@ -558,18 +561,21 @@ class Subscriptions {
 								?>
 							</td>
 						</tr>
+
 						<?php if ( $signup_fee ) : ?>
 						<tr>
 							<th><?php esc_html_e( 'Signup Fee', 'wp_subscription' ); ?></th>
 							<td><?php echo wp_kses_post( wc_price( $signup_fee ) ); ?></td>
 						</tr>
 						<?php endif; ?>
-						<?php if ( $trial_days ) : ?>
+
+						<?php if ( $trial_time ) : ?>
 						<tr>
 							<th><?php esc_html_e( 'Free Trial', 'wp_subscription' ); ?></th>
-							<td><?php echo esc_html( $trial_days . ' days' ); ?></td>
+							<td><?php echo esc_html( $trial_time . ' ' . $trial_type ); ?></td>
 						</tr>
 						<?php endif; ?>
+
 						<?php if ( ! empty( $max_payments ) && $max_payments > 0 ) : ?>
 						<tr>
 							<th><?php esc_html_e( 'Total Payments', 'wp_subscription' ); ?></th>
@@ -589,10 +595,27 @@ class Subscriptions {
 						</tr>
 						<tr>
 							<th><?php esc_html_e( 'Next Payment', 'wp_subscription' ); ?></th>
-							<td><?php echo esc_html( $next_payment_formatted ); ?></td>
+							<td><?php echo esc_html( $next_payment_date ); ?></td>
 						</tr>
 					</table>
 				</div>
+
+				<!-- Grace Period Info -->
+				<?php if ( $is_grace_period ) : ?>
+					<div class="details-group">
+						<h3><?php esc_html_e( 'Grace Period', 'wp_subscription' ); ?></h3>
+						<table>
+							<tr>
+								<th><?php esc_html_e( 'Remaining', 'wp_subscription' ); ?></th>
+								<td><?php echo esc_html( $grace_remaining . ' days' ); ?></td>
+							</tr>
+							<tr>
+								<th><?php esc_html_e( 'End Date', 'wp_subscription' ); ?></th>
+								<td><?php echo esc_html( $grace_end_date ); ?></td>
+							</tr>
+						</table>
+					</div>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php

@@ -2,6 +2,8 @@
 
 namespace SpringDevs\Subscription\Frontend;
 
+use SpringDevs\Subscription\Illuminate\Helper;
+
 // HPOS: This file is compatible with WooCommerce High-Performance Order Storage (HPOS).
 // All WooCommerce order data is accessed via WooCommerce CRUD methods (wc_get_order, wc_get_order_item_meta, etc.).
 // All direct post meta access is for subscription data only, not WooCommerce order data.
@@ -51,21 +53,34 @@ class MyAccount {
 	 * @param Int $id Post ID.
 	 */
 	public function view_subscrpt_content( int $id ) {
-		$order_id      = get_post_meta( $id, '_subscrpt_order_id', true );
-		$order_item_id = get_post_meta( $id, '_subscrpt_order_item_id', true );
-		if ( ! $order_id || ! $order_item_id ) {
+		$subscription_id   = $id;
+		$subscription_data = Helper::get_subscription_data( $subscription_id );
+
+		$status         = $subscription_data['status'] ?? '';
+		$verbose_status = Helper::get_verbose_status( $status );
+
+		$order_id      = $subscription_data['order']['order_id'] ?? 0;
+		$order_item_id = $subscription_data['order']['order_item_id'] ?? 0;
+
+		$order      = wc_get_order( $order_id );
+		$order_item = $order ? $order->get_item( $order_item_id ) : null;
+
+		if ( ! $order || ! $order_item ) {
 			return wp_safe_redirect( '/404' );
 		}
-		$order       = wc_get_order( $order_id );
-		$order_item  = $order->get_item( $order_item_id );
-		$status      = get_post_status( $id );
-		$user_cancel = get_post_meta( $id, '_subscrpt_user_cancel', true );
-		$start_date  = get_post_meta( $id, '_subscrpt_start_date', true );
-		$next_date   = get_post_meta( $id, '_subscrpt_next_date', true );
-		$trial       = get_post_meta( $id, '_subscrpt_trial', true );
-		$trial_mode  = get_post_meta( $id, '_subscrpt_trial_mode', true );
 
-		$price          = get_post_meta( $id, '_subscrpt_price', true );
+		$user_cancel = $subscription_data['user_cancel'] ?? false;
+
+		$start_date = $subscription_data['start_date'] ?? '';
+		$start_date = ! empty( $start_date ) ? gmdate( 'F j, Y', strtotime( $start_date ) ) : '-';
+
+		$next_date = $subscription_data['next_date'] ?? '';
+		$next_date = ! empty( $next_date ) ? gmdate( 'F j, Y', strtotime( $next_date ) ) : '-';
+
+		$trial      = get_post_meta( $id, '_subscrpt_trial', true );
+		$trial_mode = get_post_meta( $id, '_subscrpt_trial_mode', true );
+
+		$price          = $subscription_data['price'] ?? 0;
 		$price_excl_tax = (float) $order_item->get_total();
 		$tax_amount     = (float) $order_item->get_total_tax();
 
@@ -76,11 +91,16 @@ class MyAccount {
 			$tax_amount = 0;
 		}
 
+		$is_grace_period = isset( $subscription_data['grace_period'] );
+		$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
+		$grace_end_date  = $subscription_data['grace_period']['end_date'] ?? '';
+		$grace_end_date  = ! empty( $grace_end_date ) ? gmdate( 'F j, Y', strtotime( $grace_end_date ) ) : '';
+
 		$subscrpt_nonce = wp_create_nonce( 'subscrpt_nonce' );
 		$action_buttons = array();
 
 		if ( 'cancelled' !== $status ) {
-			if ( in_array( $status, array( 'pending', 'active', 'on_hold' ), true ) && 'yes' === $user_cancel ) {
+			if ( in_array( $status, array( 'pending', 'active', 'on_hold' ), true ) && $user_cancel ) {
 				$label = __( 'Cancel', 'wp_subscription' );
 				$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'cancel', $id, $status );
 
@@ -151,8 +171,6 @@ class MyAccount {
 			}
 		}
 
-		$post_status_object = get_post_status_object( $status );
-
 		// Allow programmatically disabling cancel button
 		$disable_cancel = apply_filters( 'subscrpt_split_payment_disable_cancel', false, $id, $status );
 		if ( $disable_cancel && isset( $action_buttons['cancel'] ) ) {
@@ -165,8 +183,13 @@ class MyAccount {
 			'myaccount/single.php',
 			array(
 				'id'              => $id,
+				'status'          => $status,
+				'verbose_status'  => $verbose_status,
 				'start_date'      => $start_date,
 				'next_date'       => $next_date,
+				'is_grace_period' => $is_grace_period,
+				'grace_remaining' => $grace_remaining,
+				'grace_end_date'  => $grace_end_date,
 				'trial'           => $trial,
 				'trial_mode'      => empty( $trial_mode ) ? 'off' : $trial_mode,
 				'order'           => $order,
@@ -174,7 +197,6 @@ class MyAccount {
 				'price'           => $price,
 				'price_excl_tax'  => $price_excl_tax,
 				'tax'             => $tax_amount,
-				'status'          => $post_status_object,
 				'user_cancel'     => $user_cancel,
 				'action_buttons'  => $action_buttons,
 				'wp_button_class' => wc_wp_theme_get_element_class_name( 'button' ) ? ' ' . wc_wp_theme_get_element_class_name( 'button' ) : '',
