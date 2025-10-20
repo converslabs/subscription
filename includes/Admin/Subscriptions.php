@@ -748,6 +748,12 @@ class Subscriptions {
 					border-bottom: 1px solid #eee;
 					background: #fafafa;
 				}
+
+				#subscrpt_order_history .inside table,
+				#subscrpt_order_activities .inside table,
+				#subscription_lmfwc_license .inside table {
+					border: none;
+				}
 			</style>
 			<?php
 		endif;
