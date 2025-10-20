@@ -37,6 +37,8 @@ class Subscriptions {
 		add_action( 'restrict_manage_posts', array( $this, 'add_subscription_filter_select' ) );
 		add_action( 'admin_menu', array( $this, 'add_overview_submenu' ), 40 );
 		add_action( 'edit_form_after_title', array( $this, 'display_subscription_details_section' ) );
+
+		add_action( 'admin_head-post.php', [ $this, 'add_back_to_list_button' ] );
 	}
 
 	/**
@@ -981,6 +983,36 @@ class Subscriptions {
 				</div>
 			</div>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Add "Back to list" button next to the post title.
+	 */
+	public function add_back_to_list_button() {
+		global $post;
+
+		// Only apply on edit subscription screen
+		if ( ! isset( $post ) || $post->post_type !== 'subscrpt_order' ) {
+			return;
+		}
+
+		$list_url = admin_url( 'admin.php?page=wp-subscription' );
+		?>
+		<script type="text/javascript">
+			document.addEventListener('DOMContentLoaded', function() {
+				const heading = document.querySelector('.wrap .wp-heading-inline');
+				if (heading) {
+					const iconLink = document.createElement('a');
+					iconLink.href = '<?php echo esc_url( $list_url ); ?>';
+					iconLink.innerHTML = '<span class="dashicons dashicons-arrow-left-alt2" style="font-size:28px;height:28px;width:28px;"></span>';
+					iconLink.style.cssText = "text-decoration:none;color:#555;display:inline-flex;align-items:center;margin-right:2px;transform:translateY(20%);box-shadow:none;";
+					iconLink.title = '<?php echo esc_html_e( 'Back to subscriptions list.', 'wp_subscription' ); ?>';
+					
+					heading.insertAdjacentElement('beforebegin', iconLink);
+				}
+			});
+		</script>
 		<?php
 	}
 }
