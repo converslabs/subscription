@@ -30,6 +30,10 @@ class Checkout {
 		// Guest account logout after checkout.
 		add_action( 'template_redirect', [ $this, 'maybe_logout_guest' ] );
 
+		// Subscription upgrade/downgrade order created hook.
+		add_action( 'woocommerce_checkout_order_processed', [ $this, 'trigger_subscription_switch_order_created' ] );
+		add_action( 'woocommerce_store_api_checkout_order_processed', [ $this, 'trigger_subscription_switch_order_created_storeapi' ] );
+
 		add_action( 'woocommerce_checkout_order_processed', [ $this, 'create_subscription_after_checkout' ] );
 		add_action( 'woocommerce_store_api_checkout_order_processed', [ $this, 'create_subscription_after_checkout_storeapi' ] );
 		add_action( 'woocommerce_resume_order', [ $this, 'remove_subscriptions' ] );
@@ -450,6 +454,51 @@ class Checkout {
 			// Add switch context data to order item meta.
 			$item->update_meta_data( '_wp_subs_switch', true, true );
 			$item->update_meta_data( '_wp_subs_switch_context', $switch_context, true );
+		}
+	}
+
+	/**
+	 * Trigger subscription switch order created store API.
+	 *
+	 * @param \WC_Order $order Order.
+	 */
+	public function trigger_subscription_switch_order_created_storeapi( $order ) {
+		$this->trigger_subscription_switch_order_created( $order->get_id() ?? 0 );
+	}
+
+	/**
+	 * Trigger subscription switch order created.
+	 *
+	 * @param int $order_id Order ID.
+	 */
+	public function trigger_subscription_switch_order_created( $order_id ) {
+		if ( ! $order_id || ! subscrpt_pro_activated() ) {
+			return;
+		}
+
+		$order       = wc_get_order( $order_id );
+		$order_items = $order->get_items();
+
+		foreach ( $order_items as $order_item ) {
+			$is_switch      = in_array( $order_item->get_meta( '_wp_subs_switch' ), [ true, 1, '1' ], true );
+			$switch_context = $order_item->get_meta( '_wp_subs_switch_context' );
+
+			if ( $is_switch ) {
+				$switch_type = $switch_context['switch_type'] ?? 'upgrade';
+
+				unset( $switch_context['nonce'] );
+				unset( $switch_context['redirect_back_url'] );
+
+				/**
+				 * Action fired when subscription switch order is created.
+				 *
+				 * @param string    $switch_type    Switch type (upgrade/downgrade).
+				 * @param \WC_Order $order          Order object.
+				 * @param \WC_Order_Item_Product $order_item Order Item object.
+				 * @param array     $switch_context Switch context data. [ 'switch_type', 'subscription_id', 'order_id', 'product_id', 'old_variation_id', 'new_variation_id' ]
+				 */
+				do_action( 'subscrpt_switch_order_created', $switch_type, $order, $order_item, $switch_context );
+			}
 		}
 	}
 }
