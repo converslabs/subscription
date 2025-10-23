@@ -92,6 +92,44 @@ class Helper {
 	}
 
 	/**
+	 * Get Subscriptions
+	 *
+	 * @param array $args Args.
+	 */
+	public static function get_subscriptions( array $args = [] ) {
+		$default_args = [
+			'post_type'      => 'subscrpt_order',
+			'post_status'    => 'active',               // any, active, pending, expired, pe_cancelled, cancelled, trash
+			'author'         => get_current_user_id(),  // -1 for all users.
+			'posts_per_page' => -1,                     // limit number of subscriptions.
+			'fields'         => 'all',                  // ids, all
+		];
+
+		$final_args = wp_parse_args( $args, $default_args );
+
+		if ( isset( $args['author'] ) ) {
+			if ( $args['author'] === -1 ) {
+				unset( $final_args['author'] );
+			} else {
+				$final_args['author'] = (int) $args['author'];
+			}
+		}
+
+		if ( isset( $args['product_id'] ) ) {
+			$final_args['meta_query'] = array(
+				array(
+					'key'   => '_subscrpt_product_id',
+					'value' => (int) $args['product_id'],
+				),
+			);
+		}
+
+		$subscriptions = get_posts( $final_args );
+
+		return $subscriptions;
+	}
+
+	/**
 	 * Check subscription exists by product ID.
 	 *
 	 * @param int          $product_id Product ID.
@@ -105,19 +143,12 @@ class Helper {
 		}
 
 		$args = array(
-			'post_type'   => 'subscrpt_order',
 			'post_status' => $status,
 			'fields'      => 'ids',
-			'meta_query'  => array(
-				array(
-					'key'   => '_subscrpt_product_id',
-					'value' => $product_id,
-				),
-			),
-			'author'      => get_current_user_id(),
+			'product_id'  => $product_id,
 		);
 
-		$posts = get_posts( $args );
+		$posts = self::get_subscriptions( $args );
 		return count( $posts ) > 0 ? $posts[0] : false;
 	}
 
