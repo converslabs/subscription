@@ -681,9 +681,7 @@ class Helper {
 		$trial_timing_option = get_post_meta( $subscription_id, '_subscrpt_trial_timing_option', true );
 		$trial_timing_option = empty( $trial_timing_option ) ? get_post_meta( $chk_product_id, '_subscrpt_trial_timing_option', true ) : $trial_timing_option;
 
-		$global_is_auto_renew = in_array( get_option( 'wp_subscription_auto_renewal_toggle', '1' ), [ 1, '1', 'true', 'yes' ], true );
-		$is_auto_renew        = in_array( get_post_meta( $subscription_id, '_subscrpt_auto_renew', true ), [ 1, '1', 'true', 'yes' ], true );
-		$is_auto_renew        = ! $global_is_auto_renew ? false : $is_auto_renew;
+		$is_auto_renew = in_array( get_post_meta( $subscription_id, '_subscrpt_auto_renew', true ), [ 1, '1', 'true', 'yes' ], true );
 
 		$default_grace_period = get_option( 'subscrpt_default_payment_grace_period', '7' );
 		$default_grace_period = subscrpt_pro_activated() ? $default_grace_period : 0;

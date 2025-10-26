@@ -141,13 +141,15 @@ class MyAccount {
 			}
 		}
 
-		$is_auto_renew = $subscription_data['is_auto_renew'];
+		$is_auto_renew   = $subscription_data['is_auto_renew'];
+		$renewal_setting = in_array( get_option( 'wp_subscription_auto_renewal_toggle', '1' ), [ 1, '1', 'true', 'yes' ], true );
+
 		$saved_methods = wc_get_customer_saved_methods_list( get_current_user_id() );
 		$has_methods   = isset( $saved_methods['cc'] );
-		if ( $has_methods && $is_auto_renew && class_exists( 'WC_Stripe' ) && $order && 'stripe' === $order->get_payment_method() ) {
+		if ( $has_methods && $renewal_setting && class_exists( 'WC_Stripe' ) && $order && 'stripe' === $order->get_payment_method() ) {
 			// Check maximum payment limit for auto-renewal buttons too
 			if ( ! subscrpt_is_max_payments_reached( $id ) ) {
-				if ( '0' === $is_auto_renew ) {
+				if ( ! $is_auto_renew ) {
 					$label = __( 'Turn on Auto Renewal', 'wp_subscription' );
 					$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'auto-renew-on', $id, $status );
 
