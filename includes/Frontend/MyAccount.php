@@ -69,7 +69,7 @@ class MyAccount {
 			return wp_safe_redirect( '/404' );
 		}
 
-		$user_cancel = $subscription_data['user_cancel'] ?? false;
+		$user_cancel = $subscription_data['can_user_cancel'] ?? false;
 
 		$start_date = $subscription_data['start_date'] ?? '';
 		$start_date = ! empty( $start_date ) ? gmdate( 'F j, Y', strtotime( $start_date ) ) : '-';
@@ -141,17 +141,15 @@ class MyAccount {
 			}
 		}
 
-		$is_auto_renew   = get_post_meta( $id, '_subscrpt_auto_renew', true );
-		$renewal_setting = get_option( 'subscrpt_auto_renewal_toggle', '1' );
-		if ( '' === $is_auto_renew && '1' === $renewal_setting ) {
-			update_post_meta( $id, '_subscrpt_auto_renew', 1 );
-		}
+		$is_auto_renew   = $subscription_data['is_auto_renew'];
+		$renewal_setting = in_array( get_option( 'wp_subscription_auto_renewal_toggle', '1' ), [ 1, '1', 'true', 'yes' ], true );
+
 		$saved_methods = wc_get_customer_saved_methods_list( get_current_user_id() );
 		$has_methods   = isset( $saved_methods['cc'] );
-		if ( $has_methods && '1' === $renewal_setting && class_exists( 'WC_Stripe' ) && $order && 'stripe' === $order->get_payment_method() ) {
+		if ( $has_methods && $renewal_setting && class_exists( 'WC_Stripe' ) && $order && 'stripe' === $order->get_payment_method() ) {
 			// Check maximum payment limit for auto-renewal buttons too
 			if ( ! subscrpt_is_max_payments_reached( $id ) ) {
-				if ( '0' === $is_auto_renew ) {
+				if ( ! $is_auto_renew ) {
 					$label = __( 'Turn on Auto Renewal', 'wp_subscription' );
 					$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'auto-renew-on', $id, $status );
 
