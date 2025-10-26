@@ -229,7 +229,6 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 == Changelog ==
 
 = 1.8.2 - Oct 26, 2025 =
--   new: Control simple product visibility based on user role.
 -   fix: User role not changing for active/inactive subscribers.
 -   fix: Auto renewal on/off action visibility (for Stripe paid subscriptions only).
 
