@@ -661,7 +661,7 @@ class Helper {
 		$order_id      = get_post_meta( $subscription_id, '_subscrpt_order_id', true );
 		$order_item_id = get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
 
-		$can_user_cancel = in_array( get_post_meta( $subscription_id, '_subscrpt_user_cancel', true ), [ 1,'1','true','yes' ], true );
+		$can_user_cancel = in_array( get_post_meta( $subscription_id, '_subscrpt_user_cancel', true ), [ 1, '1', 'true', 'yes' ], true );
 
 		$start_datetime = get_post_meta( $subscription_id, '_subscrpt_start_date', true );
 		$start_date     = ! empty( $start_datetime ) ? gmdate( DATE_RFC2822, $start_datetime ) : null;
@@ -681,7 +681,9 @@ class Helper {
 		$trial_timing_option = get_post_meta( $subscription_id, '_subscrpt_trial_timing_option', true );
 		$trial_timing_option = empty( $trial_timing_option ) ? get_post_meta( $chk_product_id, '_subscrpt_trial_timing_option', true ) : $trial_timing_option;
 
-		$is_auto_renew = get_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
+		$global_is_auto_renew = in_array( get_option( 'wp_subscription_auto_renewal_toggle', '1' ), [ 1, '1', 'true', 'yes' ], true );
+		$is_auto_renew        = in_array( get_post_meta( $subscription_id, '_subscrpt_auto_renew', true ), [ 1, '1', 'true', 'yes' ], true );
+		$is_auto_renew        = ! $global_is_auto_renew ? false : $is_auto_renew;
 
 		$default_grace_period = get_option( 'subscrpt_default_payment_grace_period', '7' );
 		$default_grace_period = subscrpt_pro_activated() ? $default_grace_period : 0;
