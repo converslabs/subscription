@@ -1,5 +1,8 @@
 *** WPSubscription Changelog ***
 
+2025-10-27 - version 1.8.3
+* fix: Error due to operation with wrong type.
+
 2025-10-26 - version 1.8.2
 * fix: User role not changing for active/inactive subscribers.
 * fix: Auto renewal on/off action visibility (for Stripe paid subscriptions only).

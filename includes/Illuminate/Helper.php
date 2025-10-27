@@ -489,7 +489,8 @@ class Helper {
 				$cart_subscription = $cart_item['subscription'];
 				$type              = $cart_subscription['type'];
 
-				$price_html      = wc_price( $cart_subscription['per_cost'] * $cart_item['quantity'] ) . '/ ' . $type;
+				$price_html = wc_price( (float) $cart_subscription['per_cost'] * (int) $cart_item['quantity'] ) . '/ ' . $type;
+
 				$recurrs[ $key ] = array(
 					'trial_status'    => ! is_null( $cart_subscription['trial'] ),
 					'price_html'      => $price_html,
@@ -716,7 +717,7 @@ class Helper {
 
 		$default_grace_period = get_option( 'subscrpt_default_payment_grace_period', '7' );
 		$default_grace_period = subscrpt_pro_activated() ? $default_grace_period : 0;
-		$grace_end_datetime   = $next_datetime + ( (int) $default_grace_period * DAY_IN_SECONDS );
+		$grace_end_datetime   = (int) $next_datetime + ( (int) $default_grace_period * DAY_IN_SECONDS );
 		$grace_end_date       = gmdate( DATE_RFC2822, $grace_end_datetime );
 		$grace_remaining_days = ceil( max( 0, $grace_end_datetime - time() ) / DAY_IN_SECONDS );
 
