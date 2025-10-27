@@ -17,7 +17,13 @@
     "commit": "node ./node_modules/cz-customizable/standalone.js",
     "prepare": "husky",
     "release": "scripts/release.sh",
-    "svn": "scripts/svn.sh"
+    "svn": "scripts/svn.sh",
+    "build:tailwind": "tailwindcss -i ./assets/css/tailwind/input.css -o ./assets/css/tailwind/output.css",
+    "watch:tailwind": "tailwindcss -i ./assets/css/tailwind/input.css -o ./assets/css/tailwind/output.css --watch"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.16",
+    "tailwindcss": "^4.1.16"
   },
   "devDependencies": {
     "@woocommerce/dependency-extraction-webpack-plugin": "^3.0.1",
