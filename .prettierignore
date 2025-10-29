@@ -9,3 +9,6 @@ build/
 *.min.css
 *.bundle.js
 *.bundle.css
+
+# Ignore specific generated files
+assets/css/tailwind/output.css

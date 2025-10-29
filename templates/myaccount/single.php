@@ -117,68 +117,46 @@ do_action( 'before_single_subscrpt_content' );
 		$product_id   = get_post_meta( $id, '_subscrpt_product_id', true );
 		$max_payments = subscrpt_get_max_payments( $id );
 
-		// DEBUG: Let's see what we're getting
-		error_log( 'DEBUG Subscription ID: ' . $id );
-		error_log( 'DEBUG Product ID: ' . $product_id );
-		error_log( 'DEBUG Max Payments: ' . $max_payments );
-		error_log( 'DEBUG Remaining Payments: ' . $remaining_payments );
-		error_log( 'DEBUG Payments Made: ' . $payments_made );
-
 		// Get Payment Type and Access Duration Information
 		$payment_type = $product_id ? get_post_meta( $product_id, '_subscrpt_payment_type', true ) : 'recurring';
 		$payment_type = $payment_type ?: 'recurring'; // Default to recurring if empty
 
-		// DEBUG: Let's see what payment type we're getting
-		error_log( 'DEBUG Payment Type from meta: ' . ( get_post_meta( $product_id, '_subscrpt_payment_type', true ) ?: 'EMPTY' ) );
-		error_log( 'DEBUG Final Payment Type: ' . $payment_type );
-
 		// Also check subscription's own meta data
 		$subscription_payment_type = get_post_meta( $id, '_subscrpt_payment_type', true );
 		$subscription_max_payments = get_post_meta( $id, '_subscrpt_max_no_payment', true );
-		error_log( 'DEBUG Subscription Payment Type: ' . ( $subscription_payment_type ?: 'EMPTY' ) );
-		error_log( 'DEBUG Subscription Max Payments: ' . ( $subscription_max_payments ?: 'EMPTY' ) );
 
 		// Also check if this subscription has variation data
 		$variation_id = get_post_meta( $id, '_subscrpt_variation_id', true );
 		if ( $variation_id ) {
-			error_log( 'DEBUG Variation ID: ' . $variation_id );
 			$variation_payment_type = get_post_meta( $variation_id, '_subscrpt_payment_type', true );
 			$variation_max_payments = get_post_meta( $variation_id, '_subscrpt_max_no_payment', true );
-			error_log( 'DEBUG Variation Payment Type: ' . ( $variation_payment_type ?: 'EMPTY' ) );
-			error_log( 'DEBUG Variation Max Payments: ' . ( $variation_max_payments ?: 'EMPTY' ) );
 
 			// Use variation data if product data is not available
 			if ( empty( $payment_type ) || 'recurring' === $payment_type ) {
 				if ( ! empty( $variation_payment_type ) ) {
 					$payment_type = $variation_payment_type;
-					error_log( 'DEBUG Using variation payment type: ' . $payment_type );
 				}
 			}
 			if ( empty( $max_payments ) && ! empty( $variation_max_payments ) ) {
 				$max_payments = $variation_max_payments;
-				error_log( 'DEBUG Using variation max payments: ' . $max_payments );
 			}
 		}
 
 		// Use subscription's own data if available and more specific
 		if ( ! empty( $subscription_payment_type ) ) {
 			$payment_type = $subscription_payment_type;
-			error_log( 'DEBUG Using subscription payment type: ' . $payment_type );
 		}
 		if ( ! empty( $subscription_max_payments ) ) {
 			$max_payments = $subscription_max_payments;
-			error_log( 'DEBUG Using subscription max payments: ' . $max_payments );
 		}
 
 		// Final fallback: Infer payment type from max_payments if not explicitly set
 		if ( ( empty( $payment_type ) || 'recurring' === $payment_type ) && $max_payments > 0 ) {
 			$payment_type = 'split_payment';
-			error_log( 'DEBUG Inferred payment type as split_payment based on max_payments: ' . $max_payments );
 		}
 
 		// Ensure max_payments is properly set for display
 		$max_payments = (int) $max_payments;
-		error_log( 'DEBUG Final values - Payment Type: ' . $payment_type . ', Max Payments: ' . $max_payments );
 		?>
 
 		<!-- show payment progress if max_payments is set and not unlimited -->

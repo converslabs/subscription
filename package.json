@@ -6,7 +6,10 @@
   "main": "build/index.js",
   "scripts": {
     "install-dev": "yarn install --ignore-engines && composer install --ignore-platform-req=php",
-    "build": "wp-scripts build",
+    "build": "yarn build:wpscripts && yarn build:tailwind",
+    "build:wpscripts": "wp-scripts build",
+    "build:tailwind": "tailwindcss -i ./assets/css/tailwind/input.css -o ./assets/css/tailwind/output.css",
+    "watch:tailwind": "tailwindcss -i ./assets/css/tailwind/input.css -o ./assets/css/tailwind/output.css --watch",
     "format": "wp-scripts format",
     "lint:php": "composer run lint:php",
     "format:php": "composer run format:php",
@@ -19,11 +22,16 @@
     "release": "scripts/release.sh",
     "svn": "scripts/svn.sh"
   },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.16",
+    "tailwindcss": "^4.1.16"
+  },
   "devDependencies": {
     "@woocommerce/dependency-extraction-webpack-plugin": "^3.0.1",
     "@woocommerce/eslint-plugin": "^2.3.0",
     "@wordpress/scripts": "^30.16.0",
     "cz-customizable": "^7.4.0",
+    "daisyui": "^5.3.10",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2"

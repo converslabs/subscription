@@ -1,0 +1,13 @@
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+
+.wpsubs-tw-root {
+  @import "tailwindcss/preflight.css" layer(base);
+  @import "tailwindcss/utilities.css" layer(utilities);
+}
+
+@plugin "daisyui" {
+  themes: light --default;
+  root: ".wpsubs-tw-root";
+}
