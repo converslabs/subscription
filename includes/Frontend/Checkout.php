@@ -185,6 +185,11 @@ class Checkout {
 			return;
 		}
 
+		// Check if order is valid.
+		if ( ! $order ) {
+			return;
+		}
+
 		$this->maybe_assign_user_to_order( $order->get_id() );
 	}
 
@@ -196,6 +201,11 @@ class Checkout {
 	public function check_guest_and_maybe_assign_user_storeapi( $order ) {
 		// Don't proceed if user logged in.
 		if ( is_user_logged_in() ) {
+			return;
+		}
+
+		// Check if order is valid.
+		if ( ! $order ) {
 			return;
 		}
 
