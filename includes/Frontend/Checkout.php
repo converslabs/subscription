@@ -186,7 +186,7 @@ class Checkout {
 		}
 
 		// Check if order is valid.
-		if ( ! $order ) {
+		if ( ! $order->get_id() ?? 0 ) {
 			return;
 		}
 
@@ -205,7 +205,7 @@ class Checkout {
 		}
 
 		// Check if order is valid.
-		if ( ! $order ) {
+		if ( ! $order->get_id() ?? 0 ) {
 			return;
 		}
 
