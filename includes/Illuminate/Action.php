@@ -80,6 +80,7 @@ class Action {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Expired' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_expired' );
 
 		do_action( 'subscrpt_subscription_expired', $subscription_id );
 	}
@@ -99,6 +100,8 @@ class Action {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Activated' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_activated' );
+
 		do_action( 'subscrpt_subscription_activated', $subscription_id );
 	}
 
@@ -117,6 +120,8 @@ class Action {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Pending' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_pending' );
+
 		do_action( 'subscrpt_subscription_pending', $subscription_id );
 	}
 
@@ -135,6 +140,7 @@ class Action {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Cancelled' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_cancelled' );
 
 		WC()->mailer();
 		do_action( 'subscrpt_subscription_cancelled_email_notification', $subscription_id );
@@ -159,6 +165,8 @@ class Action {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Pending Cancellation' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_pe_cancel' );
+
 		do_action( 'subscrpt_subscription_pending_cancellation', $subscription_id );
 	}
 }

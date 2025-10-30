@@ -367,6 +367,7 @@ class Helper {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', $activity_type );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'renewal_order' );
 
 		$wpdb->insert(
 			$history_table,
@@ -455,6 +456,7 @@ class Helper {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', $activity_type );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_created' );
 
 		update_post_meta( $subscription_id, '_subscrpt_product_id', $product->get_id() );
 
@@ -663,6 +665,7 @@ class Helper {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Renewal Order' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'renewal_order' );
 	}
 
 	/**
