@@ -6,7 +6,20 @@ use SpringDevs\Subscription\Utils\ProductFactory;
 use SpringDevs\Subscription\Utils\SubscriptionProduct;
 
 /**
- * Generate Url for Subscription Action.
+ * Include tailwind CSS file
+ *
+ * * Add this class to the parent element to apply tailwind css styles:
+ * * "`wpsubs-tw-root`"
+ * *
+ * * Use "`yarn build:tailwind`" to build the tailwind CSS file.
+ * * Use "`yarn watch:tailwind`" to continuously build the tailwind CSS file.
+ */
+function subscrpt_include_tailwind_css() {
+	wp_enqueue_style( 'wpsubs-tailwind', WP_SUBSCRIPTION_ASSETS . '/css/tailwind/output.css', [], WP_SUBSCRIPTION_VERSION );
+}
+
+/**
+ * Generate URL for Subscription Action.
  *
  * @param string $action Action.
  * @param string $nonce nonce.
