@@ -292,6 +292,7 @@ class Order {
 				)
 			);
 			update_comment_meta( $comment_id, '_subscrpt_activity', $activity_type );
+			update_comment_meta( $comment_id, '_subscrpt_activity_type', 'split_payment' );
 
 			// Add order note with split payment context
 			$order_note = sprintf(
@@ -384,6 +385,7 @@ class Order {
 				)
 			);
 			update_comment_meta( $comment_id, '_subscrpt_activity', $activity_type );
+			update_comment_meta( $comment_id, '_subscrpt_activity_type', 'split_payment' );
 
 			// Mark milestone as logged
 			update_post_meta( $subscription_id, $milestone_key, current_time( 'timestamp' ) );
