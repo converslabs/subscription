@@ -750,8 +750,7 @@ class Subscriptions {
 				}
 
 				#subscrpt_order_history .inside table,
-				#subscrpt_order_activities .inside table,
-				#subscription_lmfwc_license .inside table {
+				#subscrpt_order_activities .inside table {
 					border: none;
 				}
 			</style>
