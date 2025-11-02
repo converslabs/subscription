@@ -6,7 +6,20 @@ use SpringDevs\Subscription\Utils\ProductFactory;
 use SpringDevs\Subscription\Utils\SubscriptionProduct;
 
 /**
- * Generate Url for Subscription Action.
+ * Include tailwind CSS file
+ *
+ * * Add this class to the parent element to apply tailwind css styles:
+ * * "`wpsubs-tw-root`"
+ * *
+ * * Use "`yarn build:tailwind`" to build the tailwind CSS file.
+ * * Use "`yarn watch:tailwind`" to continuously build the tailwind CSS file.
+ */
+function subscrpt_include_tailwind_css() {
+	wp_enqueue_style( 'wpsubs-tailwind', WP_SUBSCRIPTION_ASSETS . '/css/tailwind/output.css', [], WP_SUBSCRIPTION_VERSION );
+}
+
+/**
+ * Generate URL for Subscription Action.
  *
  * @param string $action Action.
  * @param string $nonce nonce.
@@ -551,7 +564,7 @@ function subscrpt_add_payment_completion_note( $subscription_id, $payments_made,
 	// Create completion note
 	$completion_note = sprintf(
 		/* translators: %1$d: payments made, %2$d: total payments */
-		__( '🎉 Split payment plan completed successfully! %1$d of %2$d payments received.', 'wp_subscription' ),
+		__( 'Split payment plan completed successfully! %1$d of %2$d payments received.', 'wp_subscription' ),
 		$payments_made,
 		$max_payments
 	);
@@ -566,6 +579,7 @@ function subscrpt_add_payment_completion_note( $subscription_id, $payments_made,
 		)
 	);
 	update_comment_meta( $comment_id, '_subscrpt_activity', __( 'Split Payment - Plan Complete', 'wp_subscription' ) );
+	update_comment_meta( $comment_id, '_subscrpt_activity_type', 'split_payment' );
 
 	// Add payment summary note
 	$payment_summary = sprintf(
@@ -585,6 +599,7 @@ function subscrpt_add_payment_completion_note( $subscription_id, $payments_made,
 		)
 	);
 	update_comment_meta( $summary_comment_id, '_subscrpt_activity', __( 'Payment Summary - Complete', 'wp_subscription' ) );
+	update_comment_meta( $summary_comment_id, '_subscrpt_activity_type', 'split_payment_summary' );
 }
 
 
