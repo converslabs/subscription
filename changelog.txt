@@ -1,5 +1,8 @@
 *** WPSubscription Changelog ***
 
+2025-11-02 - version 1.8.4
+* compat: Compatibility patch for subscription quick check QR code.
+
 2025-10-27 - version 1.8.3
 * fix: Error due to operation with wrong type.
 

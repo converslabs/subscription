@@ -12,8 +12,8 @@ clean() {
 build() {
   echo "[+] Starting combingFiles"
 
-  yarn build
   composer install --no-dev --no-ansi --no-cache --no-interaction --ignore-platform-req=php --quiet
+  yarn build
 
   mkdir -p releases/$PLUGIN_NAME
 
