@@ -811,6 +811,31 @@ class Helper {
 	}
 
 	/**
+	 * Get parent order from subscription.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 */
+	public static function get_parent_order( int $subscription_id ) {
+		$related_orders = self::get_related_orders( $subscription_id );
+		$last_order     = end( $related_orders );
+
+		if ( ! $last_order || strtolower( $last_order->type ?? '' ) !== 'new' ) {
+			foreach ( $related_orders as $order ) {
+				if ( strtolower( $order->type ?? '' ) === 'new' ) {
+					$last_order = $order;
+					break;
+				}
+			}
+		}
+
+		$parent_order_id = $last_order->order_id ?? 0;
+		if ( $parent_order_id ) {
+			$parent_order = wc_get_order( $parent_order_id );
+		}
+		return $parent_order_id ? $parent_order : null;
+	}
+
+	/**
 	 * Create new order for renewal.
 	 *
 	 * @param \WC_Order      $old_order Old Order Object.
