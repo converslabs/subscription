@@ -94,17 +94,34 @@ class Helper {
 	/**
 	 * Get Subscriptions
 	 *
+	 * Args:
+	 * - status         => [ any, active, pending, expired, pe_cancelled, cancelled, trash ]
+	 * - user_id        => user_id, -1 for all users.
+	 * - posts_per_page => limit number of subscriptions.
+	 * - fields         => return data: ids, all
+	 *
 	 * @param array $args Args.
 	 */
 	public static function get_subscriptions( array $args = [] ) {
 		$default_args = [
 			'post_type'      => 'subscrpt_order',
-			'post_status'    => 'active',               // any, active, pending, expired, pe_cancelled, cancelled, trash
-			'author'         => get_current_user_id(),  // -1 for all users.
-			'posts_per_page' => -1,                     // limit number of subscriptions.
-			'fields'         => 'all',                  // ids, all
+			'post_status'    => 'active',
+			'author'         => get_current_user_id(),
+			'posts_per_page' => -1,
+			'fields'         => 'all',
 		];
 
+		// Normalize some args.
+		if ( isset( $args['status'] ) ) {
+			$args['post_status'] = $args['status'];
+			unset( $args['status'] );
+		}
+		if ( isset( $args['user_id'] ) ) {
+			$args['author'] = $args['user_id'];
+			unset( $args['user_id'] );
+		}
+
+		// Merge default args with provided args.
 		$final_args = wp_parse_args( $args, $default_args );
 
 		if ( isset( $args['author'] ) ) {
@@ -122,6 +139,7 @@ class Helper {
 					'value' => (int) $args['product_id'],
 				),
 			);
+			unset( $final_args['product_id'] );
 		}
 
 		$subscriptions = get_posts( $final_args );
