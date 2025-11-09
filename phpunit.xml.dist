@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<phpunit
+	bootstrap="tests/phpunit/bootstrap.php"
+	colors="true"
+	beStrictAboutTestsThatDoNotTestAnything="true"
+	beStrictAboutOutputDuringTests="true"
+	convertWarningsToExceptions="true"
+	convertErrorsToExceptions="true"
+	stopOnFailure="false"
+	backupGlobals="false"
+	backupStaticAttributes="false"
+	verbose="true"
+>
+	<testsuites>
+		<testsuite name="WPSubscription Compatibility">
+			<directory suffix=".php">./tests/phpunit</directory>
+		</testsuite>
+	</testsuites>
+	<php>
+		<const name="WP_RUNNING_TESTS" value="1"/>
+	</php>
+</phpunit>
+

@@ -158,6 +158,7 @@ final class Sdevs_Subscription {
 	public function includes() {
 		// Include functions file first to ensure global functions are available
 		require_once WP_SUBSCRIPTION_INCLUDES . '/functions.php';
+		require_once WP_SUBSCRIPTION_INCLUDES . '/compat/woocommerce-subscriptions/bootstrap.php';
 
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['admin'] = new SpringDevs\Subscription\Admin();
