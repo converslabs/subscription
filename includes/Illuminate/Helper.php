@@ -94,17 +94,34 @@ class Helper {
 	/**
 	 * Get Subscriptions
 	 *
+	 * Args:
+	 * - status         => [ any, active, pending, expired, pe_cancelled, cancelled, trash ]
+	 * - user_id        => user_id, -1 for all users.
+	 * - posts_per_page => limit number of subscriptions.
+	 * - fields         => return data: ids, all
+	 *
 	 * @param array $args Args.
 	 */
 	public static function get_subscriptions( array $args = [] ) {
 		$default_args = [
 			'post_type'      => 'subscrpt_order',
-			'post_status'    => 'active',               // any, active, pending, expired, pe_cancelled, cancelled, trash
-			'author'         => get_current_user_id(),  // -1 for all users.
-			'posts_per_page' => -1,                     // limit number of subscriptions.
-			'fields'         => 'all',                  // ids, all
+			'post_status'    => 'active',
+			'author'         => get_current_user_id(),
+			'posts_per_page' => -1,
+			'fields'         => 'all',
 		];
 
+		// Normalize some args.
+		if ( isset( $args['status'] ) ) {
+			$args['post_status'] = $args['status'];
+			unset( $args['status'] );
+		}
+		if ( isset( $args['user_id'] ) ) {
+			$args['author'] = $args['user_id'];
+			unset( $args['user_id'] );
+		}
+
+		// Merge default args with provided args.
 		$final_args = wp_parse_args( $args, $default_args );
 
 		if ( isset( $args['author'] ) ) {
@@ -122,6 +139,7 @@ class Helper {
 					'value' => (int) $args['product_id'],
 				),
 			);
+			unset( $final_args['product_id'] );
 		}
 
 		$subscriptions = get_posts( $final_args );
@@ -367,6 +385,7 @@ class Helper {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', $activity_type );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'renewal_order' );
 
 		$wpdb->insert(
 			$history_table,
@@ -455,6 +474,7 @@ class Helper {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', $activity_type );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_created' );
 
 		update_post_meta( $subscription_id, '_subscrpt_product_id', $product->get_id() );
 
@@ -663,6 +683,7 @@ class Helper {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Renewal Order' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'renewal_order' );
 	}
 
 	/**
@@ -787,6 +808,31 @@ class Helper {
 		);
 
 		return $order_histories;
+	}
+
+	/**
+	 * Get parent order from subscription.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 */
+	public static function get_parent_order( int $subscription_id ) {
+		$related_orders = self::get_related_orders( $subscription_id );
+		$last_order     = end( $related_orders );
+
+		if ( ! $last_order || strtolower( $last_order->type ?? '' ) !== 'new' ) {
+			foreach ( $related_orders as $order ) {
+				if ( strtolower( $order->type ?? '' ) === 'new' ) {
+					$last_order = $order;
+					break;
+				}
+			}
+		}
+
+		$parent_order_id = $last_order->order_id ?? 0;
+		if ( $parent_order_id ) {
+			$parent_order = wc_get_order( $parent_order_id );
+		}
+		return $parent_order_id ? $parent_order : null;
 	}
 
 	/**
