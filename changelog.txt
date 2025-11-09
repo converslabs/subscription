@@ -1,5 +1,9 @@
 *** WPSubscription Changelog ***
 
+2025-11-09 - version 1.8.5
+* fix: View subscription from user menu showing "Page not found"
+* new: Added some helper functions.
+
 2025-11-02 - version 1.8.4
 * compat: Compatibility patch for subscription quick check QR code.
 
