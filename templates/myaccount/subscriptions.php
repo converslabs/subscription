@@ -70,6 +70,10 @@ use SpringDevs\Subscription\Illuminate\Helper;
 
 				$is_grace_period = isset( $subscription_data['grace_period'] );
 				$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
+
+				$my_account_page_id = get_option( 'woocommerce_myaccount_page_id' );
+				$my_account_url     = get_permalink( $my_account_page_id );
+				$view_sub_url       = wc_get_endpoint_url( 'view-subscription', get_the_ID(), $my_account_url );
 				?>
 
 				<tr>
@@ -109,7 +113,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 					<td data-title="Total"><?php echo wp_kses_post( $product_price_html ); ?></td>
 
 					<td data-title="Actions">						
-						<a href="<?php echo esc_html( wc_get_endpoint_url( 'view-subscription', get_the_ID(), wc_get_page_permalink( 'myaccount' ) ) ); ?>" class="woocommerce-button <?php echo esc_attr( $wp_button_class ); ?> button view">
+						<a href="<?php echo esc_url( $view_sub_url ); ?>" class="woocommerce-button <?php echo esc_attr( $wp_button_class ); ?> button view">
 							<?php echo esc_html_e( 'View', 'wp_subscription' ); ?>
 						</a>
 					</td>
