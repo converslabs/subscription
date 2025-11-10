@@ -43,11 +43,13 @@
 
 ## Development Workflow
 
-1. Run `composer install` (once composer scaffolding added) and configure `WP_TESTS_DIR`.
-2. Execute `phpunit` — observe failing tests.
-3. Implement compatibility features to satisfy each failure.
-4. Add new failing tests for uncovered API surface before writing code.
-5. Maintain regression tests for bug fixes.
+1. Run `composer install` (fills `vendor/` with PHPUnit and tools).
+2. Bootstrap the WordPress test library (one-time) via `bash tests/bin/install-wp-tests.sh latest wordpress_test root '' localhost`.
+3. Export `WP_TESTS_DIR` to the installed path (default `/tmp/wordpress-tests-lib`) or pass it inline when invoking PHPUnit.
+4. Execute `phpunit` — observe failing tests.
+5. Implement compatibility features to satisfy each failure.
+6. Add new failing tests for uncovered API surface before writing code.
+7. Maintain regression tests for bug fixes.
 
 ## Data Synchronization Tests (Planned)
 

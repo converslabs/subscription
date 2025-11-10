@@ -33,6 +33,24 @@ class WC_Subscription {
 	protected $data = array();
 
 	/**
+	 * Stored meta data.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var array
+	 */
+	protected $meta = array();
+
+	/**
+	 * Related WP_Post instance.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var \WP_Post|null
+	 */
+	protected $post = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -41,6 +59,8 @@ class WC_Subscription {
 	 */
 	public function __construct( $data = array() ) {
 		$this->data = $data;
+		$this->meta = isset( $data['meta'] ) && is_array( $data['meta'] ) ? $data['meta'] : array();
+		$this->post = $data['post'] ?? null;
 	}
 
 	/**
@@ -68,6 +88,83 @@ class WC_Subscription {
 	 * @return mixed|null
 	 */
 	public function get( $key ) {
-		return $this->data[ $key ] ?? null;
+		if ( array_key_exists( $key, $this->data ) ) {
+			return $this->data[ $key ];
+		}
+
+		if ( array_key_exists( $key, $this->meta ) ) {
+			return $this->meta[ $key ];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Retrieve the subscription identifier.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int
+	 */
+	public function get_id() {
+		if ( isset( $this->data['id'] ) ) {
+			return (int) $this->data['id'];
+		}
+
+		return $this->post ? (int) $this->post->ID : 0;
+	}
+
+	/**
+	 * Retrieve the subscription status.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_status() {
+		if ( isset( $this->data['status'] ) ) {
+			return $this->data['status'];
+		}
+
+		return $this->post ? $this->post->post_status : '';
+	}
+
+	/**
+	 * Retrieve the subscription customer identifier.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int
+	 */
+	public function get_customer_id() {
+		if ( isset( $this->data['customer_id'] ) ) {
+			return (int) $this->data['customer_id'];
+		}
+
+		return $this->post ? (int) $this->post->post_author : 0;
+	}
+
+	/**
+	 * Retrieve subscription meta value.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $key    Meta key.
+	 * @param bool   $single Whether to return a single value.
+	 *
+	 * @return mixed
+	 */
+	public function get_meta( $key, $single = true ) {
+		if ( ! array_key_exists( $key, $this->meta ) ) {
+			return $single ? null : array();
+		}
+
+		$value = $this->meta[ $key ];
+
+		if ( $single ) {
+			return $value;
+		}
+
+		return is_array( $value ) ? $value : array( $value );
 	}
 }

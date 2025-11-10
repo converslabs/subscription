@@ -20,17 +20,26 @@ spl_autoload_register(
 		$relative = str_replace( '\\', '/', $relative );
 		$parts    = explode( '/', $relative );
 		$filename = array_pop( $parts );
-		$filename = 'class-' . strtolower( str_replace( '_', '-', $filename ) ) . '.php';
+
+		$filename = str_replace( '_', '-', $filename );
+		$filename = preg_replace( '/(?<!^)([A-Z])/', '-$1', $filename );
+		$filename = strtolower( $filename );
+		$filename = preg_replace( '/-+/', '-', $filename );
 
 		$directories = array();
 
 		foreach ( $parts as $part ) {
-			$directories[] = strtolower( str_replace( '_', '-', $part ) );
+			$part = str_replace( '_', '-', $part );
+			$part = preg_replace( '/(?<!^)([A-Z])/', '-$1', $part );
+			$part = strtolower( $part );
+			$part = preg_replace( '/-+/', '-', $part );
+
+			$directories[] = $part;
 		}
 
 		$path = implode( '/', $directories );
 
-		$file = __DIR__ . '/' . ( $path ? $path . '/' : '' ) . $filename;
+		$file = __DIR__ . '/' . ( $path ? $path . '/' : '' ) . 'class-' . $filename . '.php';
 
 		if ( file_exists( $file ) ) {
 			require_once $file;
