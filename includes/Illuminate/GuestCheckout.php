@@ -7,6 +7,8 @@
 
 namespace SpringDevs\Subscription\Illuminate;
 
+use PHP_CodeSniffer\Generators\HTML;
+
 /**
  * Class GuestCheckout
  *
@@ -24,6 +26,9 @@ class GuestCheckout {
 		// Guest checkout validation.
 		add_action( 'woocommerce_checkout_process', [ $this, 'validate_guest_checkout' ] );
 		add_action( 'woocommerce_store_api_cart_errors', [ $this, 'validate_guest_checkout_storeapi' ] );
+
+		// Show warning if guest checkout is disabled in WooCommerce settings.
+		add_action( 'admin_notices', [ $this, 'check_woocommerce_checkout_settings' ] );
 	}
 
 	/**
@@ -116,6 +121,76 @@ class GuestCheckout {
 		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
 			$errors->add( 'wp_subscription_login_required', __( 'You must be logged in to subscribe.', 'wp_subscription' ) );
 			return $errors;
+		}
+	}
+
+	/**
+	 * Check WooCommerce checkout settings and show admin notice if guest checkout is disabled.
+	 */
+	public function check_woocommerce_checkout_settings() {
+		// Check if WooCommerce is active
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
+		$subs_guest_checkout_allowed = self::is_guest_checkout_allowed();
+		if ( ! $subs_guest_checkout_allowed ) {
+			return;
+		}
+
+		$guest_checkout_enabled  = in_array( get_option( 'woocommerce_enable_guest_checkout' ), [ 1, '1', 'yes', 'on' ], true );
+		$account_during_checkout = in_array( get_option( 'woocommerce_enable_signup_and_login_from_checkout' ), [ 1, '1', 'yes', 'on' ], true );
+		$account_after_checkout  = in_array( get_option( 'woocommerce_enable_delayed_account_creation' ), [ 1, '1', 'yes', 'on' ], true );
+
+		$issues = [];
+		if ( ! $guest_checkout_enabled ) {
+			$issues[] = 'Guest checkout.';
+		}
+		if ( ! $account_during_checkout ) {
+			$issues[] = 'Account creation during checkout.';
+		}
+
+		if ( ! empty( $issues ) ) {
+			$settings_url = admin_url( 'admin.php?page=wc-settings&tab=account' );
+
+			$list_html = '';
+			foreach ( $issues as $issue ) {
+				$list_html .= <<<HTML
+					<li>
+						<span class="dashicons dashicons-arrow-right"></span>
+						<strong>{$issue}</strong>
+					</li>
+				HTML;
+			}
+
+			$requirement_html = <<<HTML
+			<div class="notice notice-error is-dismissible">
+				<p>
+					To ensure WPSubscription guest checkout functions correctly, please enable the following settings in WooCommerce.
+					Click <a href="$settings_url">here</a> to go to the settings.
+				</p>
+				<ul>
+					{$list_html}
+				</ul>
+			</div>
+			HTML;
+
+			echo wp_kses_post( $requirement_html );
+		}
+
+		if ( $account_after_checkout ) {
+			$settings_url = admin_url( 'admin.php?page=wc-settings&tab=account' );
+
+			$requirement_html = <<<HTML
+			<div class="notice notice-warning is-dismissible">
+				<p>
+					Enabling <strong>Account creation after checkout</strong> in WooCommerce settings may lead to issues with subscription orders for guest users. 
+				</p>
+				<p>It's recommended to disable this option for optimal functionality with WPSubscription. Click <a href="$settings_url">here</a> to go to the settings.</p>
+			</div>
+			HTML;
+
+			echo wp_kses_post( $requirement_html );
 		}
 	}
 }
