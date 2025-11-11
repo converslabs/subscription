@@ -326,4 +326,106 @@ class WPSubscription_Compat_Layer_Tests extends WP_UnitTestCase {
 
 		$this->assertTrue( $triggered, 'Expected subscription payment failed bridge to fire internal action.' );
 	}
+
+	/**
+	 * Ensure dual-write creates mirrored shop_subscription records.
+	 */
+	public function test_subscrpt_order_creates_shop_subscription_mirror() {
+		$service = \SpringDevs\Subscription\Compat\WooSubscriptions\Data\Sync_Service::instance();
+
+		$user_id = self::factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		$subscription_id = wp_insert_post(
+			array(
+				'post_author' => $user_id,
+				'post_type'   => 'subscrpt_order',
+				'post_status' => 'active',
+				'post_title'  => 'Sync Subscription',
+			)
+		);
+
+		update_post_meta( $subscription_id, '_subscrpt_billing_period', 'month' );
+		update_post_meta( $subscription_id, '_subscrpt_billing_interval', 1 );
+		update_post_meta( $subscription_id, '_subscrpt_start_date', 1700000000 );
+		update_post_meta( $subscription_id, '_subscrpt_next_date', 1700600000 );
+
+		$service->sync_subscription( $subscription_id );
+
+		$wcs_id = (int) get_post_meta( $subscription_id, \SpringDevs\Subscription\Compat\WooSubscriptions\Data\Sync_Service::MAP_META_KEY, true );
+
+		$this->assertGreaterThan( 0, $wcs_id, 'Expected mirrored shop_subscription to be created.' );
+
+		$wcs_post = get_post( $wcs_id );
+
+		$this->assertSame( 'shop_subscription', $wcs_post->post_type );
+		$this->assertSame( 'wc-active', get_post_status( $wcs_post ) );
+		$this->assertSame( 'month', get_post_meta( $wcs_id, '_billing_period', true ) );
+	}
+
+	/**
+	 * Ensure status changes propagate to mirrored shop_subscription posts.
+	 */
+	public function test_mirror_updates_status_on_original_change() {
+		$service = \SpringDevs\Subscription\Compat\WooSubscriptions\Data\Sync_Service::instance();
+
+		$user_id         = self::factory()->user->create();
+		$subscription_id = wp_insert_post(
+			array(
+				'post_author' => $user_id,
+				'post_type'   => 'subscrpt_order',
+				'post_status' => 'active',
+				'post_title'  => 'Status Sync',
+			)
+		);
+
+		$service->sync_subscription( $subscription_id );
+
+		wp_update_post(
+			array(
+				'ID'          => $subscription_id,
+				'post_status' => 'cancelled',
+			)
+		);
+
+		$service->sync_subscription( $subscription_id );
+
+		$wcs_id = (int) get_post_meta( $subscription_id, \SpringDevs\Subscription\Compat\WooSubscriptions\Data\Sync_Service::MAP_META_KEY, true );
+		$this->assertGreaterThan( 0, $wcs_id );
+
+		$this->assertSame( 'wc-cancelled', get_post_status( $wcs_id ) );
+	}
+
+	/**
+	 * Ensure reconciliation recreates missing mirrors.
+	 */
+	public function test_reconciliation_backfills_missing_mirror() {
+		$service = \SpringDevs\Subscription\Compat\WooSubscriptions\Data\Sync_Service::instance();
+
+		$user_id         = self::factory()->user->create();
+		$subscription_id = wp_insert_post(
+			array(
+				'post_author' => $user_id,
+				'post_type'   => 'subscrpt_order',
+				'post_status' => 'active',
+				'post_title'  => 'Reconcile Sync',
+			)
+		);
+
+		$service->sync_subscription( $subscription_id );
+
+		$wcs_id = (int) get_post_meta( $subscription_id, \SpringDevs\Subscription\Compat\WooSubscriptions\Data\Sync_Service::MAP_META_KEY, true );
+		$this->assertGreaterThan( 0, $wcs_id );
+
+		// Remove mirror to simulate drift.
+		wp_delete_post( $wcs_id, true );
+		delete_post_meta( $subscription_id, \SpringDevs\Subscription\Compat\WooSubscriptions\Data\Sync_Service::MAP_META_KEY );
+
+		do_action( \SpringDevs\Subscription\Compat\WooSubscriptions\Data\Sync_Service::CRON_HOOK );
+
+		$new_wcs_id = (int) get_post_meta( $subscription_id, \SpringDevs\Subscription\Compat\WooSubscriptions\Data\Sync_Service::MAP_META_KEY, true );
+
+		$this->assertGreaterThan( 0, $new_wcs_id, 'Expected reconciliation to recreate mirror.' );
+		$this->assertNotSame( $wcs_id, $new_wcs_id, 'Recreated mirror should differ from deleted one.' );
+	}
 }

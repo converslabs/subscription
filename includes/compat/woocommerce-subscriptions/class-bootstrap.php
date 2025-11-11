@@ -8,6 +8,7 @@
 
 namespace SpringDevs\Subscription\Compat\WooSubscriptions;
 
+use SpringDevs\Subscription\Compat\WooSubscriptions\Data\Sync_Service;
 use SpringDevs\Subscription\Compat\WooSubscriptions\Hooks\Hook_Registry;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -41,6 +42,7 @@ class Bootstrap {
 		}
 
 		$this->register_hooks();
+		$this->register_services();
 		$this->load_facades();
 	}
 
@@ -87,6 +89,17 @@ class Bootstrap {
 	 */
 	private function register_hooks() {
 		Hook_Registry::instance()->register();
+	}
+
+	/**
+	 * Register compatibility services.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	private function register_services() {
+		Sync_Service::instance();
 	}
 
 	/**

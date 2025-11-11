@@ -8,6 +8,7 @@
 
 namespace SpringDevs\Subscription\Compat\WooSubscriptions\Services;
 
+use SpringDevs\Subscription\Compat\WooSubscriptions\Data\Status_Mapper;
 use SpringDevs\Subscription\Illuminate\Helper;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -20,26 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.0.0
  */
 class Subscription_Locator {
- // phpcs:ignore WordPress.NamingConventions.ValidClassName.NotPSR2
-
-	/**
-	 * Map WPSubscription statuses to WooCommerce Subscription statuses.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var array
-	 */
-	private $status_map = array(
-		'active'       => 'wc-active',
-		'on_hold'      => 'wc-on-hold',
-		'on-hold'      => 'wc-on-hold',
-		'paused'       => 'wc-on-hold',
-		'cancelled'    => 'wc-cancelled',
-		'expired'      => 'wc-expired',
-		'trial'        => 'wc-pending',
-		'pending'      => 'wc-pending',
-		'pe_cancelled' => 'wc-pending-cancel',
-	);
 
 	/**
 	 * Retrieve subscriptions for a user.
@@ -68,7 +49,7 @@ class Subscription_Locator {
 		);
 
 		$query_args = array(
-			'post_status'    => $this->normalize_status_filter( $args['status'] ),
+			'post_status'    => Status_Mapper::normalize_filter( $args['status'] ),
 			'posts_per_page' => $this->normalize_limit( $args['limit'] ),
 			'author'         => $user_id,
 			'fields'         => 'all',
@@ -92,7 +73,7 @@ class Subscription_Locator {
 
 			$data = array(
 				'id'          => $subscription_id,
-				'status'      => $this->map_status_to_wcs( $subscription_post->post_status ),
+				'status'      => Status_Mapper::to_wcs( $subscription_post->post_status ),
 				'customer_id' => (int) $subscription_post->post_author,
 				'post'        => $subscription_post,
 				'meta'        => $this->prepare_meta( $meta ),
@@ -114,39 +95,6 @@ class Subscription_Locator {
 	}
 
 	/**
-	 * Normalize the requested status filter into WPSubscription status codes.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string|array $status Status or status list.
-	 *
-	 * @return string|array
-	 */
-	private function normalize_status_filter( $status ) {
-		if ( empty( $status ) || 'any' === $status ) {
-			return 'any';
-		}
-
-		$statuses = (array) $status;
-		$mapped   = array();
-
-		foreach ( $statuses as $single ) {
-			$single   = strtolower( (string) $single );
-			$internal = $this->map_status_to_internal( $single );
-
-			if ( $internal ) {
-				$mapped[] = $internal;
-			}
-		}
-
-		if ( empty( $mapped ) ) {
-			return 'any';
-		}
-
-		return $mapped;
-	}
-
-	/**
 	 * Normalize the limit argument.
 	 *
 	 * @since 1.0.0
@@ -163,51 +111,6 @@ class Subscription_Locator {
 		}
 
 		return $limit;
-	}
-
-	/**
-	 * Translate a WPSubscription status into a WooCommerce status.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $status WPSubscription status.
-	 *
-	 * @return string
-	 */
-	private function map_status_to_wcs( $status ) {
-		$status = strtolower( (string) $status );
-
-		if ( isset( $this->status_map[ $status ] ) ) {
-			return $this->status_map[ $status ];
-		}
-
-		return $status;
-	}
-
-	/**
-	 * Translate a WooCommerce status into a WPSubscription status.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $status WooCommerce status.
-	 *
-	 * @return string
-	 */
-	private function map_status_to_internal( $status ) {
-		$status = strtolower( (string) $status );
-
-		foreach ( $this->status_map as $internal => $external ) {
-			if ( $status === strtolower( $external ) ) {
-				return $internal;
-			}
-		}
-
-		// Accept raw WPSubscription statuses as pass-through.
-		if ( isset( $this->status_map[ $status ] ) ) {
-			return $status;
-		}
-
-		return $status;
 	}
 
 	/**
