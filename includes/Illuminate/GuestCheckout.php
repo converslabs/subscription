@@ -7,8 +7,6 @@
 
 namespace SpringDevs\Subscription\Illuminate;
 
-use PHP_CodeSniffer\Generators\HTML;
-
 /**
  * Class GuestCheckout
  *
