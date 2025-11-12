@@ -18,16 +18,6 @@ class Checkout {
 	 * Initialize the class
 	 */
 	public function __construct() {
-		/*
-		// Guest account creation.
-		add_action( 'woocommerce_checkout_create_order', [ $this, 'check_guest_and_maybe_assign_user' ], 10, 2 );
-		add_action( 'woocommerce_store_api_checkout_update_order_meta', [ $this, 'check_guest_and_maybe_assign_user_storeapi' ], 10, 1 );
-		add_action( 'woocommerce_store_api_checkout_update_customer_from_request', [ $this, 'ensure_user_for_blocks_checkout' ], 10, 1 );
-
-		// Guest account logout after checkout.
-		add_action( 'template_redirect', [ $this, 'maybe_logout_guest' ] );
-		*/
-
 		add_action( 'woocommerce_checkout_order_processed', [ $this, 'create_subscription_after_checkout' ] );
 		add_action( 'woocommerce_store_api_checkout_order_processed', [ $this, 'create_subscription_after_checkout_storeapi' ] );
 		add_action( 'woocommerce_resume_order', [ $this, 'remove_subscriptions' ] );
@@ -123,80 +113,6 @@ class Checkout {
 			}
 
 			do_action( 'subscrpt_product_checkout', $order_item, $product, $post_status );
-		}
-	}
-
-	/**
-	 * Check guest and maybe assign user.
-	 *
-	 * @param \WC_Order $order Order object.
-	 * @param array     $data Order data.
-	 */
-	public function check_guest_and_maybe_assign_user( $order, $data ) {
-		// Don't proceed if user logged in.
-		if ( is_user_logged_in() ) {
-			return;
-		}
-
-		// Check if order is valid.
-		if ( ! $order->get_id() ?? 0 ) {
-			return;
-		}
-
-		$this->maybe_assign_user_to_order( $order->get_id() );
-	}
-
-	/**
-	 * Check guest and maybe assign user on storeAPI.
-	 *
-	 * @param \WC_Order $order Order object.
-	 */
-	public function check_guest_and_maybe_assign_user_storeapi( $order ) {
-		// Don't proceed if user logged in.
-		if ( is_user_logged_in() ) {
-			return;
-		}
-
-		// Check if order is valid.
-		if ( ! $order->get_id() ?? 0 ) {
-			return;
-		}
-
-		$this->maybe_assign_user_to_order( $order->get_id() );
-	}
-
-	/**
-	 * Ensure a WP user exists early in the Blocks checkout lifecycle.
-	 * This allows the Stripe gateway to create/attach a Stripe customer on the PaymentIntent
-	 * for redirect methods (e.g., iDEAL) even for guests.
-	 *
-	 * @param \WC_Customer $customer Customer object.
-	 * @return void
-	 */
-	public function ensure_user_for_blocks_checkout( $customer ) {
-		// Don't proceed if user logged in.
-		if ( is_user_logged_in() ) {
-			return;
-		}
-
-		// If already associated with a user, nothing to do.
-		if ( $customer->get_id() ) {
-			return;
-		}
-
-		$billing_email = $customer->get_billing_email();
-		if ( empty( $billing_email ) ) {
-			// Cannot proceed without an email.
-			return;
-		}
-
-		// Build and maybe create a user.
-		$user_info = $this->build_user_info( $customer );
-		$user_id   = $this->maybe_create_user( $user_info );
-
-		if ( $user_id ) {
-			$customer->set_id( $user_id );
-			$customer->save();
 		}
 	}
 
@@ -321,21 +237,6 @@ class Checkout {
 		}
 
 		return $user_id;
-	}
-
-	/**
-	 * Maybe logout guest user after checkout.
-	 *
-	 * @return void
-	 */
-	public function maybe_logout_guest() {
-		$user_id = get_current_user_id();
-		if ( $user_id && get_transient( 'subscrpt_manual_login_' . $user_id ) ) {
-			wp_logout();
-			delete_transient( 'subscrpt_manual_login_' . $user_id );
-
-			wp_subscrpt_write_debug_log( 'Auto-logged out user ID: ' . $user_id . ' after checkout.' );
-		}
 	}
 
 	/**
