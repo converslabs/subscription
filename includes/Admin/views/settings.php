@@ -12,6 +12,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Add admin settings styles.
 wp_enqueue_style( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/css/admin-settings.css', [], WP_SUBSCRIPTION_VERSION );
 
+// Add admin settings scripts.
+wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/js/admin-settings.js', [ 'jquery' ], WP_SUBSCRIPTION_VERSION, true );
+
 ?>
 <div class="woocommerce">
 	<h1 class="wp-heading-inline"><?php esc_html_e( 'Subscription Settings', 'wp_subscription' ); ?></h1>
@@ -113,28 +116,11 @@ wp_enqueue_style( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/c
 							</fieldset>
 						</td>
 					</tr>
-					<tr valign="top">
-						<th scope="row" class="titledesc"><?php esc_html_e( 'Allow Guest Checkout', 'wp_subscription' ); ?></th>
-						<td class="forminp forminp-checkbox">
-							<fieldset>
-								<legend class="screen-reader-text"><span><?php esc_html_e( 'Allow Guest Checkout', 'wp_subscription' ); ?></span></legend>
-								<label for="wp_subscription_allow_guest_checkout">
-								<input class="wp-subscription-toggle" name="wp_subscription_allow_guest_checkout" id="wp_subscription_allow_guest_checkout" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_allow_guest_checkout', '0' ), '1' ); ?> />
-								<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
-								</label>
-								<p class="description">
-									<?php esc_html_e( 'Allow customers to checkout without logging in.', 'wp_subscription' ); ?>
-									<br/>
-									<sub>
-										<?php esc_html_e( 'Note: New accounts will be created for guests, if account not exists.', 'wp_subscription' ); ?>
-									</sub>
-								</p>
-							</fieldset>
-						</td>
-					</tr>
 
+					<!-- Allow other modules to add their settings fields. -->
 					<?php do_action( 'wp_subscription_setting_fields' ); ?>
 
+					<!-- Pro Gimmicks -->
 					<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
 						<!-- PRO Features (subtle, grayed out) -->
 						<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
