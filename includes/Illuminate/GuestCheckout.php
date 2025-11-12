@@ -23,22 +23,16 @@ class GuestCheckout {
 		add_action( 'wp_subscription_setting_fields', [ $this, 'render_guest_checkout_setting_field' ], 7 );
 		add_action( 'subscrpt_register_settings', array( $this, 'register_settings' ) );
 
+		// Show warning if guest checkout is disabled in WooCommerce settings.
+		add_action( 'admin_notices', [ $this, 'check_woocommerce_checkout_settings' ] );
+
 		// Guest checkout validation.
 		add_action( 'woocommerce_checkout_process', [ $this, 'validate_guest_checkout' ] );
 		add_action( 'woocommerce_store_api_cart_errors', [ $this, 'validate_guest_checkout_storeapi' ] );
 
-		// Show warning if guest checkout is disabled in WooCommerce settings.
-		add_action( 'admin_notices', [ $this, 'check_woocommerce_checkout_settings' ] );
-
 		// Enforce Login/Registration in checkout
+		add_action( 'woocommerce_checkout_process', [ $this, 'require_account_creation' ] );
 		add_filter( 'woocommerce_store_api_checkout_update_order_from_request', [ $this,'require_account_creation_store_api' ], 10, 2 );
-
-		add_action(
-			'init',
-			function () {
-				// update_post_meta( 2293, '_subscrpt_next_date', time() );
-			}
-		);
 	}
 
 	/**
@@ -76,7 +70,7 @@ class GuestCheckout {
 					<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
 					</label>
 					<p class="description">
-						<?php esc_html_e( 'Force customers to login or check the create account checkbox in the checkout.', 'wp_subscription' ); ?>
+						<?php esc_html_e( 'Force customers to login or check the "Create account" checkbox before checking out.', 'wp_subscription' ); ?>
 					</p>
 				</fieldset>
 			</td>
@@ -140,29 +134,6 @@ class GuestCheckout {
 			return $is_user_logged_in || $is_guest_checkout_allowed;
 		} else {
 			return true;
-		}
-	}
-
-	/**
-	 * Validate guest checkout.
-	 */
-	public function validate_guest_checkout() {
-		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
-			wc_add_notice( __( 'You must be logged in to subscribe.', 'wp_subscription' ), 'error' );
-			return;
-		}
-	}
-
-	/**
-	 * Validate guest checkout on storeAPI.
-	 *
-	 * @param \WP_Error $errors Errors object.
-	 * @return \WP_Error
-	 */
-	public function validate_guest_checkout_storeapi( $errors ) {
-		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
-			$errors->add( 'wp_subscription_login_required', __( 'You must be logged in to subscribe.', 'wp_subscription' ) );
-			return $errors;
 		}
 	}
 
@@ -237,6 +208,63 @@ class GuestCheckout {
 	}
 
 	/**
+	 * Validate guest checkout.
+	 */
+	public function validate_guest_checkout() {
+		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
+			wc_add_notice( __( 'You are trying to buy a subscription. You must be logged in to continue.', 'wp_subscription' ), 'error' );
+			return;
+		}
+	}
+
+	/**
+	 * Validate guest checkout on storeAPI.
+	 *
+	 * @param \WP_Error $errors Errors object.
+	 * @return \WP_Error
+	 */
+	public function validate_guest_checkout_storeapi( $errors ) {
+		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
+			$errors->add( 'wp_subscription_login_required', __( 'You are trying to buy a subscription. You must be logged in to continue.', 'wp_subscription' ) );
+			return $errors;
+		}
+	}
+
+	/**
+	 * Enforce account creation in checkout.
+	 */
+	public function require_account_creation() {
+		if ( is_user_logged_in() || ! self::is_guest_checkout_allowed() ) {
+			return;
+		}
+
+		// Check cart for subscriptions.
+		$cart_have_subscription = false;
+		if ( function_exists( 'WC' ) ) {
+			$cart_items             = WC()->cart->get_cart();
+			$recurrs                = Helper::get_recurrs_from_cart( $cart_items );
+			$cart_have_subscription = count( $recurrs ) > 0;
+		}
+
+		if ( ! $cart_have_subscription ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification
+		$is_create_account = isset( $_POST['createaccount'] ) ? (bool) sanitize_text_field( wp_unslash( $_POST['createaccount'] ) ) : false;
+		$is_login_enforced = self::is_guest_login_enforced();
+
+		if ( $is_login_enforced && ! $is_create_account ) {
+			wc_add_notice(
+				wp_kses_post(
+					__( 'You are ordering a subscription product. You must be either <strong>logged in</strong> or check the "<strong>Create an account</strong>" option to continue the checkout.', 'wp_subscription' )
+				),
+				'error'
+			);
+		}
+	}
+
+	/**
 	 * Enforce account creation in Store API checkout.
 	 *
 	 * @param WC_Order        $order Order object.
@@ -262,7 +290,7 @@ class GuestCheckout {
 			throw new \WC_Data_Exception(
 				'wp_subscription_account_required',
 				wp_kses_post(
-					__( 'You are ordering a subscription product. You must login or check the "<strong>Create an account</strong>" option.', 'wp_subscription' )
+					__( 'You are ordering a subscription product. You must be either <strong>logged in</strong> or check the "<strong>Create an account</strong>" option to continue the checkout.', 'wp_subscription' )
 				),
 				400
 			);
