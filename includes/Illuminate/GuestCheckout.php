@@ -29,6 +29,16 @@ class GuestCheckout {
 
 		// Show warning if guest checkout is disabled in WooCommerce settings.
 		add_action( 'admin_notices', [ $this, 'check_woocommerce_checkout_settings' ] );
+
+		// Enforce Login/Registration in checkout
+		add_filter( 'woocommerce_store_api_checkout_update_order_from_request', [ $this,'require_account_creation_store_api' ], 10, 2 );
+
+		add_action(
+			'init',
+			function () {
+				// update_post_meta( 2293, '_subscrpt_next_date', time() );
+			}
+		);
 	}
 
 	/**
@@ -223,6 +233,39 @@ class GuestCheckout {
 			HTML;
 
 			echo wp_kses_post( $requirement_html );
+		}
+	}
+
+	/**
+	 * Enforce account creation in Store API checkout.
+	 *
+	 * @param WC_Order        $order Order object.
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @throws \WC_Data_Exception If account creation is required but not selected.
+	 */
+	public function require_account_creation_store_api( $order, $request ) {
+		if ( is_user_logged_in() || ! self::is_guest_checkout_allowed() ) {
+			return;
+		}
+
+		$is_subscription_order = Helper::order_has_subscription_item( $order );
+		if ( ! $is_subscription_order ) {
+			return;
+		}
+
+		$request_body      = $request->get_json_params();
+		$is_create_account = $request_body['create_account'] ?? false;
+		$is_login_enforced = self::is_guest_login_enforced();
+
+		if ( $is_login_enforced && ! $is_create_account ) {
+			throw new \WC_Data_Exception(
+				'wp_subscription_account_required',
+				wp_kses_post(
+					__( 'You are ordering a subscription product. You must login or check the "<strong>Create an account</strong>" option.', 'wp_subscription' )
+				),
+				400
+			);
 		}
 	}
 }
