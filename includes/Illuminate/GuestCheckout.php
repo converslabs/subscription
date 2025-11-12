@@ -19,7 +19,7 @@ class GuestCheckout {
 	public function __construct() {
 		// Add guest checkout settings
 		add_action( 'wp_subscription_setting_fields', [ $this, 'render_guest_checkout_setting_field' ], 7 );
-		add_action( 'subscrpt_register_settings', array( $this, 'register_settings' ) );
+		add_action( 'subscrpt_register_settings', [ $this, 'register_settings' ] );
 
 		// Show warning if guest checkout is disabled in WooCommerce settings.
 		add_action( 'admin_notices', [ $this, 'check_woocommerce_checkout_settings' ] );
