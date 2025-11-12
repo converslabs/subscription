@@ -55,6 +55,22 @@ class GuestCheckout {
 				</fieldset>
 			</td>
 		</tr>
+
+		<tr valign="top">
+			<th scope="row" class="titledesc"><?php esc_html_e( 'Enforce Login', 'wp_subscription' ); ?></th>
+			<td class="forminp forminp-checkbox">
+				<fieldset>
+					<legend class="screen-reader-text"><span><?php esc_html_e( 'Enforce Login', 'wp_subscription' ); ?></span></legend>
+					<label for="wp_subscription_enforce_login">
+					<input class="wp-subscription-toggle" name="wp_subscription_enforce_login" id="wp_subscription_enforce_login" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_enforce_login', '1' ), '1' ); ?> />
+					<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
+					</label>
+					<p class="description">
+						<?php esc_html_e( 'Force customers to login or check the create account checkbox in the checkout.', 'wp_subscription' ); ?>
+					</p>
+				</fieldset>
+			</td>
+		</tr>
 		<?php
 	}
 
@@ -70,6 +86,15 @@ class GuestCheckout {
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
+
+		register_setting(
+			'wp_subscription_settings',
+			'wp_subscription_enforce_login',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
 	}
 
 	/**
@@ -77,6 +102,13 @@ class GuestCheckout {
 	 */
 	public static function is_guest_checkout_allowed() {
 		return in_array( get_option( 'wp_subscription_allow_guest_checkout', '0' ), [ 1, '1' ], true );
+	}
+
+	/**
+	 * Is guest login enforced
+	 */
+	public static function is_guest_login_enforced() {
+		return in_array( get_option( 'wp_subscription_enforce_login', '1' ), [ 1, '1' ], true );
 	}
 
 	/**

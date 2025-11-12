@@ -903,6 +903,33 @@ class Helper {
 	}
 
 	/**
+	 * Check if the order has subscription item.
+	 *
+	 * @param \WC_Order|int $order Order object.
+	 */
+	public static function order_has_subscription_item( $order ) {
+		if ( is_int( $order ) ) {
+			$order = wc_get_order( $order );
+		}
+
+		$is_subscription_order = false;
+		foreach ( $order->get_items() as $item ) {
+			$item_data         = $item->get_data() ?? [];
+			$item_product_id   = $item_data['product_id'] ?? 0;
+			$item_variation_id = $item_data['variation_id'] ?? 0;
+
+			$product_id = $item_variation_id ? $item_variation_id : $item_product_id;
+			$product    = sdevs_get_subscription_product( $product_id );
+
+			if ( $product && $product->is_enabled() ) {
+				$is_subscription_order = true;
+				break;
+			}
+		}
+		return $is_subscription_order;
+	}
+
+	/**
 	 * Save meta-data from old order
 	 *
 	 * @param \WC_Order $new_order new order object.
