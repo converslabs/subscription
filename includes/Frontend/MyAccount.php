@@ -23,9 +23,8 @@ class MyAccount {
 	public function __construct() {
 		add_action( 'init', array( $this, 'flush_rewrite_rules' ) );
 
-		// Prevent duplicate menu creation
-
-		add_filter( 'woocommerce_account_menu_items', array( $this, 'custom_my_account_menu_items' ) );
+		// Add My Subscriptions menu item.
+		add_filter( 'woocommerce_account_menu_items', array( $this, 'custom_my_account_menu_items' ), 200 );
 
 		add_filter( 'woocommerce_endpoint_view-subscription_title', array( $this, 'change_single_title' ) );
 		add_filter( 'document_title_parts', array( $this, 'change_subscriptions_seo_title' ) );
