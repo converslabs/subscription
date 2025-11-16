@@ -6,7 +6,7 @@
  * @since     1.0.0
  */
 
-use SpringDevs\Subscription\Compat\WooSubscriptions\Services\Subscription_Locator;
+use SpringDevs\Subscription\Compat\WooSubscriptions\Services\SubscriptionLocator;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,7 +24,7 @@ if ( ! function_exists( 'wcs_get_users_subscriptions' ) ) {
 	 * @return array
 	 */
 	function wcs_get_users_subscriptions( $user_id = 0, $args = array() ) {
-		$locator = new Subscription_Locator();
+		$locator = new SubscriptionLocator();
 
 		return $locator->get_subscriptions_by_user( $user_id, $args );
 	}

@@ -6,7 +6,7 @@
  * @since     1.0.0
  */
 
-use SpringDevs\Subscription\Compat\WooSubscriptions\Services\Subscription_Locator;
+use SpringDevs\Subscription\Compat\WooSubscriptions\Services\SubscriptionLocator;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -73,13 +73,13 @@ class WC_Subscription {
 	 * @return array
 	 */
 	public static function get_users_subscriptions( $user_id = 0 ) {
-		$locator = new Subscription_Locator();
+		$locator = new SubscriptionLocator();
 
 		return $locator->get_subscriptions_by_user( $user_id );
 	}
 
 	/**
-	 * Provide access to underlying data.
+	 * Provide access to underlying data/meta.
 	 *
 	 * @since 1.0.0
 	 *

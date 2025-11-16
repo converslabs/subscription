@@ -32,7 +32,9 @@
       "SpringDevs\\Subscription\\": "includes/"
     },
     "files": [
-      "includes/functions.php"
+      "includes/functions.php",
+      "includes/Compat/WooSubscriptions/functions.php",
+      "includes/Compat/WooSubscriptions/Facade/WC_Subscription.php"
     ]
   },
   "config": {

@@ -57,7 +57,7 @@ includes/
 
 1. `bootstrap.php` runs on plugin init, checking if WooCommerce is active and if the native WCS plugin is disabled.
 2. Registers autoloader for the compatibility namespace: `WPSubscription\Compat\WooSubscriptions`.
-3. Instantiates `Hook_Registry` to bind WCS hooks to WPSubscription listeners.
+3. Instantiates `HookRegistry` to bind WCS hooks to WPSubscription listeners.
 4. Loads data adapters to bridge WPSubscription models to WooCommerce-style subscriptions.
 5. Exposes public facades (class/function shims) through `bootstrap.php` and `compat-helpers.php`.
 
@@ -70,7 +70,7 @@ includes/
 ## Hook Strategy
 
 - Maintain a registry mapping of WCS hook names to WPSubscription events.
-- Use `Hook_Registry` to register action/filter callbacks during init.
+- Use `HookRegistry` to register action/filter callbacks during init.
 - Provide hook aliasing for both dynamic and static hooks (e.g., `woocommerce_scheduled_subscription_payment_{gateway}`).
 
 ## Facade Classes

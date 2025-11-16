@@ -8,7 +8,7 @@
 
 namespace SpringDevs\Subscription\Compat\WooSubscriptions\Services;
 
-use SpringDevs\Subscription\Compat\WooSubscriptions\Data\Status_Mapper;
+use SpringDevs\Subscription\Compat\WooSubscriptions\Data\StatusMapper;
 use SpringDevs\Subscription\Illuminate\Helper;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class Subscription_Locator {
+class SubscriptionLocator {
 
 	/**
 	 * Retrieve subscriptions for a user.
@@ -49,7 +49,7 @@ class Subscription_Locator {
 		);
 
 		$query_args = array(
-			'post_status'    => Status_Mapper::normalize_filter( $args['status'] ),
+			'post_status'    => StatusMapper::normalize_filter( $args['status'] ),
 			'posts_per_page' => $this->normalize_limit( $args['limit'] ),
 			'author'         => $user_id,
 			'fields'         => 'all',
@@ -73,7 +73,7 @@ class Subscription_Locator {
 
 			$data = array(
 				'id'          => $subscription_id,
-				'status'      => Status_Mapper::to_wcs( $subscription_post->post_status ),
+				'status'      => StatusMapper::to_wcs( $subscription_post->post_status ),
 				'customer_id' => (int) $subscription_post->post_author,
 				'post'        => $subscription_post,
 				'meta'        => $this->prepare_meta( $meta ),
@@ -82,15 +82,6 @@ class Subscription_Locator {
 			$results[ $subscription_id ] = new \WC_Subscription( $data );
 		}
 
-		/**
-		 * Filter the subscriptions list retrieved for a user.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param array $results Subscription collection keyed by ID.
-		 * @param int   $user_id User identifier.
-		 * @param array $args    Lookup modifiers.
-		 */
 		return apply_filters( 'wps_wcs_get_users_subscriptions', $results, $user_id, $args );
 	}
 

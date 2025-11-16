@@ -17,19 +17,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class Sync_Service {
+class SyncService {
 
-	const MAP_META_KEY      = '_wps_wcs_subscription_id';
-	const WCS_MAP_META_KEY  = '_wps_subscription_id';
-	const CRON_HOOK         = 'wps_wcs_sync_subscriptions';
-	const SYNC_META_TRIGGER = 'wps_wcs_sync_trigger';
+	const MAP_META_KEY     = '_wps_wcs_subscription_id';
+	const WCS_MAP_META_KEY = '_wps_subscription_id';
+	const CRON_HOOK        = 'wps_wcs_sync_subscriptions';
 
 	/**
 	 * Singleton instance.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Sync_Service|null
+	 * @var SyncService|null
 	 */
 	private static $instance = null;
 
@@ -47,7 +46,7 @@ class Sync_Service {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return Sync_Service
+	 * @return SyncService
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -259,8 +258,9 @@ class Sync_Service {
 				'fields'         => 'ids',
 				'posts_per_page' => 1,
 				'no_found_rows'  => true,
-				' meta_key'      => self::WCS_MAP_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				' meta_value'    => $post->ID, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_key'       => self::WCS_MAP_META_KEY,
+				'meta_value'     => $post->ID,
 			)
 		);
 
@@ -272,15 +272,15 @@ class Sync_Service {
 		}
 
 		$wcs_post = array(
-			'post_type'     => 'shop_subscription',
-			'post_status'   => Status_Mapper::to_wcs( $post->post_status ),
-			'post_author'   => $post->post_author,
+			'post_type'    => 'shop_subscription',
+			'post_status'  => StatusMapper::to_wcs( $post->post_status ),
+			'post_author'  => $post->post_author,
 			/* translators: %d: subscription ID. */
-			'post_title'    => sprintf( __( 'Subscription #%d', 'wp_subscription' ), $post->ID ),
-			'post_content'  => '',
-			'post_excerpt'  => '',
-			'post_date'     => $post->post_date,
-			'post_date_gmt' => $post->post_date_gmt,
+			'post_title'   => sprintf( __( 'Subscription #%d', 'wp_subscription' ), $post->ID ),
+			'post_content' => '',
+			'post_excerpt' => '',
+			'post_date'    => $post->post_date,
+			'post_date_gmt'=> $post->post_date_gmt,
 		);
 
 		$wcs_id = wp_insert_post( $wcs_post, true );
@@ -308,11 +308,11 @@ class Sync_Service {
 	private function update_shop_subscription_post( $wcs_id, $post ) {
 		wp_update_post(
 			array(
-				'ID'          => $wcs_id,
-				'post_status' => Status_Mapper::to_wcs( $post->post_status ),
-				'post_author' => $post->post_author,
+				'ID'           => $wcs_id,
+				'post_status'  => StatusMapper::to_wcs( $post->post_status ),
+				'post_author'  => $post->post_author,
 				/* translators: %d: subscription ID. */
-				'post_title'  => sprintf( __( 'Subscription #%d', 'wp_subscription' ), $post->ID ),
+				'post_title'   => sprintf( __( 'Subscription #%d', 'wp_subscription' ), $post->ID ),
 			)
 		);
 

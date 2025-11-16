@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class Status_Mapper {
+class StatusMapper {
 
 	/**
 	 * Map of WPSubscription statuses to WooCommerce statuses.
@@ -27,16 +27,16 @@ class Status_Mapper {
 	 * @var array<string,string>
 	 */
 	protected static $to_wcs = array(
-		'active'         => 'wc-active',
-		'on_hold'        => 'wc-on-hold',
-		'on-hold'        => 'wc-on-hold',
-		'paused'         => 'wc-on-hold',
-		'cancelled'      => 'wc-cancelled',
-		'expired'        => 'wc-expired',
-		'pending'        => 'wc-pending',
-		'pending-cancel' => 'wc-pending-cancel',
-		'pe_cancelled'   => 'wc-pending-cancel',
-		'trial'          => 'wc-pending',
+		'active'        => 'wc-active',
+		'on_hold'       => 'wc-on-hold',
+		'on-hold'       => 'wc-on-hold',
+		'paused'        => 'wc-on-hold',
+		'cancelled'     => 'wc-cancelled',
+		'expired'       => 'wc-expired',
+		'pending'       => 'wc-pending',
+		'pending-cancel'=> 'wc-pending-cancel',
+		'pe_cancelled'  => 'wc-pending-cancel',
+		'trial'         => 'wc-pending',
 	);
 
 	/**

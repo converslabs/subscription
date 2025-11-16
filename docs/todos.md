@@ -9,11 +9,12 @@
 - TDD testing strategy defined in `docs/testing-strategy.md`, with PHPUnit scaffold and initial failing tests established.
 - Composer dev dependencies updated with PHPUnit + Polyfills; WordPress test installer script added under `tests/bin/install-wp-tests.sh`.
 - Compatibility bootstrap created in `includes/compat/woocommerce-subscriptions/`, with autoloader, facade, and procedural helpers loaded from `subscription.php`.
-- `Subscription_Locator` implemented to expose WCS-style subscription lookups, meta aliases, and status normalization.
+- `SubscriptionLocator` implemented to expose WCS-style subscription lookups, meta aliases, and status normalization.
 - `WC_Subscription` facade extended with accessors to mirror WooCommerce behaviour.
-- Hook registry (`Hook_Registry`) introduced to bridge key WooCommerce gateway and lifecycle hooks to WPSubscription actions.
+- Hook registry (`HookRegistry`) introduced to bridge key WooCommerce gateway and lifecycle hooks to WPSubscription actions.
 - PHPUnit suite expanded (`tests/phpunit/test-compat-layer.php`) to cover facade behaviour, filters, and hook bridges.
-- Dual-write synchronisation implemented via `Sync_Service`, mirroring `subscrpt_order` posts to `shop_subscription` CPTs with schedule meta and reconciliation cron.
+- Dual-write synchronisation implemented via `SyncService`, mirroring `subscrpt_order` posts to `shop_subscription` CPTs with schedule meta and reconciliation cron.
+- Compatibility namespace refactored to PSR-4 structure under `includes/Compat/WooSubscriptions/` with Composer autoload integration.
 
 ## Pending / Backlog
 
