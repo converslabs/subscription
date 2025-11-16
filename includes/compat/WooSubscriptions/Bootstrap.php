@@ -113,11 +113,14 @@ class Bootstrap {
 	 * @return void
 	 */
 	private function register_gateway_adapters() {
-		// Initialize gateway adapters.
+		// Initialize specific gateway adapters first (higher priority).
 		\SpringDevs\Subscription\Compat\WooSubscriptions\Gateways\StripeAdapter::instance();
 		\SpringDevs\Subscription\Compat\WooSubscriptions\Gateways\RazorpayAdapter::instance();
 		\SpringDevs\Subscription\Compat\WooSubscriptions\Gateways\MollieAdapter::instance();
 		\SpringDevs\Subscription\Compat\WooSubscriptions\Gateways\PayoneerAdapter::instance();
+
+		// Initialize generic adapter last (lower priority, fallback for other gateways).
+		\SpringDevs\Subscription\Compat\WooSubscriptions\Gateways\GenericGatewayAdapter::instance();
 	}
 
 	/**
