@@ -353,10 +353,20 @@ class SyncService {
 
 		update_post_meta( $wcs_id, '_billing_period', get_post_meta( $post->ID, '_subscrpt_billing_period', true ) );
 		update_post_meta( $wcs_id, '_billing_interval', (int) get_post_meta( $post->ID, '_subscrpt_billing_interval', true ) );
-		update_post_meta( $wcs_id, '_schedule_start', (int) get_post_meta( $post->ID, '_subscrpt_start_date', true ) );
-		update_post_meta( $wcs_id, '_schedule_next_payment', (int) get_post_meta( $post->ID, '_subscrpt_next_date', true ) );
-		update_post_meta( $wcs_id, '_schedule_end', (int) get_post_meta( $post->ID, '_subscrpt_end_date', true ) );
-		update_post_meta( $wcs_id, '_schedule_trial_end', (int) get_post_meta( $post->ID, '_subscrpt_trial_ended', true ) );
+
+		// Sync schedule dates as MySQL datetime strings for WooCommerce compatibility.
+		$start_date = (int) get_post_meta( $post->ID, '_subscrpt_start_date', true );
+		update_post_meta( $wcs_id, '_schedule_start', $start_date ? gmdate( 'Y-m-d H:i:s', $start_date ) : '' );
+
+		$next_payment = (int) get_post_meta( $post->ID, '_subscrpt_next_date', true );
+		update_post_meta( $wcs_id, '_schedule_next_payment', $next_payment ? gmdate( 'Y-m-d H:i:s', $next_payment ) : '' );
+
+		$end_date = (int) get_post_meta( $post->ID, '_subscrpt_end_date', true );
+		update_post_meta( $wcs_id, '_schedule_end', $end_date ? gmdate( 'Y-m-d H:i:s', $end_date ) : '' );
+
+		$trial_end = (int) get_post_meta( $post->ID, '_subscrpt_trial_ended', true );
+		update_post_meta( $wcs_id, '_schedule_trial_end', $trial_end ? gmdate( 'Y-m-d H:i:s', $trial_end ) : '' );
+
 		update_post_meta( $wcs_id, '_customer_user', (int) $post->post_author );
 
 		update_post_meta( $post->ID, self::MAP_META_KEY, $wcs_id );
