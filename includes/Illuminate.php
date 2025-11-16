@@ -10,6 +10,7 @@ use SpringDevs\Subscription\Illuminate\Email;
 use SpringDevs\Subscription\Illuminate\Order;
 use SpringDevs\Subscription\Illuminate\Post;
 use SpringDevs\Subscription\Illuminate\Gateways\Stripe\Stripe;
+use SpringDevs\Subscription\Illuminate\GuestCheckout;
 use SpringDevs\Subscription\Illuminate\RoleManagement;
 
 /**
@@ -29,6 +30,7 @@ class Illuminate {
 		new Post();
 		new Block();
 		new Checkout();
+		new GuestCheckout();
 		new AutoRenewal();
 		new Email();
 	}
