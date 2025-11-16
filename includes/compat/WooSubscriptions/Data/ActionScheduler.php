@@ -235,6 +235,9 @@ class ActionScheduler {
 		 * @param int $subscription_id Subscription ID.
 		 */
 		do_action( 'wps_wcs_subscription_trial_ended', $subscription_id );
+
+		// Also trigger WCS compatibility hook.
+		do_action( 'woocommerce_scheduled_subscription_trial_end', $subscription_id );
 	}
 
 	/**
@@ -270,6 +273,9 @@ class ActionScheduler {
 		 * @param int $subscription_id Subscription ID.
 		 */
 		do_action( 'wps_wcs_subscription_expired', $subscription_id );
+
+		// Also trigger WCS compatibility hook.
+		do_action( 'woocommerce_scheduled_subscription_expiration', $subscription_id );
 	}
 
 	/**

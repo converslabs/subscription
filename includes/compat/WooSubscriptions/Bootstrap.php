@@ -11,6 +11,7 @@ namespace SpringDevs\Subscription\Compat\WooSubscriptions;
 use SpringDevs\Subscription\Compat\WooSubscriptions\Data\SyncService;
 use SpringDevs\Subscription\Compat\WooSubscriptions\Data\ActionScheduler;
 use SpringDevs\Subscription\Compat\WooSubscriptions\Hooks\HookRegistry;
+use SpringDevs\Subscription\Compat\WooSubscriptions\Api\RestController;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -102,6 +103,7 @@ class Bootstrap {
 	private function register_services() {
 		SyncService::instance();
 		ActionScheduler::instance();
+		RestController::instance();
 		$this->register_gateway_adapters();
 	}
 

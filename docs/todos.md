@@ -20,11 +20,13 @@
 - [x] **Razorpay Gateway Adapter** - Razorpay gateway adapter (`RazorpayAdapter`) bridges WCS Razorpay hooks to WPSubscription, handling renewal order creation (requires manual processing or webhook triggers as Razorpay API doesn't auto-retry).
 - [x] **Mollie Gateway Adapter** - Mollie gateway adapter (`MollieAdapter`) bridges WCS Mollie hooks to WPSubscription, handling customer IDs, mandates, and SEPA/credit card sequences for renewal processing.
 - [x] **Payoneer Gateway Adapter** - Payoneer gateway adapter (`PayoneerAdapter`) bridges WCS Payoneer hooks to WPSubscription, creating renewal orders with manual processing flags (Payoneer typically requires manual renewal API calls).
+- [x] **Generic Gateway Adapter** - Generic gateway adapter (`GenericGatewayAdapter`) provides fallback support for any gateway without a specific adapter, automatically detecting and handling subscription-enabled gateways.
+- [x] **Extended Hook Coverage** - Extended `HookRegistry` to mirror additional WCS hooks including status transitions (active, on-hold, cancelled, expired, pending, pending-cancel), lifecycle events (trial end, expiration, end of prepaid term), switching hooks, retry hooks, and reactivation/suspension hooks.
+- [x] **REST API Controller** - REST API controller (`RestController`) provides WooCommerce Subscriptions-compatible endpoints (`/wc/v3/subscriptions`), supporting GET (list, single), POST (create), PUT (update), DELETE operations, status listing, and subscription orders retrieval with proper permission checks.
 
 ## Pending / Backlog
 
-- [ ] **Extended Hook Coverage** - Mirror additional WCS hooks (e.g., switching, retries, expiration) and ensure internal handlers respond correctly.
-- [ ] **REST API Parity** - Provide REST API and WP-CLI parity with WooCommerce Subscriptions endpoints/commands.
+- [ ] **WP-CLI Commands** - Provide WP-CLI parity with WooCommerce Subscriptions commands for subscription management.
 - [ ] **Admin UI Compatibility** - Reproduce admin UI list tables/metaboxes so extensions relying on WCS screens remain compatible.
 - [ ] **Migration Tooling** - Add migration tooling for converting existing WooCommerce Subscriptions data sets to WPSubscription format.
 - [ ] **Developer Documentation** - Document developer integration guide and release checklist once parity milestones are met.
