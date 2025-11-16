@@ -86,6 +86,7 @@ class SettingsHelper {
                         id="{$id}"
                         name="{$id}"
                         class="input! min-w-80! max-w-full!"
+                        style="outline-offset: 0.5px !important; outline-color: #e5e7eb !important;"
                         type="{$type}"
                         placeholder="{$placeholder}"
                         value="{$value}"
@@ -152,7 +153,7 @@ HTML;
                         <input 
                             id="{$id}"
                             name="{$id}"
-                            class="wp-subscription-toggle" 
+                            class="wp-subscription-toggle"
                             type="checkbox" 
                             value="{$value}"
                             {$checked_attr}
@@ -239,6 +240,7 @@ HTML;
                         id="{$id}"
                         name="{$id}"
                         class="select! min-w-80! max-w-full!"
+                        style="outline-offset: 0.5px !important; outline-color: #e5e7eb !important;"
                     >
                         {$options_html}
                     </select>
