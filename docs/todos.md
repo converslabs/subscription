@@ -17,10 +17,12 @@
 - [x] **PSR-4 Refactoring** - Compatibility namespace refactored to PSR-4 structure under `includes/Compat/WooSubscriptions/` with Composer autoload integration.
 - [x] **Action Scheduler** - Action Scheduler integration (`ActionScheduler`) maps WPSubscription schedules to WooCommerce-style renewal tasks (`woocommerce_scheduled_subscription_payment`, `woocommerce_scheduled_subscription_trial_end`, `woocommerce_scheduled_subscription_expiration`), ensuring `_schedule_*` meta stays in sync with renewal events.
 - [x] **Stripe Gateway Adapter** - Stripe gateway adapter (`StripeAdapter`) bridges WooCommerce Subscriptions Stripe hooks to WPSubscription's Stripe integration, handling scheduled payments and renewal processing.
+- [x] **Razorpay Gateway Adapter** - Razorpay gateway adapter (`RazorpayAdapter`) bridges WCS Razorpay hooks to WPSubscription, handling renewal order creation (requires manual processing or webhook triggers as Razorpay API doesn't auto-retry).
+- [x] **Mollie Gateway Adapter** - Mollie gateway adapter (`MollieAdapter`) bridges WCS Mollie hooks to WPSubscription, handling customer IDs, mandates, and SEPA/credit card sequences for renewal processing.
+- [x] **Payoneer Gateway Adapter** - Payoneer gateway adapter (`PayoneerAdapter`) bridges WCS Payoneer hooks to WPSubscription, creating renewal orders with manual processing flags (Payoneer typically requires manual renewal API calls).
 
 ## Pending / Backlog
 
-- [ ] **Additional Gateway Adapters** - Build gateway adapter classes for Razorpay, Payoneer, and Mollie, wiring `wps_wcs_*` actions into existing WPSubscription payment listeners.
 - [ ] **Extended Hook Coverage** - Mirror additional WCS hooks (e.g., switching, retries, expiration) and ensure internal handlers respond correctly.
 - [ ] **REST API Parity** - Provide REST API and WP-CLI parity with WooCommerce Subscriptions endpoints/commands.
 - [ ] **Admin UI Compatibility** - Reproduce admin UI list tables/metaboxes so extensions relying on WCS screens remain compatible.

@@ -113,8 +113,11 @@ class Bootstrap {
 	 * @return void
 	 */
 	private function register_gateway_adapters() {
-		// Initialize Stripe adapter.
+		// Initialize gateway adapters.
 		\SpringDevs\Subscription\Compat\WooSubscriptions\Gateways\StripeAdapter::instance();
+		\SpringDevs\Subscription\Compat\WooSubscriptions\Gateways\RazorpayAdapter::instance();
+		\SpringDevs\Subscription\Compat\WooSubscriptions\Gateways\MollieAdapter::instance();
+		\SpringDevs\Subscription\Compat\WooSubscriptions\Gateways\PayoneerAdapter::instance();
 	}
 
 	/**
