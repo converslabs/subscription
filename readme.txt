@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71
 Tags: woocommerce-subscriptions, subscriptions, subscriptions-billing, recurring-payments, woocommerce-extensions
 Requires at least: 6.0
 Tested up to: 6.8
-Stable tag: 1.8.5
+Stable tag: 1.8.6
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -227,6 +227,9 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 19. Create WooCommerce Product with Subscription Option
 
 == Changelog ==
+
+= 1.8.6 - Nov 16, 2025 =
+-   fix: Guest checkout account creation error.
 
 = 1.8.5 - Nov 9, 2025 =
 -   fix: View subscription from user menu showing "Page not found"
