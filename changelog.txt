@@ -1,5 +1,8 @@
 *** WPSubscription Changelog ***
 
+2025-11-16 - version 1.8.6
+* fix: Guest checkout account creation error.
+
 2025-11-09 - version 1.8.5
 * fix: View subscription from user menu showing "Page not found"
 * new: Added some helper functions.
