@@ -45,6 +45,20 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 
 		echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
 
+		SettingsHelper::render_switch_field(
+			[
+				'id'          => 'test_switch_field',
+				'title'       => __( 'Test Switch Field', 'wp_subscription' ),
+				'label'       => __( 'Click to toggle', 'wp_subscription' ),
+				'description' => __( 'This is a test switch field rendered by SettingsHelper.', 'wp_subscription' ),
+				'value'       => '1',
+				'checked'     => true,
+				'disabled'    => false,
+			]
+		);
+
+		echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
+
 		SettingsHelper::render_select_field(
 			[
 				'id'          => 'test_select_field',
