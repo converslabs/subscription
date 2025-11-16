@@ -32,22 +32,14 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 		
 		<!-- Fields -->
 		<?php
-		SettingsHelper::render_select_field(
+		SettingsHelper::render_text_field(
 			[
-				'id'          => 'test_select_field',
-				'title'       => __( 'Test Select Field', 'wp_subscription' ),
-				'options'     => [
-					'option_1' => __( 'Option 1', 'wp_subscription' ),
-					'option_2' => __( 'Option 2', 'wp_subscription' ),
-					'option_3' => __( 'Option 3', 'wp_subscription' ),
-				],
-				'selected'    => 'option_1',
+				'id'          => 'test_text_field',
+				'title'       => __( 'Test Text Field', 'wp_subscription' ),
+				'description' => __( 'This is a test text field rendered by SettingsHelper.', 'wp_subscription' ),
+				'value'       => 'Default value',
+				'placeholder' => 'Placeholder text',
 				'disabled'    => false,
-				'description' => __( 'This is a test select field rendered by SettingsHelper.', 'wp_subscription' ),
-				'settings'    => [
-					'group'    => 'main',
-					'priority' => 1,
-				],
 			]
 		);
 
@@ -55,8 +47,9 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 
 		SettingsHelper::render_select_field(
 			[
-				'id'          => 'test_select_field_2',
+				'id'          => 'test_select_field',
 				'title'       => __( 'Test Select Field', 'wp_subscription' ),
+				'description' => __( 'This is a test select field rendered by SettingsHelper.', 'wp_subscription' ),
 				'options'     => [
 					'option_1' => __( 'Option 1', 'wp_subscription' ),
 					'option_2' => __( 'Option 2', 'wp_subscription' ),
@@ -64,11 +57,6 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 				],
 				'selected'    => 'option_1',
 				'disabled'    => false,
-				'description' => __( 'This is a test select field rendered by SettingsHelper.', 'wp_subscription' ),
-				'settings'    => [
-					'group'    => 'main',
-					'priority' => 1,
-				],
 			]
 		);
 		?>
