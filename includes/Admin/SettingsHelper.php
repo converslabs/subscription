@@ -110,6 +110,31 @@ class SettingsHelper {
 	}
 
 	/**
+	 * Render specified settings field.
+	 *
+	 * @param string $field Field type.
+	 * @param array  $args Field arguments.
+	 * @param bool   $should_print Whether to print the field or return as HTML string.
+	 */
+	public static function render_settings_field( $field = 'input', $args, $should_print = true ) {
+		switch ( $field ) {
+			case 'heading':
+				return self::render_heading( $args, $should_print );
+			case 'switch':
+			case 'toggle':
+				return self::render_switch_field( $args, $should_print );
+			case 'select':
+				return self::render_select_field( $args, $should_print );
+			case 'join':
+				return self::render_joined_field( $args, $should_print );
+			case 'input':
+			default:
+				return self::render_input_field( $args, $should_print );
+		}
+	}
+
+
+	/**
 	 * Text Element HTML.
 	 *
 	 * @param array $args Same as 'render_text_field'.
@@ -207,7 +232,7 @@ class SettingsHelper {
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
 				'<span class="label mt-1">%s</span>',
-				esc_html( $description )
+				wp_kses_post( $description )
 			);
 		}
 
@@ -256,7 +281,7 @@ HTML;
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
 				'<span class="label mt-2 ml-0.5">%s</span>',
-				esc_html( $description )
+				wp_kses_post( $description )
 			);
 		}
 
@@ -310,7 +335,7 @@ HTML;
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
 				'<span class="label mt-2 ml-0.5">%s</span>',
-				esc_html( $description )
+				wp_kses_post( $description )
 			);
 		}
 
@@ -380,7 +405,7 @@ HTML;
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
 				'<span class="label mt-2 ml-0.5">%s</span>',
-				esc_html( $description )
+				wp_kses_post( $description )
 			);
 		}
 
@@ -421,7 +446,7 @@ HTML;
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
 				'<span class="label mt-2 ml-0.5">%s</span>',
-				esc_html( $description )
+				wp_kses_post( $description )
 			);
 		}
 

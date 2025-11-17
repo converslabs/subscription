@@ -21,117 +21,40 @@ wp_enqueue_style( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/c
 wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/js/admin-settings.js', [ 'jquery' ], WP_SUBSCRIPTION_VERSION, true );
 
 ?>
-<div class="woocommerce wpsubs-tw-root">
-	<h1 class="wp-heading-inline"><?php esc_html_e( 'Subscription Settings', 'wp_subscription' ); ?></h1>
-	<hr class="wp-header-end"><br/>
+<div class="wp-subscription-admin-content" style="max-width:1240px;margin:32px auto 0 auto">
+	<div class="wp-subscription-admin-box wpsubs-tw-root">
+		<h1 class="wp-heading-inline"><?php esc_html_e( 'Subscription Settings', 'wp_subscription' ); ?></h1>
+		<hr class="wp-header-end"><br/>
 
-	<form method="post" action="options.php" class="border border-gray-200 rounded-lg p-5">
-		<!-- Settings nonce and other requirements -->
-		<?php settings_fields( 'wp_subscription_settings' ); ?>
-		<?php do_settings_sections( 'wp_subscription_settings' ); ?>
-		
-		<!-- Fields -->
-		<?php
-		SettingsHelper::render_heading(
-			[
-				'title'       => __( 'Test Text Field', 'wp_subscription' ),
-				'description' => __( 'This is a test text field rendered by SettingsHelper.', 'wp_subscription' ),
-			]
-		);
+		<form method="post" action="options.php" class="border border-gray-200 rounded-lg p-5">
+			<!-- Settings nonce and other requirements -->
+			<?php settings_fields( 'wp_subscription_settings' ); ?>
+			<?php do_settings_sections( 'wp_subscription_settings' ); ?>
 
-		echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
+			<!-- Settings Fields -->
+			<?php
+			foreach ( $settings_fields as $group_id => $group ) {
+				foreach ( ( $group['fields'] ?? [] ) as $field ) {
+					$field_type = $field['type'] ?? 'input';
+					$field_data = $field['field_data'] ?? [];
 
-		SettingsHelper::render_input_field(
-			[
-				'id'          => 'test_text_field',
-				'title'       => __( 'Test Text Field', 'wp_subscription' ),
-				'description' => __( 'This is a test text field rendered by SettingsHelper.', 'wp_subscription' ),
-				'value'       => 'Default value',
-				'placeholder' => 'Placeholder text',
-				'disabled'    => false,
-			]
-		);
+					SettingsHelper::render_settings_field( $field_type, $field_data );
 
-		echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
+					echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
+				}
+			}
+			?>
 
-		SettingsHelper::render_switch_field(
-			[
-				'id'          => 'test_switch_field',
-				'title'       => __( 'Test Switch Field', 'wp_subscription' ),
-				'label'       => __( 'Click to toggle', 'wp_subscription' ),
-				'description' => __( 'This is a test switch field rendered by SettingsHelper.', 'wp_subscription' ),
-				'value'       => '1',
-				'checked'     => true,
-				'disabled'    => false,
-			]
-		);
-
-		echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
-
-		SettingsHelper::render_select_field(
-			[
-				'id'          => 'test_select_field',
-				'title'       => __( 'Test Select Field', 'wp_subscription' ),
-				'description' => __( 'This is a test select field rendered by SettingsHelper.', 'wp_subscription' ),
-				'options'     => [
-					'option_1' => __( 'Option 1', 'wp_subscription' ),
-					'option_2' => __( 'Option 2', 'wp_subscription' ),
-					'option_3' => __( 'Option 3', 'wp_subscription' ),
-				],
-				'selected'    => 'option_1',
-				'disabled'    => false,
-			]
-		);
-
-		echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
-
-		SettingsHelper::render_joined_field(
-			[
-				'title'       => __( 'Test Join Field', 'wp_subscription' ),
-				'description' => __( 'This is a test join field rendered by SettingsHelper.', 'wp_subscription' ),
-				'elements'    => [
-					SettingsHelper::inp_element(
-						[
-							'id'          => 'test_text_field',
-							'title'       => __( 'Test Text Field', 'wp_subscription' ),
-							'description' => __( 'This is a test text field rendered by SettingsHelper.', 'wp_subscription' ),
-							'value'       => 'Default value',
-							'placeholder' => 'Placeholder text',
-							'disabled'    => false,
-						],
-						true
-					),
-					SettingsHelper::select_element(
-						[
-							'id'          => 'test_select_field',
-							'title'       => __( 'Test Select Field', 'wp_subscription' ),
-							'description' => __( 'This is a test select field rendered by SettingsHelper.', 'wp_subscription' ),
-							'options'     => [
-								'option_1' => __( 'Option 1', 'wp_subscription' ),
-								'option_2' => __( 'Option 2', 'wp_subscription' ),
-								'option_3' => __( 'Option 3', 'wp_subscription' ),
-							],
-							'selected'    => 'option_1',
-							'disabled'    => false,
-						],
-						true
-					),
-					'<button class="btn join-item">Button</button>',
-				],
-			]
-		);
-		?>
-
-		<!-- Submit Button -->
-		<div class="my-5 border-t border-gray-100"></div>
-		<div>
-			<input 
-				type="submit" 
-				value="<?php esc_attr_e( 'Save changes', 'wp_subscription' ); ?>" 
-				class="button button-primary px-3! py-1! rounded-md!"
-			/>
-		</div>
-	</form>
+			<!-- Submit Button -->
+			<div>
+				<input 
+					type="submit" 
+					value="<?php esc_attr_e( 'Save changes', 'wp_subscription' ); ?>" 
+					class="button button-primary px-3! py-1! rounded-md!"
+				/>
+			</div>
+		</form>
+	</div>
 </div>
 	
 
