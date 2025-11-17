@@ -51,7 +51,7 @@ class SettingsHelper {
 
 		$disabled_attr = isset( $args['disabled'] ) && $args['disabled'] ? 'disabled' : '';
 
-		$join_class = $join_item ? 'join-item' : '';
+		$join_class = $join_item ? 'join-item mx-0!' : '';
 
 		$html_content = <<<HTML
 			<input 
@@ -64,6 +64,54 @@ class SettingsHelper {
 				value="{$value}"
 				{$disabled_attr}
 			/>
+		HTML;
+
+		return $html_content;
+	}
+
+	/**
+	 * Select Element HTML.
+	 *
+	 * @param array $args Same as 'render_select_field'.
+	 * @param bool  $join_item Whether to return element for 'join' container or not.
+	 */
+	public static function inp_select_element( $args = [], $join_item = false ) {
+		$id    = $args['id'];
+		$value = $args['value'] ?? '';
+
+		$join_class = $join_item ? 'join-item mx-0!' : '';
+
+		$options_html = '';
+		foreach ( ( $args['options'] ?? [] ) as $value => $label ) {
+			$selected = isset( $args['selected'] ) && $args['selected'] === $value;
+			$disabled = false;
+			if ( isset( $args['disabled'] ) ) {
+				if ( is_array( $args['disabled'] ) ) {
+					$disabled = in_array( $value, $args['disabled'], true );
+				} else {
+					$disabled = $args['disabled'] === $value;
+				}
+			}
+
+			$options_tmp_html = sprintf(
+				'<option value="%s" %s %s>%s</option>',
+				esc_attr( $value ),
+				$selected ? 'selected' : '',
+				$disabled ? 'disabled' : '',
+				esc_html( $label ),
+			);
+			$options_html    .= $options_tmp_html;
+		}
+
+		$html_content = <<<HTML
+			<select
+				id="{$id}"
+				name="{$id}"
+				class="select! min-w-80! max-w-full! {$join_class}"
+				style="outline-offset: 0.5px !important; outline-color: #e5e7eb !important;"
+			>
+				{$options_html}
+			</select>
 		HTML;
 
 		return $html_content;
@@ -139,19 +187,18 @@ HTML;
 	 * @param bool  $should_print Whether to print the field or return as HTML string.
 	 */
 	public static function render_switch_field( $args = [], $should_print = true ) {
+		$id          = $args['id'];
+		$title       = $args['title'] ?? '';
+		$label       = $args['label'] ?? '';
+		$description = $args['description'] ?? '';
+		$value       = $args['value'] ?? '0';
+
 		// Return error if ID is not provided.
 		if ( empty( $args['id'] ?? '' ) ) {
 			$field_hint = empty( $title ) ? 'Error' : $title;
 			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'wp_subscription' ) . '</p>';
 			return $should_print ? print wp_kses_post( $no_id_msg ) : $no_id_msg;
 		}
-
-		// Render start.
-		$id          = $args['id'];
-		$title       = $args['title'] ?? '';
-		$label       = $args['label'] ?? '';
-		$description = $args['description'] ?? '';
-		$value       = $args['value'] ?? '0';
 
 		$description_html = '';
 		if ( ! empty( $description ) ) {
@@ -210,6 +257,9 @@ HTML;
 	 * @param bool  $should_print Whether to print the field or return as HTML string.
 	 */
 	public static function render_select_field( $args = [], $should_print = true ) {
+		$title       = $args['title'] ?? '';
+		$description = $args['description'] ?? '';
+
 		// Return error if ID is not provided.
 		if ( empty( $args['id'] ?? '' ) ) {
 			$field_hint = empty( $title ) ? 'Error' : $title;
@@ -217,32 +267,8 @@ HTML;
 			return $should_print ? print wp_kses_post( $no_id_msg ) : $no_id_msg;
 		}
 
-		// Render start.
-		$id          = $args['id'];
-		$title       = $args['title'] ?? '';
-		$description = $args['description'] ?? '';
-
-		$options_html = '';
-		foreach ( ( $args['options'] ?? [] ) as $value => $label ) {
-			$selected = isset( $args['selected'] ) && $args['selected'] === $value;
-			$disabled = false;
-			if ( isset( $args['disabled'] ) ) {
-				if ( is_array( $args['disabled'] ) ) {
-					$disabled = in_array( $value, $args['disabled'], true );
-				} else {
-					$disabled = $args['disabled'] === $value;
-				}
-			}
-
-			$options_tmp_html = sprintf(
-				'<option value="%s" %s %s>%s</option>',
-				esc_attr( $value ),
-				$selected ? 'selected' : '',
-				$disabled ? 'disabled' : '',
-				esc_html( $label ),
-			);
-			$options_html    .= $options_tmp_html;
-		}
+		// Select HTML.
+		$select_el_html = self::inp_select_element( $args );
 
 		$description_html = '';
 		if ( ! empty( $description ) ) {
@@ -257,15 +283,7 @@ HTML;
                 <span class="font-semibold text-sm mt-0.5">{$title}</span>
 
                 <div class="col-span-5">
-                    <select
-                        id="{$id}"
-                        name="{$id}"
-                        class="select! min-w-80! max-w-full!"
-                        style="outline-offset: 0.5px !important; outline-color: #e5e7eb !important;"
-                    >
-                        {$options_html}
-                    </select>
-
+                    {$select_el_html}
                     <br/>
                     {$description_html}
                 </div>

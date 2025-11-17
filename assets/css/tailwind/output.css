@@ -2452,6 +2452,12 @@
         }
       }
     }
+    .mx-0 {
+      margin-inline: calc(var(--spacing) * 0);
+    }
+    .mx-0\! {
+      margin-inline: calc(var(--spacing) * 0) !important;
+    }
     .my-5 {
       margin-block: calc(var(--spacing) * 5);
     }
@@ -2501,6 +2507,15 @@
       }
       &:where(*:is(:disabled, [disabled], .btn-disabled)) {
         border-width: var(--border, 1px) 0 var(--border, 1px) var(--border, 1px);
+      }
+    }
+    .join-item\! {
+      &:where(*:not(:first-child, :disabled, [disabled], .btn-disabled)) {
+        margin-inline-start: calc(var(--border, 1px) * -1) !important;
+        margin-block-start: 0 !important;
+      }
+      &:where(*:is(:disabled, [disabled], .btn-disabled)) {
+        border-width: var(--border, 1px) 0 var(--border, 1px) var(--border, 1px) !important;
       }
     }
     .mt-0 {
