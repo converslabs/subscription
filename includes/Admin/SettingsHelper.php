@@ -294,4 +294,54 @@ HTML;
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $should_print ? print( $html_content ) : $html_content;
 	}
+
+	/**
+	 * Render Joined field with multiple elements.
+	 *
+	 * - Args:
+	 *   - title (string) - Field title.
+	 *   - description (string) - Field description (optional).
+	 *   - vertical (bool) - Whether to show items vertically or not.
+	 *   - elements ([...string]) - Array of HTML elements to join.
+	 *
+	 * @param array $args Field arguments.
+	 * @param bool  $should_print Whether to print the field or return as HTML string.
+	 */
+	public static function render_joined_field( $args = [], $should_print = true ) {
+		$title       = $args['title'] ?? '';
+		$description = $args['description'] ?? '';
+
+		$description_html = '';
+		if ( ! empty( $description ) ) {
+			$description_html = sprintf(
+				'<span class="label mt-2 ml-0.5">%s</span>',
+				esc_html( $description )
+			);
+		}
+
+		$vertical_class = ( $args['vertical'] ?? false ) ? 'join-vertical' : '';
+
+		$join_items_html = '';
+		foreach ( ( $args['elements'] ?? [] ) as $element_html ) {
+			$join_items_html .= $element_html;
+		}
+
+		$html_content = <<<HTML
+            <div class="grid grid-cols-6 gap-4">
+                <span class="font-semibold text-sm mt-0.5">{$title}</span>
+
+                <div class="col-span-5">
+					<div class="join {$vertical_class}">
+						{$join_items_html}
+					</div>
+                    <br/>
+                    {$description_html}
+                </div>
+            </div>
+HTML;
+
+		// Output not escaped intentionally. Breaks the HTML structure when escaped.
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $should_print ? print( $html_content ) : $html_content;
+	}
 }

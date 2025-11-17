@@ -2500,6 +2500,57 @@
         }
       }
     }
+    .join-vertical {
+      flex-direction: column;
+      > .join-item:first-child {
+        --join-ss: var(--radius-field);
+        --join-se: var(--radius-field);
+        --join-es: 0;
+        --join-ee: 0;
+      }
+      :first-child:not(:last-child) {
+        .join-item {
+          --join-ss: var(--radius-field);
+          --join-se: var(--radius-field);
+          --join-es: 0;
+          --join-ee: 0;
+        }
+      }
+      > .join-item:last-child {
+        --join-ss: 0;
+        --join-se: 0;
+        --join-es: var(--radius-field);
+        --join-ee: var(--radius-field);
+      }
+      :last-child:not(:first-child) {
+        .join-item {
+          --join-ss: 0;
+          --join-se: 0;
+          --join-es: var(--radius-field);
+          --join-ee: var(--radius-field);
+        }
+      }
+      > .join-item:only-child {
+        --join-ss: var(--radius-field);
+        --join-se: var(--radius-field);
+        --join-es: var(--radius-field);
+        --join-ee: var(--radius-field);
+      }
+      :only-child {
+        .join-item {
+          --join-ss: var(--radius-field);
+          --join-se: var(--radius-field);
+          --join-es: var(--radius-field);
+          --join-ee: var(--radius-field);
+        }
+      }
+      .join-item {
+        &:where(*:not(:first-child)) {
+          margin-inline-start: 0;
+          margin-block-start: calc(var(--border, 1px) * -1);
+        }
+      }
+    }
     .join-item {
       &:where(*:not(:first-child, :disabled, [disabled], .btn-disabled)) {
         margin-inline-start: calc(var(--border, 1px) * -1);

@@ -73,6 +73,44 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 				'disabled'    => false,
 			]
 		);
+
+		echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
+
+		SettingsHelper::render_joined_field(
+			[
+				'title'       => __( 'Test Join Field', 'wp_subscription' ),
+				'description' => __( 'This is a test join field rendered by SettingsHelper.', 'wp_subscription' ),
+				'elements'    => [
+					SettingsHelper::inp_text_element(
+						[
+							'id'          => 'test_text_field',
+							'title'       => __( 'Test Text Field', 'wp_subscription' ),
+							'description' => __( 'This is a test text field rendered by SettingsHelper.', 'wp_subscription' ),
+							'value'       => 'Default value',
+							'placeholder' => 'Placeholder text',
+							'disabled'    => false,
+						],
+						true
+					),
+					SettingsHelper::inp_select_element(
+						[
+							'id'          => 'test_select_field',
+							'title'       => __( 'Test Select Field', 'wp_subscription' ),
+							'description' => __( 'This is a test select field rendered by SettingsHelper.', 'wp_subscription' ),
+							'options'     => [
+								'option_1' => __( 'Option 1', 'wp_subscription' ),
+								'option_2' => __( 'Option 2', 'wp_subscription' ),
+								'option_3' => __( 'Option 3', 'wp_subscription' ),
+							],
+							'selected'    => 'option_1',
+							'disabled'    => false,
+						],
+						true
+					),
+					'<button class="btn join-item">Button</button>',
+				],
+			]
+		);
 		?>
 
 		<!-- Submit Button -->
