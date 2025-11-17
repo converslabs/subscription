@@ -382,7 +382,7 @@ HTML;
 	 *   - description (string) - Field description (optional).
 	 *   - options (array) - Field options [value => label].
 	 *   - selected (string) - Selected option value.
-	 *   - disabled (bool|array) - Disabled option value(s).
+	 *   - disabled (string|array) - Disabled option value(s).
 	 *
 	 * @param array $args Field arguments.
 	 * @param bool  $should_print Whether to print the field or return as HTML string.

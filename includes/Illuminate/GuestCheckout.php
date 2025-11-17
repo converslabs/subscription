@@ -18,7 +18,7 @@ class GuestCheckout {
 	 */
 	public function __construct() {
 		// Add guest checkout settings
-		add_action( 'subscrpt_settings_fields', [ $this, 'add_guest_checkout_settings_fields' ] );
+		add_filter( 'subscrpt_settings_fields', [ $this, 'add_guest_checkout_settings_fields' ] );
 		add_action( 'subscrpt_register_settings', [ $this, 'register_settings' ] );
 
 		// Show warning if guest checkout is disabled in WooCommerce settings.

@@ -1092,6 +1092,141 @@
         }
       }
     }
+    .toggle\! {
+      @layer daisyui.component {
+        border: var(--border) solid currentColor !important;
+        color: var(--input-color) !important;
+        position: relative !important;
+        display: inline-grid !important;
+        flex-shrink: 0 !important;
+        cursor: pointer !important;
+        appearance: none !important;
+        place-content: center !important;
+        vertical-align: middle !important;
+        webkit-user-select: none !important;
+        user-select: none !important;
+        grid-template-columns: 0fr 1fr 1fr !important;
+        --radius-selector-max: calc(
+      var(--radius-selector) + var(--radius-selector) + var(--radius-selector)
+    ) !important;
+        border-radius: calc( var(--radius-selector) + min(var(--toggle-p), var(--radius-selector-max)) + min(var(--border), var(--radius-selector-max)) ) !important;
+        padding: var(--toggle-p) !important;
+        box-shadow: 0 1px currentColor inset !important;
+        @supports (color: color-mix(in lab, red, red)) {
+          box-shadow: 0 1px color-mix(in oklab, currentColor calc(var(--depth) * 10%), #0000) inset !important;
+        }
+        transition: color 0.3s, grid-template-columns 0.2s !important;
+        --input-color: var(--color-base-content) !important;
+        @supports (color: color-mix(in lab, red, red)) {
+          --input-color: color-mix(in oklab, var(--color-base-content) 50%, #0000) !important;
+        }
+        --toggle-p: calc(var(--size) * 0.125) !important;
+        --size: calc(var(--size-selector, 0.25rem) * 6) !important;
+        width: calc((var(--size) * 2) - (var(--border) + var(--toggle-p)) * 2) !important;
+        height: var(--size) !important;
+        > * {
+          z-index: 1 !important;
+          grid-column: span 1 / span 1 !important;
+          grid-column-start: 2 !important;
+          grid-row-start: 1 !important;
+          height: 100% !important;
+          cursor: pointer !important;
+          appearance: none !important;
+          background-color: transparent !important;
+          padding: calc(0.25rem * 0.5) !important;
+          transition: opacity 0.2s, rotate 0.4s !important;
+          border: none !important;
+          &:focus {
+            --tw-outline-style: none !important;
+            outline-style: none !important;
+            @media (forced-colors: active) {
+              outline: 2px solid transparent !important;
+              outline-offset: 2px !important;
+            }
+          }
+          &:nth-child(2) {
+            color: var(--color-base-100) !important;
+            rotate: 0deg !important;
+          }
+          &:nth-child(3) {
+            color: var(--color-base-100) !important;
+            opacity: 0% !important;
+            rotate: -15deg !important;
+          }
+        }
+        &:has(:checked) {
+          > :nth-child(2) {
+            opacity: 0% !important;
+            rotate: 15deg !important;
+          }
+          > :nth-child(3) {
+            opacity: 100% !important;
+            rotate: 0deg !important;
+          }
+        }
+        &:before {
+          position: relative !important;
+          inset-inline-start: calc(0.25rem * 0) !important;
+          grid-column-start: 2 !important;
+          grid-row-start: 1 !important;
+          aspect-ratio: 1 / 1 !important;
+          height: 100% !important;
+          border-radius: var(--radius-selector) !important;
+          background-color: currentcolor !important;
+          translate: 0 !important;
+          --tw-content: "" !important;
+          content: var(--tw-content) !important;
+          transition: background-color 0.1s, translate 0.2s, inset-inline-start 0.2s !important;
+          box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px currentColor !important;
+          @supports (color: color-mix(in lab, red, red)) {
+            box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px color-mix(in oklab, currentColor calc(var(--depth) * 10%), #0000) !important;
+          }
+          background-size: auto, calc(var(--noise) * 100%) !important;
+          background-image: none, var(--fx-noise) !important;
+        }
+        @media (forced-colors: active) {
+          &:before {
+            outline-style: var(--tw-outline-style) !important;
+            outline-width: 1px !important;
+            outline-offset: calc(1px * -1) !important;
+          }
+        }
+        @media print {
+          &:before {
+            outline: 0.25rem solid !important;
+            outline-offset: -1rem !important;
+          }
+        }
+        &:focus-visible, &:has(:focus-visible) {
+          outline: 2px solid currentColor !important;
+          outline-offset: 2px !important;
+        }
+        &:checked, &[aria-checked="true"], &:has(> input:checked) {
+          grid-template-columns: 1fr 1fr 0fr !important;
+          background-color: var(--color-base-100) !important;
+          --input-color: var(--color-base-content) !important;
+          &:before {
+            background-color: currentcolor !important;
+          }
+          @starting-style {
+            &:before {
+              opacity: 0 !important;
+            }
+          }
+        }
+        &:indeterminate {
+          grid-template-columns: 0.5fr 1fr 0.5fr !important;
+        }
+        &:disabled {
+          cursor: not-allowed !important;
+          opacity: 30% !important;
+          &:before {
+            background-color: transparent !important;
+            border: var(--border) solid currentColor !important;
+          }
+        }
+      }
+    }
     .input {
       @layer daisyui.component {
         cursor: text;
@@ -2853,6 +2988,9 @@
     }
     .inline-flex {
       display: inline-flex;
+    }
+    .inline-grid {
+      display: inline-grid;
     }
     .table {
       display: table;
