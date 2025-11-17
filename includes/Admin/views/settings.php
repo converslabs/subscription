@@ -32,6 +32,15 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 		
 		<!-- Fields -->
 		<?php
+		SettingsHelper::render_heading(
+			[
+				'title'       => __( 'Test Text Field', 'wp_subscription' ),
+				'description' => __( 'This is a test text field rendered by SettingsHelper.', 'wp_subscription' ),
+			]
+		);
+
+		echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
+
 		SettingsHelper::render_text_field(
 			[
 				'id'          => 'test_text_field',

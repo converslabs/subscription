@@ -118,6 +118,40 @@ class SettingsHelper {
 	}
 
 	/**
+	 * Render Field Heading.
+	 *
+	 * - Args:
+	 *   - title (string) - Field title.
+	 *   - description (string) - Field description (optional).
+	 *
+	 * @param array $args Field arguments.
+	 * @param bool  $should_print Whether to print the field or return as HTML string.
+	 */
+	public static function render_heading( $args = [], $should_print = true ) {
+		$title       = $args['title'] ?? '';
+		$description = $args['description'] ?? '';
+
+		$description_html = '';
+		if ( ! empty( $description ) ) {
+			$description_html = sprintf(
+				'<span class="label mt-1">%s</span>',
+				esc_html( $description )
+			);
+		}
+
+		$html_content = <<<HTML
+            <div class="my-4 first-of-type:mt-0">
+                <h2 class="m-0!">{$title}</h2>
+				{$description_html}
+            </div>
+HTML;
+
+		// Output not escaped intentionally. Breaks the HTML structure when escaped.
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $should_print ? print( $html_content ) : $html_content;
+	}
+
+	/**
 	 * Render Text field.
 	 *
 	 * - Args:
