@@ -38,6 +38,38 @@ class SettingsHelper {
 	private function __construct() {}
 
 	/**
+	 * Text Element HTML.
+	 *
+	 * @param array $args Same as 'render_text_field'.
+	 * @param bool  $join_item Whether to return element for 'join' container or not.
+	 */
+	public static function inp_text_element( $args = [], $join_item = false ) {
+		$id          = $args['id'];
+		$value       = $args['value'] ?? '';
+		$placeholder = $args['placeholder'] ?? '';
+		$type        = $args['type'] ?? 'text';
+
+		$disabled_attr = isset( $args['disabled'] ) && $args['disabled'] ? 'disabled' : '';
+
+		$join_class = $join_item ? 'join-item' : '';
+
+		$html_content = <<<HTML
+			<input 
+				id="{$id}"
+				name="{$id}"
+				class="input! min-w-80! max-w-full! {$join_class}"
+				style="outline-offset: 0.5px !important; outline-color: #e5e7eb !important;"
+				type="{$type}"
+				placeholder="{$placeholder}"
+				value="{$value}"
+				{$disabled_attr}
+			/>
+		HTML;
+
+		return $html_content;
+	}
+
+	/**
 	 * Render Text field.
 	 *
 	 * - Args:
@@ -53,19 +85,18 @@ class SettingsHelper {
 	 * @param bool  $should_print Whether to print the field or return as HTML string.
 	 */
 	public static function render_text_field( $args = [], $should_print = true ) {
+		$title       = $args['title'] ?? '';
+		$description = $args['description'] ?? '';
+
 		// Return error if ID is not provided.
 		if ( empty( $args['id'] ?? '' ) ) {
-			$no_id_msg = '<p>' . __( '<strong>Error:</strong> Field ID is required.', 'wp_subscription' ) . '</p>';
+			$field_hint = empty( $title ) ? 'Error' : $title;
+			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'wp_subscription' ) . '</p>';
 			return $should_print ? print wp_kses_post( $no_id_msg ) : $no_id_msg;
 		}
 
-		// Render start.
-		$id          = $args['id'];
-		$title       = $args['title'] ?? '';
-		$description = $args['description'] ?? '';
-		$value       = $args['value'] ?? '';
-		$placeholder = $args['placeholder'] ?? '';
-		$type        = $args['type'] ?? 'text';
+		// Input HTML.
+		$text_el_html = self::inp_text_element( $args );
 
 		$description_html = '';
 		if ( ! empty( $description ) ) {
@@ -75,24 +106,12 @@ class SettingsHelper {
 			);
 		}
 
-		$disabled_attr = isset( $args['disabled'] ) && $args['disabled'] ? 'disabled' : '';
-
 		$html_content = <<<HTML
             <div class="grid grid-cols-6 gap-4">
-                <label for="{$id}" class="font-semibold align-middle text-sm">{$title}</label>
+                <span class="font-semibold text-sm mt-0.5">{$title}</span>
 
                 <div class="col-span-5">
-                    <input 
-                        id="{$id}"
-                        name="{$id}"
-                        class="input! min-w-80! max-w-full!"
-                        style="outline-offset: 0.5px !important; outline-color: #e5e7eb !important;"
-                        type="{$type}"
-                        placeholder="{$placeholder}"
-                        value="{$value}"
-                        {$disabled_attr}
-                    />
-
+                    {$text_el_html}
                     <br/>
                     {$description_html}
                 </div>
@@ -122,7 +141,8 @@ HTML;
 	public static function render_switch_field( $args = [], $should_print = true ) {
 		// Return error if ID is not provided.
 		if ( empty( $args['id'] ?? '' ) ) {
-			$no_id_msg = '<p>' . __( '<strong>Error:</strong> Field ID is required.', 'wp_subscription' ) . '</p>';
+			$field_hint = empty( $title ) ? 'Error' : $title;
+			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'wp_subscription' ) . '</p>';
 			return $should_print ? print wp_kses_post( $no_id_msg ) : $no_id_msg;
 		}
 
@@ -146,7 +166,7 @@ HTML;
 
 		$html_content = <<<HTML
             <div class="grid grid-cols-6 gap-4">
-                <label class="font-semibold align-middle text-sm">{$title}</label>
+                <span class="font-semibold text-sm mt-0.5">{$title}</span>
 
                 <div class="col-span-5">
                     <label for="{$id}">
@@ -192,7 +212,8 @@ HTML;
 	public static function render_select_field( $args = [], $should_print = true ) {
 		// Return error if ID is not provided.
 		if ( empty( $args['id'] ?? '' ) ) {
-			$no_id_msg = '<p>' . __( '<strong>Error:</strong> Field ID is required.', 'wp_subscription' ) . '</p>';
+			$field_hint = empty( $title ) ? 'Error' : $title;
+			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'wp_subscription' ) . '</p>';
 			return $should_print ? print wp_kses_post( $no_id_msg ) : $no_id_msg;
 		}
 
@@ -233,7 +254,7 @@ HTML;
 
 		$html_content = <<<HTML
             <div class="grid grid-cols-6 gap-4">
-                <label for="{$id}" class="font-semibold align-middle text-sm">{$title}</label>
+                <span class="font-semibold text-sm mt-0.5">{$title}</span>
 
                 <div class="col-span-5">
                     <select
