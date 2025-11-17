@@ -151,11 +151,13 @@ class Settings {
 			],
 		];
 
-		// $settings_fields = apply_filters( 'subscrpt_settings_fields', $settings_fields );
+		// Allow other modules to add/modify settings fields.
+		$settings_fields = apply_filters( 'subscrpt_settings_fields', $settings_fields );
 
+		// Process settings fields (group & sort).
 		$settings_fields = apply_filters( 'process_subscrpt_settings_fields', $settings_fields );
 
-		// dd( '🔽 settings_fields', $settings_fields );
+		// Set the settings fields.
 		$this->settings_fields = $settings_fields;
 	}
 

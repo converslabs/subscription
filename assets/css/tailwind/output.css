@@ -13,9 +13,13 @@
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
     --color-gray-300: oklch(87.2% 0.01 258.338);
+    --color-gray-400: oklch(70.7% 0.022 261.325);
     --color-gray-500: oklch(55.1% 0.027 264.364);
+    --color-gray-600: oklch(44.6% 0.03 256.802);
     --color-black: #000;
     --spacing: 0.25rem;
+    --text-xs: 0.75rem;
+    --text-xs--line-height: calc(1 / 0.75);
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
     --font-weight-semibold: 600;
@@ -2593,11 +2597,23 @@
     .mt-2 {
       margin-top: calc(var(--spacing) * 2);
     }
+    .mt-2\! {
+      margin-top: calc(var(--spacing) * 2) !important;
+    }
+    .mb-0 {
+      margin-bottom: calc(var(--spacing) * 0);
+    }
+    .mb-0\! {
+      margin-bottom: calc(var(--spacing) * 0) !important;
+    }
     .ml-0 {
       margin-left: calc(var(--spacing) * 0);
     }
     .ml-0\.5 {
       margin-left: calc(var(--spacing) * 0.5);
+    }
+    .ml-0\.5\! {
+      margin-left: calc(var(--spacing) * 0.5) !important;
     }
     .ml-2 {
       margin-left: calc(var(--spacing) * 2);
@@ -2972,12 +2988,44 @@
       font-size: var(--text-sm);
       line-height: var(--tw-leading, var(--text-sm--line-height));
     }
+    .text-xs {
+      font-size: var(--text-xs);
+      line-height: var(--tw-leading, var(--text-xs--line-height));
+    }
+    .text-xs\! {
+      font-size: var(--text-xs) !important;
+      line-height: var(--tw-leading, var(--text-xs--line-height)) !important;
+    }
+    .text-\[13px\]\! {
+      font-size: 13px !important;
+    }
     .font-semibold {
       --tw-font-weight: var(--font-weight-semibold);
       font-weight: var(--font-weight-semibold);
     }
     .text-wrap {
       text-wrap: wrap;
+    }
+    .\!text-gray-600 {
+      color: var(--color-gray-600) !important;
+    }
+    .text-gray-400 {
+      color: var(--color-gray-400);
+    }
+    .text-gray-400\! {
+      color: var(--color-gray-400) !important;
+    }
+    .text-gray-500 {
+      color: var(--color-gray-500);
+    }
+    .text-gray-500\! {
+      color: var(--color-gray-500) !important;
+    }
+    .text-gray-600 {
+      color: var(--color-gray-600);
+    }
+    .text-gray-600\! {
+      color: var(--color-gray-600) !important;
     }
     .underline {
       text-decoration-line: underline;

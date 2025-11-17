@@ -18,7 +18,7 @@ class GuestCheckout {
 	 */
 	public function __construct() {
 		// Add guest checkout settings
-		add_action( 'wp_subscription_setting_fields', [ $this, 'render_guest_checkout_setting_field' ], 7 );
+		add_action( 'subscrpt_settings_fields', [ $this, 'add_guest_checkout_settings_fields' ] );
 		add_action( 'subscrpt_register_settings', [ $this, 'register_settings' ] );
 
 		// Show warning if guest checkout is disabled in WooCommerce settings.
@@ -34,46 +34,49 @@ class GuestCheckout {
 	}
 
 	/**
-	 * Render Guest Checkout Setting Field
+	 * Add Guest Checkout Settings Fields
+	 *
+	 * @param array $settings_fields Settings fields.
+	 * @return array
 	 */
-	public function render_guest_checkout_setting_field() {
-		?>
-		<tr valign="top">
-			<th scope="row" class="titledesc"><?php esc_html_e( 'Allow Guest Checkout', 'wp_subscription' ); ?></th>
-			<td class="forminp forminp-checkbox">
-				<fieldset>
-					<legend class="screen-reader-text"><span><?php esc_html_e( 'Allow Guest Checkout', 'wp_subscription' ); ?></span></legend>
-					<label for="wp_subscription_allow_guest_checkout">
-					<input class="wp-subscription-toggle" name="wp_subscription_allow_guest_checkout" id="wp_subscription_allow_guest_checkout" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_allow_guest_checkout', '0' ), '1' ); ?> />
-					<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
-					</label>
-					<p class="description">
-						<?php esc_html_e( 'Allow customers to checkout without logging in.', 'wp_subscription' ); ?>
-						<br/>
-						<sub>
-							<?php echo wp_kses_post( __( 'Note: You will need to enable <strong>Guest checkout</strong> and <strong>Allow customers to create an account during checkout</strong> options in WooCommerce settings for this to work properly.', 'wp_subscription' ) ); ?>
-						</sub>
-					</p>
-				</fieldset>
-			</td>
-		</tr>
+	public function add_guest_checkout_settings_fields( $settings_fields ) {
+		$guest_checkout_fields = [
+			[
+				'type'       => 'heading',
+				'group'      => 'guest_checkout',
+				'priority'   => 1,
+				'field_data' => [
+					'title'       => __( 'Guest Checkout', 'wp_subscription' ),
+					'description' => __( 'Manage guest checkout settings for subscriptions.', 'wp_subscription' ),
+				],
+			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'guest_checkout',
+				'priority'   => 1,
+				'field_data' => [
+					'id'          => 'wp_subscription_allow_guest_checkout',
+					'title'       => __( 'Allow Guest Checkout', 'wp_subscription' ),
+					'description' => __( 'Allow customers to checkout without logging in.', 'wp_subscription' ) . '<br/><sub>' . __( 'Note: You will need to enable <strong>Guest checkout</strong> and <strong>Allow customers to create an account during checkout</strong> options in WooCommerce settings for this to work properly.', 'wp_subscription' ) . '</sub>',
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'wp_subscription_allow_guest_checkout', '0' ),
+				],
+			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'guest_checkout',
+				'priority'   => 2,
+				'field_data' => [
+					'id'          => 'wp_subscription_enforce_login',
+					'title'       => __( 'Enforce Login', 'wp_subscription' ),
+					'description' => __( 'Force customers to login or check the "Create account" checkbox before checking out.', 'wp_subscription' ),
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'wp_subscription_enforce_login', '1' ),
+				],
+			],
+		];
 
-		<tr valign="top">
-			<th scope="row" class="titledesc"><?php esc_html_e( 'Enforce Login', 'wp_subscription' ); ?></th>
-			<td class="forminp forminp-checkbox">
-				<fieldset>
-					<legend class="screen-reader-text"><span><?php esc_html_e( 'Enforce Login', 'wp_subscription' ); ?></span></legend>
-					<label for="wp_subscription_enforce_login">
-					<input class="wp-subscription-toggle" name="wp_subscription_enforce_login" id="wp_subscription_enforce_login" type="checkbox" value="1" <?php checked( get_option( 'wp_subscription_enforce_login', '1' ), '1' ); ?> />
-					<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
-					</label>
-					<p class="description">
-						<?php esc_html_e( 'Force customers to login or check the "Create account" checkbox before checking out.', 'wp_subscription' ); ?>
-					</p>
-				</fieldset>
-			</td>
-		</tr>
-		<?php
+		return array_merge( $settings_fields, $guest_checkout_fields );
 	}
 
 	/**

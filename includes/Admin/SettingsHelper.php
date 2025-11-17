@@ -231,7 +231,7 @@ class SettingsHelper {
 		$description_html = '';
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
-				'<span class="label mt-1">%s</span>',
+				'<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">%s</p>',
 				wp_kses_post( $description )
 			);
 		}
@@ -280,7 +280,7 @@ HTML;
 		$description_html = '';
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
-				'<span class="label mt-2 ml-0.5">%s</span>',
+				'<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">%s</p>',
 				wp_kses_post( $description )
 			);
 		}
@@ -334,7 +334,7 @@ HTML;
 		$description_html = '';
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
-				'<span class="label mt-2 ml-0.5">%s</span>',
+				'<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">%s</p>',
 				wp_kses_post( $description )
 			);
 		}
@@ -404,7 +404,7 @@ HTML;
 		$description_html = '';
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
-				'<span class="label mt-2 ml-0.5">%s</span>',
+				'<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">%s</p>',
 				wp_kses_post( $description )
 			);
 		}
@@ -445,7 +445,7 @@ HTML;
 		$description_html = '';
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
-				'<span class="label mt-2 ml-0.5">%s</span>',
+				'<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">%s</p>',
 				wp_kses_post( $description )
 			);
 		}
