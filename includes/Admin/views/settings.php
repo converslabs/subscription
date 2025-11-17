@@ -41,7 +41,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 
 		echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
 
-		SettingsHelper::render_text_field(
+		SettingsHelper::render_input_field(
 			[
 				'id'          => 'test_text_field',
 				'title'       => __( 'Test Text Field', 'wp_subscription' ),
@@ -90,7 +90,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 				'title'       => __( 'Test Join Field', 'wp_subscription' ),
 				'description' => __( 'This is a test join field rendered by SettingsHelper.', 'wp_subscription' ),
 				'elements'    => [
-					SettingsHelper::inp_text_element(
+					SettingsHelper::inp_element(
 						[
 							'id'          => 'test_text_field',
 							'title'       => __( 'Test Text Field', 'wp_subscription' ),
@@ -101,7 +101,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 						],
 						true
 					),
-					SettingsHelper::inp_select_element(
+					SettingsHelper::select_element(
 						[
 							'id'          => 'test_select_field',
 							'title'       => __( 'Test Select Field', 'wp_subscription' ),

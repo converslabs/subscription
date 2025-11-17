@@ -35,7 +35,79 @@ class SettingsHelper {
 	/**
 	 * Initialize the class.
 	 */
-	private function __construct() {}
+	private function __construct() {
+		add_filter( 'process_subscrpt_settings_fields', [ $this, 'process_settings_fields' ], 100, 1 );
+	}
+
+	/**
+	 * Process settings fields.
+	 *
+	 * @param array $fields Settings fields.
+	 * @return array Processed settings fields.
+	 */
+	public function process_settings_fields( $fields ) {
+		// Group settings fields.
+		$fields = $this->group_settings_fields( $fields );
+
+		// Sort fields by priority (groups & fields).
+		$fields = $this->sort_settings_fields( $fields );
+
+		return $fields;
+	}
+
+	/**
+	 * Group settings fields.
+	 *
+	 * @param array $fields Settings fields.
+	 * @return array Processed settings fields.
+	 */
+	public function group_settings_fields( $fields ) {
+		$tmp_fields = [];
+		foreach ( $fields as $field ) {
+			$field_group = $field['group'] ?? 'main';
+
+			if ( $field['type'] === 'heading' ) {
+				$group_priority                         = $field['priority'] ?? 0;
+				$tmp_fields[ $field_group ]['priority'] = $group_priority;
+				$field['priority']                      = -1;
+			}
+
+			$tmp_fields[ $field_group ]['fields'][] = $field;
+		}
+		return $tmp_fields;
+	}
+
+	/**
+	 * Sort settings fields.
+	 *
+	 * @param array $fields Settings fields.
+	 * @return array Processed settings fields.
+	 */
+	public function sort_settings_fields( $fields ) {
+		// Sort groups by priority.
+		uasort(
+			$fields,
+			function ( $a, $b ) {
+				$priority_a = $a['priority'] ?? 0;
+				$priority_b = $b['priority'] ?? 0;
+				return $priority_a <=> $priority_b;
+			}
+		);
+
+		// Sort fields within each group by priority.
+		foreach ( $fields as $group_key => $group_data ) {
+			uasort(
+				$group_data['fields'],
+				function ( $a, $b ) {
+					$priority_a = $a['priority'] ?? 0;
+					$priority_b = $b['priority'] ?? 0;
+					return $priority_a <=> $priority_b;
+				}
+			);
+			$fields[ $group_key ]['fields'] = $group_data['fields'];
+		}
+		return $fields;
+	}
 
 	/**
 	 * Text Element HTML.
@@ -43,7 +115,7 @@ class SettingsHelper {
 	 * @param array $args Same as 'render_text_field'.
 	 * @param bool  $join_item Whether to return element for 'join' container or not.
 	 */
-	public static function inp_text_element( $args = [], $join_item = false ) {
+	public static function inp_element( $args = [], $join_item = false ) {
 		$id          = $args['id'];
 		$value       = $args['value'] ?? '';
 		$placeholder = $args['placeholder'] ?? '';
@@ -75,7 +147,7 @@ class SettingsHelper {
 	 * @param array $args Same as 'render_select_field'.
 	 * @param bool  $join_item Whether to return element for 'join' container or not.
 	 */
-	public static function inp_select_element( $args = [], $join_item = false ) {
+	public static function select_element( $args = [], $join_item = false ) {
 		$id    = $args['id'];
 		$value = $args['value'] ?? '';
 
@@ -166,7 +238,7 @@ HTML;
 	 * @param array $args Field arguments.
 	 * @param bool  $should_print Whether to print the field or return as HTML string.
 	 */
-	public static function render_text_field( $args = [], $should_print = true ) {
+	public static function render_input_field( $args = [], $should_print = true ) {
 		$title       = $args['title'] ?? '';
 		$description = $args['description'] ?? '';
 
@@ -178,7 +250,7 @@ HTML;
 		}
 
 		// Input HTML.
-		$text_el_html = self::inp_text_element( $args );
+		$text_el_html = self::inp_element( $args );
 
 		$description_html = '';
 		if ( ! empty( $description ) ) {
@@ -302,7 +374,7 @@ HTML;
 		}
 
 		// Select HTML.
-		$select_el_html = self::inp_select_element( $args );
+		$select_el_html = self::select_element( $args );
 
 		$description_html = '';
 		if ( ! empty( $description ) ) {

@@ -8,6 +8,12 @@ namespace SpringDevs\Subscription\Admin;
  * @package SpringDevs\Subscription\Admin
  */
 class Settings {
+	/**
+	 * Settings fields.
+	 *
+	 * @var array
+	 */
+	public $settings_fields = [];
 
 	/**
 	 * Initialize the class.
@@ -15,6 +21,9 @@ class Settings {
 	public function __construct() {
 		// Load the settings helper.
 		SettingsHelper::get_instance();
+
+		// Initialize & process settings fields.
+		$this->initiate_settings_fields();
 
 		add_action( 'admin_menu', array( $this, 'admin_menu' ), 30 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -36,6 +45,55 @@ class Settings {
 			array( $this, 'settings_content' ),
 			40
 		);
+	}
+
+	/**
+	 * Initialize settings fields.
+	 */
+	public function initiate_settings_fields() {
+		$settings_fields = [
+			[
+				'type'       => 'heading',
+				'group'      => 'main',
+				'priority'   => 0,
+				'field_data' => [
+					'title'       => __( 'Main', 'wp_subscription' ),
+					'description' => __( 'This is a test text field rendered by SettingsHelper.', 'wp_subscription' ),
+				],
+			],
+			[
+				'type'       => 'input',
+				'group'      => 'main',
+				'priority'   => 2,
+				'field_data' => [
+					'id'          => 'wp_subscription_manual_renew_cart_notice',
+					'title'       => __( 'Renewal Cart Notice', 'wp_subscription' ),
+					'description' => __( 'Display Notice when Renewal Subscription product add to cart. Only available for Manual Renewal Process.', 'wp_subscription' ),
+					'value'       => esc_attr( get_option( 'wp_subscription_manual_renew_cart_notice' ) ),
+				],
+			],
+			[
+				'type'       => 'select',
+				'group'      => 'main',
+				'priority'   => 1,
+				'field_data' => [
+					'id'          => 'wp_subscription_renewal_process',
+					'title'       => __( 'Renewal Process', 'wp_subscription' ),
+					'description' => __( 'How renewal process will be done after Subscription Expired.', 'wp_subscription' ),
+					'options'     => [
+						'auto'   => __( 'Automatic', 'wp_subscription' ),
+						'manual' => __( 'Manual', 'wp_subscription' ),
+					],
+					'selected'    => esc_attr( get_option( 'wp_subscription_renewal_process', 'auto' ) ),
+				],
+			],
+		];
+
+		// $settings_fields = apply_filters( 'subscrpt_settings_fields', $settings_fields );
+
+		$settings_fields = apply_filters( 'process_subscrpt_settings_fields', $settings_fields );
+
+		// dd( '🔽 settings_fields', $settings_fields );
 	}
 
 	/**
