@@ -2,8 +2,6 @@
 
 namespace SpringDevs\Subscription\Admin;
 
-use function Avifinfo\read;
-
 /**
  * Menu class
  *
@@ -92,6 +90,8 @@ class Menu {
 			array( $this, 'render_stats_page' )
 		);
 
+		/*
+		! For god's sake, check existing code before implementing!
 		// Settings
 		add_submenu_page(
 			$parent_slug,
@@ -101,6 +101,7 @@ class Menu {
 			'wp-subscription-settings',
 			array( $this, 'render_settings_page' )
 		);
+		*/
 
 		// Support
 		add_submenu_page(
@@ -406,28 +407,6 @@ class Menu {
 		$this->render_admin_footer();
 
 		return;
-	}
-
-	/**
-	 * Render Settings page
-	 */
-	public function render_settings_page() {
-		$this->render_admin_header();
-		?>
-		<div class="wp-subscription-admin-content" style="max-width:1240px;margin:32px auto 0 auto">
-			<div class="wp-subscription-admin-box">
-				<?php include_once __DIR__ . '/views/settings.php'; ?>
-			</div>
-		</div>
-		<div style="text-align:center;margin:38px 0 0 0;font-size:14px;color:#888;">
-			Made with <span style="color:#e25555;font-size:1.1em;">♥</span> by the WP Subscription Team
-			<div style="margin-top:6px;">
-				<a href="https://wpsubscription.co/contact" target="_blank" style="color:#2563eb;text-decoration:none;">Support</a>
-				&nbsp;/&nbsp;
-				<a href="https://docs.converslabs.com/en" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
-			</div>
-		</div>
-		<?php
 	}
 
 	/**
