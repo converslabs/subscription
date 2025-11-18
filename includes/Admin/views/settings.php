@@ -21,6 +21,68 @@ wp_enqueue_style( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/c
 wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/js/admin-settings.js', [ 'jquery' ], WP_SUBSCRIPTION_VERSION, true );
 
 ?>
+<div class="wp-subscription-admin-box wpsubs-tw-root" style="max-width:1240px;margin:32px auto 0 auto;">
+	<h1>TW Playground!</h1>
+
+	<!-- Start Playground -->
+
+
+
+
+
+
+
+<button data-popover-target="popover-top" data-popover-placement="top" type="button" class="text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Top popover</button>
+
+<div data-popover id="popover-top" role="tooltip" class="absolute z-10 invisible inline-block w-64 text-sm text-body transition-opacity duration-300 bg-neutral-primary-soft border border-default rounded-base shadow-xs opacity-0">
+	<div class="px-3 py-2 bg-neutral-tertiary border-b border-default rounded-t-base">
+		<h3 class="font-medium text-heading">Popover top</h3>
+	</div>
+	<div class="px-3 py-2">
+		<p>And here's some amazing content. It's very engaging. Right?</p>
+	</div>
+	<div data-popper-arrow></div>
+</div>
+<button data-popover-target="popover-right" data-popover-placement="right" type="button" class="text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Right popover</button>
+<div data-popover id="popover-right" role="tooltip" class="absolute z-10 invisible inline-block w-64 text-sm text-body transition-opacity duration-300 bg-neutral-primary-soft border border-default rounded-base shadow-xs opacity-0">
+	<div class="px-3 py-2 bg-neutral-tertiary border-b border-default rounded-t-base">
+		<h3 class="font-medium text-heading">Popover right</h3>
+	</div>
+	<div class="px-3 py-2">
+		<p>And here's some amazing content. It's very engaging. Right?</p>
+	</div>
+	<div data-popper-arrow></div>
+</div>
+<button data-popover-target="popover-bottom" data-popover-placement="bottom" type="button" class="text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Bottom popover</button>
+<div data-popover id="popover-bottom" role="tooltip" class="absolute z-10 invisible inline-block w-64 text-sm text-body transition-opacity duration-300 bg-neutral-primary-soft border border-default rounded-base shadow-xs opacity-0">
+	<div class="px-3 py-2 bg-neutral-tertiary border-b border-default rounded-t-base">
+		<h3 class="font-medium text-heading">Popover bottom</h3>
+	</div>
+	<div class="px-3 py-2">
+		<p>And here's some amazing content. It's very engaging. Right?</p>
+	</div>
+	<div data-popper-arrow></div>
+</div>
+<button data-popover-target="popover-left" data-popover-placement="left" type="button" class="text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Left popover</button>
+<div data-popover id="popover-left" role="tooltip" class="absolute z-10 invisible inline-block w-64 text-sm text-body transition-opacity duration-300 bg-neutral-primary-soft border border-default rounded-base shadow-xs opacity-0">
+	<div class="px-3 py-2 bg-neutral-tertiary border-b border-default rounded-t-base">
+		<h3 class="font-medium text-heading">Popover left</h3>
+	</div>
+	<div class="px-3 py-2">
+		<p>And here's some amazing content. It's very engaging. Right?</p>
+	</div>
+	<div data-popper-arrow></div>
+</div>
+
+
+
+
+
+
+	<!-- End Playground -->
+</div>
+
+
 <div class="wp-subscription-admin-content" style="max-width:1240px;margin:32px auto 0 auto">
 	<div class="wp-subscription-admin-box wpsubs-tw-root">
 		<h1 class="wp-heading-inline"><?php esc_html_e( 'Subscription Settings', 'wp_subscription' ); ?></h1>

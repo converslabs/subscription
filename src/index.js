@@ -6,6 +6,16 @@ import { registerPlugin } from "@wordpress/plugins";
 import { getCurrencyFromPriceResponse } from "@woocommerce/price-format";
 // import { useStoreCart } from "@woocommerce/base-context/hooks";
 
+// Add Flowbite initialization
+import { initFlowbite } from "flowbite";
+document.addEventListener("DOMContentLoaded", () => {
+  const scopedClass = ".wpsubs-tw-root";
+  const root = document.querySelector(`${scopedClass}`);
+  if (root) {
+    initFlowbite(root); // Scoped initialization
+  }
+});
+
 const modifyCartItemPrice = (defaultValue, extensions, args, validation) => {
   const { sdevs_subscription } = extensions;
   const { cartItem } = args;

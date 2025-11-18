@@ -16,6 +16,8 @@ use SpringDevs\Subscription\Utils\SubscriptionProduct;
  */
 function subscrpt_include_tailwind_css() {
 	wp_enqueue_style( 'wpsubs-tailwind', WP_SUBSCRIPTION_ASSETS . '/css/tailwind/output.css', [], WP_SUBSCRIPTION_VERSION );
+
+	// wp_enqueue_script( 'flowbite', WP_SUBSCRIPTION_ASSETS . '/js/flowbite.js', [], WP_SUBSCRIPTION_VERSION, true );
 }
 
 /**

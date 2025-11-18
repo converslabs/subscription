@@ -5,9 +5,10 @@
 .wpsubs-tw-root {
   @import "tailwindcss/preflight.css" layer(base);
   @import "tailwindcss/utilities.css" layer(utilities);
+
+  @import "flowbite/src/themes/default"; /* Flowbite theme (colors, radiuses, etc.) */
+  @import "flowbite"; /* Flowbite component styles (buttons, inputs, toggles, alerts, etc.) */
 }
 
-@plugin "daisyui" {
-  themes: light --default;
-  root: ".wpsubs-tw-root";
-}
+@plugin "flowbite/plugin";
+@source "../node_modules/flowbite";

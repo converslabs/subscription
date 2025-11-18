@@ -7,7 +7,9 @@
   "scripts": {
     "install-dev": "yarn install --ignore-engines && composer install --ignore-platform-req=php",
     "build": "yarn build:wpscripts && yarn build:tailwind",
+    "watch": "yarn start:wpscripts && yarn watch:tailwind",
     "build:wpscripts": "wp-scripts build",
+    "start:wpscripts": "wp-scripts start",
     "build:tailwind": "tailwindcss -i ./assets/css/tailwind/input.css -o ./assets/css/tailwind/output.css",
     "watch:tailwind": "tailwindcss -i ./assets/css/tailwind/input.css -o ./assets/css/tailwind/output.css --watch",
     "format": "wp-scripts format",
@@ -16,7 +18,6 @@
     "format:prettier": "prettier --write \"**/*.{js,ts,jsx,tsx,css,scss,json,md,html}\"",
     "packages-update": "wp-scripts packages-update",
     "plugin-zip": "wp-scripts plugin-zip",
-    "start": "wp-scripts start",
     "commit": "node ./node_modules/cz-customizable/standalone.js",
     "prepare": "husky",
     "release": "scripts/release.sh",
