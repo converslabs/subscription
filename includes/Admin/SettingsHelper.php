@@ -146,20 +146,31 @@ class SettingsHelper {
 		$placeholder = $args['placeholder'] ?? '';
 		$type        = $args['type'] ?? 'text';
 
+		$join_class = $join_item ? 'join-item mx-0!' : '';
+
 		$disabled_attr = isset( $args['disabled'] ) && $args['disabled'] ? 'disabled' : '';
 
-		$join_class = $join_item ? 'join-item mx-0!' : '';
+		$style_attr = 'outline-offset: 0.5px !important; outline-color: #e5e7eb !important;';
+		if ( isset( $args['style'] ) ) {
+			$style_attr .= ' ' . $args['style'];
+		}
+
+		$other_attrs_html = '';
+		foreach ( ( $args['attributes'] ?? [] ) as $attr_key => $attr_value ) {
+			$other_attrs_html .= sprintf( ' %s="%s" ', esc_attr( $attr_key ), esc_attr( $attr_value ) );
+		}
 
 		$html_content = <<<HTML
 			<input 
 				id="{$id}"
 				name="{$id}"
 				class="input! min-w-80! max-w-full! {$join_class}"
-				style="outline-offset: 0.5px !important; outline-color: #e5e7eb !important;"
+				style="{$style_attr}"
 				type="{$type}"
 				placeholder="{$placeholder}"
 				value="{$value}"
 				{$disabled_attr}
+				{$other_attrs_html}
 			/>
 		HTML;
 
@@ -177,6 +188,16 @@ class SettingsHelper {
 		$value = $args['value'] ?? '';
 
 		$join_class = $join_item ? 'join-item mx-0!' : '';
+
+		$style_attr = 'outline-offset: 0.5px !important; outline-color: #e5e7eb !important;';
+		if ( isset( $args['style'] ) ) {
+			$style_attr .= ' ' . $args['style'];
+		}
+
+		$other_attrs_html = '';
+		foreach ( ( $args['attributes'] ?? [] ) as $attr_key => $attr_value ) {
+			$other_attrs_html .= sprintf( ' %s="%s" ', esc_attr( $attr_key ), esc_attr( $attr_value ) );
+		}
 
 		$options_html = '';
 		foreach ( ( $args['options'] ?? [] ) as $value => $label ) {
@@ -205,7 +226,8 @@ class SettingsHelper {
 				id="{$id}"
 				name="{$id}"
 				class="select! min-w-80! max-w-full! {$join_class}"
-				style="outline-offset: 0.5px !important; outline-color: #e5e7eb !important;"
+				style="{$style_attr}"
+				{$other_attrs_html}
 			>
 				{$options_html}
 			</select>
@@ -339,6 +361,16 @@ HTML;
 			);
 		}
 
+		$style_attr = '';
+		if ( isset( $args['style'] ) ) {
+			$style_attr .= ' ' . $args['style'];
+		}
+
+		$other_attrs_html = '';
+		foreach ( ( $args['attributes'] ?? [] ) as $attr_key => $attr_value ) {
+			$other_attrs_html .= sprintf( ' %s="%s" ', esc_attr( $attr_key ), esc_attr( $attr_value ) );
+		}
+
 		$checked_attr  = isset( $args['checked'] ) && (bool) $args['checked'] ? 'checked' : '';
 		$disabled_attr = isset( $args['disabled'] ) && (bool) $args['disabled'] ? 'disabled' : '';
 
@@ -352,10 +384,12 @@ HTML;
                             id="{$id}"
                             name="{$id}"
                             class="wp-subscription-toggle"
+							style="{$style_attr}"
                             type="checkbox" 
                             value="{$value}"
                             {$checked_attr}
                             {$disabled_attr}
+							{$other_attrs_html}
                         />
                         <span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
 

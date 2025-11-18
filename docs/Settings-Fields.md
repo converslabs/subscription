@@ -52,6 +52,8 @@ And here are the specific field data:
     'placeholder' => (string) "Placeholder"
     'disabled'    => (bool) "Disabled status"
     'type'        => (string) "Input type [text, email, number, date, time, etc.]"
+    'style'       => (string) "Style Override"
+    'attributes'  => (array) "Add other HTML attributes [attribute => value]"
 ]
 ```
 
@@ -66,6 +68,8 @@ And here are the specific field data:
     'value'       => (string) "Default value"
     'checked'     => (bool) "Checked status"
     'disabled'    => (bool) "Disabled status"
+    'style'       => (string) "Style Override"
+    'attributes'  => (array) "Add other HTML attributes [attribute => value]"
 ]
 ```
 
@@ -79,6 +83,8 @@ And here are the specific field data:
     'options'     => (array) "List of options [key => value, ...]"
     'selected'    => (string) "Value of the selected option"
     'disabled'    => (string|array) "Value or array of values to disable"
+    'style'       => (string) "Style Override"
+    'attributes'  => (array) "Add other HTML attributes [attribute => value]"
 ]
 ```
 
