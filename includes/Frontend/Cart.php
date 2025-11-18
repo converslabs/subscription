@@ -46,23 +46,23 @@ class Cart {
 		$failed       = false;
 		$product      = sdevs_get_subscription_product( $product_id );
 		$enabled      = $product->is_enabled();
+
 		foreach ( $cart_items as $key => $cart_item ) {
 			if ( isset( $cart_item['subscription'] ) ) {
 				if ( $enabled ) {
-					$error_notice = __( 'Currently You have an another Subscriptional product on cart !!', 'wp_subscription' );
+					$error_notice = __( 'You cannot purchase multiple subscriptions at the same time.', 'wp_subscription' );
 				} else {
-					$error_notice = __( 'Currently You have Subscriptional product in a cart !!', 'wp_subscription' );
+					$error_notice = __( 'You cannot purchase a subscription and a non-subscription product at the same time.', 'wp_subscription' );
 				}
 				$failed = true;
 			} elseif ( $enabled ) {
+				$error_notice = __( 'You cannot purchase a subscription along with other products. Please remove other products from your cart first.', 'wp_subscription' );
 				$failed       = true;
-				$error_notice = __( 'Your cart isn\'t empty !!', 'wp_subscription' );
 			}
 		}
 
 		if ( $failed ) {
 			wc_add_notice( $error_notice, 'error' );
-
 			return false;
 		}
 
