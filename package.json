@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.16",
+    "flowbite": "^4.0.1",
     "tailwindcss": "^4.1.16"
   },
   "devDependencies": {
@@ -31,7 +32,6 @@
     "@woocommerce/eslint-plugin": "^2.3.0",
     "@wordpress/scripts": "^30.16.0",
     "cz-customizable": "^7.4.0",
-    "daisyui": "^5.3.10",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2"
