@@ -9,10 +9,11 @@ import { getCurrencyFromPriceResponse } from "@woocommerce/price-format";
 // Add Flowbite initialization
 import { initFlowbite } from "flowbite";
 document.addEventListener("DOMContentLoaded", () => {
-  const scopedClass = ".wpsubs-tw-root";
-  const root = document.querySelector(`${scopedClass}`);
+  const root = document.querySelector(".wpsubs-tw-root");
+
+  // Only initialize Flowbite if at least one root element is found.
   if (root) {
-    initFlowbite(root); // Scoped initialization
+    initFlowbite();
   }
 });
 
