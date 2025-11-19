@@ -28,6 +28,7 @@
 
 - [ ] **WP-CLI Commands** - Provide WP-CLI parity with WooCommerce Subscriptions commands for subscription management.
 - [ ] **Admin UI Compatibility** - Reproduce admin UI list tables/metaboxes so extensions relying on WCS screens remain compatible.
-- [ ] **Migration Tooling** - Add migration tooling for converting existing WooCommerce Subscriptions data sets to WPSubscription format.
+- [x] **Migration Tooling Integration** - Integrated existing `subscription-import` plugin with compatibility layer: added SyncService integration to create `shop_subscription` mirrors, ActionScheduler integration to schedule renewal events, StatusMapper usage for proper status conversion, and improved date/timezone handling.
+- [x] **Migration Admin UI Enhancement** - Enhanced migration admin UI with compatibility layer status indicators, improved statistics display showing sync/scheduled counts, visual compatibility badges for each subscription, enhanced success notifications with compatibility layer info, and modern notification system with auto-dismiss.
 - [ ] **Developer Documentation** - Document developer integration guide and release checklist once parity milestones are met.
 - [ ] **CI/CD Workflows** - Establish CI workflows executing the compatibility PHPUnit suite and (eventually) end-to-end gateway tests.
