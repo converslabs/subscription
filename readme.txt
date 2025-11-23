@@ -232,9 +232,9 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 
 = 1.8.7 - Nov 23, 2025 =
 -   fix: Cart warning messages.
--   fix: Two way add to cart check (sub <=> non-sub).
+-   fix: Two-way add to cart check (sub <=> non-sub).
 -   improved: Settings page.
--   dev: Made settings to be modular and can be added from anywhere.
+-   dev: Made settings modular and can be added from anywhere.
 
 = 1.8.6 - Nov 16, 2025 =
 -   fix: Guest checkout account creation error.
