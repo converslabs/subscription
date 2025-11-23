@@ -633,6 +633,8 @@ class Helper {
 		}
 
 		do_action( 'subscrpt_after_create_renew_order', $new_order, $old_order, $subscription_id, false );
+
+		return $new_order;
 	}
 
 	/**
@@ -814,20 +816,76 @@ class Helper {
 	}
 
 	/**
+	 * Get subscription total price.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return float
+	 */
+	public static function get_subscription_total( $subscription_id ) {
+		return (float) get_post_meta( $subscription_id, '_subscrpt_price', true );
+	}
+
+	/**
+	 * Get subscription parent order ID.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return int
+	 */
+	public static function get_subscription_parent_order_id( $subscription_id ) {
+		return (int) get_post_meta( $subscription_id, '_subscrpt_order_id', true );
+	}
+
+	/**
+	 * Get subscription parent order.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return \WC_Order|bool
+	 */
+	public static function get_subscription_parent_order( $subscription_id ) {
+		$order_id = self::get_subscription_parent_order_id( $subscription_id );
+		return wc_get_order( $order_id );
+	}
+
+	/**
+	 * Get subscription status.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return string
+	 */
+	public static function get_subscription_status( $subscription_id ) {
+		return get_post_status( $subscription_id );
+	}
+
+	/**
+	 * Check if subscription has status.
+	 *
+	 * @param int    $subscription_id Subscription ID.
+	 * @param string $status Status to check.
+	 * @return bool
+	 */
+	public static function subscription_has_status( $subscription_id, $status ) {
+		return self::get_subscription_status( $subscription_id ) === $status;
+	}
+
+	/**
+	 * Check if subscription needs payment.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return bool
+	 */
+	public static function subscription_needs_payment( $subscription_id ) {
+		// Logic to determine if payment is needed.
+		// For now, assume yes if active or on-hold?
+		// Or maybe just always true for the purpose of the gateway check?
+		return true;
+	}
+
+	/**
 	 * Get related orders of a subscription.
 	 *
 	 * @param int $subscription_id Subscription ID.
 	 * @return array
 	 */
-	public static function get_related_orders( int $subscription_id ): array {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'subscrpt_order_relation';
-
-		// @phpcs:ignore
-		$order_histories = $wpdb->get_results(
-			$wpdb->prepare(
-				'SELECT order_id, order_item_id, type FROM %i WHERE subscription_id=%d ORDER BY id DESC',
-				[
 					$table_name,
 					$subscription_id,
 				]
@@ -835,32 +893,32 @@ class Helper {
 		);
 
 		return $order_histories;
-	}
+}
 
 	/**
 	 * Get parent order from subscription.
 	 *
 	 * @param int $subscription_id Subscription ID.
 	 */
-	public static function get_parent_order( int $subscription_id ) {
-		$related_orders = self::get_related_orders( $subscription_id );
-		$last_order     = end( $related_orders );
+public static function get_parent_order( int $subscription_id ) {
+	$related_orders = self::get_related_orders( $subscription_id );
+	$last_order     = end( $related_orders );
 
-		if ( ! $last_order || strtolower( $last_order->type ?? '' ) !== 'new' ) {
-			foreach ( $related_orders as $order ) {
-				if ( strtolower( $order->type ?? '' ) === 'new' ) {
-					$last_order = $order;
-					break;
-				}
+	if ( ! $last_order || strtolower( $last_order->type ?? '' ) !== 'new' ) {
+		foreach ( $related_orders as $order ) {
+			if ( strtolower( $order->type ?? '' ) === 'new' ) {
+				$last_order = $order;
+				break;
 			}
 		}
-
-		$parent_order_id = $last_order->order_id ?? 0;
-		if ( $parent_order_id ) {
-			$parent_order = wc_get_order( $parent_order_id );
-		}
-		return $parent_order_id ? $parent_order : null;
 	}
+
+	$parent_order_id = $last_order->order_id ?? 0;
+	if ( $parent_order_id ) {
+		$parent_order = wc_get_order( $parent_order_id );
+	}
+	return $parent_order_id ? $parent_order : null;
+}
 
 	/**
 	 * Create new order for renewal.
@@ -871,44 +929,44 @@ class Helper {
 	 *
 	 * @return array|false
 	 */
-	public static function create_new_order_for_renewal( \WC_Order $old_order, \WC_Order_Item $order_item, array $product_args ) {
-		$product      = $order_item->get_product();
-		$user_id      = $old_order->get_user_id();
-		$new_order    = wc_create_order(
-			array(
-				'customer_id' => $user_id,
-				'status'      => 'pending',
-			)
-		);
-		$product_meta = apply_filters( 'subscrpt_renewal_item_meta', wc_get_order_item_meta( $order_item->get_id(), '_subscrpt_meta', true ), $product, $order_item );
-		$product_args = apply_filters( 'subscrpt_renewal_product_args', $product_args, $product, $order_item );
-		if ( ! $product_args ) {
-			return false;
-		}
-
-		$new_order_item_id = $new_order->add_product(
-			$product,
-			$order_item->get_quantity(),
-			$product_args
-		);
-		wc_update_order_item_meta(
-			$new_order_item_id,
-			'_subscrpt_meta',
-			array(
-				'time'  => $product_meta['time'],
-				'type'  => $product_meta['type'],
-				'trial' => null,
-			)
-		);
-
-		// Add debug log.
-		wp_subscrpt_write_debug_log( "Renewal order #{$new_order->get_id()} created for old order #{$old_order->get_id()}" );
-
-		return array(
-			'order'         => $new_order,
-			'order_item_id' => $new_order_item_id,
-		);
+public static function create_new_order_for_renewal( \WC_Order $old_order, \WC_Order_Item $order_item, array $product_args ) {
+	$product      = $order_item->get_product();
+	$user_id      = $old_order->get_user_id();
+	$new_order    = wc_create_order(
+		array(
+			'customer_id' => $user_id,
+			'status'      => 'pending',
+		)
+	);
+	$product_meta = apply_filters( 'subscrpt_renewal_item_meta', wc_get_order_item_meta( $order_item->get_id(), '_subscrpt_meta', true ), $product, $order_item );
+	$product_args = apply_filters( 'subscrpt_renewal_product_args', $product_args, $product, $order_item );
+	if ( ! $product_args ) {
+		return false;
 	}
+
+	$new_order_item_id = $new_order->add_product(
+		$product,
+		$order_item->get_quantity(),
+		$product_args
+	);
+	wc_update_order_item_meta(
+		$new_order_item_id,
+		'_subscrpt_meta',
+		array(
+			'time'  => $product_meta['time'],
+			'type'  => $product_meta['type'],
+			'trial' => null,
+		)
+	);
+
+	// Add debug log.
+	wp_subscrpt_write_debug_log( "Renewal order #{$new_order->get_id()} created for old order #{$old_order->get_id()}" );
+
+	return array(
+		'order'         => $new_order,
+		'order_item_id' => $new_order_item_id,
+	);
+}
 
 	/**
 	 * Check if old order is completed or deleted!
@@ -917,17 +975,17 @@ class Helper {
 	 *
 	 * @return \WC_Order|false
 	 */
-	public static function check_order_for_renewal( $old_order_id ) {
-		$old_order = wc_get_order( $old_order_id );
-		if ( ! $old_order || 'completed' !== $old_order->get_status() ) {
-			if ( ! is_admin() && function_exists( 'wc_add_notice' ) ) {
-				return wc_add_notice( __( 'Subscription renewal isn\'t possible due to previous order not completed or deletion.', 'wp_subscription' ), 'error' );
-			}
-			return false;
+public static function check_order_for_renewal( $old_order_id ) {
+	$old_order = wc_get_order( $old_order_id );
+	if ( ! $old_order || 'completed' !== $old_order->get_status() ) {
+		if ( ! is_admin() && function_exists( 'wc_add_notice' ) ) {
+			return wc_add_notice( __( 'Subscription renewal isn\'t possible due to previous order not completed or deletion.', 'wp_subscription' ), 'error' );
 		}
-
-		return $old_order;
+		return false;
 	}
+
+	return $old_order;
+}
 
 	/**
 	 * Save meta-data from old order
@@ -937,35 +995,35 @@ class Helper {
 	 *
 	 * @return void
 	 */
-	public static function clone_order_metadata( $new_order, $old_order ) {
-		$new_order->set_customer_id( $old_order->get_customer_id() );
-		$new_order->set_currency( $old_order->get_currency() );
+public static function clone_order_metadata( $new_order, $old_order ) {
+	$new_order->set_customer_id( $old_order->get_customer_id() );
+	$new_order->set_currency( $old_order->get_currency() );
 
-		// 3 Add Billing Fields
-		$customer = new \WC_Customer( $old_order->get_customer_id() );
-		$new_order->set_billing_city( $customer->get_billing_city() );
-		$new_order->set_billing_state( $customer->get_billing_state() );
-		$new_order->set_billing_postcode( $customer->get_billing_postcode() );
-		$new_order->set_billing_email( $customer->get_billing_email() );
-		$new_order->set_billing_phone( $customer->get_billing_phone() );
-		$new_order->set_billing_address_1( $customer->get_billing_address_1() );
-		$new_order->set_billing_address_2( $customer->get_billing_address_2() );
-		$new_order->set_billing_country( $customer->get_billing_country() );
-		$new_order->set_billing_first_name( $customer->get_billing_first_name() );
-		$new_order->set_billing_last_name( $customer->get_billing_last_name() );
-		$new_order->set_billing_company( $customer->get_billing_company() );
+	// 3 Add Billing Fields
+	$customer = new \WC_Customer( $old_order->get_customer_id() );
+	$new_order->set_billing_city( $customer->get_billing_city() );
+	$new_order->set_billing_state( $customer->get_billing_state() );
+	$new_order->set_billing_postcode( $customer->get_billing_postcode() );
+	$new_order->set_billing_email( $customer->get_billing_email() );
+	$new_order->set_billing_phone( $customer->get_billing_phone() );
+	$new_order->set_billing_address_1( $customer->get_billing_address_1() );
+	$new_order->set_billing_address_2( $customer->get_billing_address_2() );
+	$new_order->set_billing_country( $customer->get_billing_country() );
+	$new_order->set_billing_first_name( $customer->get_billing_first_name() );
+	$new_order->set_billing_last_name( $customer->get_billing_last_name() );
+	$new_order->set_billing_company( $customer->get_billing_company() );
 
-		// 4 Add Shipping Fields
-		$new_order->set_shipping_country( $customer->get_shipping_country() );
-		$new_order->set_shipping_first_name( $customer->get_shipping_first_name() );
-		$new_order->set_shipping_last_name( $customer->get_shipping_last_name() );
-		$new_order->set_shipping_company( $customer->get_shipping_company() );
-		$new_order->set_shipping_address_1( $customer->get_shipping_address_1() );
-		$new_order->set_shipping_address_2( $customer->get_shipping_address_2() );
-		$new_order->set_shipping_city( $customer->get_shipping_city() );
-		$new_order->set_shipping_state( $customer->get_shipping_state() );
-		$new_order->set_shipping_postcode( $customer->get_shipping_postcode() );
-	}
+	// 4 Add Shipping Fields
+	$new_order->set_shipping_country( $customer->get_shipping_country() );
+	$new_order->set_shipping_first_name( $customer->get_shipping_first_name() );
+	$new_order->set_shipping_last_name( $customer->get_shipping_last_name() );
+	$new_order->set_shipping_company( $customer->get_shipping_company() );
+	$new_order->set_shipping_address_1( $customer->get_shipping_address_1() );
+	$new_order->set_shipping_address_2( $customer->get_shipping_address_2() );
+	$new_order->set_shipping_city( $customer->get_shipping_city() );
+	$new_order->set_shipping_state( $customer->get_shipping_state() );
+	$new_order->set_shipping_postcode( $customer->get_shipping_postcode() );
+}
 }
 
 // HPOS: All order data access below uses WooCommerce CRUD and is HPOS compatible.
