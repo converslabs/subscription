@@ -1,5 +1,11 @@
 *** WPSubscription Changelog ***
 
+2025-11-23 - version 1.8.7
+* fix: Cart warning messages.
+* fix: Two-way add to cart check (sub <=> non-sub).
+* improved: Settings page.
+* dev: Made settings modular and can be added from anywhere.
+
 2025-11-16 - version 1.8.6
 * fix: Guest checkout account creation error.
 
