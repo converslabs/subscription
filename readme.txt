@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71
 Tags: woocommerce-subscriptions, subscriptions, subscriptions-billing, recurring-payments, woocommerce-extensions
 Requires at least: 6.0
 Tested up to: 6.8
-Stable tag: 1.8.6
+Stable tag: 1.8.7
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -229,6 +229,12 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 19. Create WooCommerce Product with Subscription Option
 
 == Changelog ==
+
+= 1.8.7 - Nov 23, 2025 =
+-   fix: Cart warning messages.
+-   fix: Two way add to cart check (sub <=> non-sub).
+-   improved: Settings page.
+-   dev: Made settings to be modular and can be added from anywhere.
 
 = 1.8.6 - Nov 16, 2025 =
 -   fix: Guest checkout account creation error.
