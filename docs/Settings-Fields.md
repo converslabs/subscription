@@ -149,6 +149,8 @@ public function add_settings_fields( $settings_fields ) {
             ],
         ],
     ];
+
+    return array_merge( $settings_fields, $new_fields );
 }
 
 public function add_settings_fields() {
