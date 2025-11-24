@@ -4,6 +4,7 @@
  *
  * @var WC_Order $order
  * @var WC_Order_Item $order_item
+ * @var array $related_orders
  * @var string $start_date
  * @var string $next_date
  * @var string|null $trial
@@ -344,64 +345,56 @@ do_action( 'before_single_subscrpt_content' );
 		</tr>
 	</thead>
 	<tbody>
-		<?php
-		// Get all orders related to this subscription
-		global $wpdb;
-		$table_name      = $wpdb->prefix . 'subscrpt_order_relation';
-		$order_histories = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$table_name} WHERE subscription_id = %d ORDER BY id ASC",
-				$id
-			)
-		);
-
-		if ( ! empty( $order_histories ) ) :
-			foreach ( $order_histories as $order_history ) :
-				$related_order = wc_get_order( $order_history->order_id );
-				if ( ! $related_order ) {
-					continue;
-				}
-
-				$order_item = $related_order->get_item( $order_history->order_item_id );
-				if ( ! $order_item ) {
-					continue;
-				}
-
-				$order_type_label = wps_subscription_order_relation_type_cast( $order_history->type );
-				?>
-				<tr class="order_item">
-					<td class="order-number">
-						<a href="<?php echo esc_url( wc_get_endpoint_url( 'view-order', $related_order->get_id(), wc_get_page_permalink( 'myaccount' ) ) ); ?>">
-							#<?php echo esc_html( $related_order->get_id() ); ?>
-						</a>
-					</td>
-					<td class="order-type">
-						<?php echo esc_html( $order_type_label ); ?>
-					</td>
-					<td class="order-date">
-						<?php echo esc_html( $related_order->get_date_created()->date_i18n( get_option( 'date_format' ) ) ); ?>
-					</td>
-					<td class="order-status">
-						<span class="order-status-<?php echo esc_attr( $related_order->get_status() ); ?>">
-							<?php echo esc_html( wc_get_order_status_name( $related_order->get_status() ) ); ?>
-						</span>
-					</td>
-					<td class="order-total">
-						<?php echo wp_kses_post( wc_price( $order->get_total(), array( 'currency' => $related_order->get_currency() ) ) ); ?>
-					</td>
-				</tr>
-				<?php
-			endforeach;
-		else :
-			?>
+		<?php if ( empty( $related_orders ) ) : ?>
 			<tr class="order_item">
 				<td colspan="5" class="no-orders">
 					<?php echo esc_html_e( 'No related orders found.', 'wp_subscription' ); ?>
 				</td>
 			</tr>
+		<?php endif; ?>
+
+		<?php foreach ( $related_orders as $related_order ) : ?>
 			<?php
-		endif;
-		?>
+				$order_id = $related_order->order_id;
+				$order    = wc_get_order( $order_id );
+			if ( ! $order ) {
+				continue;
+			}
+
+				$order_type       = $related_order->type;
+				$order_type_label = wps_subscription_order_relation_type_cast( $order_type );
+
+				$order_created_date = $order->get_date_created()->date_i18n( get_option( 'date_format' ) );
+
+				$order_status      = $order->get_status();
+				$order_status_name = wc_get_order_status_name( $order_status );
+
+				$order_total           = $order->get_total();
+				$formatted_order_total = wc_price( $order_total, array( 'currency' => $order->get_currency() ) );
+			?>
+
+			<tr class="order_item">
+				<td class="order-number">
+					<a href="<?php echo esc_url( wc_get_endpoint_url( 'view-order', $order_id, wc_get_page_permalink( 'myaccount' ) ) ); ?>">
+						#<?php echo esc_html( $order_id ); ?>
+					</a>
+				</td>
+				<td class="order-type">
+					<?php echo esc_html( $order_type_label ); ?>
+				</td>
+				<td class="order-date">
+					<?php echo esc_html( $order_created_date ); ?>
+				</td>
+				<td class="order-status">
+					<span class="order-status-<?php echo esc_attr( $order_status ); ?>">
+						<?php echo esc_html( $order_status_name ); ?>
+					</span>
+				</td>
+				<td class="order-total">
+					<?php echo wp_kses_post( $formatted_order_total ); ?>
+				</td>
+			</tr>
+		<?php endforeach; ?>
 	</tbody>
 </table>
 
