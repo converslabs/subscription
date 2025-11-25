@@ -24,10 +24,10 @@ To insert a field, you will need to add to arrays to the filter. Every settings 
 
 ```php
 [
-    'type'       => (string) 'heading' // Field type
-    'group'      => (string) 'main'   // Field group
-    'priority'   => (int) 1     // Group Priority or Field Priority (relative to group)
-    'field_data' => (array) []  // Different field data.
+    'type'       => (string) 'heading', // Field type
+    'group'      => (string) 'main',   // Field group
+    'priority'   => (int) 1,     // Group Priority or Field Priority (relative to group)
+    'field_data' => (array) [],  // Different field data.
 ]
 ```
 
@@ -36,8 +36,8 @@ And here are the specific field data:
 
 ```php
 [
-    'title'       => (string) "The tile of the field"
-    'description' => (string) "The description of the field"
+    'title'       => (string) "The tile of the field",
+    'description' => (string) "The description of the field",
 ]
 ```
 
@@ -45,15 +45,15 @@ And here are the specific field data:
 
 ```php
 [
-    'id'          => (string) "id_of_the_field" // This will also be used in the backend to get and store data.
-    'title'       => (string) "The tile of the field"
-    'description' => (string) "The description of the field"
-    'value'       => (string) "Default value"
-    'placeholder' => (string) "Placeholder"
-    'disabled'    => (bool) "Disabled status"
-    'type'        => (string) "Input type [text, email, number, date, time, etc.]"
-    'style'       => (string) "Style Override"
-    'attributes'  => (array) "Add other HTML attributes [attribute => value]"
+    'id'          => (string) "id_of_the_field", // This will also be used in the backend to get and store data.
+    'title'       => (string) "The tile of the field",
+    'description' => (string) "The description of the field",
+    'value'       => (string) "Default value",
+    'placeholder' => (string) "Placeholder",
+    'disabled'    => (bool)   "Disabled status",
+    'type'        => (string) "Input type [text, email, number, date, time, etc.]",
+    'style'       => (string) "Style Override",
+    'attributes'  => (array)  "Add other HTML attributes [attribute => value]",
 ]
 ```
 
@@ -61,15 +61,15 @@ And here are the specific field data:
 
 ```php
 [
-    'id'          => (string) "id_of_the_field" // This will also be used in the backend to get and store data.
-    'title'       => (string) "The tile of the field"
-    'label'       => (string) "The lable to show at the right of the field"
-    'description' => (string) "The description of the field"
-    'value'       => (string) "Default value"
-    'checked'     => (bool) "Checked status"
-    'disabled'    => (bool) "Disabled status"
-    'style'       => (string) "Style Override"
-    'attributes'  => (array) "Add other HTML attributes [attribute => value]"
+    'id'          => (string) "id_of_the_field", // This will also be used in the backend to get and store data.
+    'title'       => (string) "The tile of the field",
+    'label'       => (string) "The lable to show at the right of the field",
+    'description' => (string) "The description of the field",
+    'value'       => (string) "Default value",
+    'checked'     => (bool)   "Checked status",
+    'disabled'    => (bool)   "Disabled status",
+    'style'       => (string) "Style Override",
+    'attributes'  => (array)  "Add other HTML attributes [attribute => value]",
 ]
 ```
 
@@ -77,14 +77,14 @@ And here are the specific field data:
 
 ```php
 [
-    'id'          => (string) "id_of_the_field" // This will also be used in the backend to get and store data.
-    'title'       => (string) "The tile of the field"
-    'description' => (string) "The description of the field"
-    'options'     => (array) "List of options [key => value, ...]"
-    'selected'    => (string) "Value of the selected option"
-    'disabled'    => (string|array) "Value or array of values to disable"
-    'style'       => (string) "Style Override"
-    'attributes'  => (array) "Add other HTML attributes [attribute => value]"
+    'id'          => (string) "id_of_the_field", // This will also be used in the backend to get and store data.
+    'title'       => (string) "The tile of the field",
+    'description' => (string) "The description of the field",
+    'options'     => (array)  "List of options [key => value, ...]",
+    'selected'    => (string) "Value of the selected option",
+    'disabled'    => (string|array) "Value or array of values to disable",
+    'style'       => (string) "Style Override",
+    'attributes'  => (array)  "Add other HTML attributes [attribute => value]",
 ]
 ```
 
@@ -94,10 +94,10 @@ And here are the specific field data:
 
 ```php
 [
-    'title'       => (string) "The tile of the field"
-    'description' => (string) "The description of the field"
-    'elements'    => (array) "An array of HTML strings of multiple fields"
-    'vertical'    => (bool) "Should the join represent vertically"
+    'title'       => (string) "The tile of the field",
+    'description' => (string) "The description of the field",
+    'elements'    => (array)  "An array of HTML strings of multiple fields",
+    'vertical'    => (bool)   "Should the join represent vertically",
 ]
 ```
 
