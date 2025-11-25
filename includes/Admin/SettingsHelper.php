@@ -194,6 +194,7 @@ class SettingsHelper {
 
 		$basic_classes = 'select! min-w-80! max-w-full!';
 
+		// WC Select2 style (multiselect).
 		if ( $wc_enhanced_class ) {
 			// Enqueue WooCommerce enhanced select script & styles.
 			wp_enqueue_style( 'woocommerce_admin_styles' );
@@ -201,6 +202,12 @@ class SettingsHelper {
 
 			// Update basic classes for wc-enhanced-select.
 			$basic_classes = 'min-w-80! max-w-full! wc-enhanced-select';
+		}
+
+		// Need to prefix name with [] for multiple select.
+		$name_prefix = '';
+		if ( isset( $args['attributes']['multiple'] ) && $args['attributes']['multiple'] ) {
+			$name_prefix = '[]';
 		}
 
 		$style_attr = 'outline-offset: 0.5px !important; outline-color: #e5e7eb !important;';
@@ -215,7 +222,15 @@ class SettingsHelper {
 
 		$options_html = '';
 		foreach ( ( $args['options'] ?? [] ) as $value => $label ) {
-			$selected = isset( $args['selected'] ) && $args['selected'] === $value;
+			$selected = false;
+			if ( isset( $args['selected'] ) ) {
+				if ( is_array( $args['selected'] ) ) {
+					$selected = in_array( $value, $args['selected'], true );
+				} else {
+					$selected = $args['selected'] === $value;
+				}
+			}
+
 			$disabled = false;
 			if ( isset( $args['disabled'] ) ) {
 				if ( is_array( $args['disabled'] ) ) {
@@ -238,7 +253,7 @@ class SettingsHelper {
 		$html_content = <<<HTML
 			<select
 				id="{$id}"
-				name="{$id}"
+				name="{$id}{$name_prefix}"
 				class="{$basic_classes} {$join_class}"
 				style="{$style_attr}"
 				{$other_attrs_html}

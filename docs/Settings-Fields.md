@@ -17,6 +17,7 @@ There are 4 types of fields at the moment. They are,
 - `heading`
 - `input`
 - `select`
+- `multi_select`
 - `toggle`
 - `join`
 
@@ -73,7 +74,7 @@ And here are the specific field data:
 ]
 ```
 
-**Select Field**
+**Select/Multi Select Field**
 
 ```php
 [
@@ -81,7 +82,7 @@ And here are the specific field data:
     'title'       => (string) "The tile of the field",
     'description' => (string) "The description of the field",
     'options'     => (array)  "List of options [key => value, ...]",
-    'selected'    => (string) "Value of the selected option",
+    'selected'    => (string|array) "Value of the selected option",
     'disabled'    => (string|array) "Value or array of values to disable",
     'style'       => (string) "Style Override",
     'attributes'  => (array)  "Add other HTML attributes [attribute => value]",
