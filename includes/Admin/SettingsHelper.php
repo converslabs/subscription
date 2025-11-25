@@ -125,6 +125,8 @@ class SettingsHelper {
 				return self::render_switch_field( $args, $should_print );
 			case 'select':
 				return self::render_select_field( $args, $should_print );
+			case 'multi_select':
+				return self::render_multiselect_field( $args, $should_print );
 			case 'join':
 				return self::render_joined_field( $args, $should_print );
 			case 'input':
@@ -187,7 +189,19 @@ class SettingsHelper {
 		$id    = $args['id'];
 		$value = $args['value'] ?? '';
 
-		$join_class = $join_item ? 'join-item mx-0!' : '';
+		$join_class        = $join_item ? 'join-item mx-0!' : '';
+		$wc_enhanced_class = isset( $args['enhanced'] ) && $args['enhanced'];
+
+		$basic_classes = 'select! min-w-80! max-w-full!';
+
+		if ( $wc_enhanced_class ) {
+			// Enqueue WooCommerce enhanced select script & styles.
+			wp_enqueue_style( 'woocommerce_admin_styles' );
+			wp_enqueue_script( 'wc-enhanced-select' );
+
+			// Update basic classes for wc-enhanced-select.
+			$basic_classes = 'min-w-80! max-w-full! wc-enhanced-select';
+		}
 
 		$style_attr = 'outline-offset: 0.5px !important; outline-color: #e5e7eb !important;';
 		if ( isset( $args['style'] ) ) {
@@ -225,7 +239,7 @@ class SettingsHelper {
 			<select
 				id="{$id}"
 				name="{$id}"
-				class="select! min-w-80! max-w-full! {$join_class}"
+				class="{$basic_classes} {$join_class}"
 				style="{$style_attr}"
 				{$other_attrs_html}
 			>
@@ -458,6 +472,26 @@ HTML;
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $should_print ? print( $html_content ) : $html_content;
+	}
+
+	/**
+	 * Render Multiselect field.
+	 * Just a wrapper over 'render_select_field' with multiple attribute.
+	 *
+	 * @param array $args Field arguments.
+	 * @param bool  $should_print Whether to print the field or return as HTML string.
+	 */
+	public static function render_multiselect_field( $args = [], $should_print = true ) {
+		$default_multiselect_args = [
+			'attributes' => [
+				'multiple' => 'multiple',
+			],
+			'enhanced'   => true,
+		];
+
+		$args = wp_parse_args( $args, $default_multiselect_args );
+
+		return self::render_select_field( $args, $should_print );
 	}
 
 	/**
