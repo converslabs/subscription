@@ -232,7 +232,7 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 
 = 1.8.8 - Nov 30, 2025 =
 -   fix: Order timestamp error.
--   fix: Subscription related order error.
+-   fix: Subscription-related order error.
 -   fix: Cart page was showing price with tax even if taxes are turned off.
 -   dev: Added multiselect field for settings.
 

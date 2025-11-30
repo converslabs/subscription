@@ -21,7 +21,8 @@
     "commit": "node ./node_modules/cz-customizable/standalone.js",
     "prepare": "husky",
     "release": "scripts/release.sh",
-    "svn": "scripts/svn.sh"
+    "svn": "scripts/svn.sh",
+    "update-lang-files": "wp i18n make-pot . ./languages/wp_subscription.pot --exclude=node_modules,vendor"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.16",
