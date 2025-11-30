@@ -270,11 +270,9 @@ class Cart {
 					$tax_rates      = \WC_Tax::get_rates( $product->get_tax_class() );
 					$price_incl_tax = $price_excl_tax;
 
-					if ( wc_prices_include_tax() ) {
-						// If prices are inclusive of tax, we already have the right price
-						$price_incl_tax = $price_excl_tax;
-					} else {
-						// If prices are exclusive of tax, calculate tax and add it
+					// Check if tax is enabled
+					$is_tax_enabled = wc_tax_enabled();
+					if ( $is_tax_enabled ) {
 						$tax_amount     = \WC_Tax::calc_tax( $price_excl_tax, $tax_rates, false );
 						$price_incl_tax = $price_excl_tax + array_sum( $tax_amount );
 					}
