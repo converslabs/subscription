@@ -14,6 +14,7 @@ build() {
 
   composer install --no-dev --no-ansi --no-cache --no-interaction --ignore-platform-req=php --quiet
   yarn build
+  yarn update-lang-files
 
   mkdir -p releases/$PLUGIN_NAME
 

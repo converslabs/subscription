@@ -125,6 +125,8 @@ class SettingsHelper {
 				return self::render_switch_field( $args, $should_print );
 			case 'select':
 				return self::render_select_field( $args, $should_print );
+			case 'multi_select':
+				return self::render_multiselect_field( $args, $should_print );
 			case 'join':
 				return self::render_joined_field( $args, $should_print );
 			case 'input':
@@ -187,7 +189,26 @@ class SettingsHelper {
 		$id    = $args['id'];
 		$value = $args['value'] ?? '';
 
-		$join_class = $join_item ? 'join-item mx-0!' : '';
+		$join_class        = $join_item ? 'join-item mx-0!' : '';
+		$wc_enhanced_class = isset( $args['enhanced'] ) && $args['enhanced'];
+
+		$basic_classes = 'select! min-w-80! max-w-full!';
+
+		// WC Select2 style (multiselect).
+		if ( $wc_enhanced_class ) {
+			// Enqueue WooCommerce enhanced select script & styles.
+			wp_enqueue_style( 'woocommerce_admin_styles' );
+			wp_enqueue_script( 'wc-enhanced-select' );
+
+			// Update basic classes for wc-enhanced-select.
+			$basic_classes = 'min-w-80! max-w-full! wc-enhanced-select';
+		}
+
+		// Need to prefix name with [] for multiple select.
+		$name_prefix = '';
+		if ( isset( $args['attributes']['multiple'] ) && $args['attributes']['multiple'] ) {
+			$name_prefix = '[]';
+		}
 
 		$style_attr = 'outline-offset: 0.5px !important; outline-color: #e5e7eb !important;';
 		if ( isset( $args['style'] ) ) {
@@ -201,7 +222,15 @@ class SettingsHelper {
 
 		$options_html = '';
 		foreach ( ( $args['options'] ?? [] ) as $value => $label ) {
-			$selected = isset( $args['selected'] ) && $args['selected'] === $value;
+			$selected = false;
+			if ( isset( $args['selected'] ) ) {
+				if ( is_array( $args['selected'] ) ) {
+					$selected = in_array( $value, $args['selected'], true );
+				} else {
+					$selected = $args['selected'] === $value;
+				}
+			}
+
 			$disabled = false;
 			if ( isset( $args['disabled'] ) ) {
 				if ( is_array( $args['disabled'] ) ) {
@@ -224,8 +253,8 @@ class SettingsHelper {
 		$html_content = <<<HTML
 			<select
 				id="{$id}"
-				name="{$id}"
-				class="select! min-w-80! max-w-full! {$join_class}"
+				name="{$id}{$name_prefix}"
+				class="{$basic_classes} {$join_class}"
 				style="{$style_attr}"
 				{$other_attrs_html}
 			>
@@ -458,6 +487,26 @@ HTML;
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $should_print ? print( $html_content ) : $html_content;
+	}
+
+	/**
+	 * Render Multiselect field.
+	 * Just a wrapper over 'render_select_field' with multiple attribute.
+	 *
+	 * @param array $args Field arguments.
+	 * @param bool  $should_print Whether to print the field or return as HTML string.
+	 */
+	public static function render_multiselect_field( $args = [], $should_print = true ) {
+		$default_multiselect_args = [
+			'attributes' => [
+				'multiple' => 'multiple',
+			],
+			'enhanced'   => true,
+		];
+
+		$args = wp_parse_args( $args, $default_multiselect_args );
+
+		return self::render_select_field( $args, $should_print );
 	}
 
 	/**
