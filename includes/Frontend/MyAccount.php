@@ -54,6 +54,7 @@ class MyAccount {
 	public function view_subscrpt_content( int $id ) {
 		$subscription_id   = $id;
 		$subscription_data = Helper::get_subscription_data( $subscription_id );
+		$related_orders    = Helper::get_related_orders( $subscription_id );
 
 		$status         = $subscription_data['status'] ?? '';
 		$verbose_status = Helper::get_verbose_status( $status );
@@ -191,6 +192,7 @@ class MyAccount {
 				'trial_mode'      => empty( $trial_mode ) ? 'off' : $trial_mode,
 				'order'           => $order,
 				'order_item'      => $order_item,
+				'related_orders'  => $related_orders,
 				'price'           => $price,
 				'price_excl_tax'  => $price_excl_tax,
 				'tax'             => $tax_amount,
