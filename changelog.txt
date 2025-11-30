@@ -1,5 +1,11 @@
 *** WPSubscription Changelog ***
 
+2025-11-30 - version 1.8.8
+* fix: Order timestamp error.
+* fix: Subscription related order error.
+* fix: Cart page was showing price with tax even if taxes are turned off.
+* dev: Added multiselect field for settings.
+
 2025-11-23 - version 1.8.7
 * fix: Cart warning messages.
 * fix: Two-way add to cart check (sub <=> non-sub).
