@@ -1,9 +1,9 @@
 name: Deploy to WordPress.org
 on:
   workflow_dispatch:
-  # push:
-  #   tags:
-  #   - "*"
+  push:
+    tags:
+      - "*"
 jobs:
   build-and-deploy:
     name: Build and Deploy
@@ -35,18 +35,11 @@ jobs:
       - name: Deploy to WP.org
         uses: 10up/action-wordpress-plugin-deploy@stable
         with:
-          dry-run: true
+          dry-run: false
           generate-zip: false
         env:
-          SVN_USERNAME: test
-          SVN_PASSWORD: test
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SLUG: subscription
           BUILD_DIR: ./releases/subscription
-          VERSION: 2.0.1
-
-      - name: Upload SVN working copy as artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: svn-working-copy
-          path: /home/runner/svn-subscription
+          VERSION: ${{ steps.deployver.outputs.version }}
