@@ -36,4 +36,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: svn-working-copy
-          path: ${{ github.workspace }}/svn
+          path: ${{ env.HOME }}/svn-subscription
