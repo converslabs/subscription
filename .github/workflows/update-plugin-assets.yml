@@ -16,8 +16,8 @@ jobs:
       - name: WordPress.org plugin asset/readme update
         uses: 10up/action-wordpress-plugin-asset-update@stable
         env:
-          SVN_USERNAME: test
-          SVN_PASSWORD: test
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SLUG: subscription
           ASSETS_DIR: .wordpress-org
           README_NAME: readme.txt

@@ -234,7 +234,6 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 -   fix: Order timestamp error.
 -   fix: Subscription-related order error.
 -   fix: Cart page was showing price with tax even if taxes are turned off.
--   dev: Added multiselect field for settings.
 
 = 1.8.7 - Nov 23, 2025 =
 -   fix: Cart warning messages.
