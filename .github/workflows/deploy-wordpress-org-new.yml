@@ -16,8 +16,8 @@ jobs:
 
       - name: Build plugin
         run: |
-          chmod +x ./release.sh
-          ./release.sh
+          chmod +x ./scripts/release.sh
+          ./scripts/release.sh
 
       - name: Deploy to WP.org
         uses: 10up/action-wordpress-plugin-deploy@stable
