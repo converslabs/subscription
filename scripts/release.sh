@@ -12,7 +12,13 @@ clean() {
 build() {
   echo "[+] Starting combingFiles"
 
+  echo "[+] Installing composer packages"
   composer install --no-dev --no-ansi --no-cache --no-interaction --ignore-platform-req=php --quiet
+
+  echo "[+] Installing yarn packages"
+  yarn install --ignore-engines
+
+  echo "[+] Building package"
   yarn build
   yarn update-lang-files
 
