@@ -42,7 +42,7 @@ jobs:
           SVN_PASSWORD: test
           SLUG: subscription
           BUILD_DIR: ./releases/subscription
-          VERSION: ${{ steps.deployver.outputs.version }}
+          VERSION: 2.0.1
 
       - name: Upload SVN working copy as artifact
         if: always()
