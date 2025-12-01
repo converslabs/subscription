@@ -19,6 +19,19 @@ jobs:
           chmod +x ./scripts/release.sh
           ./scripts/release.sh
 
+      - name: Read version from package.json
+        id: pkg
+        run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+
+      - name: Set deploy version when manual run
+        id: deployver
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ steps.pkg.outputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=" >> $GITHUB_OUTPUT
+          fi
+
       - name: Deploy to WP.org
         uses: 10up/action-wordpress-plugin-deploy@stable
         with:
@@ -29,7 +42,7 @@ jobs:
           SVN_PASSWORD: test
           SLUG: subscription
           BUILD_DIR: ./releases/subscription
-          VERSION: 2.0.0
+          VERSION: ${{ steps.deployver.outputs.version }}
 
       - name: Upload SVN working copy as artifact
         if: always()
