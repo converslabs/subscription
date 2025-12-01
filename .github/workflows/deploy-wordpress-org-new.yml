@@ -27,5 +27,13 @@ jobs:
         env:
           SVN_USERNAME: test
           SVN_PASSWORD: test
+          SLUG: subscription
           BUILD_DIR: ./releases/subscription
           VERSION: 2.0.0
+
+      - name: Upload SVN working copy as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: svn-working-copy
+          path: $HOME/svn-subscription
