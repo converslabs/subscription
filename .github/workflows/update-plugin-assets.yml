@@ -13,12 +13,18 @@ jobs:
       - name: Cloning repository
         uses: actions/checkout@v6
 
-      - name: WordPress.org plugin asset/readme update
-        uses: 10up/action-wordpress-plugin-asset-update@stable
+      - name: Debug Secrets
+        run: |
+          echo "TEST_SECRET = $TEST_SECRET"
         env:
-          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-          SLUG: subscription
-          ASSETS_DIR: .wordpress-org
-          README_NAME: readme.txt
-          IGNORE_OTHER_FILES: true
+          TEST_SECRET: ${{ secrets.TEST_SECRET }}
+
+      # - name: WordPress.org plugin asset/readme update
+      #   uses: 10up/action-wordpress-plugin-asset-update@stable
+      #   env:
+      #     SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+      #     SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+      #     SLUG: subscription
+      #     ASSETS_DIR: .wordpress-org
+      #     README_NAME: readme.txt
+      #     IGNORE_OTHER_FILES: true
