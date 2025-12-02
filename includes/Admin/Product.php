@@ -46,10 +46,11 @@ class Product {
 			$meta_trial_time = $product->get_meta( '_subscrpt_trial_timing_per' );
 			$trial           = null;
 			if ( ! empty( $meta_trial_time ) && $meta_trial_time > 0 ) {
-				$trial = '<br/> + Get ' . $meta_trial_time . ' ' . Helper::get_typos( $meta_trial_time, $product->get_meta( '_subscrpt_trial_timing_option' ), true ) . ' free trial!';
+				$trial_type = Helper::get_typos( $meta_trial_time, $product->get_meta( '_subscrpt_trial_timing_option' ), true );
+				$trial      = '<br/> + Get ' . $meta_trial_time . ' ' . ucfirst( $trial_type ) . ' free trial!';
 			}
 
-			$price_html = $price . ' / ' . $type . $trial;
+			$price_html = $price . ' / ' . ucfirst( $type ) . $trial;
 			return $price_html;
 		else :
 			return $price;
