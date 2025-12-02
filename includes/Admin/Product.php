@@ -42,11 +42,11 @@ class Product {
 
 		$enabled = $product->get_meta( '_subscrpt_enabled' );
 		if ( $enabled ) :
-			$type            = Helper::get_typos( 1, $product->get_meta( '_subscrpt_timing_option' ) );
+			$type            = Helper::get_typos( 1, $product->get_meta( '_subscrpt_timing_option' ), true );
 			$meta_trial_time = $product->get_meta( '_subscrpt_trial_timing_per' );
 			$trial           = null;
 			if ( ! empty( $meta_trial_time ) && $meta_trial_time > 0 ) {
-				$trial = '<br/> + Get ' . $meta_trial_time . ' ' . Helper::get_typos( $meta_trial_time, $product->get_meta( '_subscrpt_trial_timing_option' ) ) . ' free trial!';
+				$trial = '<br/> + Get ' . $meta_trial_time . ' ' . Helper::get_typos( $meta_trial_time, $product->get_meta( '_subscrpt_trial_timing_option' ), true ) . ' free trial!';
 			}
 
 			$price_html = $price . ' / ' . $type . $trial;

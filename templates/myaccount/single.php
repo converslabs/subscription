@@ -219,7 +219,7 @@ do_action( 'before_single_subscrpt_content' );
 								/* translators: %1$s: duration time, %2$s: duration type */
 								esc_html__( '%1$s %2$s after first payment', 'wp_subscription' ),
 								esc_html( $custom_duration_time ),
-								esc_html( Helper::get_typos( $custom_duration_time, $custom_duration_type ) )
+								esc_html( Helper::get_typos( $custom_duration_time, $custom_duration_type, true ) )
 							);
 							break;
 						default:

@@ -270,7 +270,7 @@ class Product {
 
 		if ( $product->is_enabled() ) :
 			$timing_option = $product->get_timing_option();
-			$type          = Helper::get_typos( 1, $timing_option );
+			$type          = Helper::get_typos( 1, $timing_option, true );
 
 			// Capitalize the first letter for proper display
 			$type = ucfirst( $type );
@@ -278,7 +278,7 @@ class Product {
 			$trial = null;
 			if ( $product->has_trial() ) {
 				$meta_trial_time = $product->get_trial_timing_per();
-				$trial           = '<br/><small> + Get ' . $meta_trial_time . ' ' . Helper::get_typos( $meta_trial_time, $product->get_trial_timing_option() ) . ' free trial!</small>';
+				$trial           = '<br/><small> + Get ' . $meta_trial_time . ' ' . Helper::get_typos( $meta_trial_time, $product->get_trial_timing_option(), true ) . ' free trial!</small>';
 			}
 
 			// Add split payment information if max_no_payment is set
