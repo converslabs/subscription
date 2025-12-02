@@ -270,25 +270,23 @@ class Product {
 
 		if ( $product->is_enabled() ) :
 			$timing_option = $product->get_timing_option();
-			$type          = Helper::get_typos( 1, $timing_option );
-
-			// Capitalize the first letter for proper display
-			$type = ucfirst( $type );
+			$type          = Helper::get_typos( 1, $timing_option, true );
 
 			$trial = null;
 			if ( $product->has_trial() ) {
 				$meta_trial_time = $product->get_trial_timing_per();
-				$trial           = '<br/><small> + Get ' . $meta_trial_time . ' ' . Helper::get_typos( $meta_trial_time, $product->get_trial_timing_option() ) . ' free trial!</small>';
+				$trial_type      = Helper::get_typos( $meta_trial_time, $product->get_trial_timing_option(), true );
+				$trial           = '<br/><small> + Get ' . $meta_trial_time . ' ' . ucfirst( $trial_type ) . ' free trial!</small>';
 			}
 
-			// Add split payment information if max_no_payment is set
+			// Add split payment information if max_no_payment is set.
 			$max_no_payment     = $product->get_max_no_payment();
 			$split_payment_info = '';
 			if ( $max_no_payment > 0 ) {
 				$split_payment_info = ' x ' . $max_no_payment;
 			}
 
-			return apply_filters( 'subscrpt_simple_price_html', ( $price . ' / ' . $type . $split_payment_info . $trial ), $product, $price, $trial );
+			return apply_filters( 'subscrpt_simple_price_html', ( $price . ' / ' . ucfirst( $type ) . $split_payment_info . $trial ), $product, $price, $trial );
 		else :
 			return $price;
 		endif;

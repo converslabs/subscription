@@ -20,20 +20,20 @@ class Helper {
 	 *
 	 * @param int    $number timing_per.
 	 * @param string $typo timing_option.
-	 *
+	 * @param bool   $translate Whether to translate the output.
 	 * @return string
 	 */
-	public static function get_typos( $number, $typo ) {
+	public static function get_typos( $number, $typo, $translate = false ) {
 		if ( 1 === (int) $number && 'days' === $typo ) {
-			return ucfirst( __( 'day', 'wp_subscription' ) );
+			return $translate ? __( 'day', 'wp_subscription' ) : 'day';
 		} elseif ( 1 === (int) $number && 'weeks' === $typo ) {
-			return ucfirst( __( 'week', 'wp_subscription' ) );
+			return $translate ? __( 'week', 'wp_subscription' ) : 'week';
 		} elseif ( 1 === (int) $number && 'months' === $typo ) {
-			return ucfirst( __( 'month', 'wp_subscription' ) );
+			return $translate ? __( 'month', 'wp_subscription' ) : 'month';
 		} elseif ( 1 === (int) $number && 'years' === $typo ) {
-			return ucfirst( __( 'year', 'wp_subscription' ) );
+			return $translate ? __( 'year', 'wp_subscription' ) : 'year';
 		} else {
-			return ucfirst( $typo );
+			return $typo;
 		}
 	}
 
@@ -102,14 +102,14 @@ class Helper {
 	 *
 	 * @param array $args Args.
 	 */
-	public static function get_subscriptions( array $args = [] ) {
-		$default_args = [
+	public static function get_subscriptions( array $args = array() ) {
+		$default_args = array(
 			'post_type'      => 'subscrpt_order',
 			'post_status'    => 'active',
 			'author'         => get_current_user_id(),
 			'posts_per_page' => -1,
 			'fields'         => 'all',
-		];
+		);
 
 		// Normalize some args.
 		if ( isset( $args['status'] ) ) {
@@ -537,7 +537,7 @@ class Helper {
 
 		$is_subscription_order = false;
 		foreach ( $order->get_items() as $item ) {
-			$item_data         = $item->get_data() ?? [];
+			$item_data         = $item->get_data() ?? array();
 			$item_product_id   = $item_data['product_id'] ?? 0;
 			$item_variation_id = $item_data['variation_id'] ?? 0;
 
@@ -652,10 +652,10 @@ class Helper {
 		}
 
 		$is_auto_renew = get_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
-		$is_auto_renew = in_array( $is_auto_renew, [ 1,'1' ], true );
+		$is_auto_renew = in_array( $is_auto_renew, array( 1, '1' ), true );
 
 		$is_global_auto_renew = get_option( 'wp_subscription_stripe_auto_renew', '1' );
-		$is_global_auto_renew = in_array( $is_global_auto_renew, [ 1,'1' ], true );
+		$is_global_auto_renew = in_array( $is_global_auto_renew, array( 1, '1' ), true );
 
 		$stripe_supported_methods = Stripe::WPSUBS_SUPPORTED_METHODS;
 		$old_method               = $old_order->get_payment_method();
@@ -741,7 +741,7 @@ class Helper {
 		$order_id      = get_post_meta( $subscription_id, '_subscrpt_order_id', true );
 		$order_item_id = get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
 
-		$can_user_cancel = in_array( get_post_meta( $subscription_id, '_subscrpt_user_cancel', true ), [ 1, '1', 'true', 'yes' ], true );
+		$can_user_cancel = in_array( get_post_meta( $subscription_id, '_subscrpt_user_cancel', true ), array( 1, '1', 'true', 'yes' ), true );
 
 		$start_datetime = (int) get_post_meta( $subscription_id, '_subscrpt_start_date', true );
 		$start_date     = ! empty( $start_datetime ) ? gmdate( DATE_RFC2822, $start_datetime ) : null;
@@ -761,7 +761,7 @@ class Helper {
 		$trial_timing_option = get_post_meta( $subscription_id, '_subscrpt_trial_timing_option', true );
 		$trial_timing_option = empty( $trial_timing_option ) ? get_post_meta( $chk_product_id, '_subscrpt_trial_timing_option', true ) : $trial_timing_option;
 
-		$is_auto_renew = in_array( get_post_meta( $subscription_id, '_subscrpt_auto_renew', true ), [ 1, '1', 'true', 'yes' ], true );
+		$is_auto_renew = in_array( get_post_meta( $subscription_id, '_subscrpt_auto_renew', true ), array( 1, '1', 'true', 'yes' ), true );
 
 		$default_grace_period = (int) get_option( 'subscrpt_default_payment_grace_period', '7' );
 		$default_grace_period = subscrpt_pro_activated() ? $default_grace_period : 0;
@@ -769,45 +769,45 @@ class Helper {
 		$grace_end_date       = gmdate( DATE_RFC2822, $grace_end_datetime );
 		$grace_remaining_days = ceil( max( 0, $grace_end_datetime - time() ) / DAY_IN_SECONDS );
 
-		$subscription_data = [
+		$subscription_data = array(
 			'id'              => $subscription_id,
 			'status'          => $status,
-			'schedule'        => [
+			'schedule'        => array(
 				'timing_per'    => $timing_per,
 				'timing_option' => $timing_option,
-			],
+			),
 			'price'           => $price,
 			'signup_fee'      => $signup_fee,
 			'start_date'      => $start_date,
 			'next_date'       => $next_date,
-			'product'         => [
+			'product'         => array(
 				'product_id'   => $product_id,
 				'variation_id' => $variation_id,
-			],
-			'order'           => [
+			),
+			'order'           => array(
 				'order_id'      => $order_id,
 				'order_item_id' => $order_item_id,
-			],
+			),
 			'can_user_cancel' => $can_user_cancel,
 			'is_auto_renew'   => (bool) $is_auto_renew,
-		];
+		);
 
 		if ( ! empty( $trial_timing_per ) ) {
-			$subscription_data['trial'] = [
+			$subscription_data['trial'] = array(
 				'timing_per'    => $trial_timing_per,
 				'timing_option' => $trial_timing_option,
-			];
+			);
 		}
 
 		if (
-			! in_array( strtolower( $status ), [ 'cancelled', 'pending' ], true )
+			! in_array( strtolower( $status ), array( 'cancelled', 'pending' ), true )
 			&& $next_datetime - time() <= 0
 			&& (int) $default_grace_period > 0
 		) {
-			$subscription_data['grace_period'] = [
+			$subscription_data['grace_period'] = array(
 				'remaining_days' => $grace_remaining_days,
 				'end_date'       => $grace_end_date,
-			];
+			);
 		}
 
 		return $subscription_data;
@@ -827,10 +827,10 @@ class Helper {
 		$order_histories = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT order_id, order_item_id, type FROM %i WHERE subscription_id=%d ORDER BY id DESC',
-				[
+				array(
 					$table_name,
 					$subscription_id,
-				]
+				)
 			)
 		);
 
