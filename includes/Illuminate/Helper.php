@@ -803,16 +803,8 @@ class Helper {
 			Action::status( 'active', $subscription_id );
 		}
 
-		$comment_id = wp_insert_comment(
-			array(
-				'comment_author'  => 'Razorpay',
-				'comment_content' => sprintf( 'Payment received via Razorpay. Transaction ID: %s', $payment_id ),
-				'comment_post_ID' => $subscription_id,
-				'comment_type'    => 'order_note',
-			)
-		);
-		update_comment_meta( $comment_id, '_subscrpt_activity', 'Payment Received' );
-		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'payment_received' );
+		// Allow payment gateways to add their own comments/notes
+		do_action( 'subscrpt_subscription_payment_completed', $subscription_id, $payment_id );
 	}
 
 	/**
