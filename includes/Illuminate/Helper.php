@@ -563,12 +563,7 @@ class Helper {
 		// Check if maximum payment limit has been reached
 		if ( subscrpt_is_max_payments_reached( $subscription_id ) ) {
 			// Mark subscription as expired due to limit reached
-			wp_update_post(
-				array(
-					'ID'          => $subscription_id,
-					'post_status' => 'expired',
-				)
-			);
+			Action::status( 'expired', $subscription_id );
 
 			error_log( "WPS: Maximum payment limit reached for subscription #{$subscription_id}. No renewal order created." );
 			return false;
@@ -773,12 +768,7 @@ class Helper {
 	 * @return void
 	 */
 	public static function cancel_subscription( $subscription_id ) {
-		wp_update_post(
-			array(
-				'ID'          => $subscription_id,
-				'post_status' => 'cancelled',
-			)
-		);
+		Action::status( 'cancelled', $subscription_id );
 	}
 
 	/**
@@ -788,12 +778,7 @@ class Helper {
 	 * @return void
 	 */
 	public static function pause_subscription( $subscription_id ) {
-		wp_update_post(
-			array(
-				'ID'          => $subscription_id,
-				'post_status' => 'on-hold',
-			)
-		);
+		Action::status( 'on-hold', $subscription_id );
 	}
 
 	/**
@@ -803,12 +788,7 @@ class Helper {
 	 * @return void
 	 */
 	public static function resume_subscription( $subscription_id ) {
-		wp_update_post(
-			array(
-				'ID'          => $subscription_id,
-				'post_status' => 'active',
-			)
-		);
+		Action::status( 'active', $subscription_id );
 	}
 
 	/**
@@ -820,12 +800,7 @@ class Helper {
 	 */
 	public static function subscription_payment_complete( $subscription_id, $payment_id ) {
 		if ( 'active' !== get_post_status( $subscription_id ) ) {
-			wp_update_post(
-				array(
-					'ID'          => $subscription_id,
-					'post_status' => 'active',
-				)
-			);
+			Action::status( 'active', $subscription_id );
 		}
 
 		$comment_id = wp_insert_comment(
