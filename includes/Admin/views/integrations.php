@@ -39,20 +39,29 @@ defined( 'ABSPATH' ) || exit;
 									<?php echo esc_html( $integration['title'] ?? '' ); ?>
 								</span>
 
-								<!-- Integration Status Badge -->
-								<?php if ( ! empty( $integration['is_installed'] ) && ! empty( $integration['is_active'] ) ) : ?>
-									<span style="margin-left:auto;font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#e8f5e9;color:#1b5e20;">
-										<?php esc_html_e( 'Active', 'wp_subscription' ); ?>
-									</span>
-								<?php elseif ( ! empty( $integration['is_installed'] ) && empty( $integration['is_active'] ) ) : ?>
-									<span style="margin-left:auto;font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#e3f2fd;color:#0d47a1;">
-										<?php esc_html_e( 'Inactive', 'wp_subscription' ); ?>
-									</span>
-								<?php else : ?>
-									<span style="margin-left:auto;font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#ffebee;color:#b71c1c;">
-										<?php esc_html_e( 'Not Available', 'wp_subscription' ); ?>
-									</span>
-								<?php endif; ?>
+								<div style="margin-left: auto; display: flex; gap: 6px; align-items: center;">
+									<!-- Integration Status Badge -->
+									<?php if ( ! empty( $integration['is_installed'] ) && ! empty( $integration['is_active'] ) ) : ?>
+										<span style="font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#e8f5e9;color:#1b5e20;">
+											<?php esc_html_e( 'Active', 'wp_subscription' ); ?>
+										</span>
+									<?php elseif ( ! empty( $integration['is_installed'] ) && empty( $integration['is_active'] ) ) : ?>
+										<span style="font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#e3f2fd;color:#0d47a1;">
+											<?php esc_html_e( 'Inactive', 'wp_subscription' ); ?>
+										</span>
+									<?php else : ?>
+										<span style="font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#ffebee;color:#b71c1c;">
+											<?php esc_html_e( 'Not Available', 'wp_subscription' ); ?>
+										</span>
+									<?php endif; ?>
+
+									<!-- Beta Badge -->
+									<?php if ( ! empty( $integration['is_beta'] ) && $integration['is_beta'] ) : ?>
+										<span style="font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#ffebee;color:#b71c1c;font-weight: 500;">
+											<?php esc_html_e( 'Beta', 'wp_subscription' ); ?>
+										</span>
+									<?php endif; ?>
+								</div>
 							</div>
 							<p style="font-size:12px;line-height:1.5;margin:8px 0 0 0;color:#555;">
 								<?php echo esc_html( $integration['description'] ?? '' ); ?>
