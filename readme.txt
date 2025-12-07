@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71
 Tags: woocommerce-subscriptions, subscriptions, subscriptions-billing, recurring-payments, woocommerce-extensions
 Requires at least: 6.0
 Tested up to: 6.8
-Stable tag: 1.8.8
+Stable tag: 1.8.9
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -229,6 +229,11 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 19. Create WooCommerce Product with Subscription Option
 
 == Changelog ==
+
+= 1.8.9 - Dec 7, 2025 =
+-   fix: Subscription cron task actions.
+-   fix: Status translation giving errors.
+-   fix: Integrations filter.
 
 = 1.8.8 - Nov 30, 2025 =
 -   fix: Order timestamp error.

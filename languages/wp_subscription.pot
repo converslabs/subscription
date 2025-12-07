@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-30T08:19:16+00:00\n"
+"POT-Creation-Date: 2025-12-07T08:44:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp_subscription\n"
@@ -180,30 +180,30 @@ msgstr ""
 msgid "Related Subscriptions"
 msgstr ""
 
-#: includes/Admin/Product.php:75
-#: includes/Admin/Product.php:104
+#: includes/Admin/Product.php:76
+#: includes/Admin/Product.php:105
 #: includes/Illuminate/Post.php:59
 #: templates/myaccount/subscriptions.php:21
 msgid "Subscription"
 msgstr ""
 
-#: includes/Admin/Product.php:105
+#: includes/Admin/Product.php:106
 msgid "Enable Subscriptions"
 msgstr ""
 
-#: includes/Admin/Product.php:121
+#: includes/Admin/Product.php:122
 msgid "Daily"
 msgstr ""
 
-#: includes/Admin/Product.php:122
+#: includes/Admin/Product.php:123
 msgid "Weekly"
 msgstr ""
 
-#: includes/Admin/Product.php:123
+#: includes/Admin/Product.php:124
 msgid "Monthly"
 msgstr ""
 
-#: includes/Admin/Product.php:124
+#: includes/Admin/Product.php:125
 msgid "Yearly"
 msgstr ""
 
@@ -559,69 +559,73 @@ msgstr ""
 msgid "Configure your store's payment gateways for subscription products. Enable, disable, and manage available payment methods that support recurring billing."
 msgstr ""
 
-#: includes/Admin/views/integrations.php:45
+#: includes/Admin/views/integrations.php:46
 #: includes/Admin/views/subscription-list.php:25
 #: includes/Illuminate/Helper.php:48
 msgid "Active"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:49
+#: includes/Admin/views/integrations.php:50
 msgid "Inactive"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:53
+#: includes/Admin/views/integrations.php:54
 msgid "Not Available"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:70
-msgid "Supports automatic recurring payments."
+#: includes/Admin/views/integrations.php:61
+msgid "Beta"
 msgstr ""
 
 #: includes/Admin/views/integrations.php:79
+msgid "Supports automatic recurring payments."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:88
 msgid "Manual renewals only."
 msgstr ""
 
-#: includes/Admin/views/integrations.php:114
+#: includes/Admin/views/integrations.php:123
 msgid "About Payment Gateways"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:116
+#: includes/Admin/views/integrations.php:125
 msgid "For subscription products to work properly, you need to use payment gateways that support recurring payments. Some payment methods only support manual renewals, which requires customers to manually pay for each renewal period."
 msgstr ""
 
-#: includes/Admin/views/integrations.php:119
+#: includes/Admin/views/integrations.php:128
 msgid "Automatic recurring billing requires a compatible payment gateway"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:120
+#: includes/Admin/views/integrations.php:129
 msgid "Manual renewal methods work with any payment gateway"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:121
+#: includes/Admin/views/integrations.php:130
 msgid "Some gateways may require additional configuration for subscriptions"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:128
+#: includes/Admin/views/integrations.php:137
 msgid "Payment Gateway Documentation"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:130
+#: includes/Admin/views/integrations.php:139
 msgid "Learn how to set up and configure payment gateways for subscription products."
 msgstr ""
 
-#: includes/Admin/views/integrations.php:133
+#: includes/Admin/views/integrations.php:142
 msgid "View Documentation"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:137
+#: includes/Admin/views/integrations.php:146
 msgid "Need Help?"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:139
+#: includes/Admin/views/integrations.php:148
 msgid "If you're having trouble with a payment gateway, our support team can help."
 msgstr ""
 
-#: includes/Admin/views/integrations.php:142
+#: includes/Admin/views/integrations.php:151
 msgid "Get Support"
 msgstr ""
 
@@ -725,7 +729,7 @@ msgstr ""
 
 #: includes/Admin/views/related-subscriptions.php:22
 #: includes/Admin/views/subscription-info.php:163
-#: includes/Illuminate/Order.php:85
+#: includes/Illuminate/Order.php:94
 #: templates/myaccount/single.php:178
 msgid "Recurring"
 msgstr ""
@@ -1488,68 +1492,68 @@ msgid "Subscription renewal isn't possible due to previous order not completed o
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency
-#: includes/Illuminate/Order.php:264
+#: includes/Illuminate/Order.php:273
 #, php-format
 msgid "Split payment %1$d of %2$d received (%3$s %4$s). Initial access granted."
 msgstr ""
 
-#: includes/Illuminate/Order.php:270
+#: includes/Illuminate/Order.php:279
 msgid "Split Payment - Initial"
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency, %5$d: remaining
-#: includes/Illuminate/Order.php:274
+#: includes/Illuminate/Order.php:283
 #, php-format
 msgid "Split payment %1$d of %2$d received (%3$s %4$s). %5$d payments remaining."
 msgstr ""
 
-#: includes/Illuminate/Order.php:281
+#: includes/Illuminate/Order.php:290
 msgid "Split Payment - Installment"
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$d: subscription id
-#: includes/Illuminate/Order.php:300
+#: includes/Illuminate/Order.php:309
 #, php-format
 msgid "Split payment %1$d of %2$d received for subscription #%3$d"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:339
+#: includes/Illuminate/Order.php:348
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (25%%)."
 msgstr ""
 
-#: includes/Illuminate/Order.php:343
+#: includes/Illuminate/Order.php:352
 msgid "Payment Milestone - 25%"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:349
+#: includes/Illuminate/Order.php:358
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (50%%). Halfway there!"
 msgstr ""
 
-#: includes/Illuminate/Order.php:353
+#: includes/Illuminate/Order.php:362
 msgid "Payment Milestone - 50%"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:359
+#: includes/Illuminate/Order.php:368
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (75%%). Almost complete!"
 msgstr ""
 
-#: includes/Illuminate/Order.php:363
+#: includes/Illuminate/Order.php:372
 msgid "Payment Milestone - 75%"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:369
+#: includes/Illuminate/Order.php:378
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (100%%). Split payment plan complete!"
 msgstr ""
 
-#: includes/Illuminate/Order.php:373
+#: includes/Illuminate/Order.php:382
 msgid "Payment Milestone - 100%"
 msgstr ""
 
