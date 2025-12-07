@@ -18,18 +18,6 @@ class Checkout {
 	 * Initialize the class
 	 */
 	public function __construct() {
-		// Guest checkout validation.
-		add_action( 'woocommerce_checkout_process', [ $this, 'validate_guest_checkout' ] );
-		add_action( 'woocommerce_store_api_cart_errors', [ $this, 'validate_guest_checkout_storeapi' ] );
-
-		// Guest account creation.
-		add_action( 'woocommerce_checkout_create_order', [ $this, 'check_guest_and_maybe_assign_user' ], 10, 2 );
-		add_action( 'woocommerce_store_api_checkout_update_order_meta', [ $this, 'check_guest_and_maybe_assign_user_storeapi' ], 10, 1 );
-		add_action( 'woocommerce_store_api_checkout_update_customer_from_request', [ $this, 'ensure_user_for_blocks_checkout' ], 10, 1 );
-
-		// Guest account logout after checkout.
-		add_action( 'template_redirect', [ $this, 'maybe_logout_guest' ] );
-
 		// Subscription upgrade/downgrade order created hook.
 		add_action( 'woocommerce_checkout_order_processed', [ $this, 'trigger_subscription_switch_order_created' ] );
 		add_action( 'woocommerce_store_api_checkout_order_processed', [ $this, 'trigger_subscription_switch_order_created_storeapi' ] );
