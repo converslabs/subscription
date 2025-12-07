@@ -1,5 +1,10 @@
 *** WPSubscription Changelog ***
 
+2025-12-07 - version 1.8.9
+* fix: Subscription cron task actions.
+* fix: Status translation giving errors.
+* fix: Integrations filter.
+
 2025-11-30 - version 1.8.8
 * fix: Order timestamp error.
 * fix: Subscription-related order error.

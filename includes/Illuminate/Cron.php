@@ -20,6 +20,20 @@ class Cron {
 	 * Run daily cron task to check if subscription expired.
 	 */
 	public function daily_cron_task() {
+		// Trigger after cron
+		do_action( 'before_subscription_update_cron' );
+
+		// Expire subscriptions
+		$this->update_subscription_statusses();
+
+		// Trigger after cron
+		do_action( 'after_subscription_update_cron' );
+	}
+
+	/**
+	 * Update subscription statusses
+	 */
+	public function update_subscription_statusses() {
 		$args = array(
 			'post_type'   => 'subscrpt_order',
 			'post_status' => array( 'active', 'pe_cancelled' ),

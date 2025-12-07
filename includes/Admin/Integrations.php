@@ -265,7 +265,7 @@ class Integrations {
 		];
 
 		// Add more integrations as needed.
-		add_filter( 'wp_subscription_integrations', $integrations );
+		$integrations = apply_filters( 'wpsubs_integrations', $integrations );
 
 		return $integrations;
 	}
