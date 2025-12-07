@@ -34,7 +34,6 @@ build() {
   cp -r ./readme-template.txt ./releases/$PLUGIN_NAME
   cp -r ./changelog.txt ./releases/$PLUGIN_NAME
   cp -r ./index.php ./releases/$PLUGIN_NAME
-  cp -r ./composer.json ./releases/$PLUGIN_NAME
   cp -r ./$PLUGIN_NAME.php ./releases/$PLUGIN_NAME
 
   echo "[+] Finished combingFiles"
