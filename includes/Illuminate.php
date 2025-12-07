@@ -10,6 +10,8 @@ use SpringDevs\Subscription\Illuminate\Email;
 use SpringDevs\Subscription\Illuminate\Order;
 use SpringDevs\Subscription\Illuminate\Post;
 use SpringDevs\Subscription\Illuminate\Gateways\Stripe\Stripe;
+use SpringDevs\Subscription\Illuminate\GuestCheckout;
+use SpringDevs\Subscription\Illuminate\RoleManagement;
 
 /**
  * Globally Load Scripts.
@@ -22,11 +24,13 @@ class Illuminate {
 	public function __construct() {
 		$this->stripe_initialization();
 		$this->paypal_initialization();
+		new RoleManagement();
 		new Order();
 		new Cron();
 		new Post();
 		new Block();
 		new Checkout();
+		new GuestCheckout();
 		new AutoRenewal();
 		new Email();
 	}

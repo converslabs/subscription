@@ -36,21 +36,27 @@ class Order {
 		$type            = Helper::get_typos( 1, $order_item_meta['type'] );
 		$trial           = get_post_meta( $subscription_id, '_subscrpt_trial', true );
 		$recurr_timing   = ( $order_item_meta['time'] ?? 1 ) . ' ' . $type;
+
 		if ( 'new' === $subscription_history->type ) {
 			$start_date = time();
 			$next_date  = sdevs_wp_strtotime( $recurr_timing, $start_date );
+
 			if ( $trial && ! empty( $trial ) ) {
 				$trial_started = get_post_meta( $subscription_id, '_subscrpt_trial_started', true );
 				$trial_ended   = get_post_meta( $subscription_id, '_subscrpt_trial_ended', true );
+
 				if ( empty( $trial_started ) && empty( $trial_ended ) ) {
 					$start_date = sdevs_wp_strtotime( $trial );
+					$next_date  = $start_date;
+
 					update_post_meta( $subscription_id, '_subscrpt_trial_started', time() );
 					update_post_meta( $subscription_id, '_subscrpt_trial_ended', $start_date );
 					update_post_meta( $subscription_id, '_subscrpt_trial_mode', 'on' );
-					$next_date = $start_date;
 				}
 			}
+
 			update_post_meta( $subscription_id, '_subscrpt_start_date', $start_date );
+
 		} elseif ( 'renew' === $subscription_history->type ) {
 			if ( $trial ) {
 				delete_post_meta( $subscription_id, '_subscrpt_trial' );
@@ -58,7 +64,9 @@ class Order {
 				delete_post_meta( $subscription_id, '_subscrpt_trial_started' );
 				delete_post_meta( $subscription_id, '_subscrpt_trial_ended' );
 			}
+
 			$next_date = sdevs_wp_strtotime( $recurr_timing, time() );
+
 		} elseif ( 'early-renew' === $subscription_history->type ) {
 			if ( $trial ) {
 				delete_post_meta( $subscription_id, '_subscrpt_trial' );
@@ -66,6 +74,7 @@ class Order {
 				delete_post_meta( $subscription_id, '_subscrpt_trial_started' );
 				delete_post_meta( $subscription_id, '_subscrpt_trial_ended' );
 			}
+
 			$next_date = sdevs_wp_strtotime( $recurr_timing, time() );
 		}
 
@@ -292,6 +301,7 @@ class Order {
 				)
 			);
 			update_comment_meta( $comment_id, '_subscrpt_activity', $activity_type );
+			update_comment_meta( $comment_id, '_subscrpt_activity_type', 'split_payment' );
 
 			// Add order note with split payment context
 			$order_note = sprintf(
@@ -384,6 +394,7 @@ class Order {
 				)
 			);
 			update_comment_meta( $comment_id, '_subscrpt_activity', $activity_type );
+			update_comment_meta( $comment_id, '_subscrpt_activity_type', 'split_payment' );
 
 			// Mark milestone as logged
 			update_post_meta( $subscription_id, $milestone_key, current_time( 'timestamp' ) );

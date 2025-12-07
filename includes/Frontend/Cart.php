@@ -46,23 +46,23 @@ class Cart {
 		$failed       = false;
 		$product      = sdevs_get_subscription_product( $product_id );
 		$enabled      = $product->is_enabled();
+
 		foreach ( $cart_items as $key => $cart_item ) {
 			if ( isset( $cart_item['subscription'] ) ) {
 				if ( $enabled ) {
-					$error_notice = __( 'Currently You have an another Subscriptional product on cart !!', 'wp_subscription' );
+					$error_notice = __( 'You cannot purchase multiple subscriptions at the same time.', 'wp_subscription' );
 				} else {
-					$error_notice = __( 'Currently You have Subscriptional product in a cart !!', 'wp_subscription' );
+					$error_notice = __( 'You cannot purchase a subscription and a non-subscription product at the same time.', 'wp_subscription' );
 				}
 				$failed = true;
 			} elseif ( $enabled ) {
+				$error_notice = __( 'You cannot purchase a subscription along with other products. Please remove other products from your cart first.', 'wp_subscription' );
 				$failed       = true;
-				$error_notice = __( 'Your cart isn\'t empty !!', 'wp_subscription' );
 			}
 		}
 
 		if ( $failed ) {
 			wc_add_notice( $error_notice, 'error' );
-
 			return false;
 		}
 
@@ -270,11 +270,9 @@ class Cart {
 					$tax_rates      = \WC_Tax::get_rates( $product->get_tax_class() );
 					$price_incl_tax = $price_excl_tax;
 
-					if ( wc_prices_include_tax() ) {
-						// If prices are inclusive of tax, we already have the right price
-						$price_incl_tax = $price_excl_tax;
-					} else {
-						// If prices are exclusive of tax, calculate tax and add it
+					// Check if tax is enabled
+					$is_tax_enabled = wc_tax_enabled();
+					if ( $is_tax_enabled ) {
 						$tax_amount     = \WC_Tax::calc_tax( $price_excl_tax, $tax_rates, false );
 						$price_incl_tax = $price_excl_tax + array_sum( $tax_amount );
 					}

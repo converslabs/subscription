@@ -1,29 +1,39 @@
 <?php
 /**
+ * WPSubscription
+ *
  * Plugin Name: Subscription for WooCommerce - WPSubscription
  * Plugin URI: https://wpsubscription.co/
  * Description: WPSubscription allow WooCommerce to enables recurring payments, subscriptions, and auto-renewals for digital and physical products. Supports Stripe, PayPal, Paddle, and more.
+ *
  * Version: #WPSUBS_VERSION
+ *
  * Author: ConversWP
  * Author URI: https://wpsubscription.co/
+ *
  * Text Domain: wp_subscription
  * Domain Path: /languages
- * Requires at least: 6.0
+ *
  * Requires PHP: 7.4
+ *
+ * Requires at least: 6.0
+ * Tested up to: 6.8
+ *
  * WC requires at least: 6.0
- * WC tested up to: 9.9
+ * WC tested up to: 10.3
+ *
+ * Requires Plugins: woocommerce
  *
  * @package Subscription
  */
 
 // don't call the file directly.
-
-use Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry;
-use SpringDevs\Subscription\Illuminate\Gateways\Paypal\Paypal_Blocks_Integration;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry;
+use SpringDevs\Subscription\Illuminate\Gateways\Paypal\Paypal_Blocks_Integration;
 
 require_once __DIR__ . '/vendor/autoload.php';
 

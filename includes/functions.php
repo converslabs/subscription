@@ -6,7 +6,20 @@ use SpringDevs\Subscription\Utils\ProductFactory;
 use SpringDevs\Subscription\Utils\SubscriptionProduct;
 
 /**
- * Generate Url for Subscription Action.
+ * Include tailwind CSS file
+ *
+ * * Add this class to the parent element to apply tailwind css styles:
+ * * "`wpsubs-tw-root`"
+ * *
+ * * Use "`yarn build:tailwind`" to build the tailwind CSS file.
+ * * Use "`yarn watch:tailwind`" to continuously build the tailwind CSS file.
+ */
+function subscrpt_include_tailwind_css() {
+	wp_enqueue_style( 'wpsubs-tailwind', WP_SUBSCRIPTION_ASSETS . '/css/tailwind/output.css', [], WP_SUBSCRIPTION_VERSION );
+}
+
+/**
+ * Generate URL for Subscription Action.
  *
  * @param string $action Action.
  * @param string $nonce nonce.
@@ -551,7 +564,7 @@ function subscrpt_add_payment_completion_note( $subscription_id, $payments_made,
 	// Create completion note
 	$completion_note = sprintf(
 		/* translators: %1$d: payments made, %2$d: total payments */
-		__( '🎉 Split payment plan completed successfully! %1$d of %2$d payments received.', 'wp_subscription' ),
+		__( 'Split payment plan completed successfully! %1$d of %2$d payments received.', 'wp_subscription' ),
 		$payments_made,
 		$max_payments
 	);
@@ -566,6 +579,7 @@ function subscrpt_add_payment_completion_note( $subscription_id, $payments_made,
 		)
 	);
 	update_comment_meta( $comment_id, '_subscrpt_activity', __( 'Split Payment - Plan Complete', 'wp_subscription' ) );
+	update_comment_meta( $comment_id, '_subscrpt_activity_type', 'split_payment' );
 
 	// Add payment summary note
 	$payment_summary = sprintf(
@@ -585,4 +599,114 @@ function subscrpt_add_payment_completion_note( $subscription_id, $payments_made,
 		)
 	);
 	update_comment_meta( $summary_comment_id, '_subscrpt_activity', __( 'Payment Summary - Complete', 'wp_subscription' ) );
+	update_comment_meta( $summary_comment_id, '_subscrpt_activity_type', 'split_payment_summary' );
+}
+
+
+/**
+ * Render a WooCommerce-style multiselect field.
+ *
+ * @param array $field {
+ *     Field arguments.
+ *
+ *     @type string       $id                Required. Meta key / input ID.
+ *     @type string       $label             Field label.
+ *     @type array        $options           Key => Label pairs for options.
+ *     @type array|string $selected          Optional. Selected value(s). Array, JSON, or CSV.
+ *     @type string       $desc_tip          Optional. Description tooltip text.
+ *     @type string       $description       Optional. Field description text.
+ *     @type string       $wrapper_class     Optional. Extra wrapper classes.
+ *     @type string       $class             Optional. Extra <select> classes.
+ *     @type string       $name              Optional. Input name. Defaults to $id.'[]'.
+ * }
+ */
+function wp_subs_multiselect_field( $field ) {
+	$defaults = [
+		'id'            => '',
+		'label'         => '',
+		'options'       => [],
+		'selected'      => [],
+		'desc_tip'      => false,
+		'description'   => '',
+		'wrapper_class' => '',
+		'wrapper_style' => '',
+		'class'         => 'wc-enhanced-select',
+		'style'         => '',
+		'name'          => '',
+	];
+
+	$field = wp_parse_args( $field, $defaults );
+
+	if ( empty( $field['id'] ) ) {
+		return;
+	}
+
+	$id          = esc_attr( $field['id'] );
+	$name        = $field['name'] ? $field['name'] : $id . '[]';
+	$label       = esc_html( $field['label'] );
+	$description = $field['description'];
+	$desc_tip    = $field['desc_tip'];
+
+	// Normalize selected values into array.
+	$selected = [];
+	if ( is_array( $field['selected'] ) ) {
+		$selected = $field['selected'];
+	} elseif ( is_string( $field['selected'] ) && $field['selected'] !== '' ) {
+		if ( false !== strpos( $field['selected'], '[' ) ) {
+			$tmp      = json_decode( $field['selected'], true );
+			$selected = is_array( $tmp ) ? $tmp : [];
+		} else {
+			$selected = array_filter( array_map( 'trim', explode( ',', $field['selected'] ) ) );
+		}
+	}
+
+	// Build <option> list.
+	$options_html = '';
+	foreach ( $field['options'] as $key => $text ) {
+		$is_selected   = in_array( (string) $key, (array) $selected, true ) ? ' selected="selected"' : '';
+		$options_html .= sprintf(
+			'<option value="%s"%s>%s</option>',
+			esc_attr( $key ),
+			$is_selected,
+			esc_html( $text )
+		);
+	}
+
+	$tooltip_html = '';
+	if ( $desc_tip && $description ) {
+		$tooltip_html = wc_help_tip( $description );
+	}
+
+	$description_html = '';
+	if ( $description && ! $desc_tip ) {
+		$description_html = '<span class="description">' . wp_kses_post( $description ) . '</span>';
+	}
+
+	// ? Escaped intentionally.
+	// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+	?>
+	<p 
+		class="form-field <?php echo esc_attr( $id . '_field ' . ( $field['wrapper_class'] ) ); ?>" 
+		style="<?php echo esc_attr( $field['wrapper_style'] ); ?>"
+	>
+		<label for="<?php echo esc_attr( $id ); ?>">
+			<?php echo esc_html( $label ); ?>
+		</label>
+
+		<?php echo $tooltip_html; ?>
+
+		<select 
+			multiple="multiple" 
+			id="<?php echo esc_attr( $id ); ?>" 
+			name="<?php echo esc_attr( $name ); ?>" 
+			class="<?php echo esc_attr( $field['class'] ); ?>" 
+			style="<?php echo esc_attr( $field['style'] ); ?>" 
+		>
+			<?php echo $options_html; ?>
+		</select>
+		
+		<?php echo $description_html; ?>
+	</p>
+	<?php
+	// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 }

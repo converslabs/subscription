@@ -41,51 +41,6 @@ class Checkout {
 	}
 
 	/**
-	 * Check if cart/order has subscription and guest checkout are allowed.
-	 */
-	public function is_subs_and_guest_checkout_allowed() {
-		$is_user_logged_in         = is_user_logged_in();
-		$is_guest_checkout_allowed = in_array( get_option( 'wp_subscription_allow_guest_checkout', '0' ), [ 1, '1', 'yes', 'on' ], true );
-		$cart_have_subscription    = false;
-
-		// Check in cart.
-		if ( function_exists( 'WC' ) ) {
-			$cart_items             = WC()->cart->get_cart();
-			$recurrs                = Helper::get_recurrs_from_cart( $cart_items );
-			$cart_have_subscription = count( $recurrs ) > 0;
-		}
-
-		if ( $cart_have_subscription ) {
-			return $is_user_logged_in || $is_guest_checkout_allowed;
-		} else {
-			return true;
-		}
-	}
-
-	/**
-	 * Validate guest checkout.
-	 */
-	public function validate_guest_checkout() {
-		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
-			wc_add_notice( __( 'You must be logged in to subscribe.', 'wp_subscription' ), 'error' );
-			return;
-		}
-	}
-
-	/**
-	 * Validate guest checkout on storeAPI.
-	 *
-	 * @param \WP_Error $errors Errors object.
-	 * @return \WP_Error
-	 */
-	public function validate_guest_checkout_storeapi( $errors ) {
-		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
-			$errors->add( 'wp_subscription_login_required', __( 'You must be logged in to subscribe.', 'wp_subscription' ) );
-			return $errors;
-		}
-	}
-
-	/**
 	 * Create subscription during checkout on storeAPI.
 	 *
 	 * @param \WC_Order $order Order Object.
@@ -174,70 +129,6 @@ class Checkout {
 			}
 
 			do_action( 'subscrpt_product_checkout', $order_item, $product, $post_status );
-		}
-	}
-
-	/**
-	 * Check guest and maybe assign user.
-	 *
-	 * @param \WC_Order $order Order object.
-	 * @param array     $data Order data.
-	 */
-	public function check_guest_and_maybe_assign_user( $order, $data ) {
-		// Don't proceed if user logged in.
-		if ( is_user_logged_in() ) {
-			return;
-		}
-
-		$this->maybe_assign_user_to_order( $order->get_id() );
-	}
-
-	/**
-	 * Check guest and maybe assign user on storeAPI.
-	 *
-	 * @param \WC_Order $order Order object.
-	 */
-	public function check_guest_and_maybe_assign_user_storeapi( $order ) {
-		// Don't proceed if user logged in.
-		if ( is_user_logged_in() ) {
-			return;
-		}
-
-		$this->maybe_assign_user_to_order( $order->get_id() );
-	}
-
-	/**
-	 * Ensure a WP user exists early in the Blocks checkout lifecycle.
-	 * This allows the Stripe gateway to create/attach a Stripe customer on the PaymentIntent
-	 * for redirect methods (e.g., iDEAL) even for guests.
-	 *
-	 * @param \WC_Customer $customer Customer object.
-	 * @return void
-	 */
-	public function ensure_user_for_blocks_checkout( $customer ) {
-		// Don't proceed if user logged in.
-		if ( is_user_logged_in() ) {
-			return;
-		}
-
-		// If already associated with a user, nothing to do.
-		if ( $customer->get_id() ) {
-			return;
-		}
-
-		$billing_email = $customer->get_billing_email();
-		if ( empty( $billing_email ) ) {
-			// Cannot proceed without an email.
-			return;
-		}
-
-		// Build and maybe create a user.
-		$user_info = $this->build_user_info( $customer );
-		$user_id   = $this->maybe_create_user( $user_info );
-
-		if ( $user_id ) {
-			$customer->set_id( $user_id );
-			$customer->save();
 		}
 	}
 
@@ -362,21 +253,6 @@ class Checkout {
 		}
 
 		return $user_id;
-	}
-
-	/**
-	 * Maybe logout guest user after checkout.
-	 *
-	 * @return void
-	 */
-	public function maybe_logout_guest() {
-		$user_id = get_current_user_id();
-		if ( $user_id && get_transient( 'subscrpt_manual_login_' . $user_id ) ) {
-			wp_logout();
-			delete_transient( 'subscrpt_manual_login_' . $user_id );
-
-			wp_subscrpt_write_debug_log( 'Auto-logged out user ID: ' . $user_id . ' after checkout.' );
-		}
 	}
 
 	/**

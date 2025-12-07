@@ -12,8 +12,15 @@ clean() {
 build() {
   echo "[+] Starting combingFiles"
 
-  yarn build
+  echo "[+] Installing composer packages"
   composer install --no-dev --no-ansi --no-cache --no-interaction --ignore-platform-req=php --quiet
+
+  echo "[+] Installing yarn packages"
+  yarn install --ignore-engines
+
+  echo "[+] Building package"
+  yarn build
+  yarn update-lang-files
 
   mkdir -p releases/$PLUGIN_NAME
 
@@ -27,7 +34,6 @@ build() {
   cp -r ./readme-template.txt ./releases/$PLUGIN_NAME
   cp -r ./changelog.txt ./releases/$PLUGIN_NAME
   cp -r ./index.php ./releases/$PLUGIN_NAME
-  cp -r ./composer.json ./releases/$PLUGIN_NAME
   cp -r ./$PLUGIN_NAME.php ./releases/$PLUGIN_NAME
 
   echo "[+] Finished combingFiles"

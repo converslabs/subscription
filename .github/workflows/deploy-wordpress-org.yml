@@ -1,25 +1,44 @@
 name: Deploy to WordPress.org
 on:
   workflow_dispatch:
-  # push:
-  #   tags:
-  #   - "*"
+  push:
+    tags:
+      - "*"
 jobs:
-  tag:
-    name: New tag
+  build_and_deploy:
+    name: Build and Deploy
     runs-on: ubuntu-latest
+
     steps:
-    # - name: Install Act dependencies
-    #   if: ${{ env.ACT }}
-    #   run: |
-    #     apt-get update && apt-get install composer -y && apt-get install git -y
-    - uses: actions/checkout@master
-    - name: Build
-      run: |
-        composer install
-    - name: WordPress Plugin Deploy
-      uses: 10up/action-wordpress-plugin-deploy@stable
-      env:
-        SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-        SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-        SLUG: subscription
+      - name: Cloning repository
+        uses: actions/checkout@v6
+
+      - name: Build plugin
+        run: |
+          chmod +x ./scripts/release.sh
+          ./scripts/release.sh
+
+      - name: Read version from package.json
+        id: pkg
+        run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+
+      - name: Set deploy version when manual run
+        id: deployver
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ steps.pkg.outputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy to WP.org
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        with:
+          dry-run: false
+          generate-zip: false
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: subscription
+          BUILD_DIR: ./releases/subscription
+          VERSION: ${{ steps.deployver.outputs.version }}

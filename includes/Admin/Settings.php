@@ -8,12 +8,21 @@ namespace SpringDevs\Subscription\Admin;
  * @package SpringDevs\Subscription\Admin
  */
 class Settings {
+	/**
+	 * Settings fields.
+	 *
+	 * @var array
+	 */
+	public $settings_fields = [];
 
 	/**
 	 * Initialize the class.
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'admin_menu' ), 30 );
+		// Load the settings helper.
+		SettingsHelper::get_instance();
+
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wc_admin_styles' ) );
 	}
@@ -24,15 +33,132 @@ class Settings {
 	 * @return void
 	 */
 	public function admin_menu() {
+		// Initialize & process settings fields.
+		$this->initiate_settings_fields();
+
+		// Add submenu page.
+		$parent_slug = 'wp-subscription';
 		add_submenu_page(
-			'edit.php?post_type=subscrpt_order',
-			__( 'WP Subscription Settings', 'wp_subscription' ),
+			$parent_slug,
+			__( 'Settings', 'wp_subscription' ),
 			__( 'Settings', 'wp_subscription' ),
 			'manage_options',
-			'wp_subscription_settings',
-			array( $this, 'settings_content' ),
-			40
+			'wp-subscription-settings',
+			[ $this, 'settings_content' ]
 		);
+	}
+
+	/**
+	 * Initialize settings fields.
+	 */
+	public function initiate_settings_fields() {
+		global $wp_roles;
+		$roles = [];
+		foreach ( ( $wp_roles->roles ?? [] ) as $role_key => $role ) {
+			$roles[ $role_key ] = $role['name'];
+		}
+
+		// Setting fields.
+		$settings_fields = [
+			[
+				'type'       => 'heading',
+				'group'      => 'main',
+				'priority'   => 0,
+				'field_data' => [
+					'title' => __( 'General Settings', 'wp_subscription' ),
+				],
+			],
+			[
+				'type'       => 'select',
+				'group'      => 'main',
+				'priority'   => 1,
+				'field_data' => [
+					'id'          => 'wp_subscription_renewal_process',
+					'title'       => __( 'Renewal Process', 'wp_subscription' ),
+					'description' => __( 'How renewal process will be done after Subscription Expired.', 'wp_subscription' ),
+					'options'     => [
+						'auto'   => __( 'Automatic', 'wp_subscription' ),
+						'manual' => __( 'Manual', 'wp_subscription' ),
+					],
+					'selected'    => esc_attr( get_option( 'wp_subscription_renewal_process', 'auto' ) ),
+				],
+			],
+			[
+				'type'       => 'input',
+				'group'      => 'main',
+				'priority'   => 2,
+				'field_data' => [
+					'id'          => 'wp_subscription_manual_renew_cart_notice',
+					'title'       => __( 'Renewal Cart Notice', 'wp_subscription' ),
+					'description' => __( 'Display Notice when Renewal Subscription product add to cart. Only available for Manual Renewal Process.', 'wp_subscription' ),
+					'value'       => esc_attr( get_option( 'wp_subscription_manual_renew_cart_notice' ) ),
+				],
+			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'main',
+				'priority'   => 3,
+				'field_data' => [
+					'id'          => 'wp_subscription_stripe_auto_renew',
+					'title'       => __( 'Stripe Auto Renewal', 'wp_subscription' ),
+					'label'       => __( 'Accept Stripe Auto Renewals', 'wp_subscription' ),
+					'description' => sprintf(
+						/* translators: HTML tags */
+						__( '%1$s WooCommerce Stripe Payment Gateway %2$s plugin is required!', 'wp_subscription' ),
+						'<a href="https://wordpress.org/plugins/woocommerce-gateway-stripe/" target="_blank">',
+						'</a>'
+					),
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'wp_subscription_stripe_auto_renew', '1' ),
+				],
+			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'main',
+				'priority'   => 4,
+				'field_data' => [
+					'id'          => 'wp_subscription_auto_renewal_toggle',
+					'title'       => __( 'Auto Renewal Toggle', 'wp_subscription' ),
+					'label'       => __( 'Display the auto renewal toggle', 'wp_subscription' ),
+					'description' => __( 'Allow customers to turn on and off automatic renewals from their Subscription details page', 'wp_subscription' ),
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'wp_subscription_auto_renewal_toggle', '1' ),
+				],
+			],
+			[
+				'type'       => 'select',
+				'group'      => 'main',
+				'priority'   => 5,
+				'field_data' => [
+					'id'          => 'wp_subscription_active_role',
+					'title'       => __( 'Subscriber Default Role', 'wp_subscription' ),
+					'description' => __( 'When a subscription is activated, either manually or after a successful purchase, new users will be assigned this role.', 'wp_subscription' ),
+					'options'     => $roles,
+					'selected'    => esc_attr( get_option( 'wp_subscription_active_role', 'subscriber' ) ),
+				],
+			],
+			[
+				'type'       => 'select',
+				'group'      => 'main',
+				'priority'   => 6,
+				'field_data' => [
+					'id'          => 'wp_subscription_unactive_role',
+					'title'       => __( 'Subscriber Inactive Role', 'wp_subscription' ),
+					'description' => __( "If a subscriber's subscription is manually cancelled or expires, they will be assigned this role.", 'wp_subscription' ),
+					'options'     => $roles,
+					'selected'    => esc_attr( get_option( 'wp_subscription_unactive_role', 'customer' ) ),
+				],
+			],
+		];
+
+		// Allow other modules to add/modify settings fields.
+		$settings_fields = apply_filters( 'subscrpt_settings_fields', $settings_fields );
+
+		// Process settings fields (group & sort).
+		$settings_fields = apply_filters( 'process_subscrpt_settings_fields', $settings_fields );
+
+		// Set the settings fields.
+		$this->settings_fields = $settings_fields;
 	}
 
 	/**
@@ -87,14 +213,6 @@ class Settings {
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
-		register_setting(
-			'wp_subscription_settings',
-			'wp_subscription_allow_guest_checkout',
-			array(
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
-			)
-		);
 
 		do_action( 'subscrpt_register_settings', 'subscrpt_settings' );
 	}
@@ -103,7 +221,16 @@ class Settings {
 	 * Settings HTML.
 	 */
 	public function settings_content() {
+		$settings_fields = $this->settings_fields;
+
+		// Header.
+		$menu = new Menu();
+		$menu->render_admin_header();
+
 		include 'views/settings.php';
+
+		// Footer.
+		$menu->render_admin_footer();
 	}
 
 	/**

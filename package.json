@@ -1,29 +1,39 @@
 {
   "name": "subscription",
-  "version": "1.8.1",
+  "version": "1.8.9",
   "author": "The WordPress Contributors",
   "license": "GPL-2.0-or-later",
   "main": "build/index.js",
   "scripts": {
     "install-dev": "yarn install --ignore-engines && composer install --ignore-platform-req=php",
-    "build": "wp-scripts build",
+    "build": "yarn build:wpscripts && yarn build:tailwind",
+    "watch": "yarn watch:wpscripts && yarn watch:tailwind",
+    "build:wpscripts": "wp-scripts build",
+    "watch:wpscripts": "wp-scripts start",
+    "build:tailwind": "tailwindcss -i ./assets/css/tailwind/input.css -o ./assets/css/tailwind/output.css",
+    "watch:tailwind": "tailwindcss -i ./assets/css/tailwind/input.css -o ./assets/css/tailwind/output.css --watch",
     "format": "wp-scripts format",
     "lint:php": "composer run lint:php",
     "format:php": "composer run format:php",
     "format:prettier": "prettier --write \"**/*.{js,ts,jsx,tsx,css,scss,json,md,html}\"",
     "packages-update": "wp-scripts packages-update",
     "plugin-zip": "wp-scripts plugin-zip",
-    "start": "wp-scripts start",
     "commit": "node ./node_modules/cz-customizable/standalone.js",
     "prepare": "husky",
     "release": "scripts/release.sh",
-    "svn": "scripts/svn.sh"
+    "svn": "scripts/svn.sh",
+    "update-lang-files": "wp i18n make-pot . ./languages/wp_subscription.pot --exclude=node_modules,vendor,svn"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.16",
+    "tailwindcss": "^4.1.16"
   },
   "devDependencies": {
     "@woocommerce/dependency-extraction-webpack-plugin": "^3.0.1",
     "@woocommerce/eslint-plugin": "^2.3.0",
     "@wordpress/scripts": "^30.16.0",
     "cz-customizable": "^7.4.0",
+    "daisyui": "^5.3.10",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2"

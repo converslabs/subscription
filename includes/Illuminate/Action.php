@@ -30,8 +30,6 @@ class Action {
 			self::write_comment( $status, $subscription_id );
 		}
 
-		self::user( $subscription_id );
-
 		// Trigger status change action
 		do_action( 'subscrpt_subscription_status_changed', $subscription_id, $old_status, $status );
 
@@ -82,6 +80,7 @@ class Action {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Expired' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_expired' );
 
 		do_action( 'subscrpt_subscription_expired', $subscription_id );
 	}
@@ -101,6 +100,8 @@ class Action {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Activated' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_activated' );
+
 		do_action( 'subscrpt_subscription_activated', $subscription_id );
 	}
 
@@ -119,6 +120,8 @@ class Action {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Pending' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_pending' );
+
 		do_action( 'subscrpt_subscription_pending', $subscription_id );
 	}
 
@@ -137,6 +140,7 @@ class Action {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Cancelled' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_cancelled' );
 
 		WC()->mailer();
 		do_action( 'subscrpt_subscription_cancelled_email_notification', $subscription_id );
@@ -161,67 +165,8 @@ class Action {
 			)
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Pending Cancellation' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_pe_cancel' );
+
 		do_action( 'subscrpt_subscription_pending_cancellation', $subscription_id );
-	}
-
-	/**
-	 * Update user role.
-	 *
-	 * @param Int $subscription_id Subscription ID.
-	 */
-	private static function user( $subscription_id ) {
-		// Get the subscription owner's user ID
-		$user_id = get_post_field( 'post_author', (int) $subscription_id );
-
-		if ( ! $user_id ) {
-			return;
-		}
-
-		$user = new \WP_User( $user_id );
-
-		// Don't change roles for administrators
-		if ( ! empty( $user->roles ) && is_array( $user->roles ) && in_array( 'administrator', $user->roles, true ) ) {
-			return;
-		}
-
-		$current_status = get_post_status( (int) $subscription_id );
-
-		// Get role settings from options with legacy support
-		$active_role = get_option( 'wp_subscription_active_role' );
-		if ( false === $active_role ) {
-			// Legacy fallback
-			$active_role = get_option( 'subscrpt_active_role', 'subscriber' );
-			if ( false !== $active_role ) {
-				_doing_it_wrong(
-					'Action::user()',
-					'The option "subscrpt_active_role" is deprecated. Use "wp_subscription_active_role" instead.',
-					'1.5.3'
-				);
-			} else {
-				$active_role = 'subscriber';
-			}
-		}
-
-		$inactive_role = get_option( 'wp_subscription_unactive_role' );
-		if ( false === $inactive_role ) {
-			// Legacy fallback
-			$inactive_role = get_option( 'subscrpt_unactive_role', 'customer' );
-			if ( false !== $inactive_role ) {
-				_doing_it_wrong(
-					'Action::user()',
-					'The option "subscrpt_unactive_role" is deprecated. Use "wp_subscription_unactive_role" instead.',
-					'1.5.3'
-				);
-			} else {
-				$inactive_role = 'customer';
-			}
-		}
-
-		// Assign role based on subscription status
-		if ( 'active' === $current_status ) {
-			$user->set_role( $active_role );
-		} elseif ( in_array( $current_status, array( 'cancelled', 'expired', 'pe_cancelled' ), true ) ) {
-			$user->set_role( $inactive_role );
-		}
 	}
 }

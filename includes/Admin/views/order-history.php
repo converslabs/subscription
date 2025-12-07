@@ -34,7 +34,7 @@ endif;
 						</a>
 					</td>
 					<td><?php echo esc_html( ucfirst( str_replace( '-', ' ', $history->type ) ) ); ?></td>
-					<td><?php echo esc_html( $order->get_date_created()->date( 'M j, Y g:i A' ) ); ?></td>
+					<td><?php echo esc_html( $order->get_date_created()->date( 'M j, Y - g:i A' ) ); ?></td>
 					<td><?php echo esc_html( wc_get_order_status_name( $order->get_status() ) ); ?></td>
 					<td><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></td>
 				</tr>

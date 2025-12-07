@@ -4,6 +4,7 @@
  *
  * @var WC_Order $order
  * @var WC_Order_Item $order_item
+ * @var array $related_orders
  * @var string $start_date
  * @var string $next_date
  * @var string|null $trial
@@ -117,68 +118,46 @@ do_action( 'before_single_subscrpt_content' );
 		$product_id   = get_post_meta( $id, '_subscrpt_product_id', true );
 		$max_payments = subscrpt_get_max_payments( $id );
 
-		// DEBUG: Let's see what we're getting
-		error_log( 'DEBUG Subscription ID: ' . $id );
-		error_log( 'DEBUG Product ID: ' . $product_id );
-		error_log( 'DEBUG Max Payments: ' . $max_payments );
-		error_log( 'DEBUG Remaining Payments: ' . $remaining_payments );
-		error_log( 'DEBUG Payments Made: ' . $payments_made );
-
 		// Get Payment Type and Access Duration Information
 		$payment_type = $product_id ? get_post_meta( $product_id, '_subscrpt_payment_type', true ) : 'recurring';
 		$payment_type = $payment_type ?: 'recurring'; // Default to recurring if empty
 
-		// DEBUG: Let's see what payment type we're getting
-		error_log( 'DEBUG Payment Type from meta: ' . ( get_post_meta( $product_id, '_subscrpt_payment_type', true ) ?: 'EMPTY' ) );
-		error_log( 'DEBUG Final Payment Type: ' . $payment_type );
-
 		// Also check subscription's own meta data
 		$subscription_payment_type = get_post_meta( $id, '_subscrpt_payment_type', true );
 		$subscription_max_payments = get_post_meta( $id, '_subscrpt_max_no_payment', true );
-		error_log( 'DEBUG Subscription Payment Type: ' . ( $subscription_payment_type ?: 'EMPTY' ) );
-		error_log( 'DEBUG Subscription Max Payments: ' . ( $subscription_max_payments ?: 'EMPTY' ) );
 
 		// Also check if this subscription has variation data
 		$variation_id = get_post_meta( $id, '_subscrpt_variation_id', true );
 		if ( $variation_id ) {
-			error_log( 'DEBUG Variation ID: ' . $variation_id );
 			$variation_payment_type = get_post_meta( $variation_id, '_subscrpt_payment_type', true );
 			$variation_max_payments = get_post_meta( $variation_id, '_subscrpt_max_no_payment', true );
-			error_log( 'DEBUG Variation Payment Type: ' . ( $variation_payment_type ?: 'EMPTY' ) );
-			error_log( 'DEBUG Variation Max Payments: ' . ( $variation_max_payments ?: 'EMPTY' ) );
 
 			// Use variation data if product data is not available
 			if ( empty( $payment_type ) || 'recurring' === $payment_type ) {
 				if ( ! empty( $variation_payment_type ) ) {
 					$payment_type = $variation_payment_type;
-					error_log( 'DEBUG Using variation payment type: ' . $payment_type );
 				}
 			}
 			if ( empty( $max_payments ) && ! empty( $variation_max_payments ) ) {
 				$max_payments = $variation_max_payments;
-				error_log( 'DEBUG Using variation max payments: ' . $max_payments );
 			}
 		}
 
 		// Use subscription's own data if available and more specific
 		if ( ! empty( $subscription_payment_type ) ) {
 			$payment_type = $subscription_payment_type;
-			error_log( 'DEBUG Using subscription payment type: ' . $payment_type );
 		}
 		if ( ! empty( $subscription_max_payments ) ) {
 			$max_payments = $subscription_max_payments;
-			error_log( 'DEBUG Using subscription max payments: ' . $max_payments );
 		}
 
 		// Final fallback: Infer payment type from max_payments if not explicitly set
 		if ( ( empty( $payment_type ) || 'recurring' === $payment_type ) && $max_payments > 0 ) {
 			$payment_type = 'split_payment';
-			error_log( 'DEBUG Inferred payment type as split_payment based on max_payments: ' . $max_payments );
 		}
 
 		// Ensure max_payments is properly set for display
 		$max_payments = (int) $max_payments;
-		error_log( 'DEBUG Final values - Payment Type: ' . $payment_type . ', Max Payments: ' . $max_payments );
 		?>
 
 		<!-- show payment progress if max_payments is set and not unlimited -->
@@ -240,7 +219,7 @@ do_action( 'before_single_subscrpt_content' );
 								/* translators: %1$s: duration time, %2$s: duration type */
 								esc_html__( '%1$s %2$s after first payment', 'wp_subscription' ),
 								esc_html( $custom_duration_time ),
-								esc_html( Helper::get_typos( $custom_duration_time, $custom_duration_type ) )
+								esc_html( ucfirst( Helper::get_typos( $custom_duration_time, $custom_duration_type, true ) ) )
 							);
 							break;
 						default:
@@ -366,64 +345,56 @@ do_action( 'before_single_subscrpt_content' );
 		</tr>
 	</thead>
 	<tbody>
-		<?php
-		// Get all orders related to this subscription
-		global $wpdb;
-		$table_name      = $wpdb->prefix . 'subscrpt_order_relation';
-		$order_histories = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$table_name} WHERE subscription_id = %d ORDER BY id ASC",
-				$id
-			)
-		);
-
-		if ( ! empty( $order_histories ) ) :
-			foreach ( $order_histories as $order_history ) :
-				$related_order = wc_get_order( $order_history->order_id );
-				if ( ! $related_order ) {
-					continue;
-				}
-
-				$order_item = $related_order->get_item( $order_history->order_item_id );
-				if ( ! $order_item ) {
-					continue;
-				}
-
-				$order_type_label = wps_subscription_order_relation_type_cast( $order_history->type );
-				?>
-				<tr class="order_item">
-					<td class="order-number">
-						<a href="<?php echo esc_url( wc_get_endpoint_url( 'view-order', $related_order->get_id(), wc_get_page_permalink( 'myaccount' ) ) ); ?>">
-							#<?php echo esc_html( $related_order->get_id() ); ?>
-						</a>
-					</td>
-					<td class="order-type">
-						<?php echo esc_html( $order_type_label ); ?>
-					</td>
-					<td class="order-date">
-						<?php echo esc_html( $related_order->get_date_created()->date_i18n( get_option( 'date_format' ) ) ); ?>
-					</td>
-					<td class="order-status">
-						<span class="order-status-<?php echo esc_attr( $related_order->get_status() ); ?>">
-							<?php echo esc_html( wc_get_order_status_name( $related_order->get_status() ) ); ?>
-						</span>
-					</td>
-					<td class="order-total">
-						<?php echo wp_kses_post( wc_price( $order->get_total(), array( 'currency' => $related_order->get_currency() ) ) ); ?>
-					</td>
-				</tr>
-				<?php
-			endforeach;
-		else :
-			?>
+		<?php if ( empty( $related_orders ) ) : ?>
 			<tr class="order_item">
 				<td colspan="5" class="no-orders">
 					<?php echo esc_html_e( 'No related orders found.', 'wp_subscription' ); ?>
 				</td>
 			</tr>
+		<?php endif; ?>
+
+		<?php foreach ( $related_orders as $related_order ) : ?>
 			<?php
-		endif;
-		?>
+				$order_id = $related_order->order_id;
+				$order    = wc_get_order( $order_id );
+			if ( ! $order ) {
+				continue;
+			}
+
+				$order_type       = $related_order->type;
+				$order_type_label = wps_subscription_order_relation_type_cast( $order_type );
+
+				$order_created_date = $order->get_date_created()->date_i18n( get_option( 'date_format' ) );
+
+				$order_status      = $order->get_status();
+				$order_status_name = wc_get_order_status_name( $order_status );
+
+				$order_total           = $order->get_total();
+				$formatted_order_total = wc_price( $order_total, array( 'currency' => $order->get_currency() ) );
+			?>
+
+			<tr class="order_item">
+				<td class="order-number">
+					<a href="<?php echo esc_url( wc_get_endpoint_url( 'view-order', $order_id, wc_get_page_permalink( 'myaccount' ) ) ); ?>">
+						#<?php echo esc_html( $order_id ); ?>
+					</a>
+				</td>
+				<td class="order-type">
+					<?php echo esc_html( $order_type_label ); ?>
+				</td>
+				<td class="order-date">
+					<?php echo esc_html( $order_created_date ); ?>
+				</td>
+				<td class="order-status">
+					<span class="order-status-<?php echo esc_attr( $order_status ); ?>">
+						<?php echo esc_html( $order_status_name ); ?>
+					</span>
+				</td>
+				<td class="order-total">
+					<?php echo wp_kses_post( $formatted_order_total ); ?>
+				</td>
+			</tr>
+		<?php endforeach; ?>
 	</tbody>
 </table>
 

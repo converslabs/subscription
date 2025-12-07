@@ -1,5 +1,38 @@
 *** WPSubscription Changelog ***
 
+2025-12-07 - version 1.8.9
+* fix: Subscription cron task actions.
+* fix: Status translation giving errors.
+* fix: Integrations filter.
+
+2025-11-30 - version 1.8.8
+* fix: Order timestamp error.
+* fix: Subscription-related order error.
+* fix: Cart page was showing price with tax even if taxes are turned off.
+
+2025-11-23 - version 1.8.7
+* fix: Cart warning messages.
+* fix: Two-way add to cart check (sub <=> non-sub).
+* improved: Settings page.
+* dev: Made settings modular and can be added from anywhere.
+
+2025-11-16 - version 1.8.6
+* fix: Guest checkout account creation error.
+
+2025-11-09 - version 1.8.5
+* fix: View subscription from user menu showing "Page not found"
+* new: Added some helper functions.
+
+2025-11-02 - version 1.8.4
+* compat: Compatibility patch for subscription quick check QR code.
+
+2025-10-27 - version 1.8.3
+* fix: Error due to operation with wrong type.
+
+2025-10-26 - version 1.8.2
+* fix: User role not changing for active/inactive subscribers.
+* fix: Auto renewal on/off action visibility (for Stripe paid subscriptions only).
+
 2025-10-20 - version 1.8.1
 * new: Subscription back to list button.
 * fix: Checkout text typo.
