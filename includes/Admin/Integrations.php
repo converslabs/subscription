@@ -113,10 +113,22 @@ class Integrations {
 	 * Check if a payment gateway is installed and active.
 	 *
 	 * @param string $gateway_id Gateway ID.
+	 * @param bool   $partial_match Whether to allow partial match of gateway ID.
 	 * @return bool
 	 */
-	protected function is_gateway_installed( $gateway_id ) {
+	public static function is_gateway_installed( $gateway_id, $partial_match = false ) {
 		$installed_gateways = WC()->payment_gateways()->payment_gateways();
+
+		// Partial match check. For gateways with dynamic IDs.
+		if ( $partial_match ) {
+			foreach ( $installed_gateways as $key => $gateway ) {
+				if ( strpos( $key, $gateway_id ) !== false ) {
+					return true;
+				}
+			}
+			return false;
+		}
+
 		return isset( $installed_gateways[ $gateway_id ] );
 	}
 
@@ -124,10 +136,22 @@ class Integrations {
 	 * Check if a payment gateway is enabled.
 	 *
 	 * @param string $gateway_id Gateway ID.
+	 * @param bool   $partial_match Whether to allow partial match of gateway ID.
 	 * @return bool
 	 */
-	protected function is_gateway_enabled( $gateway_id ) {
+	public static function is_gateway_enabled( $gateway_id, $partial_match = false ) {
 		$installed_gateways = WC()->payment_gateways()->payment_gateways();
+
+		// Partial match check. For gateways with dynamic IDs.
+		if ( $partial_match ) {
+			foreach ( $installed_gateways as $key => $gateway ) {
+				if ( strpos( $key, $gateway_id ) !== false ) {
+					return $gateway->is_available();
+				}
+			}
+			return false;
+		}
+
 		if ( ! isset( $installed_gateways[ $gateway_id ] ) ) {
 			return false;
 		}
@@ -182,7 +206,7 @@ class Integrations {
 				'description'        => 'Accept subscription payments via PayPal.',
 				'icon_url'           => WP_SUBSCRIPTION_ASSETS . '/images/paypal.svg',
 				'is_installed'       => 'on' === get_option( 'wp_subs_paypal_integration_enabled', 'off' ),
-				'is_active'          => $this->is_gateway_enabled( 'wp_subscription_paypal' ),
+				'is_active'          => self::is_gateway_enabled( 'wp_subscription_paypal' ),
 				'supports_recurring' => true,
 				'actions'            => [
 					// [
@@ -211,7 +235,7 @@ class Integrations {
 				'description'        => 'Process subscription payments securely with Stripe.',
 				'icon_url'           => 'https://ps.w.org/woocommerce-gateway-stripe/assets/icon-256x256.png',
 				'is_installed'       => class_exists( 'WC_Stripe' ),
-				'is_active'          => $this->is_gateway_enabled( 'stripe' ),
+				'is_active'          => self::is_gateway_enabled( 'stripe' ),
 				'supports_recurring' => true,
 				'actions'            => [
 					[
@@ -233,7 +257,7 @@ class Integrations {
 				'description'        => 'Process subscription payments securely with Paddle.',
 				'icon_url'           => WP_SUBSCRIPTION_ASSETS . '/images/paddle.svg',
 				'is_installed'       => class_exists( 'SmartPayWoo\Gateways\Paddle\SmartPay_Paddle' ),
-				'is_active'          => $this->is_gateway_enabled( 'smartpay_paddle' ),
+				'is_active'          => self::is_gateway_enabled( 'smartpay_paddle' ),
 				'supports_recurring' => true,
 				'actions'            => [
 					[
