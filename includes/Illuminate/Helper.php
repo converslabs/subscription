@@ -563,12 +563,7 @@ class Helper {
 		// Check if maximum payment limit has been reached
 		if ( subscrpt_is_max_payments_reached( $subscription_id ) ) {
 			// Mark subscription as expired due to limit reached
-			wp_update_post(
-				array(
-					'ID'          => $subscription_id,
-					'post_status' => 'expired',
-				)
-			);
+			Action::status( 'expired', $subscription_id );
 
 			error_log( "WPS: Maximum payment limit reached for subscription #{$subscription_id}. No renewal order created." );
 			return false;
@@ -633,6 +628,183 @@ class Helper {
 		}
 
 		do_action( 'subscrpt_after_create_renew_order', $new_order, $old_order, $subscription_id, false );
+
+		return $new_order;
+	}
+
+	/**
+	 * Get subscription total price.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return float
+	 */
+	public static function get_subscription_total( $subscription_id ) {
+		return (float) get_post_meta( $subscription_id, '_subscrpt_price', true );
+	}
+
+	/**
+	 * Get subscription status.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return string
+	 */
+	public static function get_subscription_status( $subscription_id ) {
+		return get_post_status( $subscription_id );
+	}
+
+	/**
+	 * Check if subscription has status.
+	 *
+	 * @param int    $subscription_id Subscription ID.
+	 * @param string $status Status to check.
+	 * @return bool
+	 */
+	public static function subscription_has_status( $subscription_id, $status ) {
+		return self::get_subscription_status( $subscription_id ) === $status;
+	}
+
+	/**
+	 * Check if subscription needs payment.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return bool
+	 */
+	public static function subscription_needs_payment( $subscription_id ) {
+		return true; // Always true for now
+	}
+
+	/**
+	 * Get product period (timing option).
+	 *
+	 * @param int $product_id Product ID.
+	 * @return string
+	 */
+	public static function get_product_period( $product_id ) {
+		$product = wc_get_product( $product_id );
+		return $product ? $product->get_meta( '_subscrpt_timing_option' ) : '';
+	}
+
+	/**
+	 * Get product interval (timing per).
+	 *
+	 * @param int $product_id Product ID.
+	 * @return int
+	 */
+	public static function get_product_interval( $product_id ) {
+		$product = wc_get_product( $product_id );
+		return $product ? (int) $product->get_meta( '_subscrpt_timing_per' ) : 1;
+	}
+
+	/**
+	 * Get product length (max payments).
+	 *
+	 * @param int $product_id Product ID.
+	 * @return int
+	 */
+	public static function get_product_length( $product_id ) {
+		$product = wc_get_product( $product_id );
+		return $product ? (int) $product->get_meta( '_subscrpt_max_no_payment' ) : 0;
+	}
+
+	/**
+	 * Get product trial length.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return int
+	 */
+	public static function get_product_trial_length( $product_id ) {
+		$product = wc_get_product( $product_id );
+		return $product ? (int) $product->get_meta( '_subscrpt_trial_timing_per' ) : 0;
+	}
+
+	/**
+	 * Get product signup fee.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return float
+	 */
+	public static function get_product_signup_fee( $product_id ) {
+		$product = wc_get_product( $product_id );
+		return $product ? (float) $product->get_meta( '_subscrpt_signup_fee' ) : 0.0;
+	}
+
+	/**
+	 * Get first renewal payment time.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return int Timestamp
+	 */
+	public static function get_first_renewal_payment_time( $product_id ) {
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			return 0;
+		}
+
+		$trial_period = $product->get_meta( '_subscrpt_trial_timing_per' );
+		$trial_option = $product->get_meta( '_subscrpt_trial_timing_option' );
+
+		if ( ! empty( $trial_period ) && ! empty( $trial_option ) ) {
+			return strtotime( "+{$trial_period} {$trial_option}" );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Update subscription next payment date.
+	 *
+	 * @param int    $subscription_id Subscription ID.
+	 * @param string $new_date New Date string.
+	 * @return void
+	 */
+	public static function update_subscription_next_payment_date( $subscription_id, $new_date ) {
+		update_post_meta( $subscription_id, '_subscrpt_next_date', strtotime( $new_date ) );
+	}
+
+	/**
+	 * Cancel subscription.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return void
+	 */
+	public static function cancel_subscription( $subscription_id ) {
+		Action::status( 'cancelled', $subscription_id );
+	}
+
+	/**
+	 * Pause subscription.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return void
+	 */
+	public static function pause_subscription( $subscription_id ) {
+		Action::status( 'on-hold', $subscription_id );
+	}
+
+	/**
+	 * Resume subscription.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return void
+	 */
+	public static function resume_subscription( $subscription_id ) {
+		Action::status( 'active', $subscription_id );
+	}
+
+	/**
+	 * Mark subscription payment as complete.
+	 *
+	 * @param int    $subscription_id Subscription ID.
+	 * @param string $payment_id Payment/Transaction ID.
+	 * @return void
+	 */
+	public static function subscription_payment_complete( $subscription_id, $payment_id ) {
+		if ( 'active' !== get_post_status( $subscription_id ) ) {
+			Action::status( 'active', $subscription_id );
+		}
+
+		// Allow payment gateways to add their own comments/notes
+		do_action( 'subscrpt_subscription_payment_completed', $subscription_id, $payment_id );
 	}
 
 	/**
