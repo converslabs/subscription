@@ -2,7 +2,7 @@
 Contributors: converswp, shamsbd71, aushamim
 Tags: woocommerce-subscriptions, subscriptions, subscriptions-billing, recurring-payments, woocommerce-extensions
 Requires at least: 6.0
-Tested up to: 6.8
+Tested up to: 6.9
 Stable tag: #WPSUBS_VERSION
 Requires PHP: 7.4
 WC requires at least: 6.0
