@@ -16,12 +16,22 @@ use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
  * @package SpringDevs\Subscription\Frontend
  */
 class MyAccount {
+	/**
+	 * Subscriptions endpoint slug.
+	 *
+	 * @var string
+	 */
+	private $subscriptions_endpoint = 'subscriptions';
 
 
 	/**
 	 * Initialize the class
 	 */
 	public function __construct() {
+		// Assign endpoint slug from settings.
+		$this->subscriptions_endpoint = Subscription::get_user_endpoint( 'subs_list' );
+
+		// Flush rewrite rules on init.
 		add_action( 'init', array( $this, 'flush_rewrite_rules' ) );
 
 		// Add My Subscriptions menu item.
@@ -31,11 +41,10 @@ class MyAccount {
 		add_filter( 'woocommerce_get_query_vars', array( $this, 'custom_query_vars' ) );
 
 		// Subscription EndPoint Content.
-		$subscriptions_endpoint = Subscription::get_user_endpoint( 'subs_list' );
-		add_action( "woocommerce_account_{$subscriptions_endpoint}_endpoint", array( $this, 'subscrpt_endpoint_content' ) );
+		add_action( "woocommerce_account_{$this->subscriptions_endpoint}_endpoint", array( $this, 'subscrpt_endpoint_content' ) );
 
 		// Subscription page titles
-		add_filter( "woocommerce_endpoint_{$subscriptions_endpoint}_title", array( $this, 'change_subscriptions_title' ) );
+		add_filter( "woocommerce_endpoint_{$this->subscriptions_endpoint}_title", array( $this, 'change_subscriptions_title' ) );
 		add_filter( 'woocommerce_endpoint_view-subscription_title', array( $this, 'change_single_subscription_title' ) );
 
 		add_action( 'woocommerce_account_view-subscription_endpoint', array( $this, 'view_subscrpt_content' ) );
@@ -50,8 +59,7 @@ class MyAccount {
 	 * @return array
 	 */
 	public function custom_query_vars( array $query_vars ): array {
-		$subscriptions_endpoint                = Subscription::get_user_endpoint( 'subs_list' );
-		$query_vars[ $subscriptions_endpoint ] = $subscriptions_endpoint;
+		$query_vars[ $this->subscriptions_endpoint ] = $this->subscriptions_endpoint;
 
 		$query_vars['view-subscription'] = 'view-subscription';
 		return $query_vars;
@@ -220,8 +228,7 @@ class MyAccount {
 	 * Re-write flush
 	 */
 	public function flush_rewrite_rules() {
-		$subscriptions_endpoint = Subscription::get_user_endpoint( 'subs_list' );
-		add_rewrite_endpoint( $subscriptions_endpoint, EP_ROOT | EP_PAGES );
+		add_rewrite_endpoint( $this->subscriptions_endpoint, EP_ROOT | EP_PAGES );
 		flush_rewrite_rules();
 	}
 
@@ -257,15 +264,13 @@ class MyAccount {
 	 * @return array
 	 */
 	public function custom_my_account_menu_items( array $items ): array {
-		$subscriptions_endpoint = Subscription::get_user_endpoint( 'subs_list' );
-
 		// Check if subscriptions menu item already exists to prevent duplicates
-		if ( ! isset( $items[ $subscriptions_endpoint ] ) ) {
+		if ( ! isset( $items[ $this->subscriptions_endpoint ] ) ) {
 			$logout = $items['customer-logout'];
 			unset( $items['customer-logout'] );
 
-			$items[ $subscriptions_endpoint ] = __( 'Subscriptions', 'wp_subscription' );
-			$items['customer-logout']         = $logout;
+			$items[ $this->subscriptions_endpoint ] = __( 'Subscriptions', 'wp_subscription' );
+			$items['customer-logout']               = $logout;
 		}
 		return $items;
 	}
