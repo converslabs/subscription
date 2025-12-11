@@ -3,6 +3,7 @@
 namespace SpringDevs\Subscription\Frontend;
 
 use SpringDevs\Subscription\Illuminate\Helper;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 
 // HPOS: This file is compatible with WooCommerce High-Performance Order Storage (HPOS).
 // All WooCommerce order data is accessed via WooCommerce CRUD methods (wc_get_order, wc_get_order_item_meta, etc.).
@@ -26,11 +27,18 @@ class MyAccount {
 		// Add My Subscriptions menu item.
 		add_filter( 'woocommerce_account_menu_items', array( $this, 'custom_my_account_menu_items' ), 200 );
 
-		add_filter( 'woocommerce_endpoint_view-subscription_title', array( $this, 'change_single_title' ) );
-		add_filter( 'document_title_parts', array( $this, 'change_subscriptions_seo_title' ) );
+		// Add subscription url endpoints to query vars.
 		add_filter( 'woocommerce_get_query_vars', array( $this, 'custom_query_vars' ) );
+
+		// Subscription EndPoint Content.
+		$subscriptions_endpoint = Subscription::get_user_endpoint( 'subs_list' );
+		add_action( "woocommerce_account_{$subscriptions_endpoint}_endpoint", array( $this, 'subscrpt_endpoint_content' ) );
+
+		// Subscription page titles
+		add_filter( "woocommerce_endpoint_{$subscriptions_endpoint}_title", array( $this, 'change_subscriptions_title' ) );
+		add_filter( 'woocommerce_endpoint_view-subscription_title', array( $this, 'change_single_subscription_title' ) );
+
 		add_action( 'woocommerce_account_view-subscription_endpoint', array( $this, 'view_subscrpt_content' ) );
-		add_action( 'woocommerce_account_subscriptions_endpoint', array( $this, 'subscrpt_endpoint_content' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 	}
 
@@ -42,6 +50,9 @@ class MyAccount {
 	 * @return array
 	 */
 	public function custom_query_vars( array $query_vars ): array {
+		$subscriptions_endpoint                = Subscription::get_user_endpoint( 'subs_list' );
+		$query_vars[ $subscriptions_endpoint ] = $subscriptions_endpoint;
+
 		$query_vars['view-subscription'] = 'view-subscription';
 		return $query_vars;
 	}
@@ -209,8 +220,21 @@ class MyAccount {
 	 * Re-write flush
 	 */
 	public function flush_rewrite_rules() {
-		add_rewrite_endpoint( 'subscriptions', EP_ROOT | EP_PAGES );
+		$subscriptions_endpoint = Subscription::get_user_endpoint( 'subs_list' );
+		add_rewrite_endpoint( $subscriptions_endpoint, EP_ROOT | EP_PAGES );
 		flush_rewrite_rules();
+	}
+
+	/**
+	 * Change All Subscriptions Title
+	 *
+	 * @param string $title Title.
+	 *
+	 * @return string
+	 */
+	public function change_subscriptions_title( string $title ): string {
+		$title = __( 'My Subscriptions', 'wp_subscription' );
+		return $title;
 	}
 
 	/**
@@ -220,31 +244,10 @@ class MyAccount {
 	 *
 	 * @return string
 	 */
-	public function change_single_title( string $title ): string {
+	public function change_single_subscription_title( string $title ): string {
 		/* translators: %s: Subscription ID */
-		return sprintf( __( 'Subscription #%s', 'wp_subscription' ), get_query_var( 'view-subscription' ) );
-	}
-
-	/**
-	 * Change Subscription Lists SEO Meta Title
-	 *
-	 * @param array $title_parts Array of title parts.
-	 *
-	 * @return array
-	 */
-	public function change_subscriptions_seo_title( array $title_parts ): array {
-		global $wp_query;
-
-		// Only apply on the subscriptions endpoint page
-		$is_subscriptions_endpoint = isset( $wp_query->query_vars['subscriptions'] ) &&
-										is_account_page() &&
-										! is_admin();
-
-		if ( $is_subscriptions_endpoint ) {
-			$title_parts['title'] = __( 'My Subscriptions', 'wp_subscription' );
-		}
-
-		return $title_parts;
+		$title = sprintf( __( 'Subscription #%s', 'wp_subscription' ), get_query_var( 'view-subscription' ) );
+		return $title;
 	}
 
 	/**
@@ -254,12 +257,15 @@ class MyAccount {
 	 * @return array
 	 */
 	public function custom_my_account_menu_items( array $items ): array {
+		$subscriptions_endpoint = Subscription::get_user_endpoint( 'subs_list' );
+
 		// Check if subscriptions menu item already exists to prevent duplicates
-		if ( ! isset( $items['subscriptions'] ) ) {
+		if ( ! isset( $items[ $subscriptions_endpoint ] ) ) {
 			$logout = $items['customer-logout'];
 			unset( $items['customer-logout'] );
-			$items['subscriptions']   = __( 'Subscriptions', 'wp_subscription' );
-			$items['customer-logout'] = $logout;
+
+			$items[ $subscriptions_endpoint ] = __( 'Subscriptions', 'wp_subscription' );
+			$items['customer-logout']         = $logout;
 		}
 		return $items;
 	}

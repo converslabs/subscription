@@ -19,42 +19,26 @@ class Subscription {
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_filter( 'woocommerce_get_settings_advanced', [ $this, 'add_subscription_permalink_settings' ] );
 	}
 
 	/**
-	 * Add subscription permalink settings to WooCommerce settings.
+	 * Get subscription endpoint.
 	 *
-	 * @param array $settings Existing WooCommerce advanced settings.
+	 * @param string $view View type.
+	 * @return string
 	 */
-	public function add_subscription_permalink_settings( $settings ) {
-		$subscription_settings = [
-			[
-				'title' => __( 'Subscription Endpoints', 'wp_subscription' ),
-				'type'  => 'title',
-				'desc'  => __( 'Configure the permalinks for WPSubscription\'s subscription-related pages.', 'wp_subscription' ),
-				'id'    => 'wpsubs_permalinks_options',
-			],
-			[
-				'title'    => __( 'Subscriptions', 'wp_subscription' ),
-				'id'       => 'wpsubs_custom_subscriptions_endpoint',
-				'type'     => 'text',
-				'default'  => 'subscription',
-				'desc_tip' => __( 'Endpoint for the "my-account -> subscriptions" page.', 'wp_subscription' ),
-			],
-			[
-				'title'    => __( 'View Subscription', 'wp_subscription' ),
-				'id'       => 'wpsubs_custom_view_subscription_endpoint',
-				'type'     => 'text',
-				'default'  => 'view-subscription',
-				'desc_tip' => __( 'Endpoint for the "my-account -> subscriptions -> view-subscription" page.', 'wp_subscription' ),
-			],
-			[
-				'type' => 'sectionend',
-				'id'   => 'wpsubs_permalinks_options',
-			],
-		];
+	public static function get_user_endpoint( string $view = 'subs_list' ) {
+		switch ( strtolower( $view ) ) {
+			case 'view_subs':
+				$endpoint = get_option( 'wpsubs_custom_view_subscription_endpoint', 'view-subscription' );
+				break;
 
-		return array_merge( $settings, $subscription_settings );
+			case 'subs_list':
+			default:
+				$endpoint = get_option( 'wpsubs_custom_subscriptions_endpoint', 'subscriptions' );
+				break;
+		}
+
+		return untrailingslashit( $endpoint );
 	}
 }
