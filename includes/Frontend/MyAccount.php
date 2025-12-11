@@ -23,13 +23,21 @@ class MyAccount {
 	 */
 	private $subscriptions_endpoint = 'subscriptions';
 
+	/**
+	 * View Subscriptions endpoint slug.
+	 *
+	 * @var string
+	 */
+	private $view_subscriptions_endpoint = 'view-subscription';
+
 
 	/**
 	 * Initialize the class
 	 */
 	public function __construct() {
 		// Assign endpoint slug from settings.
-		$this->subscriptions_endpoint = Subscription::get_user_endpoint( 'subs_list' );
+		$this->subscriptions_endpoint      = Subscription::get_user_endpoint( 'subs_list' );
+		$this->view_subscriptions_endpoint = Subscription::get_user_endpoint( 'view_subs' );
 
 		// Flush rewrite rules on init.
 		add_action( 'init', array( $this, 'flush_rewrite_rules' ) );
@@ -42,12 +50,12 @@ class MyAccount {
 
 		// Subscription EndPoint Content.
 		add_action( "woocommerce_account_{$this->subscriptions_endpoint}_endpoint", array( $this, 'subscrpt_endpoint_content' ) );
+		add_action( "woocommerce_account_{$this->view_subscriptions_endpoint}_endpoint", array( $this, 'view_subscrpt_content' ) );
 
 		// Subscription page titles
 		add_filter( "woocommerce_endpoint_{$this->subscriptions_endpoint}_title", array( $this, 'change_subscriptions_title' ) );
-		add_filter( 'woocommerce_endpoint_view-subscription_title', array( $this, 'change_single_subscription_title' ) );
+		add_filter( "woocommerce_endpoint_{$this->view_subscriptions_endpoint}_title", array( $this, 'change_single_subscription_title' ) );
 
-		add_action( 'woocommerce_account_view-subscription_endpoint', array( $this, 'view_subscrpt_content' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 	}
 
@@ -59,9 +67,9 @@ class MyAccount {
 	 * @return array
 	 */
 	public function custom_query_vars( array $query_vars ): array {
-		$query_vars[ $this->subscriptions_endpoint ] = $this->subscriptions_endpoint;
+		$query_vars[ $this->subscriptions_endpoint ]      = $this->subscriptions_endpoint;
+		$query_vars[ $this->view_subscriptions_endpoint ] = $this->view_subscriptions_endpoint;
 
-		$query_vars['view-subscription'] = 'view-subscription';
 		return $query_vars;
 	}
 
@@ -252,8 +260,10 @@ class MyAccount {
 	 * @return string
 	 */
 	public function change_single_subscription_title( string $title ): string {
+		$subs_id = get_query_var( $this->view_subscriptions_endpoint, 0 );
+
 		/* translators: %s: Subscription ID */
-		$title = sprintf( __( 'Subscription #%s', 'wp_subscription' ), get_query_var( 'view-subscription' ) );
+		$title = sprintf( __( 'Subscription #%s', 'wp_subscription' ), $subs_id );
 		return $title;
 	}
 
