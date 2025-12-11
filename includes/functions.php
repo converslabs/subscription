@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 use SpringDevs\Subscription\Utils\Product;
 use SpringDevs\Subscription\Utils\ProductFactory;
 use SpringDevs\Subscription\Utils\SubscriptionProduct;
@@ -28,13 +29,14 @@ function subscrpt_include_tailwind_css() {
  * @return string
  */
 function subscrpt_get_action_url( $action, $nonce, $subscription_id ) {
+	$view_subscription_endpoint = Subscription::get_user_endpoint( 'view_subs' );
 	return add_query_arg(
 		array(
 			'subscrpt_id' => $subscription_id,
 			'action'      => $action,
 			'wpnonce'     => $nonce,
 		),
-		wc_get_endpoint_url( 'view-subscription', $subscription_id, wc_get_page_permalink( 'myaccount' ) )
+		wc_get_endpoint_url( $view_subscription_endpoint, $subscription_id, wc_get_page_permalink( 'myaccount' ) )
 	);
 }
 

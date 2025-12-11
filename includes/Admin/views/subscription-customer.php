@@ -5,6 +5,11 @@
  * @package wp_subscription
  */
 
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
+
+$view_subs_endpoint = Subscription::get_user_endpoint( 'view_subs' );
+$subs_frontend_url  = wc_get_endpoint_url( $view_subs_endpoint, get_the_ID(), wc_get_page_permalink( 'myaccount' ) );
+
 ?>
 
 <style>
@@ -118,7 +123,7 @@
 			<a class="button button-primary" target="_blank" href="<?php echo esc_url( $order->get_edit_order_url() ); ?>">
 				<?php esc_html_e( 'View Order', 'wp_subscription' ); ?>
 			</a>
-			<a class="button button-secondary" target="_blank" href="<?php echo esc_url( wc_get_endpoint_url( 'view-subscription', get_the_ID(), wc_get_page_permalink( 'myaccount' ) ) ); ?>">
+			<a class="button button-secondary" target="_blank" href="<?php echo esc_url( $subs_frontend_url ); ?>">
 				<?php esc_html_e( 'View Frontend', 'wp_subscription' ); ?>
 			</a>
 		</div>

@@ -5,6 +5,7 @@ namespace SpringDevs\Subscription\Frontend;
 
 use SpringDevs\Subscription\Illuminate\Action;
 use SpringDevs\Subscription\Illuminate\Helper;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 
 /**
  * Class ActionController
@@ -34,12 +35,15 @@ class ActionController {
 			wp_die( esc_html( __( 'Sorry !! You cannot permit to access.', 'wp_subscription' ) ) );
 		}
 
+		// Get view subscription endpoint slug.
+		$view_subs_endpoint = Subscription::get_user_endpoint( 'view_subs' );
+
 		// Check maximum payment limit for renewal-related actions (including early renewal)
 		$renewal_actions = apply_filters( 'subscrpt_renewal_actions', array( 'renew', 'renew-on', 'early-renew' ) );
 		if ( in_array( $action, $renewal_actions, true ) && subscrpt_is_max_payments_reached( $subscrpt_id ) ) {
 			wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'wp_subscription' ), 'error' );
 			// phpcs:ignore
-			echo ( "<script>location.href = '" . wc_get_endpoint_url( 'view-subscription', $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
+			echo ( "<script>location.href = '" . wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
 			return;
 		}
 
@@ -69,14 +73,14 @@ class ActionController {
 				( strpos( $action, 'renew' ) !== false || strpos( $action, 'renewal' ) !== false ) ) {
 				wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'wp_subscription' ), 'error' );
 				// phpcs:ignore
-				echo ( "<script>location.href = '" . wc_get_endpoint_url( 'view-subscription', $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
+				echo ( "<script>location.href = '" . wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
 				return;
 			}
 
 			do_action( 'subscrpt_execute_actions', $subscrpt_id, $action );
 		}
 		// phpcs:ignore
-		echo ( "<script>location.href = '" . wc_get_endpoint_url( 'view-subscription', $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
+		echo ( "<script>location.href = '" . wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
 	}
 
 	/**

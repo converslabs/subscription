@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 use SpringDevs\Subscription\Illuminate\Helper;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 ?>
 
 <table class="woocommerce-orders-table woocommerce-MyAccount-orders shop_table shop_table_responsive my_account_orders account-orders-table my_account_subscrpt">
@@ -73,7 +74,8 @@ use SpringDevs\Subscription\Illuminate\Helper;
 
 				$my_account_page_id = get_option( 'woocommerce_myaccount_page_id' );
 				$my_account_url     = get_permalink( $my_account_page_id );
-				$view_sub_url       = wc_get_endpoint_url( 'view-subscription', get_the_ID(), $my_account_url );
+				$view_sub_endpoint  = Subscription::get_user_endpoint( 'view_subs' );
+				$view_sub_url       = wc_get_endpoint_url( $view_sub_endpoint, get_the_ID(), $my_account_url );
 				?>
 
 				<tr>

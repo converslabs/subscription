@@ -3,6 +3,7 @@
 namespace SpringDevs\Subscription\Frontend;
 
 use SpringDevs\Subscription\Illuminate\Helper;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 
 // HPOS: This file is compatible with WooCommerce High-Performance Order Storage (HPOS).
 // All WooCommerce order data is accessed via WooCommerce CRUD methods (wc_get_order, wc_get_order_item_meta, etc.).
@@ -15,22 +16,46 @@ use SpringDevs\Subscription\Illuminate\Helper;
  * @package SpringDevs\Subscription\Frontend
  */
 class MyAccount {
+	/**
+	 * Subscriptions endpoint slug.
+	 *
+	 * @var string
+	 */
+	private $subscriptions_endpoint = 'subscriptions';
+
+	/**
+	 * View Subscriptions endpoint slug.
+	 *
+	 * @var string
+	 */
+	private $view_subscriptions_endpoint = 'view-subscription';
 
 
 	/**
 	 * Initialize the class
 	 */
 	public function __construct() {
+		// Assign endpoint slug from settings.
+		$this->subscriptions_endpoint      = Subscription::get_user_endpoint( 'subs_list' );
+		$this->view_subscriptions_endpoint = Subscription::get_user_endpoint( 'view_subs' );
+
+		// Flush rewrite rules on init.
 		add_action( 'init', array( $this, 'flush_rewrite_rules' ) );
 
 		// Add My Subscriptions menu item.
 		add_filter( 'woocommerce_account_menu_items', array( $this, 'custom_my_account_menu_items' ), 200 );
 
-		add_filter( 'woocommerce_endpoint_view-subscription_title', array( $this, 'change_single_title' ) );
-		add_filter( 'document_title_parts', array( $this, 'change_subscriptions_seo_title' ) );
+		// Add subscription url endpoints to query vars.
 		add_filter( 'woocommerce_get_query_vars', array( $this, 'custom_query_vars' ) );
-		add_action( 'woocommerce_account_view-subscription_endpoint', array( $this, 'view_subscrpt_content' ) );
-		add_action( 'woocommerce_account_subscriptions_endpoint', array( $this, 'subscrpt_endpoint_content' ) );
+
+		// Subscription EndPoint Content.
+		add_action( "woocommerce_account_{$this->subscriptions_endpoint}_endpoint", array( $this, 'subscrpt_endpoint_content' ) );
+		add_action( "woocommerce_account_{$this->view_subscriptions_endpoint}_endpoint", array( $this, 'view_subscrpt_content' ) );
+
+		// Subscription page titles
+		add_filter( "woocommerce_endpoint_{$this->subscriptions_endpoint}_title", array( $this, 'change_subscriptions_title' ) );
+		add_filter( "woocommerce_endpoint_{$this->view_subscriptions_endpoint}_title", array( $this, 'change_single_subscription_title' ) );
+
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 	}
 
@@ -42,7 +67,9 @@ class MyAccount {
 	 * @return array
 	 */
 	public function custom_query_vars( array $query_vars ): array {
-		$query_vars['view-subscription'] = 'view-subscription';
+		$query_vars[ $this->subscriptions_endpoint ]      = $this->subscriptions_endpoint;
+		$query_vars[ $this->view_subscriptions_endpoint ] = $this->view_subscriptions_endpoint;
+
 		return $query_vars;
 	}
 
@@ -209,8 +236,20 @@ class MyAccount {
 	 * Re-write flush
 	 */
 	public function flush_rewrite_rules() {
-		add_rewrite_endpoint( 'subscriptions', EP_ROOT | EP_PAGES );
+		add_rewrite_endpoint( $this->subscriptions_endpoint, EP_ROOT | EP_PAGES );
 		flush_rewrite_rules();
+	}
+
+	/**
+	 * Change All Subscriptions Title
+	 *
+	 * @param string $title Title.
+	 *
+	 * @return string
+	 */
+	public function change_subscriptions_title( string $title ): string {
+		$title = __( 'My Subscriptions', 'wp_subscription' );
+		return $title;
 	}
 
 	/**
@@ -220,31 +259,12 @@ class MyAccount {
 	 *
 	 * @return string
 	 */
-	public function change_single_title( string $title ): string {
+	public function change_single_subscription_title( string $title ): string {
+		$subs_id = get_query_var( $this->view_subscriptions_endpoint, 0 );
+
 		/* translators: %s: Subscription ID */
-		return sprintf( __( 'Subscription #%s', 'wp_subscription' ), get_query_var( 'view-subscription' ) );
-	}
-
-	/**
-	 * Change Subscription Lists SEO Meta Title
-	 *
-	 * @param array $title_parts Array of title parts.
-	 *
-	 * @return array
-	 */
-	public function change_subscriptions_seo_title( array $title_parts ): array {
-		global $wp_query;
-
-		// Only apply on the subscriptions endpoint page
-		$is_subscriptions_endpoint = isset( $wp_query->query_vars['subscriptions'] ) &&
-										is_account_page() &&
-										! is_admin();
-
-		if ( $is_subscriptions_endpoint ) {
-			$title_parts['title'] = __( 'My Subscriptions', 'wp_subscription' );
-		}
-
-		return $title_parts;
+		$title = sprintf( __( 'Subscription #%s', 'wp_subscription' ), $subs_id );
+		return $title;
 	}
 
 	/**
@@ -255,11 +275,12 @@ class MyAccount {
 	 */
 	public function custom_my_account_menu_items( array $items ): array {
 		// Check if subscriptions menu item already exists to prevent duplicates
-		if ( ! isset( $items['subscriptions'] ) ) {
+		if ( ! isset( $items[ $this->subscriptions_endpoint ] ) ) {
 			$logout = $items['customer-logout'];
 			unset( $items['customer-logout'] );
-			$items['subscriptions']   = __( 'Subscriptions', 'wp_subscription' );
-			$items['customer-logout'] = $logout;
+
+			$items[ $this->subscriptions_endpoint ] = __( 'Subscriptions', 'wp_subscription' );
+			$items['customer-logout']               = $logout;
 		}
 		return $items;
 	}

@@ -7,6 +7,7 @@
  * @var string $product_name Product name.
  * @var int $qty Subscription Quantity.
  * @var string $amount Subscription Amount with price format.
+ * @var string $view_subscription_url Subscription view URL.
  * @var int $num_of_days_before Number of days before.
  */
 
@@ -53,9 +54,9 @@ echo esc_html(
 	echo wp_kses_post(
 		make_clickable(
 			sprintf(
-			// translators: subscription id.
+				// translators: subscription url.
 				__( 'You can view the subscription here: %s', 'wp_subscription' ),
-				wc_get_endpoint_url( 'view-subscription', $id, wc_get_page_permalink( 'myaccount' ) )
+				$view_subscription_url
 			)
 		)
 	);
