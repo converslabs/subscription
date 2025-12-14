@@ -1,5 +1,9 @@
 *** WPSubscription Changelog ***
 
+2025-12-14 - version 1.8.11
+* fix: My subscriptions & view-subscription links.
+* fix: Subscription links in emails.
+
 2025-12-09 - version 1.8.10
 * new: Added beta badge in the integrations list.
 * fix: Subscription switch action.
@@ -19,7 +23,6 @@
 * fix: Cart warning messages.
 * fix: Two-way add to cart check (sub <=> non-sub).
 * improved: Settings page.
-* dev: Made settings modular and can be added from anywhere.
 
 2025-11-16 - version 1.8.6
 * fix: Guest checkout account creation error.

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-09T08:24:31+00:00\n"
+"POT-Creation-Date: 2025-12-14T05:43:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp_subscription\n"
@@ -66,7 +66,7 @@ msgstr ""
 #: includes/Admin/Menu.php:76
 #: includes/Admin/Menu.php:77
 #: includes/Admin/Menu.php:150
-#: includes/Frontend/MyAccount.php:261
+#: includes/Frontend/MyAccount.php:282
 #: includes/Illuminate/Post.php:58
 #: includes/Illuminate/Post.php:64
 #: includes/Illuminate/Post.php:78
@@ -183,7 +183,7 @@ msgstr ""
 #: includes/Admin/Product.php:76
 #: includes/Admin/Product.php:105
 #: includes/Illuminate/Post.php:59
-#: templates/myaccount/subscriptions.php:21
+#: templates/myaccount/subscriptions.php:22
 msgid "Subscription"
 msgstr ""
 
@@ -297,7 +297,7 @@ msgid "Start Date"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:115
-#: includes/Admin/views/subscription-customer.php:76
+#: includes/Admin/views/subscription-customer.php:81
 msgid "Customer"
 msgstr ""
 
@@ -313,7 +313,7 @@ msgstr ""
 #: includes/Frontend/Order.php:87
 #: templates/myaccount/single.php:53
 #: templates/myaccount/single.php:343
-#: templates/myaccount/subscriptions.php:22
+#: templates/myaccount/subscriptions.php:23
 msgid "Status"
 msgstr ""
 
@@ -361,12 +361,12 @@ msgstr ""
 #: includes/Admin/Subscriptions.php:355
 #: includes/Admin/Subscriptions.php:544
 #: includes/Admin/views/related-subscriptions.php:21
-#: templates/emails/renew-reminder-html.php:37
-#: templates/emails/status-changed-admin-html.php:31
-#: templates/emails/subscription-cancelled-html.php:30
-#: templates/emails/subscription-expired-html.php:34
+#: templates/emails/renew-reminder-html.php:38
+#: templates/emails/status-changed-admin-html.php:32
+#: templates/emails/subscription-cancelled-html.php:31
+#: templates/emails/subscription-expired-html.php:35
 #: templates/myaccount/single.php:274
-#: templates/myaccount/subscriptions.php:23
+#: templates/myaccount/subscriptions.php:24
 msgid "Product"
 msgstr ""
 
@@ -375,10 +375,10 @@ msgid "Cost"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:363
-#: templates/emails/renew-reminder-html.php:41
-#: templates/emails/status-changed-admin-html.php:35
-#: templates/emails/subscription-cancelled-html.php:34
-#: templates/emails/subscription-expired-html.php:38
+#: templates/emails/renew-reminder-html.php:42
+#: templates/emails/status-changed-admin-html.php:36
+#: templates/emails/subscription-cancelled-html.php:35
+#: templates/emails/subscription-expired-html.php:39
 msgid "Qty"
 msgstr ""
 
@@ -403,22 +403,22 @@ msgstr ""
 
 #: includes/Admin/Subscriptions.php:394
 #: includes/Admin/Subscriptions.php:555
-#: includes/Admin/views/subscription-customer.php:99
+#: includes/Admin/views/subscription-customer.php:104
 msgid "Billing"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:395
-#: includes/Admin/views/subscription-customer.php:102
+#: includes/Admin/views/subscription-customer.php:107
 msgid "No billing address set."
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:398
-#: includes/Admin/views/subscription-customer.php:108
+#: includes/Admin/views/subscription-customer.php:113
 msgid "Shipping"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:399
-#: includes/Admin/views/subscription-customer.php:111
+#: includes/Admin/views/subscription-customer.php:116
 msgid "No shipping address set."
 msgstr ""
 
@@ -453,7 +453,7 @@ msgstr ""
 #: includes/Admin/views/subscription-list.php:162
 #: includes/Frontend/Order.php:97
 #: templates/myaccount/single.php:62
-#: templates/myaccount/subscriptions.php:90
+#: templates/myaccount/subscriptions.php:92
 #, php-format
 msgid "%d days remaining!"
 msgstr ""
@@ -480,7 +480,7 @@ msgid "Started"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:599
-#: templates/myaccount/subscriptions.php:24
+#: templates/myaccount/subscriptions.php:25
 msgid "Next Payment"
 msgstr ""
 
@@ -653,7 +653,7 @@ msgstr ""
 #: includes/Admin/views/order-history.php:23
 #: templates/myaccount/single.php:275
 #: templates/myaccount/single.php:344
-#: templates/myaccount/subscriptions.php:25
+#: templates/myaccount/subscriptions.php:26
 msgid "Total"
 msgstr ""
 
@@ -782,11 +782,11 @@ msgstr ""
 msgid "Renewal Price"
 msgstr ""
 
-#: includes/Admin/views/subscription-customer.php:119
+#: includes/Admin/views/subscription-customer.php:124
 msgid "View Order"
 msgstr ""
 
-#: includes/Admin/views/subscription-customer.php:122
+#: includes/Admin/views/subscription-customer.php:127
 msgid "View Frontend"
 msgstr ""
 
@@ -926,12 +926,12 @@ msgstr ""
 msgid "Installing Plugin: %s"
 msgstr ""
 
-#: includes/Frontend/ActionController.php:34
+#: includes/Frontend/ActionController.php:35
 msgid "Sorry !! You cannot permit to access."
 msgstr ""
 
-#: includes/Frontend/ActionController.php:40
-#: includes/Frontend/ActionController.php:70
+#: includes/Frontend/ActionController.php:44
+#: includes/Frontend/ActionController.php:74
 #: includes/Frontend/Cart.php:494
 msgid "This subscription has reached its maximum payment limit and cannot be renewed further."
 msgstr ""
@@ -1024,40 +1024,40 @@ msgstr ""
 msgid "times."
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:104
+#: includes/Frontend/MyAccount.php:131
 msgid "Cancel"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:113
+#: includes/Frontend/MyAccount.php:140
 msgid "Reactive"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:123
+#: includes/Frontend/MyAccount.php:150
 #: includes/Frontend/Product.php:249
 #: templates/myaccount/single.php:323
 msgid "Renew"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:134
+#: includes/Frontend/MyAccount.php:161
 msgid "Pay now"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:153
+#: includes/Frontend/MyAccount.php:180
 msgid "Turn on Auto Renewal"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:161
+#: includes/Frontend/MyAccount.php:188
 msgid "Turn off Auto Renewal"
 msgstr ""
 
-#. translators: %s: Subscription ID
-#: includes/Frontend/MyAccount.php:225
-#, php-format
-msgid "Subscription #%s"
+#: includes/Frontend/MyAccount.php:251
+msgid "My Subscriptions"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:244
-msgid "My Subscriptions"
+#. translators: %s: Subscription ID
+#: includes/Frontend/MyAccount.php:266
+#, php-format
+msgid "Subscription #%s"
 msgstr ""
 
 #: includes/Frontend/Order.php:77
@@ -1083,68 +1083,68 @@ msgstr ""
 msgid "You Already Subscribed These Product!"
 msgstr ""
 
-#: includes/functions.php:44
+#: includes/functions.php:46
 #: includes/Illuminate/Helper.php:28
 msgid "day"
 msgstr ""
 
-#: includes/functions.php:46
+#: includes/functions.php:48
 #: includes/Illuminate/Helper.php:30
 msgid "week"
 msgstr ""
 
-#: includes/functions.php:48
+#: includes/functions.php:50
 #: includes/Illuminate/Helper.php:32
 msgid "month"
 msgstr ""
 
-#: includes/functions.php:50
+#: includes/functions.php:52
 #: includes/Illuminate/Helper.php:34
 msgid "year"
 msgstr ""
 
-#: includes/functions.php:412
+#: includes/functions.php:414
 msgid "New Subscription Order"
 msgstr ""
 
-#: includes/functions.php:413
+#: includes/functions.php:415
 #: includes/Illuminate/Helper.php:376
 msgid "Renewal Order"
 msgstr ""
 
-#: includes/functions.php:489
+#: includes/functions.php:491
 msgid "Day"
 msgstr ""
 
-#: includes/functions.php:493
+#: includes/functions.php:495
 msgid "Week"
 msgstr ""
 
-#: includes/functions.php:497
+#: includes/functions.php:499
 msgid "Month"
 msgstr ""
 
-#: includes/functions.php:501
+#: includes/functions.php:503
 msgid "Year"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/functions.php:567
+#: includes/functions.php:569
 #, php-format
 msgid "Split payment plan completed successfully! %1$d of %2$d payments received."
 msgstr ""
 
-#: includes/functions.php:581
+#: includes/functions.php:583
 msgid "Split Payment - Plan Complete"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments, %3$s: completion date
-#: includes/functions.php:587
+#: includes/functions.php:589
 #, php-format
 msgid "Payment Summary: %1$d of %2$d installments completed on %3$s. All payments received successfully."
 msgstr ""
 
-#: includes/functions.php:601
+#: includes/functions.php:603
 msgid "Payment Summary - Complete"
 msgstr ""
 
@@ -1711,98 +1711,98 @@ msgstr ""
 msgid "Recurring amount:"
 msgstr ""
 
-#: includes/Traits/Email.php:95
+#: includes/Traits/Email.php:96
 msgid "Subscription: #{subscription_id}"
 msgstr ""
 
 #. translators: Number of days before & day|days.
-#: templates/emails/plains/renew-reminder-plain.php:16
-#: templates/emails/renew-reminder-html.php:22
+#: templates/emails/plains/renew-reminder-plain.php:17
+#: templates/emails/renew-reminder-html.php:23
 #, php-format
 msgid "You have only %1$s %2$s left! Please renew the subscription before expired"
 msgstr ""
 
 #. translators: Subscription id.
-#: templates/emails/plains/renew-reminder-plain.php:23
-#: templates/emails/plains/status-changed-admin-plain.php:25
-#: templates/emails/plains/subscription-cancelled-plain.php:22
-#: templates/emails/plains/subscription-expired-plain.php:22
+#: templates/emails/plains/renew-reminder-plain.php:24
+#: templates/emails/plains/status-changed-admin-plain.php:26
+#: templates/emails/plains/subscription-cancelled-plain.php:23
+#: templates/emails/plains/subscription-expired-plain.php:23
 #, php-format
 msgid "Subscription Id: %s"
 msgstr ""
 
 #. translators: Product name.
-#: templates/emails/plains/renew-reminder-plain.php:26
-#: templates/emails/plains/status-changed-admin-plain.php:28
-#: templates/emails/plains/subscription-cancelled-plain.php:25
-#: templates/emails/plains/subscription-expired-plain.php:25
+#: templates/emails/plains/renew-reminder-plain.php:27
+#: templates/emails/plains/status-changed-admin-plain.php:29
+#: templates/emails/plains/subscription-cancelled-plain.php:26
+#: templates/emails/plains/subscription-expired-plain.php:26
 #, php-format
 msgid "Product: %s"
 msgstr ""
 
 #. translators: Subscription quantity.
-#: templates/emails/plains/renew-reminder-plain.php:29
-#: templates/emails/plains/status-changed-admin-plain.php:31
-#: templates/emails/plains/subscription-cancelled-plain.php:28
-#: templates/emails/plains/subscription-expired-plain.php:28
+#: templates/emails/plains/renew-reminder-plain.php:30
+#: templates/emails/plains/status-changed-admin-plain.php:32
+#: templates/emails/plains/subscription-cancelled-plain.php:29
+#: templates/emails/plains/subscription-expired-plain.php:29
 #, php-format
 msgid "Qty: %s"
 msgstr ""
 
 #. translators: Subscription amount.
-#: templates/emails/plains/renew-reminder-plain.php:32
-#: templates/emails/plains/status-changed-admin-plain.php:34
-#: templates/emails/plains/subscription-cancelled-plain.php:31
-#: templates/emails/plains/subscription-expired-plain.php:31
+#: templates/emails/plains/renew-reminder-plain.php:33
+#: templates/emails/plains/status-changed-admin-plain.php:35
+#: templates/emails/plains/subscription-cancelled-plain.php:32
+#: templates/emails/plains/subscription-expired-plain.php:32
 #, php-format
 msgid "Amount: %s"
 msgstr ""
 
-#. translators: subscription id.
-#: templates/emails/plains/renew-reminder-plain.php:41
-#: templates/emails/plains/status-changed-admin-plain.php:43
-#: templates/emails/plains/subscription-cancelled-plain.php:40
-#: templates/emails/plains/subscription-expired-plain.php:40
-#: templates/emails/renew-reminder-html.php:57
-#: templates/emails/status-changed-admin-html.php:51
-#: templates/emails/subscription-cancelled-html.php:50
-#: templates/emails/subscription-expired-html.php:54
+#. translators: subscription url.
+#: templates/emails/plains/renew-reminder-plain.php:42
+#: templates/emails/plains/status-changed-admin-plain.php:44
+#: templates/emails/plains/subscription-cancelled-plain.php:41
+#: templates/emails/plains/subscription-expired-plain.php:41
+#: templates/emails/renew-reminder-html.php:58
+#: templates/emails/status-changed-admin-html.php:52
+#: templates/emails/subscription-cancelled-html.php:51
+#: templates/emails/subscription-expired-html.php:55
 #, php-format
 msgid "You can view the subscription here: %s"
 msgstr ""
 
 #. translators: first is older status and last is newly updated status.
-#: templates/emails/plains/status-changed-admin-plain.php:18
-#: templates/emails/status-changed-admin-html.php:16
+#: templates/emails/plains/status-changed-admin-plain.php:19
+#: templates/emails/status-changed-admin-html.php:17
 #, php-format
 msgid "Subscription status changed from %1$s to %2$s"
 msgstr ""
 
 #. translators: <b></b> tag.
-#: templates/emails/plains/subscription-cancelled-plain.php:15
-#: templates/emails/subscription-cancelled-html.php:19
+#: templates/emails/plains/subscription-cancelled-plain.php:16
+#: templates/emails/subscription-cancelled-html.php:20
 #, php-format
 msgid "Your subscription is %1$s Cancelled! %2$s"
 msgstr ""
 
 #. translators: <b></b> tag.
-#: templates/emails/plains/subscription-expired-plain.php:15
-#: templates/emails/subscription-expired-html.php:23
+#: templates/emails/plains/subscription-expired-plain.php:16
+#: templates/emails/subscription-expired-html.php:24
 #, php-format
 msgid "Your subscription is %1$s Expired! %2$s"
 msgstr ""
 
-#: templates/emails/renew-reminder-html.php:33
-#: templates/emails/status-changed-admin-html.php:27
-#: templates/emails/subscription-cancelled-html.php:26
-#: templates/emails/subscription-expired-html.php:30
+#: templates/emails/renew-reminder-html.php:34
+#: templates/emails/status-changed-admin-html.php:28
+#: templates/emails/subscription-cancelled-html.php:27
+#: templates/emails/subscription-expired-html.php:31
 msgid "Subscription Id"
 msgstr ""
 
-#: templates/emails/renew-reminder-html.php:45
-#: templates/emails/status-changed-admin-html.php:39
-#: templates/emails/subscription-cancelled-html.php:38
-#: templates/emails/subscription-expired-html.php:42
+#: templates/emails/renew-reminder-html.php:46
+#: templates/emails/status-changed-admin-html.php:40
+#: templates/emails/subscription-cancelled-html.php:39
+#: templates/emails/subscription-expired-html.php:43
 msgid "Amount"
 msgstr ""
 
@@ -1838,19 +1838,19 @@ msgstr ""
 msgid "Billing address"
 msgstr ""
 
-#: templates/myaccount/subscriptions.php:117
+#: templates/myaccount/subscriptions.php:119
 msgid "View"
 msgstr ""
 
-#: templates/myaccount/subscriptions.php:129
+#: templates/myaccount/subscriptions.php:131
 msgid "No subscriptions available yet."
 msgstr ""
 
-#: templates/myaccount/subscriptions.php:142
+#: templates/myaccount/subscriptions.php:144
 msgid "Previous"
 msgstr ""
 
-#: templates/myaccount/subscriptions.php:146
+#: templates/myaccount/subscriptions.php:148
 msgid "Next"
 msgstr ""
 
