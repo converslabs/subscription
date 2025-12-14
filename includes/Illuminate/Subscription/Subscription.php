@@ -28,14 +28,18 @@ class Subscription {
 	 * @return string
 	 */
 	public static function get_user_endpoint( string $view = 'subs_list' ) {
+		$is_pro = subscrpt_pro_activated();
+
 		switch ( strtolower( $view ) ) {
 			case 'view_subs':
-				$endpoint = get_option( 'wpsubs_custom_view_subscription_endpoint', 'view-subscription' );
+				$default_endpoint = 'view-subscription';
+				$endpoint         = $is_pro ? get_option( 'wpsubs_custom_view_subscription_endpoint', $default_endpoint ) : $default_endpoint;
 				break;
 
 			case 'subs_list':
 			default:
-				$endpoint = get_option( 'wpsubs_custom_subscriptions_endpoint', 'subscriptions' );
+				$default_endpoint = 'subscriptions';
+				$endpoint         = $is_pro ? get_option( 'wpsubs_custom_subscriptions_endpoint', $default_endpoint ) : $default_endpoint;
 				break;
 		}
 
