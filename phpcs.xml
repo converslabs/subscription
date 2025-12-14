@@ -28,8 +28,8 @@
     </rule>
 
     <!-- Exclude non-WordPress sniffs globally -->
-    <rule ref="Squiz.Commenting.FileComment.Missing" />
-    <rule ref="Squiz.Commenting.FileComment.MissingPackageTag" />
+    <exclude ref="Squiz.Commenting.FileComment.Missing" />
+    <exclude ref="Squiz.Commenting.FileComment.MissingPackageTag" />
 
     <!-- Customize the I18n rule; Set text domain -->
     <rule ref="WordPress.WP.I18n">

@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim
 Tags: woocommerce-subscriptions, subscriptions, subscriptions-billing, recurring-payments, woocommerce-extensions
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 1.8.10
+Stable tag: 1.8.11
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -230,6 +230,10 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 
 == Changelog ==
 
+= 1.8.11 - Dec 14, 2025 =
+-   fix: My subscriptions & view-subscription links.
+-   fix: Subscription links in emails.
+
 = 1.8.10 - Dec 9, 2025 =
 -   new: Added beta badge in the integrations list.
 -   fix: Subscription switch action.
@@ -249,7 +253,6 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 -   fix: Cart warning messages.
 -   fix: Two-way add to cart check (sub <=> non-sub).
 -   improved: Settings page.
--   dev: Made settings modular and can be added from anywhere.
 
 = 1.8.6 - Nov 16, 2025 =
 -   fix: Guest checkout account creation error.
