@@ -36,7 +36,7 @@ Want to earn a steady income from your WooCommerce store? The [**Subscriptions f
 
 - Growth-Oriented: Features like free trials and sign-up fees are designed to boost conversions and predictable revenue.
 
-Need help? [Read our full documentation and setup guide here â†’](https://docs.converslabs.com/en)
+Need help? [Read our full documentation and setup guide here.](https://docs.converslabs.com/en)
 
 ### Start Earning with Subscriptions for WooCommerce - Recurring Payment Plugin
 
@@ -158,7 +158,7 @@ It's the perfect solution for anyone searching for a subscription plugin for Woo
 
 - [**Integrates with LearnPress**](https://wordpress.org/plugins/learnpress/): If you sell online courses using LearnPress, it fits in perfectly. You can create subscription plans for your courses, set recurring payments, and manage students easily. This is ideal for anyone offering lessons, training, or digital learning.
 
-- [**Stripe Payment Gateway Support**](https://wordpress.org/plugins/woocommerce-gateway-stripe/): It seamlessly integrates with the Stripe payment gateway, enabling recurring payments for Subscription for WooCommerce products. With WooCommerce Stripe recurring billing, you can automatically charge customers on set intervalsâ€”whether monthly, yearly, or on a custom scheduleâ€”without any manual intervention. Stripe guarantees secure, fast, and reliable payment processing for customers around the world, providing a smooth, professional, and fully automated billing experience for your subscription-based business.
+- [**Stripe Payment Gateway Support**](https://wordpress.org/plugins/woocommerce-gateway-stripe/): It seamlessly integrates with the Stripe payment gateway, enabling recurring payments for Subscription for WooCommerce products. With WooCommerce Stripe recurring billing, you can automatically charge customers on set intervals, whether monthly, yearly, or on a custom schedule, without any manual intervention. Stripe guarantees secure, fast, and reliable payment processing for customers around the world, providing a smooth, professional, and fully automated billing experience for your subscription-based business.
 
 - [**WPML Compatibility**](https://wpml.org/): Running a multilingual site? This Plugin works great with WPML. This lets you offer subscription products in different languages, so you can reach more customers around the world with the same easy subscription setup.
 
@@ -215,7 +215,7 @@ If a payment fails, the system will automatically retry the payment and send ale
 You can find the complete guide, configuration tutorials, and troubleshooting help in our [Subscriptions for WooCommerce Docs](https://docs.converslabs.com/en) section.
 
 =Is this one of the best WooCommerce recurring payment plugins?=
-Yes! We have designed it to be fast, reliable, and full-featured, with support for auto-renewals, variable products, free trials, and moreâ€”everything you expect from a top-tier **Subscription for WooCommerce plugin**.
+Yes! We have designed it to be fast, reliable, and full-featured, with support for auto-renewals, variable products, free trials, and more! Everything you expect from a top-tier **Subscription for WooCommerce plugin**.
 
 With Subscriptions for WooCommerce, you can turn your store into a subscription business in just minutes. Try this plugin today and discover why many store owners consider it among the best WooCommerce recurring payment plugins available.
 
