@@ -9,6 +9,9 @@ jobs:
     name: Update Assets/Readme
     runs-on: ubuntu-latest
 
+    # Only run on manual trigger or non-release commits
+    if: ${{ github.event_name == 'workflow_dispatch' || !contains(toLower(github.event.head_commit.message), 'release') }}
+
     steps:
       - name: Cloning repository
         uses: actions/checkout@v6
