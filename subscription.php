@@ -17,7 +17,7 @@
  * Requires PHP: 7.4
  *
  * Requires at least: 6.0
- * Tested up to: 6.8
+ * Tested up to: 6.9
  *
  * WC requires at least: 6.0
  * WC tested up to: 10.3
