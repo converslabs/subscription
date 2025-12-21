@@ -296,7 +296,7 @@ class Helper {
 			array(
 				'currency' => $order->get_currency(),
 			)
-		) . ' / ' . $time . $type;
+		) . ' / ' . $time . ucfirst( $type );
 
 		if ( $display_trial ) {
 			$has_trial = isset( $item_meta['trial'] ) && strlen( $item_meta['trial'] ) > 2;
