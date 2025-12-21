@@ -1,1 +1,1 @@
-<?php return array('dependencies' => array('react', 'wc-blocks-checkout', 'wc-blocks-components', 'wc-price-format', 'wp-i18n', 'wp-plugins'), 'version' => 'c14d0a799ab35b74a540');
+<?php return array('dependencies' => array('react', 'wc-blocks-checkout', 'wc-blocks-components', 'wc-price-format', 'wp-i18n', 'wp-plugins'), 'version' => '7c48317a713a59d7e3b0');

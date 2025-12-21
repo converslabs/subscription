@@ -61,10 +61,13 @@ const RecurringTotals = ({ cart, extensions }) => {
   }
   const { cartTotals } = cart;
   const { sdevs_subscription: recurrings } = extensions;
-  const currency = getCurrencyFromPriceResponse(cartTotals);
   if (recurrings.length === 0) {
     return;
   }
+
+  const currency = getCurrencyFromPriceResponse(cartTotals);
+  const multiplier = Math.pow(10, currency.minorUnit);
+
   return (
     <TotalsItem
       className="wc-block-components-totals-footer-item"
@@ -78,7 +81,7 @@ const RecurringTotals = ({ cart, extensions }) => {
             return (
               <div style={{ margin: "20px 0", float: "right" }}>
                 <div style={{ fontSize: "18px" }}>
-                  <FormattedMonetaryAmount currency={currency} value={parseInt(recurring.price, 10)} /> /{" "}
+                  <FormattedMonetaryAmount currency={currency} value={Math.round(recurring.price * multiplier)} /> /{" "}
                   {recurring.time && recurring.time > 1
                     ? `${recurring.time + "-" + capitalizedType} `
                     : capitalizedType}
