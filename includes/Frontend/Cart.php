@@ -280,13 +280,22 @@ class Cart {
 					// Multiply by quantity and convert to cents for Stripe
 					$total_amount = ( $price_incl_tax * $qty ) * 100;
 
+					// Subscription timing & type
+					$time = $cart_subscription['time'];
+					$type = Helper::get_typos( $time, $cart_subscription['type'], true );
+
+					// Description
+					$description = empty( $cart_subscription['trial'] )
+								? __( 'Next billing on', 'wp_subscription' ) . ': ' . $next_date
+								: __( 'First billing on', 'wp_subscription' ) . ': ' . $start_date;
+
 					$recurrings[] = apply_filters(
 						'subscrpt_cart_recurring_data',
 						array(
 							'price'           => $total_amount,
-							'time'            => $cart_subscription['time'],
-							'type'            => $cart_subscription['type'],
-							'description'     => empty( $cart_subscription['trial'] ) ? 'Next billing on: ' . $next_date : 'First billing on: ' . $start_date,
+							'time'            => $time,
+							'type'            => $type,
+							'description'     => $description,
 							'can_user_cancel' => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
 							'max_no_payment'  => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
 						),
@@ -457,10 +466,13 @@ class Cart {
 						<br />
 						<small>
 						<?php
-						$billing_text = $recurr['trial_status'] ? 'First billing on' : 'Next billing on';
-						esc_html_e( $billing_text, 'wp_subscription' );
+						$billing_text = $recurr['trial_status']
+										? __( 'First billing on', 'wp_subscription' )
+										: __( 'Next billing on', 'wp_subscription' );
+
 						?>
-							: <?php echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] ); ?></small>
+							<?php echo esc_html( $billing_text ); ?>:
+							<?php echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] ); ?></small>
 						<?php if ( 'yes' === $recurr['can_user_cancel'] ) : ?>
 							<br>
 							<small><?php esc_html_e( 'You can cancel subscription at any time!', 'wp_subscription' ); ?></small>
