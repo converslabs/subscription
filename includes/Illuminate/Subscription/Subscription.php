@@ -32,7 +32,7 @@ class Subscription {
 
 		switch ( strtolower( $view ) ) {
 			case 'view_subs':
-				$default_endpoint = 'view-subscription';
+				$default_endpoint = 'subscription';
 				$endpoint         = $is_pro ? get_option( 'wpsubs_custom_view_subscription_endpoint', $default_endpoint ) : $default_endpoint;
 				break;
 

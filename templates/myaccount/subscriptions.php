@@ -49,10 +49,10 @@ use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 				$product_name = $order_item->get_name();
 
 				$start_date = $subscription_data['start_date'] ?? '';
-				$start_date = ! empty( $start_date ) ? gmdate( 'F j, Y', strtotime( $start_date ) ) : '-';
+				$start_date = ! empty( $start_date ) ? wp_date( 'F j, Y', strtotime( $start_date ) ) : '-';
 
 				$next_date = $subscription_data['next_date'] ?? '';
-				$next_date = ! empty( $next_date ) ? gmdate( 'F j, Y', strtotime( $next_date ) ) : '-';
+				$next_date = ! empty( $next_date ) ? wp_date( 'F j, Y', strtotime( $next_date ) ) : '-';
 
 				$trial      = get_post_meta( get_the_ID(), '_subscrpt_trial', true );
 				$trial_mode = get_post_meta( get_the_ID(), '_subscrpt_trial_mode', true );

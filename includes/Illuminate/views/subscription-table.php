@@ -70,7 +70,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 					:
 				</th>
 				<td class="td"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo ! empty( $next_date ) ? esc_html( gmdate( 'F d, Y', $next_date ) ) : '-'; ?></td>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo ! empty( $next_date ) ? esc_html( wp_date( 'F d, Y', $next_date ) ) : '-'; ?></td>
 			</tr>
 		<?php } else { ?>
 			<tr>
@@ -87,7 +87,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 					:
 				</th>
 				<td class="td"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo ! empty( $start_date ) ? esc_html( gmdate( 'F d, Y', $start_date ) ) : '-'; ?></td>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo ! empty( $start_date ) ? esc_html( wp_date( 'F d, Y', $start_date ) ) : '-'; ?></td>
 			</tr>
 		<?php } ?>
 			<tr>

@@ -415,30 +415,21 @@ class Paypal extends \WC_Payment_Gateway {
 	 * Process webhook from PayPal.
 	 */
 	public function process_webhook() {
-		if ( ! isset( $_GET['wc-api'] ) || $this->id !== $_GET['wc-api'] ) {
-			wp_subscrpt_write_log( 'PayPal webhook called without valid API endpoint.' );
-			return;
-		}
+		// Get raw webhook data.
+		$raw_body = file_get_contents( 'php://input' );
+		$headers  = function_exists( 'getallheaders' ) ? getallheaders() : [];
 
-		// Get Webhook Data.
-		$webhook_data = stripslashes_deep( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification
-		$headers      = getallheaders();
-
-		if ( empty( $webhook_data ) || ! count( $webhook_data ) ) {
-			$post_data = file_get_contents( 'php://input' );
-			// Sanitize the raw input before decoding.
-			$post_data    = sanitize_text_field( $post_data );
-			$webhook_data = json_decode( $post_data, true );
-
-			if ( ! $webhook_data ) {
-				wp_subscrpt_write_log( 'Webhook data is empty.' );
-				wp_subscrpt_write_debug_log( "process_webhook EMPTY \n" . file_get_contents( 'php://input' ) );
-				exit( 'Webhook data is empty.' );
-			}
+		if ( empty( $raw_body ) ) {
+			wp_subscrpt_write_log( 'PayPal webhook data is empty.' );
+			wp_subscrpt_write_debug_log( "PayPal - process_webhook EMPTY \n" . $raw_body );
+			wp_die( 'PayPal webhook data is empty.', '400 Bad Request', [ 'response' => 400 ] );
 		}
 
 		// Verify webhook.
-		$this->verify_webhook( $headers, $webhook_data );
+		$this->verify_webhook( $headers, $raw_body );
+
+		// Decode webhook data.
+		$webhook_data = json_decode( $raw_body, true );
 
 		// Get event type from webhook data.
 		$event = $webhook_data['event_type'] ?? '';
@@ -525,10 +516,10 @@ class Paypal extends \WC_Payment_Gateway {
 	/**
 	 * Verify webhook data from PayPal.
 	 *
-	 * @param array $headers       Headers from the request.
-	 * @param array $webhook_data Webhook data from PayPal.
+	 * @param array  $headers       Headers from the request.
+	 * @param string $raw_body Webhook raw body from PayPal.
 	 */
-	public function verify_webhook( array $headers, array $webhook_data ) {
+	public function verify_webhook( array $headers, string $raw_body ) {
 		// Get PayPal Access Token.
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
@@ -536,24 +527,133 @@ class Paypal extends \WC_Payment_Gateway {
 			wp_die( 'Error: Access token not available. Cannot verify webhook.', '401 Unauthorized', array( 'response' => 401 ) );
 		}
 
-		// Prepare the request to verify the webhook.
+		// Prepare the request data to verify the webhook.
 		$payload = [
-			'auth_algo'         => $headers['Paypal-Auth-Algo'] ?? '',
-			'cert_url'          => $headers['Paypal-Cert-Url'] ?? '',
-			'transmission_id'   => $headers['Paypal-Transmission-Id'] ?? '',
-			'transmission_sig'  => $headers['Paypal-Transmission-Sig'] ?? '',
-			'transmission_time' => $headers['Paypal-Transmission-Time'] ?? '',
+			'auth_algo'         => $headers['PAYPAL-AUTH-ALGO'] ?? $headers['Paypal-Auth-Algo'] ?? '',
+			'cert_url'          => $headers['PAYPAL-CERT-URL'] ?? $headers['Paypal-Cert-Url'] ?? '',
+			'transmission_id'   => $headers['PAYPAL-TRANSMISSION-ID'] ?? $headers['Paypal-Transmission-Id'] ?? '',
+			'transmission_sig'  => $headers['PAYPAL-TRANSMISSION-SIG'] ?? $headers['Paypal-Transmission-Sig'] ?? '',
+			'transmission_time' => $headers['PAYPAL-TRANSMISSION-TIME'] ?? $headers['Paypal-Transmission-Time'] ?? '',
 			'webhook_id'        => $this->webhook_id ?? '',
-			'webhook_event'     => $webhook_data,
+			'webhook_event'     => $raw_body,
 		];
 
-		$verified = $this->verify_paypal_webhook( $payload, $access_token );
+		// Verify webhook via REST API.
+		$verified = $this->verify_paypal_webhook_rest_api( $payload, $raw_body, $access_token );
+
+		if ( ! $verified ) {
+			// Fallback to manual method if REST API verification fails.
+			wp_subscrpt_write_log( 'PayPal webhook REST API verification failed. Retrying with manual verification.' );
+
+			$verified = $this->verify_paypal_webhook_manual( $payload, $raw_body );
+		}
 
 		if ( ! $verified ) {
 			wp_subscrpt_write_log( 'PayPal webhook verification failed.' );
-			wp_subscrpt_write_debug_log( 'Webhook verification failed for data: ' . wp_json_encode( $webhook_data ) );
+			wp_subscrpt_write_debug_log( 'Webhook verification failed for data: ' . $raw_body );
 			wp_die( 'Error: PayPal webhook verification failed.', '403 Forbidden', array( 'response' => 403 ) );
 		}
+	}
+
+	/**
+	 * Verify PayPal webhook with REST API.
+	 *
+	 * @param array  $payload       Payload data for verification.
+	 * @param string $raw_body Webhook raw body from PayPal.
+	 * @param string $access_token  PayPal Access Token.
+	 */
+	protected function verify_paypal_webhook_rest_api( array $payload, string $raw_body, string $access_token ): bool {
+		// Fix the webhook_event to be an array.
+		$payload['webhook_event'] = json_decode( $raw_body, true );
+
+		// Verify webhook signature via PayPal REST API.
+		try {
+			$url  = $this->api_endpoint . '/v1/notifications/verify-webhook-signature';
+			$args = [
+				'method'  => 'POST',
+				'headers' => [
+					'Authorization' => 'Bearer ' . $access_token,
+					'Content-Type'  => 'application/json',
+				],
+				'body'    => wp_json_encode( $payload ),
+			];
+
+			$response            = wp_remote_post( $url, $args );
+			$response_data       = json_decode( wp_remote_retrieve_body( $response ), true );
+			$verification_status = $response_data['verification_status'] ?? null;
+
+			if ( empty( $verification_status ) || 'success' !== strtolower( $verification_status ) ) {
+				wp_subscrpt_write_debug_log( 'PayPal Webhook Verification: ' . wp_json_encode( $response_data ) );
+				return false;
+			}
+
+			return ( 'success' === strtolower( $verification_status ) ) ? true : false;
+
+		} catch ( Exception $e ) {
+			$log_message = 'PayPal Webhook Verification Failed: ' . $e->getMessage();
+			wp_subscrpt_write_log( $log_message );
+			wp_subscrpt_write_debug_log( $log_message );
+			return false;
+		}
+	}
+
+	/**
+	 * Verify PayPal webhook manually (self verification).
+	 *
+	 * @param array  $payload       Payload data for verification.
+	 * @param string $raw_body Webhook raw body from PayPal.
+	 */
+	protected function verify_paypal_webhook_manual( array $payload, string $raw_body ): bool {
+		// Enforce CRC32 for 32-bit systems (edge case)
+		$crc = sprintf( '%u', crc32( $raw_body ) );
+
+		// Build Message
+		$message = implode(
+			'|',
+			[
+				$payload['transmission_id'],
+				$payload['transmission_time'],
+				$payload['webhook_id'],
+				$crc,
+			]
+		);
+
+		// Fetch & cache cert
+		$cert_url  = esc_url_raw( $payload['cert_url'] );
+		$cache_key = 'paypal_cert_' . md5( $cert_url );
+
+		$cert_pem = get_transient( $cache_key );
+
+		if ( ! $cert_pem ) {
+			$response = wp_remote_get( $cert_url, [ 'timeout' => 20 ] );
+			if ( is_wp_error( $response ) ) {
+				return false;
+			}
+
+			$cert_pem = wp_remote_retrieve_body( $response );
+			set_transient( $cache_key, $cert_pem, DAY_IN_SECONDS );
+		}
+
+		if ( empty( $cert_pem ) ) {
+			return false;
+		}
+
+		// Signature
+		$signature = base64_decode( $payload['transmission_sig'], true );
+
+		if ( false === $signature ) {
+			return false;
+		}
+
+		// Final verification
+		$verified = openssl_verify(
+			$message,
+			$signature,
+			$cert_pem,
+			OPENSSL_ALGO_SHA256
+		);
+
+		return ( 1 === $verified );
 	}
 
 	/**
@@ -1446,45 +1546,6 @@ class Paypal extends \WC_Payment_Gateway {
 			return true;
 		} catch ( Exception $e ) {
 			$log_message = 'Error cancelling PayPal subscription: ' . $e->getMessage();
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
-			return false;
-		}
-	}
-
-	/**
-	 * Verify PayPal webhook.
-	 *
-	 * @param array  $verification_data Verification data to verify.
-	 * @param string $access_token      PayPal Access Token.
-	 */
-	public function verify_paypal_webhook( array $verification_data, string $access_token ): bool {
-		try {
-			$url  = $this->api_endpoint . '/v1/notifications/verify-webhook-signature';
-			$args = [
-				'method'  => 'POST',
-				'headers' => [
-					'Authorization' => 'Bearer ' . $access_token,
-					'Content-Type'  => 'application/json',
-				],
-				'body'    => wp_json_encode( $verification_data ),
-			];
-
-			$response      = wp_remote_post( $url, $args );
-			$response_data = json_decode( wp_remote_retrieve_body( $response ) );
-
-			if ( empty( $response_data->verification_status ?? null ) || 'SUCCESS' !== $response_data->verification_status ) {
-				wp_subscrpt_write_debug_log( 'PayPal Webhook Verification: ' . wp_json_encode( $response_data ) );
-				return false;
-			}
-
-			if ( 'SUCCESS' === $response_data->verification_status ) {
-				return true;
-			} else {
-				return false;
-			}
-		} catch ( Exception $e ) {
-			$log_message = 'PayPal Webhook Verification Failed: ' . $e->getMessage();
 			wp_subscrpt_write_log( $log_message );
 			wp_subscrpt_write_debug_log( $log_message );
 			return false;
