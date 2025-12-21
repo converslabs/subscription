@@ -277,8 +277,8 @@ class Cart {
 						$price_incl_tax = $price_excl_tax + array_sum( $tax_amount );
 					}
 
-					// Multiply by quantity and convert to cents for Stripe
-					$total_amount = ( $price_incl_tax * $qty ) * 100;
+					// Total amount
+					$total_amount = ( $price_incl_tax * $qty );
 
 					// Subscription timing & type
 					$time = $cart_subscription['time'];
