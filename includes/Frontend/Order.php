@@ -46,10 +46,10 @@ class Order {
 			$order_item    = $order->get_item( $order_item_id );
 
 			$start_date_string = $subscription_data['start_date'] ?? '';
-			$start_date        = ! empty( $start_date_string ) ? gmdate( 'F d, Y', strtotime( $start_date_string ) ) : '-';
+			$start_date        = ! empty( $start_date_string ) ? wp_date( 'F d, Y', strtotime( $start_date_string ) ) : '-';
 
 			$next_date_string = $subscription_data['next_date'] ?? '';
-			$next_date        = ! empty( $next_date_string ) ? gmdate( 'F d, Y', strtotime( $next_date_string ) ) : '-';
+			$next_date        = ! empty( $next_date_string ) ? wp_date( 'F d, Y', strtotime( $next_date_string ) ) : '-';
 
 			$cost           = $subscription_data['price'] ?? '0.00';
 			$price_excl_tax = (float) $order_item->get_total();

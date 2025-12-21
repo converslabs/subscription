@@ -99,10 +99,10 @@ class MyAccount {
 		$user_cancel = $subscription_data['can_user_cancel'] ?? false;
 
 		$start_date = $subscription_data['start_date'] ?? '';
-		$start_date = ! empty( $start_date ) ? gmdate( 'F j, Y', strtotime( $start_date ) ) : '-';
+		$start_date = ! empty( $start_date ) ? wp_date( 'F j, Y', strtotime( $start_date ) ) : '-';
 
 		$next_date = $subscription_data['next_date'] ?? '';
-		$next_date = ! empty( $next_date ) ? gmdate( 'F j, Y', strtotime( $next_date ) ) : '-';
+		$next_date = ! empty( $next_date ) ? wp_date( 'F j, Y', strtotime( $next_date ) ) : '-';
 
 		$trial      = get_post_meta( $id, '_subscrpt_trial', true );
 		$trial_mode = get_post_meta( $id, '_subscrpt_trial_mode', true );
@@ -121,7 +121,7 @@ class MyAccount {
 		$is_grace_period = isset( $subscription_data['grace_period'] );
 		$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
 		$grace_end_date  = $subscription_data['grace_period']['end_date'] ?? '';
-		$grace_end_date  = ! empty( $grace_end_date ) ? gmdate( 'F j, Y', strtotime( $grace_end_date ) ) : '';
+		$grace_end_date  = ! empty( $grace_end_date ) ? wp_date( 'F j, Y', strtotime( $grace_end_date ) ) : '';
 
 		$subscrpt_nonce = wp_create_nonce( 'subscrpt_nonce' );
 		$action_buttons = array();

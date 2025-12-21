@@ -149,8 +149,8 @@ for ( $i = 0; $i < 12; $i++ ) {
 							<div class="wp-subscription-customer-email"><?php echo esc_html( $customer_email ); ?></div>
 						<?php endif; ?>
 					</td>
-					<td><?php echo $start_date ? esc_html( gmdate( 'F d, Y', $start_date ) ) : '-'; ?></td>
-					<td><?php echo $renewal_date ? esc_html( gmdate( 'F d, Y', $renewal_date ) ) : '-'; ?></td>
+					<td><?php echo $start_date ? esc_html( wp_date( 'F d, Y', $start_date ) ) : '-'; ?></td>
+					<td><?php echo $renewal_date ? esc_html( wp_date( 'F d, Y', $renewal_date ) ) : '-'; ?></td>
 					<td>
 						<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
 							<span class="subscrpt-active grace-active">
