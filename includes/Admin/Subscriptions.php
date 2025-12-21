@@ -136,7 +136,7 @@ class Subscriptions {
 		if ( $order ) {
 			if ( 'subscrpt_start_date' === $column ) {
 				$start_date = get_post_meta( $post_id, '_subscrpt_start_date', true );
-				echo ! empty( $start_date ) ? esc_html( gmdate( 'F d, Y', $start_date ) ) : '-';
+				echo ! empty( $start_date ) ? esc_html( wp_date( 'F d, Y', $start_date ) ) : '-';
 			} elseif ( 'subscrpt_customer' === $column ) {
 				?>
 				<?php echo wp_kses_post( $order->get_formatted_billing_full_name() ); ?>
@@ -150,7 +150,7 @@ class Subscriptions {
 				<?php
 			} elseif ( 'subscrpt_next_date' === $column ) {
 				$next_date = get_post_meta( $post_id, '_subscrpt_next_date', true );
-				echo ! empty( $next_date ) ? esc_html( gmdate( 'F d, Y', $next_date ) ) : '-';
+				echo ! empty( $next_date ) ? esc_html( wp_date( 'F d, Y', $next_date ) ) : '-';
 			} elseif ( 'subscrpt_status' === $column ) {
 				$status_obj = get_post_status_object( get_post_status( $post_id ) );
 				?>
@@ -376,11 +376,11 @@ class Subscriptions {
 		$rows += array(
 			'start_date'       => array(
 				'label' => __( 'Started date', 'wp_subscription' ),
-				'value' => ! empty( $start_date ) ? gmdate( 'F d, Y', $trial && $trial_start_date ? $trial_start_date : $start_date ) : '-',
+				'value' => ! empty( $start_date ) ? wp_date( 'F d, Y', $trial && $trial_start_date ? $trial_start_date : $start_date ) : '-',
 			),
 			'next_date'        => array(
 				'label' => __( 'Payment due date', 'wp_subscription' ),
-				'value' => ! empty( $next_date ) ? gmdate( 'F d, Y', $trial && $trial_end_date && 'on' === $trial_mode ? $trial_end_date : ( $next_date ?? '-' ) ) : '-',
+				'value' => ! empty( $next_date ) ? wp_date( 'F d, Y', $trial && $trial_end_date && 'on' === $trial_mode ? $trial_end_date : ( $next_date ?? '-' ) ) : '-',
 			),
 			'status'           => array(
 				'label' => __( 'Status', 'wp_subscription' ),
@@ -407,7 +407,7 @@ class Subscriptions {
 				),
 				'trial_period' => array(
 					'label' => __( 'Trial Period', 'wp_subscription' ),
-					'value' => ( $trial_start_date && $trial_end_date ? ' [ ' . gmdate( 'F d, Y', $trial_start_date ) . ' - ' . gmdate( 'F d, Y', $trial_end_date ) . ' ] ' : __( 'Trial isn\'t activated yet! ', 'wp_subscription' ) ),
+					'value' => ( $trial_start_date && $trial_end_date ? ' [ ' . wp_date( 'F d, Y', $trial_start_date ) . ' - ' . wp_date( 'F d, Y', $trial_end_date ) . ' ] ' : __( 'Trial isn\'t activated yet! ', 'wp_subscription' ) ),
 				),
 			) + array_slice( $rows, 3, count( $rows ) - 1, true );
 		}
@@ -487,15 +487,15 @@ class Subscriptions {
 		$verbose_status  = Helper::get_verbose_status( $subscrpt_status );
 
 		$started_date = $subscription_data['start_date'] ?? '';
-		$started_date = ! empty( $started_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $started_date ) ) : '-';
+		$started_date = ! empty( $started_date ) ? wp_date( 'F j, Y - g:i A', strtotime( $started_date ) ) : '-';
 
 		$next_payment_date = $subscription_data['next_date'] ?? '';
-		$next_payment_date = ! empty( $next_payment_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $next_payment_date ) ) : '-';
+		$next_payment_date = ! empty( $next_payment_date ) ? wp_date( 'F j, Y - g:i A', strtotime( $next_payment_date ) ) : '-';
 
 		$is_grace_period = isset( $subscription_data['grace_period'] );
 		$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
 		$grace_end_date  = $subscription_data['grace_period']['end_date'] ?? '';
-		$grace_end_date  = ! empty( $grace_end_date ) ? gmdate( 'F j, Y - g:i A', strtotime( $grace_end_date ) ) : '';
+		$grace_end_date  = ! empty( $grace_end_date ) ? wp_date( 'F j, Y - g:i A', strtotime( $grace_end_date ) ) : '';
 
 		?>
 		<div class="wp-subscription-details-section">

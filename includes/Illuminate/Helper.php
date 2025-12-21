@@ -306,21 +306,22 @@ class Helper {
 		}
 
 		$time = 1 === (int) $item_meta['time'] ? null : $item_meta['time'] . '-';
-		$type = self::get_typos( $item_meta['time'], $item_meta['type'] );
+		$type = self::get_typos( $item_meta['time'], $item_meta['type'], true );
 
 		$formatted_price = wc_price(
 			$price,
 			array(
 				'currency' => $order->get_currency(),
 			)
-		) . ' / ' . $time . $type;
+		) . ' / ' . $time . ucfirst( $type );
 
 		if ( $display_trial ) {
-			$trial     = $item_meta['trial'];
 			$has_trial = isset( $item_meta['trial'] ) && strlen( $item_meta['trial'] ) > 2;
+			$trial     = $item_meta['trial'] ?? '';
 
 			if ( $has_trial ) {
-				$trial_html       = '<br/><small> + Got ' . $trial . ' free trial!</small>';
+				// translators: %s: trial period.
+				$trial_html       = '<br/><small> ' . sprintf( __( '+ %s free trial!', 'wp_subscription' ), $trial ) . '</small>';
 				$formatted_price .= $trial_html;
 			}
 		}

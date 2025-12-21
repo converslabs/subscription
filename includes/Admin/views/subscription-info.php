@@ -219,11 +219,11 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 					
 					<tr>
 						<th style="padding:8px 10px;">Started date</th>
-						<td style="padding:8px 10px;"><?php echo $start_date ? esc_html( gmdate( 'F d, Y', $start_date ) ) : '-'; ?></td>
+						<td style="padding:8px 10px;"><?php echo $start_date ? esc_html( wp_date( 'F d, Y', $start_date ) ) : '-'; ?></td>
 					</tr>
 					<tr>
 						<th style="padding:8px 10px;">Payment due date</th>
-						<td style="padding:8px 10px;"><?php echo $renewal_date ? esc_html( gmdate( 'F d, Y', $renewal_date ) ) : '-'; ?></td>
+						<td style="padding:8px 10px;"><?php echo $renewal_date ? esc_html( wp_date( 'F d, Y', $renewal_date ) ) : '-'; ?></td>
 					</tr>
 					<tr>
 						<th style="padding:8px 10px;">Status</th>
