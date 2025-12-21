@@ -1,5 +1,11 @@
 *** WPSubscription Changelog ***
 
+2025-12-21 - version 1.8.12
+* fix: Subscription details default endpoint.
+* fix: Proper subscription timings.
+* fix: WordPress test up to version.
+* fix: Other minor bugs.
+
 2025-12-14 - version 1.8.11
 * fix: My subscriptions & view-subscription links.
 * fix: Subscription links in emails.
