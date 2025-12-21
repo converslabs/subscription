@@ -24,16 +24,33 @@ class Helper {
 	 * @return string
 	 */
 	public static function get_typos( $number, $typo, $translate = false ) {
-		if ( 1 === (int) $number && 'days' === $typo ) {
-			return $translate ? __( 'day', 'wp_subscription' ) : 'day';
-		} elseif ( 1 === (int) $number && 'weeks' === $typo ) {
-			return $translate ? __( 'week', 'wp_subscription' ) : 'week';
-		} elseif ( 1 === (int) $number && 'months' === $typo ) {
-			return $translate ? __( 'month', 'wp_subscription' ) : 'month';
-		} elseif ( 1 === (int) $number && 'years' === $typo ) {
-			return $translate ? __( 'year', 'wp_subscription' ) : 'year';
-		} else {
-			return $typo;
+		switch ( strtolower( $typo ) ) {
+			case 'day':
+			case 'days':
+				return $translate
+					? _n( 'day', 'days', $number, 'wp_subscription' )
+					: ( (int) $number === 1 ? 'day' : 'days' );
+
+			case 'week':
+			case 'weeks':
+				return $translate
+					? _n( 'week', 'weeks', $number, 'wp_subscription' )
+					: ( (int) $number === 1 ? 'week' : 'weeks' );
+
+			case 'month':
+			case 'months':
+				return $translate
+					? _n( 'month', 'months', $number, 'wp_subscription' )
+					: ( (int) $number === 1 ? 'month' : 'months' );
+
+			case 'year':
+			case 'years':
+				return $translate
+					? _n( 'year', 'years', $number, 'wp_subscription' )
+					: ( (int) $number === 1 ? 'year' : 'years' );
+
+			default:
+				return $typo;
 		}
 	}
 
