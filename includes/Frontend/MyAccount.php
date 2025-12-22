@@ -84,7 +84,9 @@ class MyAccount {
 		$current_user_id = get_current_user_id();
 		$user_is_admin   = current_user_can( 'manage_options' );
 
-		dd( '🔽 id', $author_id, $current_user_id, $user_is_admin, $subs_post );
+		if ( ! $user_is_admin && (int) $author_id !== (int) $current_user_id ) {
+			return wp_safe_redirect( '/404' );
+		}
 
 		$subscription_id   = $id;
 		$subscription_data = Helper::get_subscription_data( $subscription_id );
