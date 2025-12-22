@@ -79,6 +79,13 @@ class MyAccount {
 	 * @param Int $id Post ID.
 	 */
 	public function view_subscrpt_content( int $id ) {
+		$subs_post       = get_post( $id );
+		$author_id       = $subs_post ? (int) $subs_post->post_author : 0;
+		$current_user_id = get_current_user_id();
+		$user_is_admin   = current_user_can( 'manage_options' );
+
+		dd( '🔽 id', $author_id, $current_user_id, $user_is_admin, $subs_post );
+
 		$subscription_id   = $id;
 		$subscription_data = Helper::get_subscription_data( $subscription_id );
 		$related_orders    = Helper::get_related_orders( $subscription_id );
