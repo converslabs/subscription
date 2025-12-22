@@ -28,11 +28,34 @@ class ActionController {
 		if ( ! ( isset( $_GET['subscrpt_id'] ) && isset( $_GET['action'] ) && isset( $_GET['wpnonce'] ) ) ) {
 			return;
 		}
+
 		$subscrpt_id = sanitize_text_field( wp_unslash( $_GET['subscrpt_id'] ) );
 		$action      = sanitize_text_field( wp_unslash( $_GET['action'] ) );
 		$wpnonce     = sanitize_text_field( wp_unslash( $_GET['wpnonce'] ) );
+
+		// Nonce check
 		if ( ! wp_verify_nonce( $wpnonce, 'subscrpt_nonce' ) ) {
-			wp_die( esc_html( __( 'Sorry !! You cannot permit to access.', 'wp_subscription' ) ) );
+			$error_notice = __( "You don't have permission to modify this subscription. If you believe this is an error, please contact support.", 'wp_subscription' );
+			wc_add_notice( $error_notice, 'error' );
+
+			$view_subscription_endpoint = Subscription::get_user_endpoint( 'view_subs' );
+			$redirect_url               = wc_get_endpoint_url( $view_subscription_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) );
+			return wp_safe_redirect( $redirect_url );
+		}
+
+		// User check
+		$subs_post       = get_post( $subscrpt_id );
+		$author_id       = $subs_post ? (int) $subs_post->post_author : 0;
+		$current_user_id = get_current_user_id();
+		$user_is_admin   = current_user_can( 'manage_options' );
+
+		if ( ! $user_is_admin && (int) $author_id !== (int) $current_user_id ) {
+			$error_notice = __( "You don't have permission to modify this subscription. If you believe this is an error, please contact support.", 'wp_subscription' );
+			wc_add_notice( $error_notice, 'error' );
+
+			$view_subscription_endpoint = Subscription::get_user_endpoint( 'view_subs' );
+			$redirect_url               = wc_get_endpoint_url( $view_subscription_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) );
+			return wp_safe_redirect( $redirect_url );
 		}
 
 		// Get view subscription endpoint slug.
