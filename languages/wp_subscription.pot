@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-21T06:59:21+00:00\n"
+"POT-Creation-Date: 2025-12-23T07:30:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp_subscription\n"
@@ -66,7 +66,7 @@ msgstr ""
 #: includes/Admin/Menu.php:76
 #: includes/Admin/Menu.php:77
 #: includes/Admin/Menu.php:150
-#: includes/Frontend/MyAccount.php:282
+#: includes/Frontend/MyAccount.php:291
 #: includes/Illuminate/Post.php:58
 #: includes/Illuminate/Post.php:64
 #: includes/Illuminate/Post.php:78
@@ -926,12 +926,13 @@ msgstr ""
 msgid "Installing Plugin: %s"
 msgstr ""
 
-#: includes/Frontend/ActionController.php:35
-msgid "Sorry !! You cannot permit to access."
+#: includes/Frontend/ActionController.php:38
+#: includes/Frontend/ActionController.php:53
+msgid "You don't have permission to modify this subscription. If you believe this is an error, please contact support."
 msgstr ""
 
-#: includes/Frontend/ActionController.php:44
-#: includes/Frontend/ActionController.php:74
+#: includes/Frontend/ActionController.php:67
+#: includes/Frontend/ActionController.php:97
 #: includes/Frontend/Cart.php:494
 msgid "This subscription has reached its maximum payment limit and cannot be renewed further."
 msgstr ""
@@ -1024,38 +1025,38 @@ msgstr ""
 msgid "times."
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:131
+#: includes/Frontend/MyAccount.php:140
 msgid "Cancel"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:140
+#: includes/Frontend/MyAccount.php:149
 msgid "Reactive"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:150
+#: includes/Frontend/MyAccount.php:159
 #: includes/Frontend/Product.php:249
 #: templates/myaccount/single.php:323
 msgid "Renew"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:161
+#: includes/Frontend/MyAccount.php:170
 msgid "Pay now"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:180
+#: includes/Frontend/MyAccount.php:189
 msgid "Turn on Auto Renewal"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:188
+#: includes/Frontend/MyAccount.php:197
 msgid "Turn off Auto Renewal"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:251
+#: includes/Frontend/MyAccount.php:260
 msgid "My Subscriptions"
 msgstr ""
 
 #. translators: %s: Subscription ID
-#: includes/Frontend/MyAccount.php:266
+#: includes/Frontend/MyAccount.php:275
 #, php-format
 msgid "Subscription #%s"
 msgstr ""

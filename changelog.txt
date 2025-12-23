@@ -1,5 +1,8 @@
 *** WPSubscription Changelog ***
 
+2025-12-23 - version 1.8.13
+* security: Unauthorized access to user subscription.
+
 2025-12-21 - version 1.8.12
 * fix: Subscription details default endpoint.
 * fix: Proper subscription timings.
