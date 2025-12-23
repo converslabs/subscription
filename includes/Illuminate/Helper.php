@@ -914,6 +914,9 @@ class Helper {
 			return null;
 		}
 
+		$subs_post = get_post( $subscription_id );
+		$user_id   = (int) $subs_post->post_author ?? 0;
+
 		$product_id = get_post_meta( $subscription_id, '_subscrpt_product_id', true );
 		$product_id = ! empty( $product_id ) ? (int) $product_id : 0;
 
@@ -980,6 +983,7 @@ class Helper {
 			),
 			'can_user_cancel' => $can_user_cancel,
 			'is_auto_renew'   => (bool) $is_auto_renew,
+			'user_id'         => $user_id,
 		);
 
 		if ( ! empty( $trial_timing_per ) ) {
