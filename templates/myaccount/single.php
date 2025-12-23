@@ -29,7 +29,7 @@ if ( ! get_the_title( $id ) ) {
 	return;
 }
 
-do_action( 'before_single_subscrpt_content' );
+do_action( 'before_single_subscrpt_content', $id );
 ?>
 <style>
 	.auto-renew-on,

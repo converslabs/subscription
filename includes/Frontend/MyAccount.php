@@ -79,6 +79,15 @@ class MyAccount {
 	 * @param Int $id Post ID.
 	 */
 	public function view_subscrpt_content( int $id ) {
+		$subs_post       = get_post( $id );
+		$author_id       = $subs_post ? (int) $subs_post->post_author : 0;
+		$current_user_id = get_current_user_id();
+		$user_is_admin   = current_user_can( 'manage_options' );
+
+		if ( ! $user_is_admin && (int) $author_id !== (int) $current_user_id ) {
+			return wp_safe_redirect( '/404' );
+		}
+
 		$subscription_id   = $id;
 		$subscription_data = Helper::get_subscription_data( $subscription_id );
 		$related_orders    = Helper::get_related_orders( $subscription_id );
