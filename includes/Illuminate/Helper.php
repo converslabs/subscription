@@ -115,7 +115,7 @@ class Helper {
 	 * - status         => [ any, active, pending, expired, pe_cancelled, cancelled, trash ]
 	 * - user_id        => user_id, -1 for all users.
 	 * - posts_per_page => limit number of subscriptions.
-	 * - fields         => return data: ids, all
+	 * - return         => return data: ids, post, subscription_data
 	 *
 	 * @param array $args Args.
 	 */
@@ -126,6 +126,7 @@ class Helper {
 			'author'         => get_current_user_id(),
 			'posts_per_page' => -1,
 			'fields'         => 'all',
+			'return'         => 'post',
 		);
 
 		// Normalize some args.
@@ -159,7 +160,49 @@ class Helper {
 			unset( $final_args['product_id'] );
 		}
 
+		// Fields check
+		$only_ids = false;
+		if ( $final_args['fields'] === 'ids' || $final_args['return'] === 'ids' ) {
+			$final_args['fields'] = 'all';
+			$only_ids             = true;
+		}
+
+		// Status check
+		$statuses                  = $final_args['post_status'];
+		$final_args['post_status'] = 'any';
+
+		// Get all subscriptions.
 		$subscriptions = get_posts( $final_args );
+
+		// Fallback filtering.
+		// ? Sometime status filtering not works properly. So, we need to filter manually.
+		$filtered_subscriptions = [];
+
+		// Filter by status.
+		foreach ( $subscriptions as $subscription ) {
+			if ( ( is_array( $statuses ) && in_array( 'any', $statuses, true ) ) || $statuses === 'any' ) {
+				$filtered_subscriptions[] = $subscription;
+				continue;
+			}
+
+			if ( ( is_array( $statuses ) && in_array( $subscription->post_status, $statuses, true ) ) || $subscription->post_status === $statuses ) {
+				$filtered_subscriptions[] = $subscription;
+			}
+		}
+
+		// Final filtering (only ids, post, or full data)
+		$subscriptions = [];
+		foreach ( $filtered_subscriptions as $subscription ) {
+			if ( $only_ids ) {
+				$subscriptions[] = $subscription->ID;
+			} elseif ( $final_args['return'] === 'subscription_data' ) {
+				$subs_id           = $subscription->ID;
+				$subscription_data = self::get_subscription_data( $subs_id );
+				$subscriptions[]   = $subscription_data;
+			} else {
+				$subscriptions[] = $subscription;
+			}
+		}
 
 		return $subscriptions;
 	}
