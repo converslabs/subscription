@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-28T11:20:19+00:00\n"
+"POT-Creation-Date: 2025-12-28T11:24:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -1017,21 +1017,25 @@ msgstr ""
 
 #: includes/Frontend/Cart.php:458
 #: includes/Frontend/Cart.php:459
+#: build/index.js:1
 #: src/index.js:74
 msgid "Recurring totals"
 msgstr ""
 
 #: includes/Frontend/Cart.php:478
+#: build/index.js:1
 #: src/index.js:93
 msgid "You can cancel subscription at any time!"
 msgstr ""
 
 #: includes/Frontend/Cart.php:484
+#: build/index.js:1
 #: src/index.js:100
 msgid "This subscription will be billed for"
 msgstr ""
 
 #: includes/Frontend/Cart.php:484
+#: build/index.js:1
 #: src/index.js:101
 msgid "times."
 msgstr ""
@@ -1871,10 +1875,12 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
+#: build/index.js:1
 #: src/index.js:18
 msgid "Due Today"
 msgstr ""
 
+#: build/index.js:1
 #: src/index.js:45
 msgid "Every"
 msgstr ""
