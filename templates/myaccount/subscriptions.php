@@ -19,11 +19,11 @@ use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 <table class="woocommerce-orders-table woocommerce-MyAccount-orders shop_table shop_table_responsive my_account_orders account-orders-table my_account_subscrpt">
 	<thead>
 		<tr>
-			<th scope="col" class="subscrpt-id"><?php esc_html_e( 'Subscription', 'wp_subscription' ); ?></th>
-			<th scope="col" class="order-status"><?php esc_html_e( 'Status', 'wp_subscription' ); ?></th>
-			<th scope="col" class="order-product"><?php esc_html_e( 'Product', 'wp_subscription' ); ?></th>
-			<th scope="col" class="subscrpt-next-date"><?php esc_html_e( 'Next Payment', 'wp_subscription' ); ?></th>
-			<th scope="col" class="subscrpt-total"><?php esc_html_e( 'Total', 'wp_subscription' ); ?></th>
+			<th scope="col" class="subscrpt-id"><?php esc_html_e( 'Subscription', 'subscription' ); ?></th>
+			<th scope="col" class="order-status"><?php esc_html_e( 'Status', 'subscription' ); ?></th>
+			<th scope="col" class="order-product"><?php esc_html_e( 'Product', 'subscription' ); ?></th>
+			<th scope="col" class="subscrpt-next-date"><?php esc_html_e( 'Next Payment', 'subscription' ); ?></th>
+			<th scope="col" class="subscrpt-total"><?php esc_html_e( 'Total', 'subscription' ); ?></th>
 			<th scope="col" class="subscrpt-action">Actions</th>
 		</tr>
 	</thead>
@@ -89,7 +89,7 @@ use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 								<?php
 									$grace_remaining_text = sprintf(
 										// translators: Number of days remaining in grace period.
-										__( '%d days remaining!', 'wp_subscription' ),
+										__( '%d days remaining!', 'subscription' ),
 										$grace_remaining
 									);
 								?>
@@ -116,7 +116,7 @@ use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 
 					<td data-title="Actions">						
 						<a href="<?php echo esc_url( $view_sub_url ); ?>" class="woocommerce-button <?php echo esc_attr( $wp_button_class ); ?> button view">
-							<?php echo esc_html_e( 'View', 'wp_subscription' ); ?>
+							<?php echo esc_html_e( 'View', 'subscription' ); ?>
 						</a>
 					</td>
 				</tr>
@@ -128,7 +128,7 @@ use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 			<tr>
 				<td colspan="6">
 					<p style="text-align: center;">
-						<?php echo esc_html_e( 'No subscriptions available yet.', 'wp_subscription' ); ?>
+						<?php echo esc_html_e( 'No subscriptions available yet.', 'subscription' ); ?>
 					</p>
 				</td>
 			</tr>
@@ -141,11 +141,11 @@ use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 <?php if ( 1 < $postslist->max_num_pages ) : ?>
 	<div class="woocommerce-pagination woocommerce-pagination--without-numbers woocommerce-Pagination">
 		<?php if ( 1 !== $current_page ) : ?>
-			<a class="woocommerce-button woocommerce-button--previous woocommerce-Button woocommerce-Button--previous button<?php echo esc_attr( $wp_button_class ); ?>" href="<?php echo esc_url( wc_get_endpoint_url( 'subscriptions', $current_page - 1 ) ); ?>"><?php esc_html_e( 'Previous', 'wp_subscription' ); ?></a>
+			<a class="woocommerce-button woocommerce-button--previous woocommerce-Button woocommerce-Button--previous button<?php echo esc_attr( $wp_button_class ); ?>" href="<?php echo esc_url( wc_get_endpoint_url( 'subscriptions', $current_page - 1 ) ); ?>"><?php esc_html_e( 'Previous', 'subscription' ); ?></a>
 		<?php endif; ?>
 
 		<?php if ( intval( $postslist->max_num_pages ) !== $current_page ) : ?>
-			<a class="woocommerce-button woocommerce-button--next woocommerce-Button woocommerce-Button--next button<?php echo esc_attr( $wp_button_class ); ?>" href="<?php echo esc_url( wc_get_endpoint_url( 'subscriptions', $current_page + 1 ) ); ?>"><?php esc_html_e( 'Next', 'wp_subscription' ); ?></a>
+			<a class="woocommerce-button woocommerce-button--next woocommerce-Button woocommerce-Button--next button<?php echo esc_attr( $wp_button_class ); ?>" href="<?php echo esc_url( wc_get_endpoint_url( 'subscriptions', $current_page + 1 ) ); ?>"><?php esc_html_e( 'Next', 'subscription' ); ?></a>
 		<?php endif; ?>
 	</div>
 <?php endif; ?>

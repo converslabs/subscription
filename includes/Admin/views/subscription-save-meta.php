@@ -7,7 +7,7 @@
 ?>
 <p class="subscrpt_sub_box">
 	<select id="subscrpt_order_type" name="subscrpt_order_action">
-		<option value="" disabled selected><?php esc_html_e( 'Choose Action', 'wp_subscription' ); ?></option>
+		<option value="" disabled selected><?php esc_html_e( 'Choose Action', 'subscription' ); ?></option>
 		<?php foreach ( $actions as $action_slug ) : ?>
 			<?php
 				$action = $actions_data[ $action_slug ];

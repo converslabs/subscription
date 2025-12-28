@@ -13,7 +13,7 @@ STYLE GUIDE FOR WP SUBSCRIPTION ADMIN PAGES:
 		<img src="<?php echo WP_SUBSCRIPTION_ASSETS . '/images/logo.png'; ?>" alt="woocommerce-logo" />
 	</div>
 	<div class="sdevs-notice-content">
-		<h2><?php esc_html_e( 'Thanks for using Subscription for WooCommerce', 'wp_subscription' ); ?></h2>
+		<h2><?php esc_html_e( 'Thanks for using Subscription for WooCommerce', 'subscription' ); ?></h2>
 		<p>You must have <a href="https://wordpress.org/plugins/woocommerce/" target="_blank">Woocommerce </a> installed and activated on this website in order to use this plugin.</p>
 	</div>
 	<div class="sdevs-install-notice-button">

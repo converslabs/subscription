@@ -32,7 +32,7 @@ class Order {
 		// Render Subscription Details.
 		?>
 
-		<h2 class="woocommerce-order-details__title"><?php esc_html_e( 'Related Subscriptions', 'wp_subscription' ); ?></h2>
+		<h2 class="woocommerce-order-details__title"><?php esc_html_e( 'Related Subscriptions', 'subscription' ); ?></h2>
 		
 		<?php foreach ( $histories as $history ) : ?>
 			<?php
@@ -74,7 +74,7 @@ class Order {
 				<thead>
 					<tr>
 						<th class="woocommerce-table__product-name product-name">
-							<?php esc_html_e( 'Subscription ID', 'wp_subscription' ); ?>:
+							<?php esc_html_e( 'Subscription ID', 'subscription' ); ?>:
 						</th>
 						<th class="woocommerce-table__product-table product-total">
 							<?php echo esc_html( $subscription_id ); ?>
@@ -84,7 +84,7 @@ class Order {
 				<tbody>
 					<tr>
 						<th scope="row">
-							<?php esc_html_e( 'Status', 'wp_subscription' ); ?>:
+							<?php esc_html_e( 'Status', 'subscription' ); ?>:
 						</th>
 						<td>
 							<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
@@ -94,7 +94,7 @@ class Order {
 									<?php
 										$grace_remaining_text = sprintf(
 											// translators: Number of days remaining in grace period.
-											__( '%d days remaining!', 'wp_subscription' ),
+											__( '%d days remaining!', 'subscription' ),
 											$grace_remaining
 										);
 									?>
@@ -111,7 +111,7 @@ class Order {
 					</tr>
 					<tr>
 						<th scope="row">
-							<?php esc_html_e( 'Recurring amount', 'wp_subscription' ); ?>:
+							<?php esc_html_e( 'Recurring amount', 'subscription' ); ?>:
 						</th>
 						<td class="woocommerce-table__product-total product-total">
 							<?php echo wp_kses_post( $recurring_amount_string ); ?>
@@ -121,7 +121,7 @@ class Order {
 					<?php if ( ! $trial ) : ?>
 						<tr>
 							<th scope="row">
-								<?php esc_html_e( 'Next billing on', 'wp_subscription' ); ?>:
+								<?php esc_html_e( 'Next billing on', 'subscription' ); ?>:
 							</th>
 							<td>
 								<?php echo esc_html( $next_date ); ?>
@@ -130,7 +130,7 @@ class Order {
 					<?php else : ?>
 						<tr>
 							<th scope="row">
-								<?php esc_html_e( 'Trial', 'wp_subscription' ); ?>:
+								<?php esc_html_e( 'Trial', 'subscription' ); ?>:
 							</th>
 							<td>
 								<?php echo esc_html( get_post_meta( $history->subscription_id, '_subscrpt_trial', true ) ); ?>
@@ -138,7 +138,7 @@ class Order {
 						</tr>
 						<tr>
 							<th scope="row">
-								<?php esc_html_e( 'First billing on', 'wp_subscription' ); ?>:
+								<?php esc_html_e( 'First billing on', 'subscription' ); ?>:
 							</th>
 							<td>
 								<?php echo esc_html( $start_date ); ?>

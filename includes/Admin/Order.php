@@ -35,7 +35,7 @@ class Order {
 		$histories = Helper::get_subscriptions_from_order( $order->get_id() ); // HPOS: Safe, uses custom table for subscription relations.
 		if ( count( $histories ) > 0 ) :
 			?>
-			<div class="subscrpt-order-label"><?php echo esc_html_e( 'Subscription order', 'wp_subscription' ); ?></div>
+			<div class="subscrpt-order-label"><?php echo esc_html_e( 'Subscription order', 'subscription' ); ?></div>
 			<?php
 		endif;
 	}
@@ -53,7 +53,7 @@ class Order {
 			$order = wc_get_order( $order_id ); // HPOS: Safe, uses WooCommerce CRUD.
 			add_meta_box(
 				'subscrpt_order_related',
-				__( 'Related Subscriptions', 'wp_subscription' ),
+				__( 'Related Subscriptions', 'subscription' ),
 				array( $this, 'subscrpt_order_related' ),
 				$screen,
 				'normal',

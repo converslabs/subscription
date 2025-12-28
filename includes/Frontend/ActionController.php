@@ -35,7 +35,7 @@ class ActionController {
 
 		// Nonce check
 		if ( ! wp_verify_nonce( $wpnonce, 'subscrpt_nonce' ) ) {
-			$error_notice = __( "You don't have permission to modify this subscription. If you believe this is an error, please contact support.", 'wp_subscription' );
+			$error_notice = __( "You don't have permission to modify this subscription. If you believe this is an error, please contact support.", 'subscription' );
 			wc_add_notice( $error_notice, 'error' );
 
 			$view_subscription_endpoint = Subscription::get_user_endpoint( 'view_subs' );
@@ -50,7 +50,7 @@ class ActionController {
 		$user_is_admin   = current_user_can( 'manage_options' );
 
 		if ( ! $user_is_admin && (int) $author_id !== (int) $current_user_id ) {
-			$error_notice = __( "You don't have permission to modify this subscription. If you believe this is an error, please contact support.", 'wp_subscription' );
+			$error_notice = __( "You don't have permission to modify this subscription. If you believe this is an error, please contact support.", 'subscription' );
 			wc_add_notice( $error_notice, 'error' );
 
 			$view_subscription_endpoint = Subscription::get_user_endpoint( 'view_subs' );
@@ -64,7 +64,7 @@ class ActionController {
 		// Check maximum payment limit for renewal-related actions (including early renewal)
 		$renewal_actions = apply_filters( 'subscrpt_renewal_actions', array( 'renew', 'renew-on', 'early-renew' ) );
 		if ( in_array( $action, $renewal_actions, true ) && subscrpt_is_max_payments_reached( $subscrpt_id ) ) {
-			wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'wp_subscription' ), 'error' );
+			wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'subscription' ), 'error' );
 			// phpcs:ignore
 			echo ( "<script>location.href = '" . wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
 			return;
@@ -94,7 +94,7 @@ class ActionController {
 			// Safety check: If this is any kind of renewal action and limit is reached, block it
 			if ( subscrpt_is_max_payments_reached( $subscrpt_id ) &&
 				( strpos( $action, 'renew' ) !== false || strpos( $action, 'renewal' ) !== false ) ) {
-				wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'wp_subscription' ), 'error' );
+				wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'subscription' ), 'error' );
 				// phpcs:ignore
 				echo ( "<script>location.href = '" . wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
 				return;

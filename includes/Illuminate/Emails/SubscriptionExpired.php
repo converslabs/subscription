@@ -20,8 +20,8 @@ class SubscriptionExpired extends WC_Email {
 		$this->customer_email = true;
 
 		$this->id          = 'subscrpt_subscription_expired_email';
-		$this->title       = __( 'Subscription expired', 'wp_subscription' );
-		$this->description = __( 'This email is sent to customer when a subscription expired.', 'wp_subscription' );
+		$this->title       = __( 'Subscription expired', 'subscription' );
+		$this->description = __( 'This email is sent to customer when a subscription expired.', 'subscription' );
 
 		// email template path.
 		$this->set_template( $this->id );
@@ -39,7 +39,7 @@ class SubscriptionExpired extends WC_Email {
 	 * @return string
 	 */
 	public function get_default_subject(): string {
-		return __( '#{subscription_id} subscription expired!', 'wp_subscription' );
+		return __( '#{subscription_id} subscription expired!', 'subscription' );
 	}
 
 	/**

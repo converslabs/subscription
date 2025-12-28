@@ -101,7 +101,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			$prepared_source = $this->prepare_order_source( $renewal_order );
 			if ( ! $prepared_source->customer ) {
 				wp_subscrpt_write_log( "Customer not found for renewal order #{$renewal_order->get_id()}. Skipping payment." );
-				return new \WP_Error( 'stripe_error', __( 'Customer not found', 'wp_subscription' ) );
+				return new \WP_Error( 'stripe_error', __( 'Customer not found', 'subscription' ) );
 			}
 
 			\WC_Stripe_Logger::log( "Info: Begin processing subscription payment for order {$order_id} for the amount of {$amount}" );

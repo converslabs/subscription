@@ -45,7 +45,7 @@ class Assets {
 
 			// Register script translations for scripts that use wp-i18n (e.g., block assets).
 			if ( function_exists( 'wp_set_script_translations' ) && 'sdevs_subscrpt_cart_block' === $handle ) {
-				wp_set_script_translations( $handle, 'wp_subscription', WP_SUBSCRIPTION_PATH . '/languages' );
+				wp_set_script_translations( $handle, 'subscription', WP_SUBSCRIPTION_PATH . '/languages' );
 			}
 		}
 	}

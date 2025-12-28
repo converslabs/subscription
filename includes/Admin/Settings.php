@@ -40,8 +40,8 @@ class Settings {
 		$parent_slug = 'wp-subscription';
 		add_submenu_page(
 			$parent_slug,
-			__( 'Settings', 'wp_subscription' ),
-			__( 'Settings', 'wp_subscription' ),
+			__( 'Settings', 'subscription' ),
+			__( 'Settings', 'subscription' ),
 			'manage_options',
 			'wp-subscription-settings',
 			[ $this, 'settings_content' ]
@@ -65,7 +65,7 @@ class Settings {
 				'group'      => 'main',
 				'priority'   => 0,
 				'field_data' => [
-					'title' => __( 'General Settings', 'wp_subscription' ),
+					'title' => __( 'General Settings', 'subscription' ),
 				],
 			],
 			[
@@ -74,11 +74,11 @@ class Settings {
 				'priority'   => 1,
 				'field_data' => [
 					'id'          => 'wp_subscription_renewal_process',
-					'title'       => __( 'Renewal Process', 'wp_subscription' ),
-					'description' => __( 'How renewal process will be done after Subscription Expired.', 'wp_subscription' ),
+					'title'       => __( 'Renewal Process', 'subscription' ),
+					'description' => __( 'How renewal process will be done after Subscription Expired.', 'subscription' ),
 					'options'     => [
-						'auto'   => __( 'Automatic', 'wp_subscription' ),
-						'manual' => __( 'Manual', 'wp_subscription' ),
+						'auto'   => __( 'Automatic', 'subscription' ),
+						'manual' => __( 'Manual', 'subscription' ),
 					],
 					'selected'    => esc_attr( get_option( 'wp_subscription_renewal_process', 'auto' ) ),
 				],
@@ -89,8 +89,8 @@ class Settings {
 				'priority'   => 2,
 				'field_data' => [
 					'id'          => 'wp_subscription_manual_renew_cart_notice',
-					'title'       => __( 'Renewal Cart Notice', 'wp_subscription' ),
-					'description' => __( 'Display Notice when Renewal Subscription product add to cart. Only available for Manual Renewal Process.', 'wp_subscription' ),
+					'title'       => __( 'Renewal Cart Notice', 'subscription' ),
+					'description' => __( 'Display Notice when Renewal Subscription product add to cart. Only available for Manual Renewal Process.', 'subscription' ),
 					'value'       => esc_attr( get_option( 'wp_subscription_manual_renew_cart_notice' ) ),
 				],
 			],
@@ -100,11 +100,11 @@ class Settings {
 				'priority'   => 3,
 				'field_data' => [
 					'id'          => 'wp_subscription_stripe_auto_renew',
-					'title'       => __( 'Stripe Auto Renewal', 'wp_subscription' ),
-					'label'       => __( 'Accept Stripe Auto Renewals', 'wp_subscription' ),
+					'title'       => __( 'Stripe Auto Renewal', 'subscription' ),
+					'label'       => __( 'Accept Stripe Auto Renewals', 'subscription' ),
 					'description' => sprintf(
 						/* translators: HTML tags */
-						__( '%1$s WooCommerce Stripe Payment Gateway %2$s plugin is required!', 'wp_subscription' ),
+						__( '%1$s WooCommerce Stripe Payment Gateway %2$s plugin is required!', 'subscription' ),
 						'<a href="https://wordpress.org/plugins/woocommerce-gateway-stripe/" target="_blank">',
 						'</a>'
 					),
@@ -118,9 +118,9 @@ class Settings {
 				'priority'   => 4,
 				'field_data' => [
 					'id'          => 'wp_subscription_auto_renewal_toggle',
-					'title'       => __( 'Auto Renewal Toggle', 'wp_subscription' ),
-					'label'       => __( 'Display the auto renewal toggle', 'wp_subscription' ),
-					'description' => __( 'Allow customers to turn on and off automatic renewals from their Subscription details page', 'wp_subscription' ),
+					'title'       => __( 'Auto Renewal Toggle', 'subscription' ),
+					'label'       => __( 'Display the auto renewal toggle', 'subscription' ),
+					'description' => __( 'Allow customers to turn on and off automatic renewals from their Subscription details page', 'subscription' ),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'wp_subscription_auto_renewal_toggle', '1' ),
 				],
@@ -131,8 +131,8 @@ class Settings {
 				'priority'   => 5,
 				'field_data' => [
 					'id'          => 'wp_subscription_active_role',
-					'title'       => __( 'Subscriber Default Role', 'wp_subscription' ),
-					'description' => __( 'When a subscription is activated, either manually or after a successful purchase, new users will be assigned this role.', 'wp_subscription' ),
+					'title'       => __( 'Subscriber Default Role', 'subscription' ),
+					'description' => __( 'When a subscription is activated, either manually or after a successful purchase, new users will be assigned this role.', 'subscription' ),
 					'options'     => $roles,
 					'selected'    => esc_attr( get_option( 'wp_subscription_active_role', 'subscriber' ) ),
 				],
@@ -143,8 +143,8 @@ class Settings {
 				'priority'   => 6,
 				'field_data' => [
 					'id'          => 'wp_subscription_unactive_role',
-					'title'       => __( 'Subscriber Inactive Role', 'wp_subscription' ),
-					'description' => __( "If a subscriber's subscription is manually cancelled or expires, they will be assigned this role.", 'wp_subscription' ),
+					'title'       => __( 'Subscriber Inactive Role', 'subscription' ),
+					'description' => __( "If a subscriber's subscription is manually cancelled or expires, they will be assigned this role.", 'subscription' ),
 					'options'     => $roles,
 					'selected'    => esc_attr( get_option( 'wp_subscription_unactive_role', 'customer' ) ),
 				],

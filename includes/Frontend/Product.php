@@ -113,12 +113,12 @@ class Product {
 				if ( ! $unexpired ) {
 					return false;
 				} else {
-					echo '<strong>' . esc_html_e( 'You Already Subscribed These Product!', 'wp_subscription' ) . '</strong>';
+					echo '<strong>' . esc_html_e( 'You Already Subscribed These Product!', 'subscription' ) . '</strong>';
 				}
 			}
 			if ( 'only_one' === $limit ) {
 				if ( ! Helper::check_trial( $product->get_id() ) ) {
-					echo '<strong>' . esc_html_e( 'You Already Subscribed These Product!', 'wp_subscription' ) . '</strong>';
+					echo '<strong>' . esc_html_e( 'You Already Subscribed These Product!', 'subscription' ) . '</strong>';
 				}
 			}
 		}
@@ -246,7 +246,7 @@ class Product {
 		$cart_btn_label = $product->get_button_label();
 		$expired        = Helper::subscription_exists( $product->get_id(), 'expired' );
 		if ( $expired ) {
-			$text = __( 'Renew', 'wp_subscription' );
+			$text = __( 'Renew', 'subscription' );
 		} elseif ( $product->is_enabled() && $cart_btn_label ) {
 			$text = $cart_btn_label;
 		}

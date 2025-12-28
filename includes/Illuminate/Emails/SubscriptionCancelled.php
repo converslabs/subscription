@@ -19,8 +19,8 @@ class SubscriptionCancelled extends WC_Email {
 		$this->customer_email = true;
 
 		$this->id          = 'subscrpt_subscription_cancelled_email';
-		$this->title       = __( 'Subscription cancelled', 'wp_subscription' );
-		$this->description = __( 'This email is sent to customer when a subscription canceled.', 'wp_subscription' );
+		$this->title       = __( 'Subscription cancelled', 'subscription' );
+		$this->description = __( 'This email is sent to customer when a subscription canceled.', 'subscription' );
 
 		// email template path.
 		$this->set_template( $this->id );
@@ -38,7 +38,7 @@ class SubscriptionCancelled extends WC_Email {
 	 * @return string
 	 */
 	public function get_default_subject(): string {
-		return __( '#{subscription_id} subscription cancelled!', 'wp_subscription' );
+		return __( '#{subscription_id} subscription cancelled!', 'subscription' );
 	}
 
 	/**

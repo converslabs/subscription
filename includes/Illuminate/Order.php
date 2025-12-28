@@ -91,7 +91,7 @@ class Order {
 	 */
 	public function register_custom_column() {
 		?>
-		<th class="item_recurring sortable" data-sort="float"><?php esc_html_e( 'Recurring', 'wp_subscription' ); ?></th>
+		<th class="item_recurring sortable" data-sort="float"><?php esc_html_e( 'Recurring', 'subscription' ); ?></th>
 		<?php
 	}
 
@@ -270,24 +270,24 @@ class Order {
 		if ( 'new' === $history_type ) {
 			$comment_content = sprintf(
 				/* translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency */
-				__( 'Split payment %1$d of %2$d received (%3$s %4$s). Initial access granted.', 'wp_subscription' ),
+				__( 'Split payment %1$d of %2$d received (%3$s %4$s). Initial access granted.', 'subscription' ),
 				$payment_number,
 				$max_payments,
 				$order_total,
 				$order_currency
 			);
-			$activity_type = __( 'Split Payment - Initial', 'wp_subscription' );
+			$activity_type = __( 'Split Payment - Initial', 'subscription' );
 		} elseif ( 'renew' === $history_type ) {
 			$comment_content = sprintf(
 				/* translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency, %5$d: remaining */
-				__( 'Split payment %1$d of %2$d received (%3$s %4$s). %5$d payments remaining.', 'wp_subscription' ),
+				__( 'Split payment %1$d of %2$d received (%3$s %4$s). %5$d payments remaining.', 'subscription' ),
 				$payment_number,
 				$max_payments,
 				$order_total,
 				$order_currency,
 				$remaining_payments
 			);
-			$activity_type = __( 'Split Payment - Installment', 'wp_subscription' );
+			$activity_type = __( 'Split Payment - Installment', 'subscription' );
 		}
 
 		// Add the enhanced activity note
@@ -306,7 +306,7 @@ class Order {
 			// Add order note with split payment context
 			$order_note = sprintf(
 				/* translators: %1$d: payment number, %2$d: total payments, %3$d: subscription id */
-				__( 'Split payment %1$d of %2$d received for subscription #%3$d', 'wp_subscription' ),
+				__( 'Split payment %1$d of %2$d received for subscription #%3$d', 'subscription' ),
 				$payment_number,
 				$max_payments,
 				$subscription_id
@@ -345,41 +345,41 @@ class Order {
 			case 25:
 				$milestone_note = sprintf(
 					/* translators: %1$d: payments made, %2$d: total payments */
-					__( 'Payment milestone reached: %1$d of %2$d payments completed (25%%).', 'wp_subscription' ),
+					__( 'Payment milestone reached: %1$d of %2$d payments completed (25%%).', 'subscription' ),
 					$payments_made,
 					$max_payments
 				);
-				$activity_type = __( 'Payment Milestone - 25%', 'wp_subscription' );
+				$activity_type = __( 'Payment Milestone - 25%', 'subscription' );
 				break;
 
 			case 50:
 				$milestone_note = sprintf(
 					/* translators: %1$d: payments made, %2$d: total payments */
-					__( 'Payment milestone reached: %1$d of %2$d payments completed (50%%). Halfway there!', 'wp_subscription' ),
+					__( 'Payment milestone reached: %1$d of %2$d payments completed (50%%). Halfway there!', 'subscription' ),
 					$payments_made,
 					$max_payments
 				);
-				$activity_type = __( 'Payment Milestone - 50%', 'wp_subscription' );
+				$activity_type = __( 'Payment Milestone - 50%', 'subscription' );
 				break;
 
 			case 75:
 				$milestone_note = sprintf(
 					/* translators: %1$d: payments made, %2$d: total payments */
-					__( 'Payment milestone reached: %1$d of %2$d payments completed (75%%). Almost complete!', 'wp_subscription' ),
+					__( 'Payment milestone reached: %1$d of %2$d payments completed (75%%). Almost complete!', 'subscription' ),
 					$payments_made,
 					$max_payments
 				);
-				$activity_type = __( 'Payment Milestone - 75%', 'wp_subscription' );
+				$activity_type = __( 'Payment Milestone - 75%', 'subscription' );
 				break;
 
 			case 100:
 				$milestone_note = sprintf(
 					/* translators: %1$d: payments made, %2$d: total payments */
-					__( 'Payment milestone reached: %1$d of %2$d payments completed (100%%). Split payment plan complete!', 'wp_subscription' ),
+					__( 'Payment milestone reached: %1$d of %2$d payments completed (100%%). Split payment plan complete!', 'subscription' ),
 					$payments_made,
 					$max_payments
 				);
-				$activity_type = __( 'Payment Milestone - 100%', 'wp_subscription' );
+				$activity_type = __( 'Payment Milestone - 100%', 'subscription' );
 				break;
 		}
 

@@ -321,7 +321,7 @@ HTML;
 		// Return error if ID is not provided.
 		if ( empty( $args['id'] ?? '' ) ) {
 			$field_hint = empty( $title ) ? 'Error' : $title;
-			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'wp_subscription' ) . '</p>';
+			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'subscription' ) . '</p>';
 			return $should_print ? print wp_kses_post( $no_id_msg ) : $no_id_msg;
 		}
 
@@ -378,7 +378,7 @@ HTML;
 		// Return error if ID is not provided.
 		if ( empty( $args['id'] ?? '' ) ) {
 			$field_hint = empty( $title ) ? 'Error' : $title;
-			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'wp_subscription' ) . '</p>';
+			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'subscription' ) . '</p>';
 			return $should_print ? print wp_kses_post( $no_id_msg ) : $no_id_msg;
 		}
 
@@ -457,7 +457,7 @@ HTML;
 		// Return error if ID is not provided.
 		if ( empty( $args['id'] ?? '' ) ) {
 			$field_hint = empty( $title ) ? 'Error' : $title;
-			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'wp_subscription' ) . '</p>';
+			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'subscription' ) . '</p>';
 			return $should_print ? print wp_kses_post( $no_id_msg ) : $no_id_msg;
 		}
 

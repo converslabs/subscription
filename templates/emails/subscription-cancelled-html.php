@@ -17,26 +17,26 @@
 <p>
 	<?php
 	// translators: <b></b> tag.
-	echo wp_kses_post( sprintf( __( 'Your subscription is %1$s Cancelled! %2$s', 'wp_subscription' ), '<b>', '</b>' ) );
+	echo wp_kses_post( sprintf( __( 'Your subscription is %1$s Cancelled! %2$s', 'subscription' ), '<b>', '</b>' ) );
 	?>
 </p>
 
 <table class="td" cellspacing="0" cellpadding="6" style="width: 100%; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;" border="1">
 	<tbody>
 	<tr>
-		<th scope="row" style="text-align:left; border: 1px solid #eee;"><?php esc_html_e( 'Subscription Id', 'wp_subscription' ); ?></th>
+		<th scope="row" style="text-align:left; border: 1px solid #eee;"><?php esc_html_e( 'Subscription Id', 'subscription' ); ?></th>
 		<td style="text-align:left; border: 1px solid #eee;"><?php echo esc_html( $id ); ?></td>
 	</tr>
 	<tr>
-		<th scope="row" style="text-align:left; border: 1px solid #eee;"><?php esc_html_e( 'Product', 'wp_subscription' ); ?></th>
+		<th scope="row" style="text-align:left; border: 1px solid #eee;"><?php esc_html_e( 'Product', 'subscription' ); ?></th>
 		<td style="text-align:left; border: 1px solid #eee;"><?php echo esc_html( $product_name ); ?></td>
 	</tr>
 	<tr>
-		<th scope="row" style="text-align:left; border: 1px solid #eee;"><?php esc_html_e( 'Qty', 'wp_subscription' ); ?></th>
+		<th scope="row" style="text-align:left; border: 1px solid #eee;"><?php esc_html_e( 'Qty', 'subscription' ); ?></th>
 		<td style="text-align:left; border: 1px solid #eee;"><?php echo esc_html( $qty ); ?></td>
 	</tr>
 	<tr>
-		<th scope="row" style="text-align:left; border: 1px solid #eee;"><?php esc_html_e( 'Amount', 'wp_subscription' ); ?></th>
+		<th scope="row" style="text-align:left; border: 1px solid #eee;"><?php esc_html_e( 'Amount', 'subscription' ); ?></th>
 		<td style="text-align:left; border: 1px solid #eee;"><?php echo wp_kses_post( $amount ); ?></td>
 	</tr>
 	</tbody>
@@ -48,7 +48,7 @@
 		make_clickable(
 			sprintf(
 				// translators: subscription url.
-				__( 'You can view the subscription here: %s', 'wp_subscription' ),
+				__( 'You can view the subscription here: %s', 'subscription' ),
 				$view_subscription_url
 			)
 		)

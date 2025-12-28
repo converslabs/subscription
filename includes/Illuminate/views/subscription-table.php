@@ -18,13 +18,13 @@ use SpringDevs\Subscription\Illuminate\Helper;
 		<tr>
 			<h2>
 			<?php
-				esc_html_e( 'Related Subscriptions', 'wp_subscription' );
+				esc_html_e( 'Related Subscriptions', 'subscription' );
 			?>
 				</h2>
 			<?php
 			if ( ! $order->has_status( 'completed' ) ) :
 				?>
-				<p><small><?php esc_html_e( 'Your subscription will be activated when order status is completed.', 'wp_subscription' ); ?></small></p>
+				<p><small><?php esc_html_e( 'Your subscription will be activated when order status is completed.', 'subscription' ); ?></small></p>
 			<?php endif; ?>
 		</tr>
 		<?php
@@ -44,7 +44,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 			</tr>
 			<tr>
 				<th class="td" scope="row" colspan="2"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Item', 'wp_subscription' ); ?> </th>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Item', 'subscription' ); ?> </th>
 				<th class="td" scope="row" colspan="3"
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;">
 					<a href="<?php echo esc_url( get_permalink( $item->get_product_id() ?? '' ) ); ?>"><?php echo wp_kses_post( $item->get_name() ); ?></a>
@@ -53,21 +53,21 @@ use SpringDevs\Subscription\Illuminate\Helper;
 			</tr>
 			<tr>
 				<th class="td" scope="row" colspan="2"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Status', 'wp_subscription' ); ?> </th>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Status', 'subscription' ); ?> </th>
 				<td class="td"
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo esc_html( $subscription_status_object->label ); ?></td>
 			</tr>
 			<tr>
 				<th class="td" scope="row" colspan="2"
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;">
-					<?php esc_html_e( 'Recurring amount', 'wp_subscription' ); ?> </th>
+					<?php esc_html_e( 'Recurring amount', 'subscription' ); ?> </th>
 				<td class="td"
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo wp_kses_post( Helper::format_price_with_order_item( $cost, $item->get_id() ) ); ?></td>
 			</tr>
 			<?php if ( ! $has_trial ) { ?>
 			<tr>
 				<th class="td" scope="row" colspan="2"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Next billing on', 'wp_subscription' ); ?>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Next billing on', 'subscription' ); ?>
 					:
 				</th>
 				<td class="td"
@@ -76,7 +76,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 		<?php } else { ?>
 			<tr>
 				<th class="td" scope="row" colspan="2"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Trial', 'wp_subscription' ); ?>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Trial', 'subscription' ); ?>
 					:
 				</th>
 				<td class="td"
@@ -84,7 +84,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 			</tr>
 			<tr>
 				<th class="td" scope="row" colspan="2"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'First billing on', 'wp_subscription' ); ?>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'First billing on', 'subscription' ); ?>
 					:
 				</th>
 				<td class="td"
