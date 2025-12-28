@@ -24,7 +24,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 			<?php
 			if ( ! $order->has_status( 'completed' ) ) :
 				?>
-				<p><small>Your subscription will be activated when order status is completed.</small></p>
+				<p><small><?php esc_html_e( 'Your subscription will be activated when order status is completed.', 'wp_subscription' ); ?></small></p>
 			<?php endif; ?>
 		</tr>
 		<?php
@@ -40,26 +40,27 @@ use SpringDevs\Subscription\Illuminate\Helper;
 			?>
 			<tr>
 				<th class="td" scope="row" colspan="3"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: center;"><?php echo get_the_title( $subscription_id ); ?></th>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: center;"><?php echo wp_kses_post( get_the_title( $subscription_id ) ); ?></th>
 			</tr>
 			<tr>
+				<th class="td" scope="row" colspan="2"
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Item', 'wp_subscription' ); ?> </th>
 				<th class="td" scope="row" colspan="3"
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;">
-					<a href="<?php echo get_permalink( $item->get_product_id() ); ?>"><?php echo $item->get_name(); ?></a>
-					<strong
-						class="product-quantity">×&nbsp;<?php echo esc_html( $item->get_quantity() ); ?></strong>
+					<a href="<?php echo esc_url( get_permalink( $item->get_product_id() ?? '' ) ); ?>"><?php echo wp_kses_post( $item->get_name() ); ?></a>
+					<strong class="product-quantity">×&nbsp;<?php echo esc_html( $item->get_quantity() ); ?></strong>
 				</th>
 			</tr>
 			<tr>
 				<th class="td" scope="row" colspan="2"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Status:', 'wp_subscription' ); ?> </th>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Status', 'wp_subscription' ); ?> </th>
 				<td class="td"
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo esc_html( $subscription_status_object->label ); ?></td>
 			</tr>
 			<tr>
 				<th class="td" scope="row" colspan="2"
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;">
-					<?php esc_html_e( 'Recurring amount:', 'wp_subscription' ); ?> </th>
+					<?php esc_html_e( 'Recurring amount', 'wp_subscription' ); ?> </th>
 				<td class="td"
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo wp_kses_post( Helper::format_price_with_order_item( $cost, $item->get_id() ) ); ?></td>
 			</tr>
