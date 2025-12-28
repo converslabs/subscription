@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-23T07:30:38+00:00\n"
+"POT-Creation-Date: 2025-12-28T06:13:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp_subscription\n"
@@ -311,6 +311,7 @@ msgstr ""
 #: includes/Admin/views/order-history.php:22
 #: includes/Admin/views/related-subscriptions.php:25
 #: includes/Frontend/Order.php:87
+#: includes/Illuminate/views/subscription-table.php:56
 #: templates/myaccount/single.php:53
 #: templates/myaccount/single.php:343
 #: templates/myaccount/subscriptions.php:23
@@ -424,7 +425,7 @@ msgstr ""
 
 #: includes/Admin/Subscriptions.php:405
 #: includes/Frontend/Order.php:133
-#: includes/Illuminate/views/subscription-table.php:78
+#: includes/Illuminate/views/subscription-table.php:79
 #: templates/myaccount/single.php:87
 msgid "Trial"
 msgstr ""
@@ -933,7 +934,7 @@ msgstr ""
 
 #: includes/Frontend/ActionController.php:67
 #: includes/Frontend/ActionController.php:97
-#: includes/Frontend/Cart.php:494
+#: includes/Frontend/Cart.php:506
 msgid "This subscription has reached its maximum payment limit and cannot be renewed further."
 msgstr ""
 
@@ -976,52 +977,66 @@ msgid "price of the subscription description."
 msgstr ""
 
 #: includes/Frontend/Cart.php:237
-#: includes/Frontend/Cart.php:335
+#: includes/Frontend/Cart.php:344
 msgid "Maximum Total Payments"
 msgstr ""
 
-#: includes/Frontend/Cart.php:310
+#: includes/Frontend/Cart.php:289
+#: includes/Frontend/Cart.php:471
+#: includes/Frontend/Order.php:124
+#: includes/Illuminate/views/subscription-table.php:70
+msgid "Next billing on"
+msgstr ""
+
+#: includes/Frontend/Cart.php:290
+#: includes/Frontend/Cart.php:470
+#: includes/Frontend/Order.php:141
+#: includes/Illuminate/views/subscription-table.php:87
+msgid "First billing on"
+msgstr ""
+
+#: includes/Frontend/Cart.php:319
 msgid "time of the subscription type."
 msgstr ""
 
-#: includes/Frontend/Cart.php:315
+#: includes/Frontend/Cart.php:324
 msgid "the subscription type."
 msgstr ""
 
-#: includes/Frontend/Cart.php:320
+#: includes/Frontend/Cart.php:329
 msgid "the subscription trial."
 msgstr ""
 
-#: includes/Frontend/Cart.php:325
+#: includes/Frontend/Cart.php:334
 msgid "Signup Fee amount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:330
+#: includes/Frontend/Cart.php:339
 msgid "Recurring amount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:449
-#: includes/Frontend/Cart.php:450
+#: includes/Frontend/Cart.php:458
+#: includes/Frontend/Cart.php:459
 #: build/index.js:1
-#: src/index.js:71
+#: src/index.js:74
 msgid "Recurring totals"
 msgstr ""
 
-#: includes/Frontend/Cart.php:466
+#: includes/Frontend/Cart.php:478
 #: build/index.js:1
-#: src/index.js:90
+#: src/index.js:93
 msgid "You can cancel subscription at any time!"
 msgstr ""
 
-#: includes/Frontend/Cart.php:472
+#: includes/Frontend/Cart.php:484
 #: build/index.js:1
-#: src/index.js:97
+#: src/index.js:100
 msgid "This subscription will be billed for"
 msgstr ""
 
-#: includes/Frontend/Cart.php:472
+#: includes/Frontend/Cart.php:484
 #: build/index.js:1
-#: src/index.js:98
+#: src/index.js:101
 msgid "times."
 msgstr ""
 
@@ -1066,17 +1081,8 @@ msgid "Subscription ID"
 msgstr ""
 
 #: includes/Frontend/Order.php:114
+#: includes/Illuminate/views/subscription-table.php:63
 msgid "Recurring amount"
-msgstr ""
-
-#: includes/Frontend/Order.php:124
-#: includes/Illuminate/views/subscription-table.php:69
-msgid "Next billing on"
-msgstr ""
-
-#: includes/Frontend/Order.php:141
-#: includes/Illuminate/views/subscription-table.php:86
-msgid "First billing on"
 msgstr ""
 
 #: includes/Frontend/Product.php:116
@@ -1117,7 +1123,7 @@ msgid "New Subscription Order"
 msgstr ""
 
 #: includes/functions.php:415
-#: includes/Illuminate/Helper.php:394
+#: includes/Illuminate/Helper.php:437
 msgid "Renewal Order"
 msgstr ""
 
@@ -1460,49 +1466,49 @@ msgid "Pending Cancellation"
 msgstr ""
 
 #. translators: %s: trial period.
-#: includes/Illuminate/Helper.php:324
+#: includes/Illuminate/Helper.php:367
 #, php-format
 msgid "+ %s free trial!"
 msgstr ""
 
 #. translators: %1$s: order id, %2$d: payment number, %3$d: total payments
-#: includes/Illuminate/Helper.php:382
+#: includes/Illuminate/Helper.php:425
 #, php-format
 msgid "Split payment installment %2$d of %3$d. Order %1$s created for subscription."
 msgstr ""
 
-#: includes/Illuminate/Helper.php:387
+#: includes/Illuminate/Helper.php:430
 msgid "Split Payment - Renewal"
 msgstr ""
 
 #. translators: order id.
-#: includes/Illuminate/Helper.php:391
+#: includes/Illuminate/Helper.php:434
 #, php-format
 msgid "The order %s has been created for the subscription"
 msgstr ""
 
 #. translators: %1$s: order id, %2$d: max payments
-#: includes/Illuminate/Helper.php:472
+#: includes/Illuminate/Helper.php:515
 #, php-format
 msgid "Split payment subscription created successfully. Order: %1$s. Total installments: %2$d."
 msgstr ""
 
-#: includes/Illuminate/Helper.php:476
+#: includes/Illuminate/Helper.php:519
 msgid "Split Payment - New Subscription"
 msgstr ""
 
 #. translators: Order Id.
-#: includes/Illuminate/Helper.php:480
+#: includes/Illuminate/Helper.php:523
 #, php-format
 msgid "Subscription successfully created. Order is %s"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:483
+#: includes/Illuminate/Helper.php:526
 #: includes/Illuminate/Post.php:67
 msgid "New Subscription"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:1114
+#: includes/Illuminate/Helper.php:1161
 msgid "Subscription renewal isn't possible due to previous order not completed or deletion."
 msgstr ""
 
@@ -1718,12 +1724,12 @@ msgid_plural "Pending Cancellation <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Illuminate/views/subscription-table.php:55
-msgid "Status:"
+#: includes/Illuminate/views/subscription-table.php:27
+msgid "Your subscription will be activated when order status is completed."
 msgstr ""
 
-#: includes/Illuminate/views/subscription-table.php:62
-msgid "Recurring amount:"
+#: includes/Illuminate/views/subscription-table.php:47
+msgid "Item"
 msgstr ""
 
 #: includes/Traits/Email.php:96

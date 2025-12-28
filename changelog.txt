@@ -1,5 +1,10 @@
 *** WPSubscription Changelog ***
 
+2025-12-28 - version 1.8.14
+* fix: PayPal webhook signature verification.
+* fix: Missing translations in Cart & Checkout pages.
+* improved: Minor core settings.
+
 2025-12-23 - version 1.8.13
 * security: Unauthorized access to user subscription.
 
