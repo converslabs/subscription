@@ -256,11 +256,13 @@ final class Sdevs_Subscription {
 	 */
 	public function localization_setup() {
 		// Explicitly load translations for local/custom installs.
+		/*
 		load_plugin_textdomain(
 			'subscription',
 			false,
 			dirname( plugin_basename( __FILE__ ) ) . '/languages'
 		);
+		*/
 	}
 
 	/**
