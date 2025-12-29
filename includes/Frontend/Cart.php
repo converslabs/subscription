@@ -473,7 +473,7 @@ class Cart {
 						?>
 							<?php echo esc_html( $billing_text ); ?>:
 							<?php echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] ); ?></small>
-						<?php if ( 'yes' === $recurr['can_user_cancel'] ) : ?>
+						<?php if ( 'yes' === $recurr['can_user_cancel'] && 0 !== (int) $recurr['max_no_payment'] ) : ?>
 							<br>
 							<small><?php esc_html_e( 'You can cancel subscription at any time!', 'subscription' ); ?></small>
 						<?php endif; ?>
@@ -481,7 +481,12 @@ class Cart {
 						<!-- add how many times will be build if _subscrpt_renewal_limit is not 0 -->
 						<?php if ( $recurr['max_no_payment'] > 0 ) : ?>
 							<br>
-							<small><?php esc_html_e( 'This subscription will be billed for', 'subscription' ); ?> <?php echo esc_html( $recurr['max_no_payment'] ); ?> <?php esc_html_e( 'times.', 'subscription' ); ?></small>
+							<small>
+								<?php
+								// translators: %s: number of payments.
+								echo esc_html( sprintf( __( 'This subscription will be billed for %s times.', 'subscription' ), esc_html( $recurr['max_no_payment'] ) ) );
+								?>
+							</small>
 						<?php endif; ?>
 					</p>
 				<?php endforeach; ?>
