@@ -1,5 +1,8 @@
 *** WPSubscription Changelog ***
 
+2025-12-29 - version 1.8.15
+* fix: Updated language text-domain.
+
 2025-12-28 - version 1.8.14
 * fix: PayPal webhook signature verification.
 * fix: Missing translations in Cart & Checkout pages.
