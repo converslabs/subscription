@@ -134,7 +134,7 @@ abstract class Product {
 		return $this->product->get_meta( '_subscrpt_trial_timing_option' );
 	}
 
-	public function get_signup_fee(): int {
+	public function get_signup_fee(): float {
 		return 0;
 	}
 
