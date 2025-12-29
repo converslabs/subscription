@@ -106,7 +106,7 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 						$payments_made = subscrpt_count_payments_made( $post->ID );
 						?>
 					<tr>
-						<th style="padding:8px 10px;"><?php esc_html_e( 'Total Payments', 'wp_subscription' ); ?></th>
+						<th style="padding:8px 10px;"><?php esc_html_e( 'Total Payments', 'subscription' ); ?></th>
 						<td style="padding:8px 10px;"><?php echo esc_html( $payments_made ) . ' / ' . esc_html( $max_payments ); ?></td>
 					</tr>
 					<?php endif; ?>
@@ -154,13 +154,13 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 					$max_payments = (int) $max_payments;
 					?>
 					<tr>
-						<th style="padding:8px 10px;"><?php esc_html_e( 'Payment Type', 'wp_subscription' ); ?></th>
+						<th style="padding:8px 10px;"><?php esc_html_e( 'Payment Type', 'subscription' ); ?></th>
 						<td style="padding:8px 10px;">
 							<?php
 							if ( 'split_payment' === $payment_type ) {
-								esc_html_e( 'Split Payment', 'wp_subscription' );
+								esc_html_e( 'Split Payment', 'subscription' );
 							} else {
-								esc_html_e( 'Recurring', 'wp_subscription' );
+								esc_html_e( 'Recurring', 'subscription' );
 							}
 							?>
 						</td>
@@ -182,26 +182,26 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 						}
 						?>
 						<tr>
-							<th style="padding:8px 10px;"><?php esc_html_e( 'Access Duration', 'wp_subscription' ); ?></th>
+							<th style="padding:8px 10px;"><?php esc_html_e( 'Access Duration', 'subscription' ); ?></th>
 							<td style="padding:8px 10px;">
 								<?php
 								switch ( $access_ends_timing ) {
 									case 'lifetime':
-										esc_html_e( 'Lifetime access after completion', 'wp_subscription' );
+										esc_html_e( 'Lifetime access after completion', 'subscription' );
 										break;
 									case 'after_full_duration':
-										esc_html_e( 'Full subscription duration', 'wp_subscription' );
+										esc_html_e( 'Full subscription duration', 'subscription' );
 										break;
 									case 'custom_duration':
 										printf(
 											/* translators: %1$s: duration time, %2$s: duration type */
-											esc_html__( '%1$s %2$s after first payment', 'wp_subscription' ),
+											esc_html__( '%1$s %2$s after first payment', 'subscription' ),
 											esc_html( $custom_duration_time ),
 											esc_html( ucfirst( Helper::get_typos( $custom_duration_time, $custom_duration_type, true ) ) )
 										);
 										break;
 									default:
-										esc_html_e( 'Full subscription duration', 'wp_subscription' );
+										esc_html_e( 'Full subscription duration', 'subscription' );
 										break;
 								}
 								?>
@@ -211,7 +211,7 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 						<!-- Show calculated access end date if available -->
 						<?php if ( $access_end_date_string ) : ?>
 						<tr>
-							<th style="padding:8px 10px;"><?php esc_html_e( 'Access Ends On', 'wp_subscription' ); ?></th>
+							<th style="padding:8px 10px;"><?php esc_html_e( 'Access Ends On', 'subscription' ); ?></th>
 							<td style="padding:8px 10px;"><?php echo esc_html( $access_end_date_string ); ?></td>
 						</tr>
 						<?php endif; ?>

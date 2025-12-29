@@ -50,13 +50,13 @@ class Cart {
 		foreach ( $cart_items as $key => $cart_item ) {
 			if ( isset( $cart_item['subscription'] ) ) {
 				if ( $enabled ) {
-					$error_notice = __( 'You cannot purchase multiple subscriptions at the same time.', 'wp_subscription' );
+					$error_notice = __( 'You cannot purchase multiple subscriptions at the same time.', 'subscription' );
 				} else {
-					$error_notice = __( 'You cannot purchase a subscription and a non-subscription product at the same time.', 'wp_subscription' );
+					$error_notice = __( 'You cannot purchase a subscription and a non-subscription product at the same time.', 'subscription' );
 				}
 				$failed = true;
 			} elseif ( $enabled ) {
-				$error_notice = __( 'You cannot purchase a subscription along with other products. Please remove other products from your cart first.', 'wp_subscription' );
+				$error_notice = __( 'You cannot purchase a subscription along with other products. Please remove other products from your cart first.', 'subscription' );
 				$failed       = true;
 			}
 		}
@@ -119,7 +119,7 @@ class Cart {
 		if ( isset( $cart_item['subscription'] ) ) {
 			if ( $cart_item['subscription']['trial'] ) {
 				$cart_item_data[] = array(
-					'key'    => __( 'Free Trial', 'wp_subscription' ),
+					'key'    => __( 'Free Trial', 'subscription' ),
 					'value'  => $cart_item['subscription']['trial'],
 					'hidden' => true,
 					'__experimental_woocommerce_blocks_hidden' => false,
@@ -153,17 +153,17 @@ class Cart {
 					if ( $product->is_type( 'simple' ) ) {
 						if ( Helper::get_typos( 1, $product->get_meta( '_subscrpt_timing_option' ) ) !== $value['subscription']['type'] || $product->get_trial() !== $value['subscription']['trial'] ) {
 							// remove the item.
-							wc_add_notice( __( 'An item which is no longer available was removed from your cart.', 'wp_subscription' ), 'error' );
+							wc_add_notice( __( 'An item which is no longer available was removed from your cart.', 'subscription' ), 'error' );
 							WC()->cart->remove_cart_item( $key );
 						}
 					} else {
 						// remove the item.
-						wc_add_notice( __( 'An item which is no longer available was removed from your cart.', 'wp_subscription' ), 'error' );
+						wc_add_notice( __( 'An item which is no longer available was removed from your cart.', 'subscription' ), 'error' );
 						WC()->cart->remove_cart_item( $key );
 					}
 				} elseif ( $product->get_meta( '_subscrpt_enabled' ) ) {
 					// remove the item.
-					wc_add_notice( __( 'An item which is no longer available was removed from your cart.', 'wp_subscription' ), 'error' );
+					wc_add_notice( __( 'An item which is no longer available was removed from your cart.', 'subscription' ), 'error' );
 					WC()->cart->remove_cart_item( $key );
 				}
 			}
@@ -204,37 +204,37 @@ class Cart {
 	public function extend_cart_schema() {
 		return array(
 			'recurring_totals' => array(
-				'description'      => __( 'List of recurring totals in cart.', 'wp_subscription' ),
+				'description'      => __( 'List of recurring totals in cart.', 'subscription' ),
 				'type'             => 'array',
 				'readonly'         => true,
 				'recurring_totals' => array(
 					'price'           => array(
-						'description' => __( 'price of the subscription.', 'wp_subscription' ),
+						'description' => __( 'price of the subscription.', 'subscription' ),
 						'type'        => array( 'string' ),
 						'readonly'    => true,
 					),
 					'time'            => array(
-						'description' => __( 'time of the subscription.', 'wp_subscription' ),
+						'description' => __( 'time of the subscription.', 'subscription' ),
 						'type'        => array( 'number' ),
 						'readonly'    => true,
 					),
 					'type'            => array(
-						'description' => __( 'type of the subscription.', 'wp_subscription' ),
+						'description' => __( 'type of the subscription.', 'subscription' ),
 						'type'        => array( 'string' ),
 						'readonly'    => true,
 					),
 					'description'     => array(
-						'description' => __( 'price of the subscription description.', 'wp_subscription' ),
+						'description' => __( 'price of the subscription description.', 'subscription' ),
 						'type'        => array( 'string' ),
 						'readonly'    => true,
 					),
 					'can_user_cancel' => array(
-						'description' => __( 'Allow User Cancellation?', 'wp_subscription' ),
+						'description' => __( 'Allow User Cancellation?', 'subscription' ),
 						'type'        => array( 'string' ),
 						'readonly'    => true,
 					),
 					'max_no_payment'  => array(
-						'description' => __( 'Maximum Total Payments', 'wp_subscription' ),
+						'description' => __( 'Maximum Total Payments', 'subscription' ),
 						'type'        => array( 'number' ),
 						'readonly'    => true,
 					),
@@ -286,8 +286,8 @@ class Cart {
 
 					// Description
 					$description = empty( $cart_subscription['trial'] )
-								? __( 'Next billing on', 'wp_subscription' ) . ': ' . $next_date
-								: __( 'First billing on', 'wp_subscription' ) . ': ' . $start_date;
+								? __( 'Next billing on', 'subscription' ) . ': ' . $next_date
+								: __( 'First billing on', 'subscription' ) . ': ' . $start_date;
 
 					$recurrings[] = apply_filters(
 						'subscrpt_cart_recurring_data',
@@ -316,32 +316,32 @@ class Cart {
 	public function extend_cart_item_schema() {
 		return array(
 			'time'           => array(
-				'description' => __( 'time of the subscription type.', 'wp_subscription' ),
+				'description' => __( 'time of the subscription type.', 'subscription' ),
 				'type'        => array( 'number', 'null' ),
 				'readonly'    => true,
 			),
 			'type'           => array(
-				'description' => __( 'the subscription type.', 'wp_subscription' ),
+				'description' => __( 'the subscription type.', 'subscription' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
 			'trial'          => array(
-				'description' => __( 'the subscription trial.', 'wp_subscription' ),
+				'description' => __( 'the subscription trial.', 'subscription' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
 			'signup_fee'     => array(
-				'description' => __( 'Signup Fee amount.', 'wp_subscription' ),
+				'description' => __( 'Signup Fee amount.', 'subscription' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
 			'cost'           => array(
-				'description' => __( 'Recurring amount.', 'wp_subscription' ),
+				'description' => __( 'Recurring amount.', 'subscription' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
 			'max_no_payment' => array(
-				'description' => __( 'Maximum Total Payments', 'wp_subscription' ),
+				'description' => __( 'Maximum Total Payments', 'subscription' ),
 				'type'        => array( 'number' ),
 				'readonly'    => true,
 			),
@@ -455,8 +455,8 @@ class Cart {
 		}
 		?>
 		<tr class="recurring-total">
-			<th><?php esc_html_e( 'Recurring totals', 'wp_subscription' ); ?></th>
-			<td data-title="<?php esc_attr_e( 'Recurring totals', 'wp_subscription' ); ?>">
+			<th><?php esc_html_e( 'Recurring totals', 'subscription' ); ?></th>
+			<td data-title="<?php esc_attr_e( 'Recurring totals', 'subscription' ); ?>">
 				<?php foreach ( $recurrs as $recurr ) : ?>
 					<p>
 						<span><?php echo wp_kses_post( $recurr['price_html'] ); ?></span>
@@ -467,21 +467,21 @@ class Cart {
 						<small>
 						<?php
 						$billing_text = $recurr['trial_status']
-										? __( 'First billing on', 'wp_subscription' )
-										: __( 'Next billing on', 'wp_subscription' );
+										? __( 'First billing on', 'subscription' )
+										: __( 'Next billing on', 'subscription' );
 
 						?>
 							<?php echo esc_html( $billing_text ); ?>:
 							<?php echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] ); ?></small>
 						<?php if ( 'yes' === $recurr['can_user_cancel'] ) : ?>
 							<br>
-							<small><?php esc_html_e( 'You can cancel subscription at any time!', 'wp_subscription' ); ?></small>
+							<small><?php esc_html_e( 'You can cancel subscription at any time!', 'subscription' ); ?></small>
 						<?php endif; ?>
 
 						<!-- add how many times will be build if _subscrpt_renewal_limit is not 0 -->
 						<?php if ( $recurr['max_no_payment'] > 0 ) : ?>
 							<br>
-							<small><?php esc_html_e( 'This subscription will be billed for', 'wp_subscription' ); ?> <?php echo esc_html( $recurr['max_no_payment'] ); ?> <?php esc_html_e( 'times.', 'wp_subscription' ); ?></small>
+							<small><?php esc_html_e( 'This subscription will be billed for', 'subscription' ); ?> <?php echo esc_html( $recurr['max_no_payment'] ); ?> <?php esc_html_e( 'times.', 'subscription' ); ?></small>
 						<?php endif; ?>
 					</p>
 				<?php endforeach; ?>
@@ -503,7 +503,7 @@ class Cart {
 		if ( $expired ) {
 			// Check if maximum payment limit has been reached
 			if ( subscrpt_is_max_payments_reached( $expired ) ) {
-				wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'wp_subscription' ), 'error' );
+				wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'subscription' ), 'error' );
 				return $cart_item_data; // Don't add renew status
 			}
 

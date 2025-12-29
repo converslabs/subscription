@@ -7,7 +7,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 
 if ( empty( $order_histories ) ) :
 	?>
-	<p><?php esc_html_e( 'No related orders found.', 'wp_subscription' ); ?></p>
+	<p><?php esc_html_e( 'No related orders found.', 'subscription' ); ?></p>
 	<?php
 	return;
 endif;
@@ -16,11 +16,11 @@ endif;
 <table class="widefat striped">
 	<thead>
 		<tr>
-			<th><?php esc_html_e( 'Order', 'wp_subscription' ); ?></th>
-			<th><?php esc_html_e( 'Type', 'wp_subscription' ); ?></th>
-			<th><?php esc_html_e( 'Date', 'wp_subscription' ); ?></th>
-			<th><?php esc_html_e( 'Status', 'wp_subscription' ); ?></th>
-			<th><?php esc_html_e( 'Total', 'wp_subscription' ); ?></th>
+			<th><?php esc_html_e( 'Order', 'subscription' ); ?></th>
+			<th><?php esc_html_e( 'Type', 'subscription' ); ?></th>
+			<th><?php esc_html_e( 'Date', 'subscription' ); ?></th>
+			<th><?php esc_html_e( 'Status', 'subscription' ); ?></th>
+			<th><?php esc_html_e( 'Total', 'subscription' ); ?></th>
 		</tr>
 	</thead>
 	<tbody>

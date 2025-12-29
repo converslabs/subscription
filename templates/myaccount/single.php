@@ -46,11 +46,11 @@ do_action( 'before_single_subscrpt_content', $id );
 <table class="woocommerce-table woocommerce-table--order-details shop_table order_details subscription_details">
 	<tbody>
 		<tr>
-			<td><?php esc_html_e( 'Order', 'wp_subscription' ); ?></td>
+			<td><?php esc_html_e( 'Order', 'subscription' ); ?></td>
 			<td><a href="<?php echo esc_html( wc_get_endpoint_url( 'view-order', $order->get_id(), wc_get_page_permalink( 'myaccount' ) ) ); ?>" target="_blank"># <?php echo esc_html( $order->get_id() ); ?></a></td>
 		</tr>
 		<tr>
-			<td><?php esc_html_e( 'Status', 'wp_subscription' ); ?></td>
+			<td><?php esc_html_e( 'Status', 'subscription' ); ?></td>
 			<td>
 				<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
 					<span class="subscrpt-active grace-active">
@@ -59,7 +59,7 @@ do_action( 'before_single_subscrpt_content', $id );
 						<?php
 							$grace_remaining_text = sprintf(
 								// translators: Number of days remaining in grace period.
-								__( '%d days remaining!', 'wp_subscription' ),
+								__( '%d days remaining!', 'subscription' ),
 								$grace_remaining
 							);
 						?>
@@ -77,14 +77,14 @@ do_action( 'before_single_subscrpt_content', $id );
 
 		<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
 			<tr>
-				<td><?php esc_html_e( 'Grace Period Ends On', 'wp_subscription' ); ?></td>
+				<td><?php esc_html_e( 'Grace Period Ends On', 'subscription' ); ?></td>
 				<td><?php echo esc_html( $grace_end_date ); ?></td>
 			</tr>
 		<?php endif; ?>
 
 		<?php if ( null != $trial && 'off' !== $trial ) : ?>
 		<tr>
-			<td><?php esc_html_e( 'Trial', 'wp_subscription' ); ?></td>
+			<td><?php esc_html_e( 'Trial', 'subscription' ); ?></td>
 			<td><?php echo esc_html( $trial ); ?></td>
 		</tr>
 		<?php endif; ?>
@@ -92,7 +92,7 @@ do_action( 'before_single_subscrpt_content', $id );
 			<td>
 			<?php
 			$date_label = 'null' == $trial || 'off' === $trial_mode ? 'Start date' : ( 'extended' === $trial_mode ? 'Trial End & Subscription Start' : 'Trial End & First Billing' );
-			esc_html_e( $date_label, 'wp_subscription' );
+			esc_html_e( $date_label, 'subscription' );
 			?>
 			</td>
 			<td><?php echo esc_html( $start_date ); ?></td>
@@ -101,7 +101,7 @@ do_action( 'before_single_subscrpt_content', $id );
 			<tr>
 				<td>
 				<?php
-					esc_html_e( 'Next payment date', 'wp_subscription' );
+					esc_html_e( 'Next payment date', 'subscription' );
 				?>
 				</td>
 				<td>
@@ -163,19 +163,19 @@ do_action( 'before_single_subscrpt_content', $id );
 		<!-- show payment progress if max_payments is set and not unlimited -->
 		<?php if ( ( $remaining_payments !== 'unlimited' && $max_payments > 0 ) || ( 'split_payment' === $payment_type && $max_payments > 0 ) ) : ?>
 			<tr>
-				<td><?php esc_html_e( 'Total Payments', 'wp_subscription' ); ?></td>
+				<td><?php esc_html_e( 'Total Payments', 'subscription' ); ?></td>
 				<td><?php echo esc_html( $payments_made ) . ' / ' . esc_html( $max_payments ); ?></td>
 			</tr>
 		<?php endif; ?>
 		
 		<tr>
-			<td><?php esc_html_e( 'Payment Type', 'wp_subscription' ); ?></td>
+			<td><?php esc_html_e( 'Payment Type', 'subscription' ); ?></td>
 			<td>
 				<?php
 				if ( 'split_payment' === $payment_type ) {
-					esc_html_e( 'Split Payment', 'wp_subscription' );
+					esc_html_e( 'Split Payment', 'subscription' );
 				} else {
-					esc_html_e( 'Recurring', 'wp_subscription' );
+					esc_html_e( 'Recurring', 'subscription' );
 				}
 				?>
 				<!-- DEBUG: Show raw values -->
@@ -204,26 +204,26 @@ do_action( 'before_single_subscrpt_content', $id );
 			}
 			?>
 			<tr>
-				<td><?php esc_html_e( 'Access Duration', 'wp_subscription' ); ?></td>
+				<td><?php esc_html_e( 'Access Duration', 'subscription' ); ?></td>
 				<td>
 					<?php
 					switch ( $access_ends_timing ) {
 						case 'lifetime':
-							esc_html_e( 'Lifetime access after completion', 'wp_subscription' );
+							esc_html_e( 'Lifetime access after completion', 'subscription' );
 							break;
 						case 'after_full_duration':
-							esc_html_e( 'Full subscription duration', 'wp_subscription' );
+							esc_html_e( 'Full subscription duration', 'subscription' );
 							break;
 						case 'custom_duration':
 							printf(
 								/* translators: %1$s: duration time, %2$s: duration type */
-								esc_html__( '%1$s %2$s after first payment', 'wp_subscription' ),
+								esc_html__( '%1$s %2$s after first payment', 'subscription' ),
 								esc_html( $custom_duration_time ),
 								esc_html( ucfirst( Helper::get_typos( $custom_duration_time, $custom_duration_type, true ) ) )
 							);
 							break;
 						default:
-							esc_html_e( 'Full subscription duration', 'wp_subscription' );
+							esc_html_e( 'Full subscription duration', 'subscription' );
 							break;
 					}
 					?>
@@ -233,7 +233,7 @@ do_action( 'before_single_subscrpt_content', $id );
 			<!-- Show calculated access end date if available -->
 			<?php if ( $access_end_date_string ) : ?>
 			<tr>
-				<td><?php esc_html_e( 'Access Ends On', 'wp_subscription' ); ?></td>
+				<td><?php esc_html_e( 'Access Ends On', 'subscription' ); ?></td>
 				<td><?php echo esc_html( $access_end_date_string ); ?></td>
 			</tr>
 			<?php endif; ?>
@@ -241,7 +241,7 @@ do_action( 'before_single_subscrpt_content', $id );
 		
 		<?php if ( ! empty( $order->get_payment_method_title() ) ) : ?>
 		<tr>
-			<td><?php esc_html_e( 'Payment', 'wp_subscription' ); ?></td>
+			<td><?php esc_html_e( 'Payment', 'subscription' ); ?></td>
 			<td>
 				<span data-is_manual="yes" class="subscription-payment-method"><?php echo esc_html( $order->get_payment_method_title() ); ?></span>
 			</td>
@@ -249,7 +249,7 @@ do_action( 'before_single_subscrpt_content', $id );
 		<?php endif; ?>
 		<?php if ( 0 < count( $action_buttons ) ) : ?>
 			<tr>
-				<td><?php echo esc_html_e( 'Actions', 'wp_subscription' ); ?></td>
+				<td><?php echo esc_html_e( 'Actions', 'subscription' ); ?></td>
 				<td class="subscrpt_action_buttons">
 					<?php foreach ( $action_buttons as $action_button ) : ?>
 						<a href="<?php echo esc_attr( $action_button['url'] ); ?>" class="button
@@ -267,12 +267,12 @@ do_action( 'before_single_subscrpt_content', $id );
 
 <?php do_action( 'subscrpt_before_subscription_totals', (int) $id ); ?>
 
-<h2><?php echo esc_html_e( 'Subscription Totals', 'wp_subscription' ); ?></h2>
+<h2><?php echo esc_html_e( 'Subscription Totals', 'subscription' ); ?></h2>
 <table class="woocommerce-table woocommerce-table--order-details shop_table order_details">
 	<thead>
 		<tr>
-			<th class="product-name"><?php echo esc_html_e( 'Product', 'wp_subscription' ); ?></th>
-			<th class="product-total"><?php echo esc_html_e( 'Total', 'wp_subscription' ); ?></th>
+			<th class="product-name"><?php echo esc_html_e( 'Product', 'subscription' ); ?></th>
+			<th class="product-total"><?php echo esc_html_e( 'Total', 'subscription' ); ?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -300,7 +300,7 @@ do_action( 'before_single_subscrpt_content', $id );
 	</tbody>
 	<tfoot>
 		<tr>
-			<th scope="row"><?php esc_html_e( 'Subtotal', 'wp_subscription' ); ?>:</th>
+			<th scope="row"><?php esc_html_e( 'Subtotal', 'subscription' ); ?>:</th>
 			<td>
 				<span class="woocommerce-Price-amount amount">
 					<?php echo wp_kses_post( wc_price( $price_excl_tax, array( 'currency' => $order->get_currency() ) ) ); ?>
@@ -310,7 +310,7 @@ do_action( 'before_single_subscrpt_content', $id );
 
 		<?php if ( $tax > 0 ) : ?>
 		<tr>
-			<th scope="row"><?php esc_html_e( 'Tax', 'wp_subscription' ); ?>:</th>
+			<th scope="row"><?php esc_html_e( 'Tax', 'subscription' ); ?>:</th>
 			<td>
 				<span class="woocommerce-Price-amount amount">
 					<?php echo wp_kses_post( wc_price( $tax, array( 'currency' => $order->get_currency() ) ) ); ?>
@@ -320,7 +320,7 @@ do_action( 'before_single_subscrpt_content', $id );
 		<?php endif; ?>
 
 		<tr>
-			<th scope="row"><?php esc_html_e( 'Renew', 'wp_subscription' ); ?>:</th>
+			<th scope="row"><?php esc_html_e( 'Renew', 'subscription' ); ?>:</th>
 			<td>
 				<span class="woocommerce-Price-amount amount">
 					<?php echo wp_kses_post( $product_price_html ); ?>
@@ -333,22 +333,22 @@ do_action( 'before_single_subscrpt_content', $id );
 <?php do_action( 'subscrpt_after_subscription_totals', (int) $id ); ?>
 
 <!-- Show related subscription orders -->
-<h2><?php echo esc_html_e( 'Related Orders', 'wp_subscription' ); ?></h2>
+<h2><?php echo esc_html_e( 'Related Orders', 'subscription' ); ?></h2>
 <table class="woocommerce-table woocommerce-table--order-details shop_table order_details">
 	<thead>
 		<tr>
-			<th class="order-number"><?php echo esc_html_e( 'Order', 'wp_subscription' ); ?></th>
-			<th class="order-type"><?php echo esc_html_e( 'Type', 'wp_subscription' ); ?></th>
-			<th class="order-date"><?php echo esc_html_e( 'Date', 'wp_subscription' ); ?></th>
-			<th class="order-status"><?php echo esc_html_e( 'Status', 'wp_subscription' ); ?></th>
-			<th class="order-total"><?php echo esc_html_e( 'Total', 'wp_subscription' ); ?></th>
+			<th class="order-number"><?php echo esc_html_e( 'Order', 'subscription' ); ?></th>
+			<th class="order-type"><?php echo esc_html_e( 'Type', 'subscription' ); ?></th>
+			<th class="order-date"><?php echo esc_html_e( 'Date', 'subscription' ); ?></th>
+			<th class="order-status"><?php echo esc_html_e( 'Status', 'subscription' ); ?></th>
+			<th class="order-total"><?php echo esc_html_e( 'Total', 'subscription' ); ?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<?php if ( empty( $related_orders ) ) : ?>
 			<tr class="order_item">
 				<td colspan="5" class="no-orders">
-					<?php echo esc_html_e( 'No related orders found.', 'wp_subscription' ); ?>
+					<?php echo esc_html_e( 'No related orders found.', 'subscription' ); ?>
 				</td>
 			</tr>
 		<?php endif; ?>
@@ -399,7 +399,7 @@ do_action( 'before_single_subscrpt_content', $id );
 </table>
 
 <section class="woocommerce-customer-details">
-	<h2 class="woocommerce-column__title"><?php esc_html_e( 'Billing address', 'wp_subscription' ); ?></h2>
+	<h2 class="woocommerce-column__title"><?php esc_html_e( 'Billing address', 'subscription' ); ?></h2>
 	<address>
 		<?php echo wp_kses_post( $order->get_formatted_billing_address() ); ?>
 		<p class="woocommerce-customer-details--phone"><?php echo esc_html( $order->get_billing_phone() ); ?></p>

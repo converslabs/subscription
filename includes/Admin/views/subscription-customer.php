@@ -78,7 +78,7 @@ $subs_frontend_url  = wc_get_endpoint_url( $view_subs_endpoint, get_the_ID(), wc
 
 <div class="customer-details">
 	<div class="info-group">
-		<span class="label"><?php esc_html_e( 'Customer', 'wp_subscription' ); ?></span>
+		<span class="label"><?php esc_html_e( 'Customer', 'subscription' ); ?></span>
 		<div class="value">
 			<?php if ( $order->get_customer_id() ) : ?>
 				<a href="<?php echo esc_url( admin_url( 'user-edit.php?user_id=' . $order->get_customer_id() ) ); ?>" target="_blank">
@@ -101,19 +101,19 @@ $subs_frontend_url  = wc_get_endpoint_url( $view_subs_endpoint, get_the_ID(), wc
 	</div>
 
 	<div class="info-group">
-		<span class="label"><?php esc_html_e( 'Billing', 'wp_subscription' ); ?></span>
+		<span class="label"><?php esc_html_e( 'Billing', 'subscription' ); ?></span>
 		<div class="value">
 			<div class="address">
-				<?php echo wp_kses_post( $order->get_formatted_billing_address() ? $order->get_formatted_billing_address() : __( 'No billing address set.', 'wp_subscription' ) ); ?>
+				<?php echo wp_kses_post( $order->get_formatted_billing_address() ? $order->get_formatted_billing_address() : __( 'No billing address set.', 'subscription' ) ); ?>
 			</div>
 		</div>
 	</div>
 
 	<div class="info-group">
-		<span class="label"><?php esc_html_e( 'Shipping', 'wp_subscription' ); ?></span>
+		<span class="label"><?php esc_html_e( 'Shipping', 'subscription' ); ?></span>
 		<div class="value">
 			<div class="address">
-				<?php echo wp_kses_post( $order->get_formatted_shipping_address() ? $order->get_formatted_shipping_address() : __( 'No shipping address set.', 'wp_subscription' ) ); ?>
+				<?php echo wp_kses_post( $order->get_formatted_shipping_address() ? $order->get_formatted_shipping_address() : __( 'No shipping address set.', 'subscription' ) ); ?>
 			</div>
 		</div>
 	</div>
@@ -121,10 +121,10 @@ $subs_frontend_url  = wc_get_endpoint_url( $view_subs_endpoint, get_the_ID(), wc
 	<div class="info-group">
 		<div class="actions">
 			<a class="button button-primary" target="_blank" href="<?php echo esc_url( $order->get_edit_order_url() ); ?>">
-				<?php esc_html_e( 'View Order', 'wp_subscription' ); ?>
+				<?php esc_html_e( 'View Order', 'subscription' ); ?>
 			</a>
 			<a class="button button-secondary" target="_blank" href="<?php echo esc_url( $subs_frontend_url ); ?>">
-				<?php esc_html_e( 'View Frontend', 'wp_subscription' ); ?>
+				<?php esc_html_e( 'View Frontend', 'subscription' ); ?>
 			</a>
 		</div>
 	</div>

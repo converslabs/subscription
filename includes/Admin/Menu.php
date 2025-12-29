@@ -61,8 +61,8 @@ class Menu {
 			: WP_SUBSCRIPTION_ASSETS . '/images/icons/subscription-20-gray.png';
 		// Main menu
 		add_menu_page(
-			__( 'WP Subscription', 'wp_subscription' ),
-			__( 'WP Subscription', 'wp_subscription' ),
+			__( 'WP Subscription', 'subscription' ),
+			__( 'WP Subscription', 'subscription' ),
 			'manage_woocommerce',
 			$parent_slug,
 			array( $this, 'render_subscriptions_page' ),
@@ -73,8 +73,8 @@ class Menu {
 		// Subscriptions List
 		add_submenu_page(
 			$parent_slug,
-			__( 'Subscriptions', 'wp_subscription' ),
-			__( 'Subscriptions', 'wp_subscription' ),
+			__( 'Subscriptions', 'subscription' ),
+			__( 'Subscriptions', 'subscription' ),
 			'manage_woocommerce',
 			$parent_slug,
 			array( $this, 'render_subscriptions_page' )
@@ -83,8 +83,8 @@ class Menu {
 		// Stats Overview
 		add_submenu_page(
 			$parent_slug,
-			__( 'Reports', 'wp_subscription' ),
-			__( 'Reports', 'wp_subscription' ),
+			__( 'Reports', 'subscription' ),
+			__( 'Reports', 'subscription' ),
 			'manage_woocommerce',
 			'wp-subscription-stats',
 			array( $this, 'render_stats_page' )
@@ -95,8 +95,8 @@ class Menu {
 		// Settings
 		add_submenu_page(
 			$parent_slug,
-			__( 'Settings', 'wp_subscription' ),
-			__( 'Settings', 'wp_subscription' ),
+			__( 'Settings', 'subscription' ),
+			__( 'Settings', 'subscription' ),
 			'manage_woocommerce',
 			'wp-subscription-settings',
 			array( $this, 'render_settings_page' )
@@ -106,8 +106,8 @@ class Menu {
 		// Support
 		add_submenu_page(
 			$parent_slug,
-			__( 'Support', 'wp_subscription' ),
-			__( 'Support', 'wp_subscription' ),
+			__( 'Support', 'subscription' ),
+			__( 'Support', 'subscription' ),
 			'manage_woocommerce',
 			'wp-subscription-support',
 			array( $this, 'render_support_page' )
@@ -116,8 +116,8 @@ class Menu {
 		// Add WP Subscription link under WooCommerce menu
 		add_submenu_page(
 			'woocommerce',
-			__( 'WP Subscription', 'wp_subscription' ),
-			__( 'WP Subscription', 'wp_subscription' ),
+			__( 'WP Subscription', 'subscription' ),
+			__( 'WP Subscription', 'subscription' ),
 			'manage_woocommerce',
 			'wp-subscription',
 			array( $this, 'render_subscriptions_page' )
@@ -147,17 +147,17 @@ class Menu {
 		$menu_items = [
 			[
 				'slug'  => 'wp-subscription',
-				'label' => __( 'Subscriptions', 'wp_subscription' ),
+				'label' => __( 'Subscriptions', 'subscription' ),
 				'url'   => admin_url( 'admin.php?page=wp-subscription' ),
 			],
 			[
 				'slug'  => 'wp-subscription-stats',
-				'label' => __( 'Reports', 'wp_subscription' ),
+				'label' => __( 'Reports', 'subscription' ),
 				'url'   => admin_url( 'admin.php?page=wp-subscription-stats' ),
 			],
 			[
 				'slug'  => 'wp-subscription-settings',
-				'label' => __( 'Settings', 'wp_subscription' ),
+				'label' => __( 'Settings', 'subscription' ),
 				'url'   => admin_url( 'admin.php?page=wp-subscription-settings' ),
 			],
 		];
@@ -168,7 +168,7 @@ class Menu {
 			[
 				[
 					'slug'  => 'wp-subscription-support',
-					'label' => __( 'Support', 'wp_subscription' ),
+					'label' => __( 'Support', 'subscription' ),
 					'url'   => admin_url( 'admin.php?page=wp-subscription-support' ),
 				],
 			]
@@ -188,7 +188,7 @@ class Menu {
 				</div>
 				<div class="wp-subscription-admin-header-right">
 					<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
-					<a target="_blank" href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" class="wp-subscription-upgrade-btn"><?php esc_html_e( 'Upgrade to Pro', 'wp_subscription' ); ?></a>
+					<a target="_blank" href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" class="wp-subscription-upgrade-btn"><?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?></a>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -547,12 +547,12 @@ class Menu {
 	public function handle_bulk_action_ajax() {
 		// Verify nonce
 		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'wp_subscription_bulk_action_nonce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'wp_subscription' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'subscription' ) ) );
 		}
 
 		// Check permissions
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'wp_subscription' ) ) );
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'subscription' ) ) );
 		}
 
 		// Get action and subscription IDs
@@ -560,7 +560,7 @@ class Menu {
 		$subscription_ids = isset( $_POST['subscription_ids'] ) ? array_map( 'intval', $_POST['subscription_ids'] ) : array();
 
 		if ( empty( $subscription_ids ) ) {
-			wp_send_json_error( array( 'message' => __( 'No subscriptions selected.', 'wp_subscription' ) ) );
+			wp_send_json_error( array( 'message' => __( 'No subscriptions selected.', 'subscription' ) ) );
 		}
 
 		$processed_count = 0;
@@ -571,7 +571,7 @@ class Menu {
 
 			if ( ! $post || $post->post_type !== 'subscrpt_order' ) {
 				// translators: Subscription ID.
-				$errors[] = sprintf( __( 'Subscription #%d not found.', 'wp_subscription' ), $subscription_id );
+				$errors[] = sprintf( __( 'Subscription #%d not found.', 'subscription' ), $subscription_id );
 				continue;
 			}
 
@@ -583,7 +583,7 @@ class Menu {
 						} else {
 							$errors[] = sprintf(
 								// translators: Subscription ID.
-								__( 'Failed to move subscription #%d to trash.', 'wp_subscription' ),
+								__( 'Failed to move subscription #%d to trash.', 'subscription' ),
 								$subscription_id
 							);
 						}
@@ -595,7 +595,7 @@ class Menu {
 						} else {
 							$errors[] = sprintf(
 								// translators: Subscription ID.
-								__( 'Failed to restore subscription #%d.', 'wp_subscription' ),
+								__( 'Failed to restore subscription #%d.', 'subscription' ),
 								$subscription_id
 							);
 						}
@@ -607,7 +607,7 @@ class Menu {
 						} else {
 							$errors[] = sprintf(
 								// translators: Subscription ID.
-								__( 'Failed to delete subscription #%d.', 'wp_subscription' ),
+								__( 'Failed to delete subscription #%d.', 'subscription' ),
 								$subscription_id
 							);
 						}
@@ -616,7 +616,7 @@ class Menu {
 					default:
 						$errors[] = sprintf(
 							// translators: Bulk action.
-							__( 'Unknown action: %s', 'wp_subscription' ),
+							__( 'Unknown action: %s', 'subscription' ),
 							$bulk_action
 						);
 						break;
@@ -624,7 +624,7 @@ class Menu {
 			} catch ( Exception $e ) {
 				$errors[] = sprintf(
 					// translators: Subscription ID, Error message.
-					__( 'Error processing subscription #%1$d: %2$s', 'wp_subscription' ),
+					__( 'Error processing subscription #%1$d: %2$s', 'subscription' ),
 					$subscription_id,
 					$e->getMessage()
 				);
@@ -638,21 +638,21 @@ class Menu {
 				case 'trash':
 					$message = sprintf(
 						// translators: Number of subscriptions.
-						_n( '%d subscription moved to trash.', '%d subscriptions moved to trash.', $processed_count, 'wp_subscription' ),
+						_n( '%d subscription moved to trash.', '%d subscriptions moved to trash.', $processed_count, 'subscription' ),
 						$processed_count
 					);
 					break;
 				case 'restore':
 					$message = sprintf(
 						// translators: Number of subscriptions.
-						_n( '%d subscription restored.', '%d subscriptions restored.', $processed_count, 'wp_subscription' ),
+						_n( '%d subscription restored.', '%d subscriptions restored.', $processed_count, 'subscription' ),
 						$processed_count
 					);
 					break;
 				case 'delete':
 					$message = sprintf(
 						// translators: Number of subscriptions.
-						_n( '%d subscription permanently deleted.', '%d subscriptions permanently deleted.', $processed_count, 'wp_subscription' ),
+						_n( '%d subscription permanently deleted.', '%d subscriptions permanently deleted.', $processed_count, 'subscription' ),
 						$processed_count
 					);
 					break;
@@ -660,13 +660,13 @@ class Menu {
 		}
 
 		if ( ! empty( $errors ) ) {
-			$message .= ' ' . __( 'Some errors occurred:', 'wp_subscription' ) . ' ' . implode( ', ', $errors );
+			$message .= ' ' . __( 'Some errors occurred:', 'subscription' ) . ' ' . implode( ', ', $errors );
 		}
 
 		if ( $processed_count > 0 ) {
 			wp_send_json_success( array( 'message' => $message ) );
 		} else {
-			wp_send_json_error( array( 'message' => $message ?: __( 'No subscriptions were processed.', 'wp_subscription' ) ) );
+			wp_send_json_error( array( 'message' => $message ?: __( 'No subscriptions were processed.', 'subscription' ) ) );
 		}
 	}
 }

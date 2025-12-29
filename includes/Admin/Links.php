@@ -25,10 +25,10 @@ class Links {
 	 */
 	public function plugin_action_links( $links ) {
 		if ( ! subscrpt_pro_activated() ) {
-			$links[] = '<a href="https://wpsubscription.co" target="_blank" style="color:#3db634;">' . __( 'Upgrade to premium', 'wp_subscription' ) . '</a>';
+			$links[] = '<a href="https://wpsubscription.co" target="_blank" style="color:#3db634;">' . __( 'Upgrade to premium', 'subscription' ) . '</a>';
 		}
-		$links[] = '<a href="https://wordpress.org/support/plugin/subscription" target="_blank">' . __( 'Support', 'wp_subscription' ) . '</a>';
-		$links[] = '<a href="https://wordpress.org/support/plugin/subscription/reviews/?rate=5#new-post" target="_blank">' . __( 'Review', 'wp_subscription' ) . '</a>';
+		$links[] = '<a href="https://wordpress.org/support/plugin/subscription" target="_blank">' . __( 'Support', 'subscription' ) . '</a>';
+		$links[] = '<a href="https://wordpress.org/support/plugin/subscription/reviews/?rate=5#new-post" target="_blank">' . __( 'Review', 'subscription' ) . '</a>';
 		return $links;
 	}
 }

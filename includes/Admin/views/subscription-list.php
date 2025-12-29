@@ -21,21 +21,21 @@ for ( $i = 0; $i < 12; $i++ ) {
 			<div class="wp-subscription-filters">
 				<input type="hidden" name="page" value="wp-subscription" />
 				<select name="subscrpt_status" value="<?php echo esc_attr( $status ); ?>">
-					<option value=""><?php esc_html_e( 'All Status', 'wp_subscription' ); ?></option>
-					<option value="active" <?php selected( $status, 'active' ); ?>><?php esc_html_e( 'Active', 'wp_subscription' ); ?></option>
-					<option value="pending" <?php selected( $status, 'pending' ); ?>><?php esc_html_e( 'Pending', 'wp_subscription' ); ?></option>
-					<option value="cancelled" <?php selected( $status, 'cancelled' ); ?>><?php esc_html_e( 'Cancelled', 'wp_subscription' ); ?></option>
-					<option value="expired" <?php selected( $status, 'expired' ); ?>><?php esc_html_e( 'Expired', 'wp_subscription' ); ?></option>
-					<option value="draft" <?php selected( $status, 'draft' ); ?>><?php esc_html_e( 'Draft', 'wp_subscription' ); ?></option>
-					<option value="trash" <?php selected( $status, 'trash' ); ?>><?php esc_html_e( 'Trash', 'wp_subscription' ); ?></option>
+					<option value=""><?php esc_html_e( 'All Status', 'subscription' ); ?></option>
+					<option value="active" <?php selected( $status, 'active' ); ?>><?php esc_html_e( 'Active', 'subscription' ); ?></option>
+					<option value="pending" <?php selected( $status, 'pending' ); ?>><?php esc_html_e( 'Pending', 'subscription' ); ?></option>
+					<option value="cancelled" <?php selected( $status, 'cancelled' ); ?>><?php esc_html_e( 'Cancelled', 'subscription' ); ?></option>
+					<option value="expired" <?php selected( $status, 'expired' ); ?>><?php esc_html_e( 'Expired', 'subscription' ); ?></option>
+					<option value="draft" <?php selected( $status, 'draft' ); ?>><?php esc_html_e( 'Draft', 'subscription' ); ?></option>
+					<option value="trash" <?php selected( $status, 'trash' ); ?>><?php esc_html_e( 'Trash', 'subscription' ); ?></option>
 				</select>
 				<select name="date_filter" value="<?php echo esc_attr( $date_filter ); ?>">
-					<option value=""><?php esc_html_e( 'All Dates', 'wp_subscription' ); ?></option>
+					<option value=""><?php esc_html_e( 'All Dates', 'subscription' ); ?></option>
 					<?php foreach ( $months as $val => $label ) : ?>
 						<option value="<?php echo esc_attr( $val ); ?>" <?php selected( $date_filter, $val ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php endforeach; ?>
 				</select>
-				<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search by subscription ID...', 'wp_subscription' ); ?>" />
+				<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search by subscription ID...', 'subscription' ); ?>" />
 				<select name="per_page">
 					<?php foreach ( array( 10, 20, 50, 100 ) as $n ) : ?>
 						<option value="<?php echo $n; ?>" <?php selected( isset( $_GET['per_page'] ) ? intval( $_GET['per_page'] ) : 20, $n ); ?>><?php echo $n; ?> per page</option>
@@ -53,20 +53,20 @@ for ( $i = 0; $i < 12; $i++ ) {
 			<?php if ( ! empty( $subscriptions ) ) : ?>
 			<div class="wp-subscription-bulk-actions">
 				<select name="action">
-					<option value="-1"><?php esc_html_e( 'Bulk Actions', 'wp_subscription' ); ?></option>
+					<option value="-1"><?php esc_html_e( 'Bulk Actions', 'subscription' ); ?></option>
 					<?php if ( $status === 'trash' ) : ?>
-						<option value="restore"><?php esc_html_e( 'Restore', 'wp_subscription' ); ?></option>
-						<option value="delete"><?php esc_html_e( 'Delete Permanently', 'wp_subscription' ); ?></option>
+						<option value="restore"><?php esc_html_e( 'Restore', 'subscription' ); ?></option>
+						<option value="delete"><?php esc_html_e( 'Delete Permanently', 'subscription' ); ?></option>
 					<?php else : ?>
-						<option value="trash"><?php esc_html_e( 'Move to Trash', 'wp_subscription' ); ?></option>
+						<option value="trash"><?php esc_html_e( 'Move to Trash', 'subscription' ); ?></option>
 					<?php endif; ?>
 				</select>
-				<input type="submit" name="bulk_action" value="<?php esc_attr_e( 'Apply', 'wp_subscription' ); ?>" class="button action">
+				<input type="submit" name="bulk_action" value="<?php esc_attr_e( 'Apply', 'subscription' ); ?>" class="button action">
 				<?php if ( $status === 'trash' && ! empty( $subscriptions ) ) : ?>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=clean_trash&sub_id=all' ) ); ?>" 
 						class="button button-link-delete" 
-						onclick="return confirm('<?php esc_attr_e( 'Are you sure you want to permanently delete all items in trash? This action cannot be undone.', 'wp_subscription' ); ?>')">
-						<?php esc_html_e( 'Empty Trash', 'wp_subscription' ); ?>
+						onclick="return confirm('<?php esc_attr_e( 'Are you sure you want to permanently delete all items in trash? This action cannot be undone.', 'subscription' ); ?>')">
+						<?php esc_html_e( 'Empty Trash', 'subscription' ); ?>
 					</a>
 				<?php endif; ?>
 			</div>
@@ -131,10 +131,10 @@ for ( $i = 0; $i < 12; $i++ ) {
 								<a href="<?php echo esc_url( get_edit_post_link( $subscription->ID ) ); ?>">View</a>
 								<?php if ( ! $is_trash ) : ?>
 									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=duplicate&sub_id=' . $subscription->ID ) ); ?>">Duplicate</a>
-									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=trash&sub_id=' . $subscription->ID ) ); ?>" onclick="return confirm('<?php esc_attr_e( 'Move this subscription to trash?', 'wp_subscription' ); ?>')">Trash</a>
+									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=trash&sub_id=' . $subscription->ID ) ); ?>" onclick="return confirm('<?php esc_attr_e( 'Move this subscription to trash?', 'subscription' ); ?>')">Trash</a>
 								<?php else : ?>
 									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=restore&sub_id=' . $subscription->ID ) ); ?>">Restore</a>
-									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=delete&sub_id=' . $subscription->ID ) ); ?>" onclick="return confirm('<?php esc_attr_e( 'Delete this subscription permanently? This action cannot be undone.', 'wp_subscription' ); ?>')" style="color:#d93025;">Delete Permanently</a>
+									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=delete&sub_id=' . $subscription->ID ) ); ?>" onclick="return confirm('<?php esc_attr_e( 'Delete this subscription permanently? This action cannot be undone.', 'subscription' ); ?>')" style="color:#d93025;">Delete Permanently</a>
 								<?php endif; ?>
 							</div>
 						</div>
@@ -159,7 +159,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 								<?php
 									$grace_remaining_text = sprintf(
 										// translators: Number of days remaining in grace period.
-										__( '%d days remaining!', 'wp_subscription' ),
+										__( '%d days remaining!', 'subscription' ),
 										$grace_remaining
 									);
 								?>
@@ -177,14 +177,14 @@ for ( $i = 0; $i < 12; $i++ ) {
 						<?php endif; ?>
 					</td>
 					<td>
-						<a href="<?php echo esc_url( get_edit_post_link( $subscription->ID ) ); ?>" class="button button-small"><?php esc_html_e( 'Edit', 'wp_subscription' ); ?></a>
+						<a href="<?php echo esc_url( get_edit_post_link( $subscription->ID ) ); ?>" class="button button-small"><?php esc_html_e( 'Edit', 'subscription' ); ?></a>
 					</td>
 				</tr>
 				<?php endforeach; ?>
 			<?php else : ?>
 				<tr>
 					<td colspan="8" class="wp-subscription-list-empty">
-						<?php esc_html_e( 'No subscriptions found.', 'wp_subscription' ); ?>
+						<?php esc_html_e( 'No subscriptions found.', 'subscription' ); ?>
 					</td>
 				</tr>
 			<?php endif; ?>
@@ -195,15 +195,15 @@ for ( $i = 0; $i < 12; $i++ ) {
 			<div class="tablenav bottom">
 				<div class="alignleft actions bulkactions">
 					<select name="action2">
-						<option value="-1"><?php esc_html_e( 'Bulk Actions', 'wp_subscription' ); ?></option>
+						<option value="-1"><?php esc_html_e( 'Bulk Actions', 'subscription' ); ?></option>
 						<?php if ( $status === 'trash' ) : ?>
-							<option value="restore"><?php esc_html_e( 'Restore', 'wp_subscription' ); ?></option>
-							<option value="delete"><?php esc_html_e( 'Delete Permanently', 'wp_subscription' ); ?></option>
+							<option value="restore"><?php esc_html_e( 'Restore', 'subscription' ); ?></option>
+							<option value="delete"><?php esc_html_e( 'Delete Permanently', 'subscription' ); ?></option>
 						<?php else : ?>
-							<option value="trash"><?php esc_html_e( 'Move to Trash', 'wp_subscription' ); ?></option>
+							<option value="trash"><?php esc_html_e( 'Move to Trash', 'subscription' ); ?></option>
 						<?php endif; ?>
 					</select>
-					<input type="submit" name="bulk_action2" value="<?php esc_attr_e( 'Apply', 'wp_subscription' ); ?>" class="button action">
+					<input type="submit" name="bulk_action2" value="<?php esc_attr_e( 'Apply', 'subscription' ); ?>" class="button action">
 				</div>
 			</div>
 		<?php endif; ?>

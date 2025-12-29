@@ -15,7 +15,7 @@ const modifyCartItemPrice = (defaultValue, extensions, args, validation) => {
     return defaultValue;
   }
   if (totals.line_total === "0") {
-    return `<price/> ${__("Due Today", "wp_subscription")}`;
+    return `<price/> ${__("Due Today", "subscription")}`;
   }
   if (sdevs_subscription && sdevs_subscription.type) {
     // Capitalize the first letter to match product page display
@@ -42,7 +42,7 @@ const modifySubtotalPriceFormat = (defaultValue, extensions, args, validation) =
     // Check max_no_payment - handle string, number, null, undefined
     const maxPayments = parseInt(sdevs_subscription.max_no_payment, 10);
     const paymentInfo = !isNaN(maxPayments) && maxPayments > 0 ? ` x ${maxPayments}` : "";
-    return `<price/> ${__("Every", "wp_subscription")} ${
+    return `<price/> ${__("Every", "subscription")} ${
       sdevs_subscription.time && sdevs_subscription.time > 1 ? " " + sdevs_subscription.time + "-" : ""
     }${capitalizedType}${paymentInfo}`;
   }
@@ -71,7 +71,7 @@ const RecurringTotals = ({ cart, extensions }) => {
   return (
     <TotalsItem
       className="wc-block-components-totals-footer-item"
-      label={__("Recurring totals", "wp_subscription")}
+      label={__("Recurring totals", "subscription")}
       description={
         <div style={{ display: "grid" }}>
           {recurrings.map((recurring) => {
@@ -90,15 +90,15 @@ const RecurringTotals = ({ cart, extensions }) => {
                 {recurring.can_user_cancel === "yes" && (
                   <>
                     <br />
-                    <small>{__("You can cancel subscription at any time!", "wp_subscription")} </small>
+                    <small>{__("You can cancel subscription at any time!", "subscription")} </small>
                   </>
                 )}
                 {recurring.max_no_payment > 0 && (
                   <>
                     <br />
                     <small>
-                      {__("This subscription will be billed for", "wp_subscription")} {recurring.max_no_payment}{" "}
-                      {__("times.", "wp_subscription")}
+                      {__("This subscription will be billed for", "subscription")} {recurring.max_no_payment}{" "}
+                      {__("times.", "subscription")}
                     </small>
                   </>
                 )}

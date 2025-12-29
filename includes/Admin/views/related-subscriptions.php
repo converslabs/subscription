@@ -17,12 +17,12 @@ use SpringDevs\Subscription\Illuminate\Helper;
 <table class="widefat striped subscrpt-related-subscriptions">
 	<thead>
 		<tr>
-			<th><?php esc_html_e( 'ID', 'wp_subscription' ); ?></th>
-			<th><?php esc_html_e( 'Product', 'wp_subscription' ); ?></th>
-			<th><?php esc_html_e( 'Recurring', 'wp_subscription' ); ?></th>
-			<th><?php esc_html_e( 'Started on', 'wp_subscription' ); ?></th>
-			<th><?php esc_html_e( 'Expiry date', 'wp_subscription' ); ?></th>
-			<th><?php esc_html_e( 'Status', 'wp_subscription' ); ?></th>
+			<th><?php esc_html_e( 'ID', 'subscription' ); ?></th>
+			<th><?php esc_html_e( 'Product', 'subscription' ); ?></th>
+			<th><?php esc_html_e( 'Recurring', 'subscription' ); ?></th>
+			<th><?php esc_html_e( 'Started on', 'subscription' ); ?></th>
+			<th><?php esc_html_e( 'Expiry date', 'subscription' ); ?></th>
+			<th><?php esc_html_e( 'Status', 'subscription' ); ?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -83,7 +83,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 								<?php
 									$grace_remaining_text = sprintf(
 										// translators: Number of days remaining in grace period.
-										__( '%d days remaining!', 'wp_subscription' ),
+										__( '%d days remaining!', 'subscription' ),
 										$grace_remaining
 									);
 								?>

@@ -63,7 +63,7 @@ class Ajax {
 
 		$title = sprintf(
 			// translators: Plugin name and version.
-			__( 'Installing Plugin: %s', 'wp_subscription' ),
+			__( 'Installing Plugin: %s', 'subscription' ),
 			$api->name . ' ' . $api->version
 		);
 		$nonce = 'install-plugin_' . $plugin;

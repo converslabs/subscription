@@ -23,7 +23,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 ?>
 <div class="wp-subscription-admin-content" style="max-width:1240px;margin:32px auto 0 auto">
 	<div class="wp-subscription-admin-box wpsubs-tw-root">
-		<h1 class="wp-heading-inline"><?php esc_html_e( 'Subscription Settings', 'wp_subscription' ); ?></h1>
+		<h1 class="wp-heading-inline"><?php esc_html_e( 'Subscription Settings', 'subscription' ); ?></h1>
 		<hr class="wp-header-end"><br/>
 
 		<form method="post" action="options.php" class="border border-gray-200 rounded-lg p-5">
@@ -49,7 +49,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 			<div>
 				<input 
 					type="submit" 
-					value="<?php esc_attr_e( 'Save changes', 'wp_subscription' ); ?>" 
+					value="<?php esc_attr_e( 'Save changes', 'subscription' ); ?>" 
 					class="button button-primary px-3! py-1! rounded-md!"
 				/>
 			</div>
@@ -71,7 +71,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 	<!-- PRO Features (subtle, grayed out) -->
 	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
 		<th scope="row">
-			<label><?php esc_html_e( 'Variable Product Options', 'wp_subscription' ); ?></label>
+			<label><?php esc_html_e( 'Variable Product Options', 'subscription' ); ?></label>
 		</th>
 		<td>
 			<input type="text" disabled placeholder="Available in PRO" style="width:220px;" />
@@ -80,16 +80,16 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 	</tr>
 	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
 		<th scope="row">
-			<label><?php esc_html_e( 'Delivery Schedule', 'wp_subscription' ); ?></label>
+			<label><?php esc_html_e( 'Delivery Schedule', 'subscription' ); ?></label>
 		</th>
 		<td>
-			<select disabled><option><?php esc_html_e( 'Available in PRO', 'wp_subscription' ); ?></option></select>
+			<select disabled><option><?php esc_html_e( 'Available in PRO', 'subscription' ); ?></option></select>
 			<p class="description">Custom delivery intervals for subscriptions <span style="color:#2196f3;font-weight:600;">PRO</span></p>
 		</td>
 	</tr>
 	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
 		<th scope="row">
-			<label><?php esc_html_e( 'Subscription History', 'wp_subscription' ); ?></label>
+			<label><?php esc_html_e( 'Subscription History', 'subscription' ); ?></label>
 		</th>
 		<td>
 			<input type="text" disabled placeholder="Available in PRO" style="width:220px;" />
@@ -98,7 +98,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 	</tr>
 	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
 		<th scope="row">
-			<label><?php esc_html_e( 'More Subscription Durations', 'wp_subscription' ); ?></label>
+			<label><?php esc_html_e( 'More Subscription Durations', 'subscription' ); ?></label>
 		</th>
 		<td>
 			<input type="text" disabled placeholder="Available in PRO" style="width:220px;" />
@@ -107,7 +107,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 	</tr>
 	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
 		<th scope="row">
-			<label><?php esc_html_e( 'Sign Up Fee', 'wp_subscription' ); ?></label>
+			<label><?php esc_html_e( 'Sign Up Fee', 'subscription' ); ?></label>
 		</th>
 		<td>
 			<input type="number" disabled placeholder="Available in PRO" style="width:120px;" />
@@ -116,7 +116,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 	</tr>
 	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
 		<th scope="row">
-			<label><?php esc_html_e( 'Early Renewal', 'wp_subscription' ); ?></label>
+			<label><?php esc_html_e( 'Early Renewal', 'subscription' ); ?></label>
 		</th>
 		<td>
 			<input class="wp-subscription-toggle" type="checkbox" disabled />
@@ -126,7 +126,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 	</tr>
 	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
 		<th scope="row">
-			<label><?php esc_html_e( 'Renewal Price', 'wp_subscription' ); ?></label>
+			<label><?php esc_html_e( 'Renewal Price', 'subscription' ); ?></label>
 		</th>
 		<td>
 			<input type="number" disabled placeholder="Available in PRO" style="width:120px;" />

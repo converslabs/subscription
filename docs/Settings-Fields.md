@@ -131,8 +131,8 @@ public function add_settings_fields( $settings_fields ) {
             'group'      => 'test',
             'priority'   => 1,
             'field_data' => [
-                'title'       => __( 'Test Heading', 'wp_subscription' ),
-                'description' => __( 'Test heading description.', 'wp_subscription' ),
+                'title'       => __( 'Test Heading', 'subscription' ),
+                'description' => __( 'Test heading description.', 'subscription' ),
             ],
         ],
         [
@@ -141,9 +141,9 @@ public function add_settings_fields( $settings_fields ) {
             'priority'   => 1,
             'field_data' => [
                 'id'          => 'test_field_id',
-                'title'       => __( 'Test Switch', 'wp_subscription' ),
-                'label'       => __( 'Toggle on test switch', 'wp_subscription' ),
-                'description' => __( 'Toggle Description. Click to toggle!', 'wp_subscription' ),
+                'title'       => __( 'Test Switch', 'subscription' ),
+                'label'       => __( 'Toggle on test switch', 'subscription' ),
+                'description' => __( 'Toggle Description. Click to toggle!', 'subscription' ),
                 'value'       => '1',
                 'checked'     => '1' === get_option( 'test_field_id', '1' ),
                 'disabled'    => false,
