@@ -13,10 +13,10 @@ defined( 'ABSPATH' ) || exit;
 <div class="wrap">
 
 	<div class="wp-subscription-admin-content" style="max-width:1240px;margin:32px auto 0 auto">
-		<h2><?php esc_html_e( 'Payment Gateways', 'wp_subscription' ); ?></h2>
+		<h2><?php esc_html_e( 'Payment Gateways', 'subscription' ); ?></h2>
 		
 		<p style="font-size:14px;line-height:1.7;margin:0 0 24px 0;">
-			<?php esc_html_e( 'Configure your store\'s payment gateways for subscription products. Enable, disable, and manage available payment methods that support recurring billing.', 'wp_subscription' ); ?>
+			<?php esc_html_e( 'Configure your store\'s payment gateways for subscription products. Enable, disable, and manage available payment methods that support recurring billing.', 'subscription' ); ?>
 		</p>
 
 		<!-- Payment Gateway Cards -->
@@ -43,22 +43,22 @@ defined( 'ABSPATH' ) || exit;
 									<!-- Integration Status Badge -->
 									<?php if ( ! empty( $integration['is_installed'] ) && ! empty( $integration['is_active'] ) ) : ?>
 										<span style="font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#e8f5e9;color:#1b5e20;">
-											<?php esc_html_e( 'Active', 'wp_subscription' ); ?>
+											<?php esc_html_e( 'Active', 'subscription' ); ?>
 										</span>
 									<?php elseif ( ! empty( $integration['is_installed'] ) && empty( $integration['is_active'] ) ) : ?>
 										<span style="font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#e3f2fd;color:#0d47a1;">
-											<?php esc_html_e( 'Inactive', 'wp_subscription' ); ?>
+											<?php esc_html_e( 'Inactive', 'subscription' ); ?>
 										</span>
 									<?php else : ?>
 										<span style="font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#ffebee;color:#b71c1c;">
-											<?php esc_html_e( 'Not Available', 'wp_subscription' ); ?>
+											<?php esc_html_e( 'Not Available', 'subscription' ); ?>
 										</span>
 									<?php endif; ?>
 
 									<!-- Beta Badge -->
 									<?php if ( ! empty( $integration['is_beta'] ) && $integration['is_beta'] ) : ?>
 										<span style="font-size:0.85em;padding:4px 8px;border-radius:12px;white-space:nowrap;text-transform: uppercase;background:#ffebee;color:#b71c1c;font-weight: 500;">
-											<?php esc_html_e( 'Beta', 'wp_subscription' ); ?>
+											<?php esc_html_e( 'Beta', 'subscription' ); ?>
 										</span>
 									<?php endif; ?>
 								</div>
@@ -76,7 +76,7 @@ defined( 'ABSPATH' ) || exit;
 								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#1b5e20"/>
 								</svg>
-								<?php esc_html_e( 'Supports automatic recurring payments.', 'wp_subscription' ); ?>
+								<?php esc_html_e( 'Supports automatic recurring payments.', 'subscription' ); ?>
 							</span>
 						</div>
 					<?php else : ?>
@@ -85,7 +85,7 @@ defined( 'ABSPATH' ) || exit;
 								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#e65100"/>
 								</svg>
-								<?php esc_html_e( 'Manual renewals only.', 'wp_subscription' ); ?>
+								<?php esc_html_e( 'Manual renewals only.', 'subscription' ); ?>
 							</span>
 						</div>
 					<?php endif; ?>
@@ -120,35 +120,35 @@ defined( 'ABSPATH' ) || exit;
 
 		<!-- Information box -->
 		<div class="wp-subscription-admin-box" style="margin-bottom:24px;">
-			<h3><?php esc_html_e( 'About Payment Gateways', 'wp_subscription' ); ?></h3>
+			<h3><?php esc_html_e( 'About Payment Gateways', 'subscription' ); ?></h3>
 			<p style="font-size:14px;line-height:1.7;margin:0 0 10px 0;">
-				<?php esc_html_e( 'For subscription products to work properly, you need to use payment gateways that support recurring payments. Some payment methods only support manual renewals, which requires customers to manually pay for each renewal period.', 'wp_subscription' ); ?>
+				<?php esc_html_e( 'For subscription products to work properly, you need to use payment gateways that support recurring payments. Some payment methods only support manual renewals, which requires customers to manually pay for each renewal period.', 'subscription' ); ?>
 			</p>
 			<ul style="font-size:14px;line-height:1.6;margin:0 0 0 18px;padding:0;list-style:disc;">
-				<li><?php esc_html_e( 'Automatic recurring billing requires a compatible payment gateway', 'wp_subscription' ); ?></li>
-				<li><?php esc_html_e( 'Manual renewal methods work with any payment gateway', 'wp_subscription' ); ?></li>
-				<li><?php esc_html_e( 'Some gateways may require additional configuration for subscriptions', 'wp_subscription' ); ?></li>
+				<li><?php esc_html_e( 'Automatic recurring billing requires a compatible payment gateway', 'subscription' ); ?></li>
+				<li><?php esc_html_e( 'Manual renewal methods work with any payment gateway', 'subscription' ); ?></li>
+				<li><?php esc_html_e( 'Some gateways may require additional configuration for subscriptions', 'subscription' ); ?></li>
 			</ul>
 		</div>
 
 		<!-- Documentation box -->
 		<div class="wp-subscription-support-resources" style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-bottom:24px;">
 			<div class="wp-subscription-admin-box">
-				<h3><?php esc_html_e( 'Payment Gateway Documentation', 'wp_subscription' ); ?></h3>
+				<h3><?php esc_html_e( 'Payment Gateway Documentation', 'subscription' ); ?></h3>
 				<p style="font-size:14px;margin:0 0 8px 0;">
-					<?php esc_html_e( 'Learn how to set up and configure payment gateways for subscription products.', 'wp_subscription' ); ?>
+					<?php esc_html_e( 'Learn how to set up and configure payment gateways for subscription products.', 'subscription' ); ?>
 				</p>
 				<a href="https://docs.converslabs.com/en" target="_blank" class="button button-small" style="font-size:13px;padding:5px 14px;">
-					<?php esc_html_e( 'View Documentation', 'wp_subscription' ); ?>
+					<?php esc_html_e( 'View Documentation', 'subscription' ); ?>
 				</a>
 			</div>
 			<div class="wp-subscription-admin-box">
-				<h3><?php esc_html_e( 'Need Help?', 'wp_subscription' ); ?></h3>
+				<h3><?php esc_html_e( 'Need Help?', 'subscription' ); ?></h3>
 				<p style="font-size:14px;margin:0 0 8px 0;">
-					<?php esc_html_e( 'If you\'re having trouble with a payment gateway, our support team can help.', 'wp_subscription' ); ?>
+					<?php esc_html_e( 'If you\'re having trouble with a payment gateway, our support team can help.', 'subscription' ); ?>
 				</p>
 				<a href="https://wpsubscription.co/contact" target="_blank" class="button button-small" style="font-size:13px;padding:5px 14px;">
-					<?php esc_html_e( 'Get Support', 'wp_subscription' ); ?>
+					<?php esc_html_e( 'Get Support', 'subscription' ); ?>
 				</a>
 			</div>
 		</div>

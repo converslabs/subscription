@@ -46,8 +46,8 @@ class GuestCheckout {
 				'group'      => 'guest_checkout',
 				'priority'   => 1,
 				'field_data' => [
-					'title'       => __( 'Guest Checkout', 'wp_subscription' ),
-					'description' => __( 'Manage guest checkout settings for subscriptions.', 'wp_subscription' ),
+					'title'       => __( 'Guest Checkout', 'subscription' ),
+					'description' => __( 'Manage guest checkout settings for subscriptions.', 'subscription' ),
 				],
 			],
 			[
@@ -56,8 +56,8 @@ class GuestCheckout {
 				'priority'   => 1,
 				'field_data' => [
 					'id'          => 'wp_subscription_allow_guest_checkout',
-					'title'       => __( 'Allow Guest Checkout', 'wp_subscription' ),
-					'description' => __( 'Allow customers to checkout without logging in.', 'wp_subscription' ) . '<br/><sub>' . __( 'Note: You will need to enable <strong>Guest checkout</strong> and <strong>Allow customers to create an account during checkout</strong> options in WooCommerce settings for this to work properly.', 'wp_subscription' ) . '</sub>',
+					'title'       => __( 'Allow Guest Checkout', 'subscription' ),
+					'description' => __( 'Allow customers to checkout without logging in.', 'subscription' ) . '<br/><sub>' . __( 'Note: You will need to enable <strong>Guest checkout</strong> and <strong>Allow customers to create an account during checkout</strong> options in WooCommerce settings for this to work properly.', 'subscription' ) . '</sub>',
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'wp_subscription_allow_guest_checkout', '0' ),
 				],
@@ -68,8 +68,8 @@ class GuestCheckout {
 				'priority'   => 2,
 				'field_data' => [
 					'id'          => 'wp_subscription_enforce_login',
-					'title'       => __( 'Enforce Login', 'wp_subscription' ),
-					'description' => __( 'Force customers to login or check the "Create account" checkbox before checking out.', 'wp_subscription' ),
+					'title'       => __( 'Enforce Login', 'subscription' ),
+					'description' => __( 'Force customers to login or check the "Create account" checkbox before checking out.', 'subscription' ),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'wp_subscription_enforce_login', '1' ),
 				],
@@ -213,7 +213,7 @@ class GuestCheckout {
 	 */
 	public function validate_guest_checkout() {
 		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
-			wc_add_notice( __( 'You are trying to buy a subscription. You must be logged in to continue.', 'wp_subscription' ), 'error' );
+			wc_add_notice( __( 'You are trying to buy a subscription. You must be logged in to continue.', 'subscription' ), 'error' );
 			return;
 		}
 	}
@@ -226,7 +226,7 @@ class GuestCheckout {
 	 */
 	public function validate_guest_checkout_storeapi( $errors ) {
 		if ( ! $this->is_subs_and_guest_checkout_allowed() ) {
-			$errors->add( 'wp_subscription_login_required', __( 'You are trying to buy a subscription. You must be logged in to continue.', 'wp_subscription' ) );
+			$errors->add( 'wp_subscription_login_required', __( 'You are trying to buy a subscription. You must be logged in to continue.', 'subscription' ) );
 			return $errors;
 		}
 	}
@@ -258,7 +258,7 @@ class GuestCheckout {
 		if ( $is_login_enforced && ! $is_create_account ) {
 			wc_add_notice(
 				wp_kses_post(
-					__( 'You are ordering a subscription product. You must be either <strong>logged in</strong> or check the "<strong>Create an account</strong>" option to continue the checkout.', 'wp_subscription' )
+					__( 'You are ordering a subscription product. You must be either <strong>logged in</strong> or check the "<strong>Create an account</strong>" option to continue the checkout.', 'subscription' )
 				),
 				'error'
 			);
@@ -291,7 +291,7 @@ class GuestCheckout {
 			throw new \WC_Data_Exception(
 				'wp_subscription_account_required',
 				wp_kses_post(
-					__( 'You are ordering a subscription product. You must be either <strong>logged in</strong> or check the "<strong>Create an account</strong>" option to continue the checkout.', 'wp_subscription' )
+					__( 'You are ordering a subscription product. You must be either <strong>logged in</strong> or check the "<strong>Create an account</strong>" option to continue the checkout.', 'subscription' )
 				),
 				400
 			);

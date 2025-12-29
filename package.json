@@ -1,6 +1,6 @@
 {
   "name": "subscription",
-  "version": "1.8.14",
+  "version": "1.8.15",
   "author": "The WordPress Contributors",
   "license": "GPL-2.0-or-later",
   "main": "build/index.js",
@@ -22,7 +22,7 @@
     "prepare": "husky",
     "release": "scripts/release.sh",
     "svn": "scripts/svn.sh",
-    "update-lang-files": "wp i18n make-pot . ./languages/wp_subscription.pot --exclude=node_modules,vendor,svn"
+    "update-lang-files": "wp i18n make-pot . ./languages/subscription.pot --exclude=node_modules,vendor,svn"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.16",

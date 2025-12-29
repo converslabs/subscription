@@ -24,7 +24,7 @@ const Block_Gateway = {
   content: Object(window.wp.element.createElement)(Content, null),
   edit: Object(window.wp.element.createElement)(Content, null),
   canMakePayment: () => true,
-  ariaLabel: window.wp.htmlEntities.decodeEntities(settings.title) || window.wp.i18n.__("PayPal", "wp_subscription"),
+  ariaLabel: window.wp.htmlEntities.decodeEntities(settings.title) || window.wp.i18n.__("PayPal", "subscription"),
   supports: {
     features: settings.features,
   },

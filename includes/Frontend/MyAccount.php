@@ -137,7 +137,7 @@ class MyAccount {
 
 		if ( 'cancelled' !== $status ) {
 			if ( in_array( $status, array( 'pending', 'active', 'on_hold' ), true ) && $user_cancel ) {
-				$label = __( 'Cancel', 'wp_subscription' );
+				$label = __( 'Cancel', 'subscription' );
 				$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'cancel', $id, $status );
 
 				$action_buttons['cancel'] = array(
@@ -146,7 +146,7 @@ class MyAccount {
 					'class' => 'cancel',
 				);
 			} elseif ( trim( $status ) === trim( 'pe_cancelled' ) ) {
-				$label = __( 'Reactive', 'wp_subscription' );
+				$label = __( 'Reactive', 'subscription' );
 				$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'reactive', $id, $status );
 
 				$action_buttons['reactive'] = array(
@@ -156,7 +156,7 @@ class MyAccount {
 			} elseif ( 'expired' === $status && 'pending' !== $order->get_status() ) {
 				// Check if maximum payments reached before showing renew button
 				if ( ! subscrpt_is_max_payments_reached( $id ) ) {
-					$label = __( 'Renew', 'wp_subscription' );
+					$label = __( 'Renew', 'subscription' );
 					$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'renew', $id, $status );
 
 					$action_buttons['renew'] = array(
@@ -167,7 +167,7 @@ class MyAccount {
 			}
 
 			if ( 'pending' === $order->get_status() ) {
-				$label = __( 'Pay now', 'wp_subscription' );
+				$label = __( 'Pay now', 'subscription' );
 				$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'pay_now', $id, $status );
 
 				$action_buttons['pay_now'] = array(
@@ -186,7 +186,7 @@ class MyAccount {
 			// Check maximum payment limit for auto-renewal buttons too
 			if ( ! subscrpt_is_max_payments_reached( $id ) ) {
 				if ( ! $is_auto_renew ) {
-					$label = __( 'Turn on Auto Renewal', 'wp_subscription' );
+					$label = __( 'Turn on Auto Renewal', 'subscription' );
 					$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'auto-renew-on', $id, $status );
 
 					$action_buttons['auto-renew-on'] = array(
@@ -194,7 +194,7 @@ class MyAccount {
 						'label' => $label,
 					);
 				} else {
-					$label = __( 'Turn off Auto Renewal', 'wp_subscription' );
+					$label = __( 'Turn off Auto Renewal', 'subscription' );
 					$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'auto-renew-off', $id, $status );
 
 					$action_buttons['auto-renew-off'] = array(
@@ -257,7 +257,7 @@ class MyAccount {
 	 * @return string
 	 */
 	public function change_subscriptions_title( string $title ): string {
-		$title = __( 'My Subscriptions', 'wp_subscription' );
+		$title = __( 'My Subscriptions', 'subscription' );
 		return $title;
 	}
 
@@ -272,7 +272,7 @@ class MyAccount {
 		$subs_id = get_query_var( $this->view_subscriptions_endpoint, 0 );
 
 		/* translators: %s: Subscription ID */
-		$title = sprintf( __( 'Subscription #%s', 'wp_subscription' ), $subs_id );
+		$title = sprintf( __( 'Subscription #%s', 'subscription' ), $subs_id );
 		return $title;
 	}
 
@@ -288,7 +288,7 @@ class MyAccount {
 			$logout = $items['customer-logout'];
 			unset( $items['customer-logout'] );
 
-			$items[ $this->subscriptions_endpoint ] = __( 'Subscriptions', 'wp_subscription' );
+			$items[ $this->subscriptions_endpoint ] = __( 'Subscriptions', 'subscription' );
 			$items['customer-logout']               = $logout;
 		}
 		return $items;

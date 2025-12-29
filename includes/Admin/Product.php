@@ -73,7 +73,7 @@ class Product {
 	 */
 	public function register_tab( $tabs ) {
 		$tabs['sdevs_subscription'] = array(
-			'label'    => __( 'Subscription', 'wp_subscription' ),
+			'label'    => __( 'Subscription', 'subscription' ),
 			'class'    => array( 'show_if_simple', 'show_if_subscription' ),
 			'target'   => 'sdevs_subscription_options',
 			'priority' => 11,
@@ -102,8 +102,8 @@ class Product {
 		$product_type_options['subscrpt_enable'] = array(
 			'id'            => 'subscrpt_enable',
 			'wrapper_class' => $wrapper_class,
-			'label'         => __( 'Subscription', 'wp_subscription' ),
-			'description'   => __( 'Enable Subscriptions', 'wp_subscription' ),
+			'label'         => __( 'Subscription', 'subscription' ),
+			'description'   => __( 'Enable Subscriptions', 'subscription' ),
 			'default'       => $value,
 		);
 
@@ -119,10 +119,10 @@ class Product {
 				do_action( 'subscrpt_simple_pro_fields', get_the_ID() );
 			} else {
 				$timing_types          = array(
-					'days'   => __( 'Daily', 'wp_subscription' ),
-					'weeks'  => __( 'Weekly', 'wp_subscription' ),
-					'months' => __( 'Monthly', 'wp_subscription' ),
-					'years'  => __( 'Yearly', 'wp_subscription' ),
+					'days'   => __( 'Daily', 'subscription' ),
+					'weeks'  => __( 'Weekly', 'subscription' ),
+					'months' => __( 'Monthly', 'subscription' ),
+					'years'  => __( 'Yearly', 'subscription' ),
 				);
 				$trial_timing_types    = wps_subscription_get_timing_types();
 				$subscrpt_timing       = null;

@@ -43,13 +43,13 @@ function subscrpt_get_action_url( $action, $nonce, $subscription_id ) {
 
 function subscrpt_get_typos( $number, $typo ) {
 	if ( $number == 1 && $typo == 'days' ) {
-		return ucfirst( __( 'day', 'wp_subscription' ) );
+		return ucfirst( __( 'day', 'subscription' ) );
 	} elseif ( $number == 1 && $typo == 'weeks' ) {
-		return ucfirst( __( 'week', 'wp_subscription' ) );
+		return ucfirst( __( 'week', 'subscription' ) );
 	} elseif ( $number == 1 && $typo == 'months' ) {
-		return ucfirst( __( 'month', 'wp_subscription' ) );
+		return ucfirst( __( 'month', 'subscription' ) );
 	} elseif ( $number == 1 && $typo == 'years' ) {
-		return ucfirst( __( 'year', 'wp_subscription' ) );
+		return ucfirst( __( 'year', 'subscription' ) );
 	} else {
 		return ucfirst( $typo );
 	}
@@ -411,8 +411,8 @@ if ( ! function_exists( 'wps_subscription_order_relation_type_cast' ) ) {
 		$relational_type_keys = apply_filters(
 			'subscrpt_order_relational_types',
 			array(
-				'new'   => __( 'New Subscription Order', 'wp_subscription' ),
-				'renew' => __( 'Renewal Order', 'wp_subscription' ),
+				'new'   => __( 'New Subscription Order', 'subscription' ),
+				'renew' => __( 'Renewal Order', 'subscription' ),
 			)
 		);
 
@@ -488,19 +488,19 @@ if ( ! function_exists( 'wps_subscription_get_timing_types' ) ) {
 			'years'  => 'Yearly',
 		) : array(
 			array(
-				'label' => __( 'Day', 'wp_subscription' ),
+				'label' => __( 'Day', 'subscription' ),
 				'value' => 'days',
 			),
 			array(
-				'label' => __( 'Week', 'wp_subscription' ),
+				'label' => __( 'Week', 'subscription' ),
 				'value' => 'weeks',
 			),
 			array(
-				'label' => __( 'Month', 'wp_subscription' ),
+				'label' => __( 'Month', 'subscription' ),
 				'value' => 'months',
 			),
 			array(
-				'label' => __( 'Year', 'wp_subscription' ),
+				'label' => __( 'Year', 'subscription' ),
 				'value' => 'years',
 			),
 		);
@@ -566,7 +566,7 @@ function subscrpt_add_payment_completion_note( $subscription_id, $payments_made,
 	// Create completion note
 	$completion_note = sprintf(
 		/* translators: %1$d: payments made, %2$d: total payments */
-		__( 'Split payment plan completed successfully! %1$d of %2$d payments received.', 'wp_subscription' ),
+		__( 'Split payment plan completed successfully! %1$d of %2$d payments received.', 'subscription' ),
 		$payments_made,
 		$max_payments
 	);
@@ -580,13 +580,13 @@ function subscrpt_add_payment_completion_note( $subscription_id, $payments_made,
 			'comment_type'    => 'order_note',
 		)
 	);
-	update_comment_meta( $comment_id, '_subscrpt_activity', __( 'Split Payment - Plan Complete', 'wp_subscription' ) );
+	update_comment_meta( $comment_id, '_subscrpt_activity', __( 'Split Payment - Plan Complete', 'subscription' ) );
 	update_comment_meta( $comment_id, '_subscrpt_activity_type', 'split_payment' );
 
 	// Add payment summary note
 	$payment_summary = sprintf(
 		/* translators: %1$d: payments made, %2$d: total payments, %3$s: completion date */
-		__( 'Payment Summary: %1$d of %2$d installments completed on %3$s. All payments received successfully.', 'wp_subscription' ),
+		__( 'Payment Summary: %1$d of %2$d installments completed on %3$s. All payments received successfully.', 'subscription' ),
 		$payments_made,
 		$max_payments,
 		date_i18n( wc_date_format(), current_time( 'timestamp' ) )
@@ -600,7 +600,7 @@ function subscrpt_add_payment_completion_note( $subscription_id, $payments_made,
 			'comment_type'    => 'order_note',
 		)
 	);
-	update_comment_meta( $summary_comment_id, '_subscrpt_activity', __( 'Payment Summary - Complete', 'wp_subscription' ) );
+	update_comment_meta( $summary_comment_id, '_subscrpt_activity', __( 'Payment Summary - Complete', 'subscription' ) );
 	update_comment_meta( $summary_comment_id, '_subscrpt_activity_type', 'split_payment_summary' );
 }
 

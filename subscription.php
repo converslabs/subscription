@@ -11,7 +11,7 @@
  * Author: ConversWP
  * Author URI: https://wpsubscription.co/
  *
- * Text Domain: wp_subscription
+ * Text Domain: subscription
  * Domain Path: /languages
  *
  * Requires PHP: 7.4
@@ -257,7 +257,7 @@ final class Sdevs_Subscription {
 	public function localization_setup() {
 		// Explicitly load translations for local/custom installs.
 		load_plugin_textdomain(
-			'wp_subscription',
+			'subscription',
 			false,
 			dirname( plugin_basename( __FILE__ ) ) . '/languages'
 		);

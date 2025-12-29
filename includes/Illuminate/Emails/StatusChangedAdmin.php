@@ -19,8 +19,8 @@ class StatusChangedAdmin extends WC_Email {
 	 */
 	public function __construct() {
 		$this->id          = 'subscrpt_status_changed_admin_email';
-		$this->title       = __( 'Subscription status changed ( Admin )', 'wp_subscription' );
-		$this->description = __( 'This email is received when a subscription status changed.', 'wp_subscription' );
+		$this->title       = __( 'Subscription status changed ( Admin )', 'subscription' );
+		$this->description = __( 'This email is received when a subscription status changed.', 'subscription' );
 
 		// email template path.
 		$this->set_template( $this->id );
@@ -41,7 +41,7 @@ class StatusChangedAdmin extends WC_Email {
 	 * @return string
 	 */
 	public function get_default_subject(): string {
-		return __( '#{subscription_id} subscription status changed', 'wp_subscription' );
+		return __( '#{subscription_id} subscription status changed', 'subscription' );
 	}
 
 	/**

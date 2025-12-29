@@ -59,8 +59,8 @@ class Paypal extends \WC_Payment_Gateway {
 	public function __construct() {
 		$this->id                 = 'wp_subscription_paypal';
 		$this->has_fields         = false;
-		$this->method_title       = __( 'PayPal for WPSubscription', 'wp_subscription' );
-		$this->method_description = __( 'Accept wp subscription recurring payments through PayPal. Only WP Subscription is supported.', 'wp_subscription' );
+		$this->method_title       = __( 'PayPal for WPSubscription', 'subscription' );
+		$this->method_description = __( 'Accept wp subscription recurring payments through PayPal. Only WP Subscription is supported.', 'subscription' );
 		$this->supports           = [ 'products', 'subscriptions', 'refunds' ];
 		$this->icon               = apply_filters( 'wp_subscription_paypal_icon', WP_SUBSCRIPTION_URL . '/assets/images/paypal.svg' );
 
@@ -131,48 +131,48 @@ class Paypal extends \WC_Payment_Gateway {
 
 		$this->form_fields = [
 			'enabled'                    => [
-				'title'       => __( 'Enable/Disable', 'wp_subscription' ),
+				'title'       => __( 'Enable/Disable', 'subscription' ),
 				'type'        => 'checkbox',
-				'label'       => __( 'Enable PayPal for WPSubscription', 'wp_subscription' ),
+				'label'       => __( 'Enable PayPal for WPSubscription', 'subscription' ),
 				'default'     => 'no',
-				'description' => __( 'Enable or Disable PayPal for WPSubscription payment gateway', 'wp_subscription' ),
+				'description' => __( 'Enable or Disable PayPal for WPSubscription payment gateway', 'subscription' ),
 				'desc_tip'    => true,
 				'class'       => 'wpsubs-toggle',
 			],
 			'testmode'                   => [
-				'title'       => __( 'Test Mode', 'wp_subscription' ),
+				'title'       => __( 'Test Mode', 'subscription' ),
 				'type'        => 'checkbox',
-				'label'       => __( 'Enable PayPal Sandbox', 'wp_subscription' ),
+				'label'       => __( 'Enable PayPal Sandbox', 'subscription' ),
 				'default'     => 'no',
-				'description' => __( 'PayPal sandbox can be used to test payments without using real money.', 'wp_subscription' ),
+				'description' => __( 'PayPal sandbox can be used to test payments without using real money.', 'subscription' ),
 				'desc_tip'    => true,
 				'class'       => 'wpsubs-toggle',
 			],
 
 			'title'                      => [
-				'title'       => __( 'Title', 'wp_subscription' ),
+				'title'       => __( 'Title', 'subscription' ),
 				'type'        => 'text',
-				'description' => __( 'This controls the title which the user sees during checkout.', 'wp_subscription' ),
-				'default'     => __( 'PayPal', 'wp_subscription' ),
+				'description' => __( 'This controls the title which the user sees during checkout.', 'subscription' ),
+				'default'     => __( 'PayPal', 'subscription' ),
 				'desc_tip'    => true,
 			],
 			'description'                => [
-				'title'       => __( 'Description', 'wp_subscription' ),
+				'title'       => __( 'Description', 'subscription' ),
 				'type'        => 'textarea',
-				'description' => __( 'This controls the description which the user sees during checkout.', 'wp_subscription' ),
-				'default'     => __( 'Pay via PayPal; you can pay with your credit card if you do not have a PayPal account.', 'wp_subscription' ),
+				'description' => __( 'This controls the description which the user sees during checkout.', 'subscription' ),
+				'default'     => __( 'Pay via PayPal; you can pay with your credit card if you do not have a PayPal account.', 'subscription' ),
 				'desc_tip'    => true,
 				'css'         => 'width: 400px; height: 75px;',
 			],
 
 			'paypal_creds_title'         => [
-				'title'       => __( 'PayPal Credentials', 'wp_subscription' ),
+				'title'       => __( 'PayPal Credentials', 'subscription' ),
 				'type'        => 'title',
 				'description' => '',
 				'class'       => 'wpsubs-paypal-live-creds',
 			],
 			'paypal_sandbox_creds_title' => [
-				'title'       => __( 'PayPal Sandbox Credentials', 'wp_subscription' ),
+				'title'       => __( 'PayPal Sandbox Credentials', 'subscription' ),
 				'type'        => 'title',
 				'description' => '',
 				'class'       => 'wpsubs-paypal-sandbox-creds',
@@ -183,40 +183,40 @@ class Paypal extends \WC_Payment_Gateway {
 				'type'        => 'title',
 				'description' => sprintf(
 					// Translators: %1$s is the link to PayPal developer account, %2$s is the link to My Apps & Credentials.
-					__( 'Create a <a href="%1$s" target="_blank">PayPal developer account</a>, go to <a href="%2$s" target="_blank">My Apps & Credentials</a>, select the toggle ( Sandbox or Live ), create an app, and copy <b>Client ID</b> and <b>Secret</b>.', 'wp_subscription' ),
+					__( 'Create a <a href="%1$s" target="_blank">PayPal developer account</a>, go to <a href="%2$s" target="_blank">My Apps & Credentials</a>, select the toggle ( Sandbox or Live ), create an app, and copy <b>Client ID</b> and <b>Secret</b>.', 'subscription' ),
 					'https://developer.paypal.com',
 					'https://developer.paypal.com/dashboard/applications'
 				),
 			],
 			'email'                      => [
-				'title'       => __( 'Email', 'wp_subscription' ),
+				'title'       => __( 'Email', 'subscription' ),
 				'type'        => 'email',
-				'description' => __( 'PayPal Email Address (used to receive payments)', 'wp_subscription' ),
+				'description' => __( 'PayPal Email Address (used to receive payments)', 'subscription' ),
 				'default'     => '',
 				'desc_tip'    => true,
 			],
 
 			// Live Credentials.
 			'client_id'                  => [
-				'title'       => __( 'Client ID', 'wp_subscription' ),
+				'title'       => __( 'Client ID', 'subscription' ),
 				'type'        => 'password',
-				'description' => __( 'Enter your PayPal Client ID copied from PayPal Apps & Credentials.', 'wp_subscription' ),
+				'description' => __( 'Enter your PayPal Client ID copied from PayPal Apps & Credentials.', 'subscription' ),
 				'default'     => '',
 				'desc_tip'    => true,
 				'class'       => 'wpsubs-paypal-live-creds',
 			],
 			'client_secret'              => [
-				'title'       => __( 'Secret', 'wp_subscription' ),
+				'title'       => __( 'Secret', 'subscription' ),
 				'type'        => 'password',
-				'description' => __( 'Enter your PayPal Secret copied from PayPal Apps & Credentials.', 'wp_subscription' ),
+				'description' => __( 'Enter your PayPal Secret copied from PayPal Apps & Credentials.', 'subscription' ),
 				'default'     => '',
 				'desc_tip'    => true,
 				'class'       => 'wpsubs-paypal-live-creds',
 			],
 			'webhook_id'                 => [
-				'title'       => __( 'Webhook ID', 'wp_subscription' ),
+				'title'       => __( 'Webhook ID', 'subscription' ),
 				'type'        => 'password',
-				'description' => __( 'Enter your Webhook ID copied from PayPal Apps & Credentials for webhook validation.', 'wp_subscription' ),
+				'description' => __( 'Enter your Webhook ID copied from PayPal Apps & Credentials for webhook validation.', 'subscription' ),
 				'default'     => '',
 				'desc_tip'    => true,
 				'class'       => 'wpsubs-paypal-live-creds',
@@ -224,34 +224,34 @@ class Paypal extends \WC_Payment_Gateway {
 
 			// Sandbox Credentials.
 			'sandbox_client_id'          => [
-				'title'       => __( 'Client ID', 'wp_subscription' ),
+				'title'       => __( 'Client ID', 'subscription' ),
 				'type'        => 'password',
-				'description' => __( 'Enter your PayPal Client ID copied from PayPal Apps & Credentials.', 'wp_subscription' ),
+				'description' => __( 'Enter your PayPal Client ID copied from PayPal Apps & Credentials.', 'subscription' ),
 				'default'     => '',
 				'desc_tip'    => true,
 				'class'       => 'wpsubs-paypal-sandbox-creds',
 			],
 			'sandbox_client_secret'      => [
-				'title'       => __( 'Secret', 'wp_subscription' ),
+				'title'       => __( 'Secret', 'subscription' ),
 				'type'        => 'password',
-				'description' => __( 'Enter your PayPal Secret copied from PayPal Apps & Credentials.', 'wp_subscription' ),
+				'description' => __( 'Enter your PayPal Secret copied from PayPal Apps & Credentials.', 'subscription' ),
 				'default'     => '',
 				'desc_tip'    => true,
 				'class'       => 'wpsubs-paypal-sandbox-creds',
 			],
 			'sandbox_webhook_id'         => [
-				'title'       => __( 'Webhook ID', 'wp_subscription' ),
+				'title'       => __( 'Webhook ID', 'subscription' ),
 				'type'        => 'password',
-				'description' => __( 'Enter your Webhook ID copied from PayPal Apps & Credentials for webhook validation.', 'wp_subscription' ),
+				'description' => __( 'Enter your Webhook ID copied from PayPal Apps & Credentials for webhook validation.', 'subscription' ),
 				'default'     => '',
 				'desc_tip'    => true,
 				'class'       => 'wpsubs-paypal-sandbox-creds',
 			],
 
 			'webhook_url'                => [
-				'title'       => __( 'Webhook URL', 'wp_subscription' ),
+				'title'       => __( 'Webhook URL', 'subscription' ),
 				'type'        => 'text',
-				'description' => __( '<p>In the <strong style="color:#1d4ed8">Apps & Credentials</strong> page of PayPal developer account open the newly created application and click <strong style="color:#1d4ed8">Add Webhook</strong> button.<br> On the <strong>Webhook URL</strong> field use this webhook link', 'wp_subscription' ),
+				'description' => __( '<p>In the <strong style="color:#1d4ed8">Apps & Credentials</strong> page of PayPal developer account open the newly created application and click <strong style="color:#1d4ed8">Add Webhook</strong> button.<br> On the <strong>Webhook URL</strong> field use this webhook link', 'subscription' ),
 				'default'     => $this->get_webhook_url(),
 				'disabled'    => true,
 				'class'       => 'wpsubs-webhook-url',
@@ -286,7 +286,7 @@ class Paypal extends \WC_Payment_Gateway {
 		} else {
 			$currency_not_supported_message = sprintf(
 				// Translators: %s is the title of the payment gateway.
-				__( '<strong>%s</strong> options are disabled. PayPal Standard does not support your store currency.', 'wp_subscription' ),
+				__( '<strong>%s</strong> options are disabled. PayPal Standard does not support your store currency.', 'subscription' ),
 				$this->title
 			);
 
@@ -331,7 +331,7 @@ class Paypal extends \WC_Payment_Gateway {
 		// Return if the order is already completed.
 		if ( 'completed' === $order->get_status() ) {
 			// Translators: %d is the order ID.
-			$log_message = sprintf( __( 'Order %d was already completed. Skipping PayPal check.', 'wp_subscription' ), $order_id );
+			$log_message = sprintf( __( 'Order %d was already completed. Skipping PayPal check.', 'subscription' ), $order_id );
 			wp_subscrpt_write_log( $log_message );
 			wp_subscrpt_write_debug_log( $log_message );
 			return;
@@ -377,7 +377,7 @@ class Paypal extends \WC_Payment_Gateway {
 		}
 
 		if ( $paypal_payment_approved ) {
-			$order->update_status( 'completed', __( 'PayPal payment completed successfully.', 'wp_subscription' ) );
+			$order->update_status( 'completed', __( 'PayPal payment completed successfully.', 'subscription' ) );
 			$order->save();
 		}
 	}
@@ -488,7 +488,7 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( empty( $order ) ) {
 			$log_message = sprintf(
 				// translators: %1$s: alert name; %2$s: order id.
-				__( 'PayPal webhook received [%s]. Order not found.', 'wp_subscription' ),
+				__( 'PayPal webhook received [%s]. Order not found.', 'subscription' ),
 				$event,
 			);
 			wp_subscrpt_write_log( $log_message );
@@ -504,7 +504,7 @@ class Paypal extends \WC_Payment_Gateway {
 		} else {
 			$log_message = sprintf(
 				// translators: %1$s: alert name; %2$s: order id.
-				__( 'PayPal webhook received [%s]. No actions taken.', 'wp_subscription' ),
+				__( 'PayPal webhook received [%s]. No actions taken.', 'subscription' ),
 				$event,
 			);
 			wp_subscrpt_write_log( $log_message );
@@ -904,7 +904,7 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( ! $order ) {
 			$log_message = sprintf(
 				// translators: %1$s: alert name; %2$s: subscription id.
-				__( 'Transaction webhook received [%1$s]. No order found for subscription ID [%2$s].', 'wp_subscription' ),
+				__( 'Transaction webhook received [%1$s]. No order found for subscription ID [%2$s].', 'subscription' ),
 				$event,
 				$subscription_id
 			);
@@ -917,12 +917,12 @@ class Paypal extends \WC_Payment_Gateway {
 			case 'PAYMENT.SALE.COMPLETED':
 				if ( $order->update_status( 'completed' ) ) {
 					$order->set_transaction_id( $transaction_id );
-					$order->add_order_note( __( 'Payment completed by paypal webhook.', 'wp_subscription' ) );
+					$order->add_order_note( __( 'Payment completed by paypal webhook.', 'subscription' ) );
 					$order->save();
 
 					wp_die( 'Order activated.', '200 Success', array( 'response' => 200 ) );
 				} else {
-					$order->add_order_note( __( 'Failed to complete payment. Requested by paypal webhook.', 'wp_subscription' ) );
+					$order->add_order_note( __( 'Failed to complete payment. Requested by paypal webhook.', 'subscription' ) );
 					$order->save();
 
 					wp_die( 'Order activation failed.', '506 Internal Error', array( 'response' => 506 ) );
@@ -931,12 +931,12 @@ class Paypal extends \WC_Payment_Gateway {
 
 			case 'PAYMENT.SALE.REFUNDED':
 				if ( $order->update_status( 'refunded' ) ) {
-					$order->add_order_note( __( 'Payment refunded by paypal webhook.', 'wp_subscription' ) );
+					$order->add_order_note( __( 'Payment refunded by paypal webhook.', 'subscription' ) );
 					$order->save();
 
 					wp_die( 'Order refunded.', '200 Success', array( 'response' => 200 ) );
 				} else {
-					$order->add_order_note( __( 'Failed to refund payment. Requested by paypal webhook.', 'wp_subscription' ) );
+					$order->add_order_note( __( 'Failed to refund payment. Requested by paypal webhook.', 'subscription' ) );
 					$order->save();
 
 					wp_die( 'Order refund failed.', '506 Internal Error', array( 'response' => 506 ) );
@@ -946,7 +946,7 @@ class Paypal extends \WC_Payment_Gateway {
 			default:
 				$log_message = sprintf(
 					// translators: %s: alert name.
-					__( 'Transaction webhook received [%s]. No actions taken.', 'wp_subscription' ),
+					__( 'Transaction webhook received [%s]. No actions taken.', 'subscription' ),
 					$event,
 				);
 				wp_subscrpt_write_log( $log_message );
@@ -972,7 +972,7 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// If no subscription, try to get from order item.
 		if ( empty( $subscription ) ) {
-			$log_message = __( 'Subscription not found. Attempting to get from order item.', 'wp_subscription' );
+			$log_message = __( 'Subscription not found. Attempting to get from order item.', 'subscription' );
 			wp_subscrpt_write_log( $log_message );
 			wp_subscrpt_write_debug_log( $log_message );
 
@@ -991,7 +991,7 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( empty( $subscription ) || empty( $subscription->subscription_id ?? null ) ) {
 			$log_message = sprintf(
 					// translators: %s: alert name.
-				__( 'Subscription webhook received [%s]. Subscription not found.', 'wp_subscription' ),
+				__( 'Subscription webhook received [%s]. Subscription not found.', 'subscription' ),
 				$event,
 			);
 			wp_subscrpt_write_log( $log_message );
@@ -1004,45 +1004,45 @@ class Paypal extends \WC_Payment_Gateway {
 				if ( ! in_array( get_post_status( $subscription->subscription_id ), [ 'active' ], true ) ) {
 					Action::status( 'active', $subscription->subscription_id );
 
-					$log_message = __( 'Subscription activated by PayPal webhook.', 'wp_subscription' );
+					$log_message = __( 'Subscription activated by PayPal webhook.', 'subscription' );
 					wp_subscrpt_write_log( $log_message );
 					wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
-				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'wp_subscription' ) ), '200 success', array( 'response' => 200 ) );
+				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'subscription' ) ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			case 'BILLING.SUBSCRIPTION.EXPIRED':
 				if ( in_array( get_post_status( $subscription->subscription_id ), [ 'active', 'pe_cancelled' ], true ) ) {
 					Action::status( 'expired', $subscription->subscription_id );
 
-					$log_message = __( 'Subscription expired by PayPal webhook.', 'wp_subscription' );
+					$log_message = __( 'Subscription expired by PayPal webhook.', 'subscription' );
 					wp_subscrpt_write_log( $log_message );
 					wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
-				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'wp_subscription' ) ), '200 success', array( 'response' => 200 ) );
+				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'subscription' ) ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			case 'BILLING.SUBSCRIPTION.CANCELLED':
 				if ( ! in_array( get_post_status( $subscription->subscription_id ), [ 'cancelled' ], true ) ) {
 					Action::status( 'cancelled', $subscription->subscription_id );
 
-					$log_message = __( 'Subscription cancelled by PayPal webhook.', 'wp_subscription' );
+					$log_message = __( 'Subscription cancelled by PayPal webhook.', 'subscription' );
 					wp_subscrpt_write_log( $log_message );
 					wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
-				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'wp_subscription' ) ), '200 success', array( 'response' => 200 ) );
+				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'subscription' ) ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			default:
 				$log_message = sprintf(
 						// translators: %s: alert name.
-					__( 'Subscription webhook received [%s]. No actions taken.', 'wp_subscription' ),
+					__( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ),
 					$event,
 				);
 				wp_subscrpt_write_log( $log_message );
@@ -1354,7 +1354,7 @@ class Paypal extends \WC_Payment_Gateway {
 	 */
 	private function create_paypal_product( array $product_data, string $access_token ): ?object {
 		if ( empty( $product_data['name'] ?? null ) || empty( $product_data['type'] ?? null ) ) {
-			$log_message = __( 'PayPal Product Creation Error: Product data is incomplete. Name and type are required.', 'wp_subscription' );
+			$log_message = __( 'PayPal Product Creation Error: Product data is incomplete. Name and type are required.', 'subscription' );
 			wp_subscrpt_write_log( $log_message );
 			wp_subscrpt_write_debug_log( $log_message );
 			return null;

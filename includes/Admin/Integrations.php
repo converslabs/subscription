@@ -58,8 +58,8 @@ class Integrations {
 		$parent_slug = 'wp-subscription';
 		add_submenu_page(
 			$parent_slug,
-			__( 'Integrations', 'wp_subscription' ),
-			__( 'Integrations', 'wp_subscription' ),
+			__( 'Integrations', 'subscription' ),
+			__( 'Integrations', 'subscription' ),
 			'manage_options',
 			'wp-subscription-integrations',
 			[ $this, 'render_integrations_page' ],
@@ -76,7 +76,7 @@ class Integrations {
 	public function add_integrations_menu_item( $menu_items, $current ) {
 		$menu_items[] = [
 			'slug'  => 'wp-subscription-integrations',
-			'label' => __( 'Integrations', 'wp_subscription' ),
+			'label' => __( 'Integrations', 'subscription' ),
 			'url'   => admin_url( 'admin.php?page=wp-subscription-integrations' ),
 		];
 		return $menu_items;

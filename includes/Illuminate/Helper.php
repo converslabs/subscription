@@ -28,25 +28,25 @@ class Helper {
 			case 'day':
 			case 'days':
 				return $translate
-					? _n( 'day', 'days', $number, 'wp_subscription' )
+					? _n( 'day', 'days', $number, 'subscription' )
 					: ( (int) $number === 1 ? 'day' : 'days' );
 
 			case 'week':
 			case 'weeks':
 				return $translate
-					? _n( 'week', 'weeks', $number, 'wp_subscription' )
+					? _n( 'week', 'weeks', $number, 'subscription' )
 					: ( (int) $number === 1 ? 'week' : 'weeks' );
 
 			case 'month':
 			case 'months':
 				return $translate
-					? _n( 'month', 'months', $number, 'wp_subscription' )
+					? _n( 'month', 'months', $number, 'subscription' )
 					: ( (int) $number === 1 ? 'month' : 'months' );
 
 			case 'year':
 			case 'years':
 				return $translate
-					? _n( 'year', 'years', $number, 'wp_subscription' )
+					? _n( 'year', 'years', $number, 'subscription' )
 					: ( (int) $number === 1 ? 'year' : 'years' );
 
 			default:
@@ -61,14 +61,14 @@ class Helper {
 	 */
 	public static function get_verbose_status( $status ): string {
 		$statuses = array(
-			'pending'      => __( 'Pending', 'wp_subscription' ),
-			'active'       => __( 'Active', 'wp_subscription' ),
-			'on-hold'      => __( 'On Hold', 'wp_subscription' ),
-			'expired'      => __( 'Expired', 'wp_subscription' ),
-			'pe_cancelled' => __( 'Pending Cancellation', 'wp_subscription' ),
-			'cancelled'    => __( 'Cancelled', 'wp_subscription' ),
-			'draft'        => __( 'Draft', 'wp_subscription' ),
-			'trash'        => __( 'Trash', 'wp_subscription' ),
+			'pending'      => __( 'Pending', 'subscription' ),
+			'active'       => __( 'Active', 'subscription' ),
+			'on-hold'      => __( 'On Hold', 'subscription' ),
+			'expired'      => __( 'Expired', 'subscription' ),
+			'pe_cancelled' => __( 'Pending Cancellation', 'subscription' ),
+			'cancelled'    => __( 'Cancelled', 'subscription' ),
+			'draft'        => __( 'Draft', 'subscription' ),
+			'trash'        => __( 'Trash', 'subscription' ),
 		);
 
 		$status = strtolower( $status );
@@ -364,7 +364,7 @@ class Helper {
 
 			if ( $has_trial ) {
 				// translators: %s: trial period.
-				$trial_html       = '<br/><small> ' . sprintf( __( '+ %s free trial!', 'wp_subscription' ), $trial ) . '</small>';
+				$trial_html       = '<br/><small> ' . sprintf( __( '+ %s free trial!', 'subscription' ), $trial ) . '</small>';
 				$formatted_price .= $trial_html;
 			}
 		}
@@ -422,19 +422,19 @@ class Helper {
 		if ( 'split_payment' === $payment_type && $max_payments ) {
 			$comment_content = sprintf(
 				/* translators: %1$s: order id, %2$d: payment number, %3$d: total payments */
-				__( 'Split payment installment %2$d of %3$d. Order %1$s created for subscription.', 'wp_subscription' ),
+				__( 'Split payment installment %2$d of %3$d. Order %1$s created for subscription.', 'subscription' ),
 				$order_id,
 				$payments_made + 1, // +1 because this is a new renewal
 				$max_payments
 			);
-			$activity_type = __( 'Split Payment - Renewal', 'wp_subscription' );
+			$activity_type = __( 'Split Payment - Renewal', 'subscription' );
 		} else {
 			$comment_content = sprintf(
 				/* translators: order id. */
-				__( 'The order %s has been created for the subscription', 'wp_subscription' ),
+				__( 'The order %s has been created for the subscription', 'subscription' ),
 				$order_id
 			);
-			$activity_type = __( 'Renewal Order', 'wp_subscription' );
+			$activity_type = __( 'Renewal Order', 'subscription' );
 		}
 
 		$comment_id = wp_insert_comment(
@@ -512,18 +512,18 @@ class Helper {
 		if ( 'split_payment' === $payment_type && $max_payments ) {
 			$comment_content = sprintf(
 				/* translators: %1$s: order id, %2$d: max payments */
-				__( 'Split payment subscription created successfully. Order: %1$s. Total installments: %2$d.', 'wp_subscription' ),
+				__( 'Split payment subscription created successfully. Order: %1$s. Total installments: %2$d.', 'subscription' ),
 				$order_item->get_order_id(),
 				$max_payments
 			);
-			$activity_type = __( 'Split Payment - New Subscription', 'wp_subscription' );
+			$activity_type = __( 'Split Payment - New Subscription', 'subscription' );
 		} else {
 			$comment_content = sprintf(
 				/* translators: Order Id. */
-				__( 'Subscription successfully created. Order is %s', 'wp_subscription' ),
+				__( 'Subscription successfully created. Order is %s', 'subscription' ),
 				$order_item->get_order_id()
 			);
-			$activity_type = __( 'New Subscription', 'wp_subscription' );
+			$activity_type = __( 'New Subscription', 'subscription' );
 		}
 
 		$comment_id = wp_insert_comment(
@@ -1158,7 +1158,7 @@ class Helper {
 		$old_order = wc_get_order( $old_order_id );
 		if ( ! $old_order || 'completed' !== $old_order->get_status() ) {
 			if ( ! is_admin() && function_exists( 'wc_add_notice' ) ) {
-				return wc_add_notice( __( 'Subscription renewal isn\'t possible due to previous order not completed or deletion.', 'wp_subscription' ), 'error' );
+				return wc_add_notice( __( 'Subscription renewal isn\'t possible due to previous order not completed or deletion.', 'subscription' ), 'error' );
 			}
 			return false;
 		}

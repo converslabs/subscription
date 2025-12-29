@@ -111,10 +111,10 @@ class Subscriptions {
 	 * @return array
 	 */
 	public function add_custom_columns( $columns ) {
-		$columns['subscrpt_start_date'] = __( 'Start Date', 'wp_subscription' );
-		$columns['subscrpt_customer']   = __( 'Customer', 'wp_subscription' );
-		$columns['subscrpt_next_date']  = __( 'Next Date', 'wp_subscription' );
-		$columns['subscrpt_status']     = __( 'Status', 'wp_subscription' );
+		$columns['subscrpt_start_date'] = __( 'Start Date', 'subscription' );
+		$columns['subscrpt_customer']   = __( 'Customer', 'subscription' );
+		$columns['subscrpt_next_date']  = __( 'Next Date', 'subscription' );
+		$columns['subscrpt_status']     = __( 'Status', 'subscription' );
 		unset( $columns['date'] );
 		unset( $columns['cb'] );
 
@@ -159,7 +159,7 @@ class Subscriptions {
 				<?php
 			}
 		} else {
-			esc_html_e( 'Order not found !!', 'wp_subscription' );
+			esc_html_e( 'Order not found !!', 'subscription' );
 		}
 	}
 
@@ -170,7 +170,7 @@ class Subscriptions {
 		remove_meta_box( 'submitdiv', 'subscrpt_order', 'side' );
 		add_meta_box(
 			'subscrpt_order_save_post',
-			__( 'Subscription Action', 'wp_subscription' ),
+			__( 'Subscription Action', 'subscription' ),
 			array( $this, 'subscrpt_order_save_post' ),
 			'subscrpt_order',
 			'side',
@@ -179,7 +179,7 @@ class Subscriptions {
 
 		add_meta_box(
 			'subscrpt_customer_info',
-			__( 'Customer Details', 'wp_subscription' ),
+			__( 'Customer Details', 'subscription' ),
 			array( $this, 'customer_info' ),
 			'subscrpt_order',
 			'side',
@@ -190,7 +190,7 @@ class Subscriptions {
 
 		add_meta_box(
 			'subscrpt_order_history',
-			__( 'Related Orders', 'wp_subscription' ),
+			__( 'Related Orders', 'subscription' ),
 			array( $this, 'order_histories' ),
 			'subscrpt_order',
 			'normal',
@@ -199,7 +199,7 @@ class Subscriptions {
 
 		add_meta_box(
 			'subscrpt_order_activities',
-			__( 'Subscription Activities', 'wp_subscription' ),
+			__( 'Subscription Activities', 'subscription' ),
 			array( $this, 'order_activities' ),
 			'subscrpt_order',
 			'normal',
@@ -271,23 +271,23 @@ class Subscriptions {
 	public function subscrpt_order_save_post() {
 		$actions_data = array(
 			'active'       => array(
-				'label' => __( 'Activate Subscription', 'wp_subscription' ),
+				'label' => __( 'Activate Subscription', 'subscription' ),
 				'value' => 'active',
 			),
 			'pending'      => array(
-				'label' => __( 'Pending Subscription', 'wp_subscription' ),
+				'label' => __( 'Pending Subscription', 'subscription' ),
 				'value' => 'pending',
 			),
 			'expire'       => array(
-				'label' => __( 'Expire Subscription', 'wp_subscription' ),
+				'label' => __( 'Expire Subscription', 'subscription' ),
 				'value' => 'expired',
 			),
 			'pe_cancelled' => array(
-				'label' => __( 'Pending Cancel Subscription', 'wp_subscription' ),
+				'label' => __( 'Pending Cancel Subscription', 'subscription' ),
 				'value' => 'pe_cancelled',
 			),
 			'cancelled'    => array(
-				'label' => __( 'Cancel Subscription', 'wp_subscription' ),
+				'label' => __( 'Cancel Subscription', 'subscription' ),
 				'value' => 'cancelled',
 			),
 		);
@@ -352,15 +352,15 @@ class Subscriptions {
 
 		$rows = array(
 			'product'  => array(
-				'label' => __( 'Product', 'wp_subscription' ),
+				'label' => __( 'Product', 'subscription' ),
 				'value' => '<a href="' . esc_html( $product_link ) . '" target="_blank">' . esc_html( $product_name ) . '</a>',
 			),
 			'cost'     => array(
-				'label' => __( 'Cost', 'wp_subscription' ),
+				'label' => __( 'Cost', 'subscription' ),
 				'value' => Helper::format_price_with_order_item( get_post_meta( get_the_ID(), '_subscrpt_price', true ), $order_item->get_id() ),
 			),
 			'quantity' => array(
-				'label' => __( 'Qty', 'wp_subscription' ),
+				'label' => __( 'Qty', 'subscription' ),
 				'value' => "x{$order_item->get_quantity()}",
 			),
 		);
@@ -368,46 +368,46 @@ class Subscriptions {
 		// Add payment information if max_payments is set and not unlimited
 		if ( ! empty( $max_payments ) && $max_payments > 0 ) {
 			$rows['total_payments'] = array(
-				'label' => __( 'Total Payments', 'wp_subscription' ),
+				'label' => __( 'Total Payments', 'subscription' ),
 				'value' => esc_html( $payments_made ) . ' / ' . esc_html( $max_payments ),
 			);
 		}
 
 		$rows += array(
 			'start_date'       => array(
-				'label' => __( 'Started date', 'wp_subscription' ),
+				'label' => __( 'Started date', 'subscription' ),
 				'value' => ! empty( $start_date ) ? wp_date( 'F d, Y', $trial && $trial_start_date ? $trial_start_date : $start_date ) : '-',
 			),
 			'next_date'        => array(
-				'label' => __( 'Payment due date', 'wp_subscription' ),
+				'label' => __( 'Payment due date', 'subscription' ),
 				'value' => ! empty( $next_date ) ? wp_date( 'F d, Y', $trial && $trial_end_date && 'on' === $trial_mode ? $trial_end_date : ( $next_date ?? '-' ) ) : '-',
 			),
 			'status'           => array(
-				'label' => __( 'Status', 'wp_subscription' ),
+				'label' => __( 'Status', 'subscription' ),
 				'value' => '<span class="subscrpt-' . get_post_status() . '">' . get_post_status_object( get_post_status() )->label . '</span>',
 			),
 			'payment_method'   => array(
-				'label' => __( 'Payment Method', 'wp_subscription' ),
+				'label' => __( 'Payment Method', 'subscription' ),
 				'value' => empty( $order->get_payment_method_title() ) ? '-' : $order->get_payment_method_title(),
 			),
 			'billing_address'  => array(
-				'label' => __( 'Billing', 'wp_subscription' ),
-				'value' => $order->get_formatted_billing_address() ? $order->get_formatted_billing_address() : __( 'No billing address set.', 'wp_subscription' ),
+				'label' => __( 'Billing', 'subscription' ),
+				'value' => $order->get_formatted_billing_address() ? $order->get_formatted_billing_address() : __( 'No billing address set.', 'subscription' ),
 			),
 			'shipping_address' => array(
-				'label' => __( 'Shipping', 'wp_subscription' ),
-				'value' => $order->get_formatted_shipping_address() ? $order->get_formatted_shipping_address() : __( 'No shipping address set.', 'wp_subscription' ),
+				'label' => __( 'Shipping', 'subscription' ),
+				'value' => $order->get_formatted_shipping_address() ? $order->get_formatted_shipping_address() : __( 'No shipping address set.', 'subscription' ),
 			),
 		);
 		if ( $trial ) {
 			$rows = array_slice( $rows, 0, 3, true ) + array(
 				'trial'        => array(
-					'label' => __( 'Trial', 'wp_subscription' ),
+					'label' => __( 'Trial', 'subscription' ),
 					'value' => $trial,
 				),
 				'trial_period' => array(
-					'label' => __( 'Trial Period', 'wp_subscription' ),
-					'value' => ( $trial_start_date && $trial_end_date ? ' [ ' . wp_date( 'F d, Y', $trial_start_date ) . ' - ' . wp_date( 'F d, Y', $trial_end_date ) . ' ] ' : __( 'Trial isn\'t activated yet! ', 'wp_subscription' ) ),
+					'label' => __( 'Trial Period', 'subscription' ),
+					'value' => ( $trial_start_date && $trial_end_date ? ' [ ' . wp_date( 'F d, Y', $trial_start_date ) . ' - ' . wp_date( 'F d, Y', $trial_end_date ) . ' ] ' : __( 'Trial isn\'t activated yet! ', 'subscription' ) ),
 				),
 			) + array_slice( $rows, 3, count( $rows ) - 1, true );
 		}
@@ -419,7 +419,7 @@ class Subscriptions {
 				$new_rows[ $key ] = $value;
 				if ( 'payment_method' === $key ) {
 					$new_rows['stripe_auto_renewal'] = array(
-						'label' => __( 'Stripe Auto Renewal', 'wp_subscription' ),
+						'label' => __( 'Stripe Auto Renewal', 'subscription' ),
 						'value' => '0' !== $is_auto_renew ? 'On' : 'Off',
 					);
 				}
@@ -503,7 +503,7 @@ class Subscriptions {
 				<?php
 				$text = sprintf(
 					// translators: Subscription ID.
-					__( 'Subscription #%d details', 'wp_subscription' ),
+					__( 'Subscription #%d details', 'subscription' ),
 					$post->ID
 				);
 				echo esc_html( $text );
@@ -513,10 +513,10 @@ class Subscriptions {
 			<div class="subscription-details-grid">
 				<!-- Primary Information -->
 				<div class="details-group primary">
-					<h3><?php esc_html_e( 'General', 'wp_subscription' ); ?></h3>
+					<h3><?php esc_html_e( 'General', 'subscription' ); ?></h3>
 					<table>
 						<tr>
-							<th><?php esc_html_e( 'Status', 'wp_subscription' ); ?></th>
+							<th><?php esc_html_e( 'Status', 'subscription' ); ?></th>
 							<td>
 								<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
 									<span class="subscrpt-active grace-active">
@@ -525,7 +525,7 @@ class Subscriptions {
 										<?php
 											$grace_remaining_text = sprintf(
 												// translators: Number of days remaining in grace period.
-												__( '%d days remaining!', 'wp_subscription' ),
+												__( '%d days remaining!', 'subscription' ),
 												$grace_remaining
 											);
 										?>
@@ -541,7 +541,7 @@ class Subscriptions {
 							</td>
 						</tr>
 						<tr>
-							<th><?php esc_html_e( 'Product', 'wp_subscription' ); ?></th>
+							<th><?php esc_html_e( 'Product', 'subscription' ); ?></th>
 							<td><a href="<?php echo esc_url( get_the_permalink( $order_item->get_product_id() ) ); ?>" target="_blank"><?php echo esc_html( $order_item->get_name() ); ?></a></td>
 						</tr>
 					</table>
@@ -549,10 +549,10 @@ class Subscriptions {
 				
 				<!-- Subscription Terms -->
 				<div class="details-group">
-					<h3><?php esc_html_e( 'Subscription Terms', 'wp_subscription' ); ?></h3>
+					<h3><?php esc_html_e( 'Subscription Terms', 'subscription' ); ?></h3>
 					<table>
 						<tr>
-							<th><?php esc_html_e( 'Billing', 'wp_subscription' ); ?></th>
+							<th><?php esc_html_e( 'Billing', 'subscription' ); ?></th>
 							<td>
 								<?php echo wp_kses_post( wc_price( $cost ) ); ?> / 
 								<?php
@@ -566,21 +566,21 @@ class Subscriptions {
 
 						<?php if ( $signup_fee ) : ?>
 						<tr>
-							<th><?php esc_html_e( 'Signup Fee', 'wp_subscription' ); ?></th>
+							<th><?php esc_html_e( 'Signup Fee', 'subscription' ); ?></th>
 							<td><?php echo wp_kses_post( wc_price( $signup_fee ) ); ?></td>
 						</tr>
 						<?php endif; ?>
 
 						<?php if ( $trial_time ) : ?>
 						<tr>
-							<th><?php esc_html_e( 'Free Trial', 'wp_subscription' ); ?></th>
+							<th><?php esc_html_e( 'Free Trial', 'subscription' ); ?></th>
 							<td><?php echo esc_html( $trial_time . ' ' . $trial_type ); ?></td>
 						</tr>
 						<?php endif; ?>
 
 						<?php if ( ! empty( $max_payments ) && $max_payments > 0 ) : ?>
 						<tr>
-							<th><?php esc_html_e( 'Total Payments', 'wp_subscription' ); ?></th>
+							<th><?php esc_html_e( 'Total Payments', 'subscription' ); ?></th>
 							<td><strong><?php echo esc_html( $payments_made . ' / ' . $max_payments ); ?></strong></td>
 						</tr>
 						<?php endif; ?>
@@ -589,14 +589,14 @@ class Subscriptions {
 				
 				<!-- Schedule Dates -->
 				<div class="details-group">
-					<h3><?php esc_html_e( 'Schedule Dates', 'wp_subscription' ); ?></h3>
+					<h3><?php esc_html_e( 'Schedule Dates', 'subscription' ); ?></h3>
 					<table>
 						<tr>
-							<th><?php esc_html_e( 'Started', 'wp_subscription' ); ?></th>
+							<th><?php esc_html_e( 'Started', 'subscription' ); ?></th>
 							<td><?php echo esc_html( $started_date ); ?></td>
 						</tr>
 						<tr>
-							<th><?php esc_html_e( 'Next Payment', 'wp_subscription' ); ?></th>
+							<th><?php esc_html_e( 'Next Payment', 'subscription' ); ?></th>
 							<td><?php echo esc_html( $next_payment_date ); ?></td>
 						</tr>
 					</table>
@@ -605,14 +605,14 @@ class Subscriptions {
 				<!-- Grace Period Info -->
 				<?php if ( $is_grace_period ) : ?>
 					<div class="details-group">
-						<h3><?php esc_html_e( 'Grace Period', 'wp_subscription' ); ?></h3>
+						<h3><?php esc_html_e( 'Grace Period', 'subscription' ); ?></h3>
 						<table>
 							<tr>
-								<th><?php esc_html_e( 'Remaining', 'wp_subscription' ); ?></th>
+								<th><?php esc_html_e( 'Remaining', 'subscription' ); ?></th>
 								<td><?php echo esc_html( $grace_remaining . ' days' ); ?></td>
 							</tr>
 							<tr>
-								<th><?php esc_html_e( 'End Date', 'wp_subscription' ); ?></th>
+								<th><?php esc_html_e( 'End Date', 'subscription' ); ?></th>
 								<td><?php echo esc_html( $grace_end_date ); ?></td>
 							</tr>
 						</table>
@@ -818,8 +818,8 @@ class Subscriptions {
 		remove_submenu_page( 'edit.php?post_type=subscrpt_order', 'edit.php?post_type=subscrpt_order' );
 		add_submenu_page(
 			'edit.php?post_type=subscrpt_order',
-			__( 'Overview', 'wp_subscription' ),
-			__( 'Overview', 'wp_subscription' ),
+			__( 'Overview', 'subscription' ),
+			__( 'Overview', 'subscription' ),
 			'manage_options',
 			'subscription_overview',
 			array( $this, 'render_overview_page' ),
@@ -827,8 +827,8 @@ class Subscriptions {
 		);
 		add_submenu_page(
 			'edit.php?post_type=subscrpt_order',
-			__( 'All Subscriptions', 'wp_subscription' ),
-			__( 'All Subscriptions', 'wp_subscription' ),
+			__( 'All Subscriptions', 'subscription' ),
+			__( 'All Subscriptions', 'subscription' ),
 			'manage_options',
 			'edit.php?post_type=subscrpt_order',
 			'',
@@ -837,8 +837,8 @@ class Subscriptions {
 		if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) {
 			add_submenu_page(
 				'edit.php?post_type=subscrpt_order',
-				__( 'Go Pro', 'wp_subscription' ),
-				__( 'Go Pro', 'wp_subscription' ),
+				__( 'Go Pro', 'subscription' ),
+				__( 'Go Pro', 'subscription' ),
 				'manage_options',
 				'wp_subscription_go_pro',
 				array( $this, 'render_go_pro_page' ),
@@ -853,13 +853,13 @@ class Subscriptions {
 			<div class="wpsubscription-overview-card" style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);padding:40px 32px 32px 32px;">
 				<div class="wpsubscription-overview-top" style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-bottom:40px;">
 					<div class="wpsubscription-overview-info" style="display:flex;flex-direction:column;gap:18px;">
-						<h1 style="margin-bottom:0.2em;"><?php esc_html_e( 'WP Subscription Overview', 'wp_subscription' ); ?></h1>
+						<h1 style="margin-bottom:0.2em;"><?php esc_html_e( 'WP Subscription Overview', 'subscription' ); ?></h1>
 						<p class="product-desc" style="font-size:1.15em;line-height:1.6;max-width:500px;">
-							<?php esc_html_e( 'WP Subscription is the most seamless and reliable WooCommerce subscription solution for store owners looking to grow recurring revenue. Easily manage recurring payments, automate renewals, and delight your customers with flexible plans.', 'wp_subscription' ); ?>
+							<?php esc_html_e( 'WP Subscription is the most seamless and reliable WooCommerce subscription solution for store owners looking to grow recurring revenue. Easily manage recurring payments, automate renewals, and delight your customers with flexible plans.', 'subscription' ); ?>
 						</p>
 						<div class="wpsubscription-links" style="display:flex;gap:12px;flex-wrap:wrap;">
-							<a href="https://docs.converslabs.com/en" target="_blank" class="button button-secondary"><?php esc_html_e( 'Documentation', 'wp_subscription' ); ?></a>
-							<a href="https://wpsubscription.co/" target="_blank" class="button button-secondary"><?php esc_html_e( 'Website', 'wp_subscription' ); ?></a>
+							<a href="https://docs.converslabs.com/en" target="_blank" class="button button-secondary"><?php esc_html_e( 'Documentation', 'subscription' ); ?></a>
+							<a href="https://wpsubscription.co/" target="_blank" class="button button-secondary"><?php esc_html_e( 'Website', 'subscription' ); ?></a>
 						</div>
 					</div>
 					<div class="promo-video" style="text-align:center;">
@@ -868,13 +868,13 @@ class Subscriptions {
 				</div>
 
 				<div class="wpsubscription-what-section" style="margin-bottom:40px;">
-					<h2><?php esc_html_e( 'What does Subscriptions for WooCommerce do?', 'wp_subscription' ); ?></h2>
+					<h2><?php esc_html_e( 'What does Subscriptions for WooCommerce do?', 'subscription' ); ?></h2>
 					<p style="font-size:1.08em;max-width:900px;line-height:1.7;">
-						<?php esc_html_e( 'Subscriptions for WooCommerce enables you to create and manage recurring payment products and services with ease. Automate renewals, offer flexible billing schedules, and provide your customers with a seamless subscription experience. Whether you sell digital content, physical goods, or memberships, WP Subscription gives you the tools to grow your recurring revenue.', 'wp_subscription' ); ?>
+						<?php esc_html_e( 'Subscriptions for WooCommerce enables you to create and manage recurring payment products and services with ease. Automate renewals, offer flexible billing schedules, and provide your customers with a seamless subscription experience. Whether you sell digital content, physical goods, or memberships, WP Subscription gives you the tools to grow your recurring revenue.', 'subscription' ); ?>
 					</p>
 				</div>
 
-				<h2 style="margin-top:2em;"><?php esc_html_e( 'Highlights', 'wp_subscription' ); ?></h2>
+				<h2 style="margin-top:2em;"><?php esc_html_e( 'Highlights', 'subscription' ); ?></h2>
 				<div class="wpsubscription-features-grid">
 					<div class="feature-box"><span class="dashicons dashicons-admin-generic"></span><h3>Easy Setup</h3><p>Get started in minutes with our intuitive onboarding wizard.</p></div>
 					<div class="feature-box"><span class="dashicons dashicons-money"></span><h3>Multiple Gateways</h3><p>Support for Stripe, PayPal, and Paddle out of the box.</p></div>
@@ -931,9 +931,9 @@ class Subscriptions {
 		?>
 		<div class="wrap wpsubscription-go-pro" style="max-width:900px;margin:40px auto 0 auto;">
 			<div class="wpsubscription-go-pro-card" style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);padding:40px 32px 32px 32px;">
-				<h1 style="margin-bottom:0.5em;"><?php esc_html_e( 'Upgrade to WP Subscription Pro', 'wp_subscription' ); ?></h1>
+				<h1 style="margin-bottom:0.5em;"><?php esc_html_e( 'Upgrade to WP Subscription Pro', 'subscription' ); ?></h1>
 				<p style="font-size:1.12em;max-width:600px;line-height:1.6;">
-					<?php esc_html_e( 'Unlock the full power of subscriptions for WooCommerce. Get advanced features, priority support, and more ways to grow your recurring revenue.', 'wp_subscription' ); ?>
+					<?php esc_html_e( 'Unlock the full power of subscriptions for WooCommerce. Get advanced features, priority support, and more ways to grow your recurring revenue.', 'subscription' ); ?>
 				</p>
 				<table class="wpsubscription-compare-table" style="width:100%;margin:32px 0 40px 0;border-collapse:separate;border-spacing:0;box-shadow:0 1px 4px rgba(0,0,0,0.04);background:#fafbfc;border-radius:8px;overflow:hidden;">
 					<thead>
@@ -983,7 +983,7 @@ class Subscriptions {
 				</table>
 				<div style="text-align:center;margin-top:24px;">
 					<a href="https://wpsubscription.co/" target="_blank" class="button button-primary button-hero" style="font-size:1.2em;padding:16px 40px 16px 40px;background:#7f54b3;border:none;box-shadow:0 2px 8px rgba(127,84,179,0.10);">
-						<?php esc_html_e( 'Upgrade to Pro', 'wp_subscription' ); ?>
+						<?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?>
 					</a>
 				</div>
 			</div>
@@ -1012,7 +1012,7 @@ class Subscriptions {
 					iconLink.href = '<?php echo esc_url( $list_url ); ?>';
 					iconLink.innerHTML = '<span class="dashicons dashicons-arrow-left-alt2" style="font-size:28px;height:28px;width:28px;"></span>';
 					iconLink.style.cssText = "text-decoration:none;color:#555;display:inline-flex;align-items:center;margin-right:2px;transform:translateY(20%);box-shadow:none;";
-					iconLink.title = '<?php echo esc_html_e( 'Back to subscriptions list.', 'wp_subscription' ); ?>';
+					iconLink.title = '<?php echo esc_html_e( 'Back to subscriptions list.', 'subscription' ); ?>';
 					
 					heading.insertAdjacentElement('beforebegin', iconLink);
 				}
