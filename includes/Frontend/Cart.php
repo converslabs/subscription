@@ -473,7 +473,7 @@ class Cart {
 						?>
 							<?php echo esc_html( $billing_text ); ?>:
 							<?php echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] ); ?></small>
-						<?php if ( 'yes' === $recurr['can_user_cancel'] && 0 !== (int) $recurr['max_no_payment'] ) : ?>
+						<?php if ( 'yes' === $recurr['can_user_cancel'] && 0 === (int) $recurr['max_no_payment'] ) : ?>
 							<br>
 							<small><?php esc_html_e( 'You can cancel subscription at any time!', 'subscription' ); ?></small>
 						<?php endif; ?>
@@ -483,8 +483,14 @@ class Cart {
 							<br>
 							<small>
 								<?php
-								// translators: %s: number of payments.
-								echo esc_html( sprintf( __( 'This subscription will be billed for %s times.', 'subscription' ), esc_html( $recurr['max_no_payment'] ) ) );
+								echo wp_kses_post(
+									sprintf(
+										// translators: 1: number of installments, 2: total amount.
+										__( 'This subscription will be billed in %1$s installments, for a total of %2$s.', 'subscription' ),
+										esc_html( $recurr['max_no_payment'] ),
+										wc_price( $recurr['price'] * $recurr['max_no_payment'] )
+									)
+								);
 								?>
 							</small>
 						<?php endif; ?>
