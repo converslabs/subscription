@@ -3,7 +3,7 @@ import { FormattedMonetaryAmount } from "@woocommerce/blocks-components";
 import { __, sprintf } from "@wordpress/i18n";
 import { registerPlugin } from "@wordpress/plugins";
 
-import { getCurrencyFromPriceResponse } from "@woocommerce/price-format";
+import { formatPrice, getCurrencyFromPriceResponse } from "@woocommerce/price-format";
 // import { useStoreCart } from "@woocommerce/base-context/hooks";
 
 const modifyCartItemPrice = (defaultValue, extensions, args, validation) => {
@@ -97,13 +97,22 @@ const RecurringTotals = ({ cart, extensions }) => {
                   <>
                     <br />
                     <small>
-                      {
-                        // translators: %s: number of payments.
-                        sprintf(
-                          __("This subscription will be billed for %s times.", "subscription"),
-                          recurring.max_no_payment,
-                        )
-                      }
+                      {sprintf(
+                        // translators: 1: number of installments, 2: total amount.
+                        __(
+                          "This subscription will be billed in %1$s installments, for a total of %2$s.",
+                          "subscription",
+                        ),
+                        recurring.max_no_payment,
+                        formatPrice(Math.round(recurring.price * multiplier * recurring.max_no_payment), {
+                          currency: currency.code,
+                          currency_symbol: currency.symbol,
+                          decimal_separator: currency.decimalSeparator,
+                          thousand_separator: currency.thousandSeparator,
+                          precision: currency.minorUnit,
+                          price_format: currency.priceFormat,
+                        }),
+                      )}
                     </small>
                   </>
                 )}
