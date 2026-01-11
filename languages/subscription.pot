@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ConversWP
+# Copyright (C) 2026 ConversWP
 # This file is distributed under the same license as the Subscription for WooCommerce - WPSubscription plugin.
 msgid ""
 msgstr ""
@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-29T05:59:59+00:00\n"
+"POT-Creation-Date: 2026-01-11T08:27:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -934,7 +934,7 @@ msgstr ""
 
 #: includes/Frontend/ActionController.php:67
 #: includes/Frontend/ActionController.php:97
-#: includes/Frontend/Cart.php:506
+#: includes/Frontend/Cart.php:511
 msgid "This subscription has reached its maximum payment limit and cannot be renewed further."
 msgstr ""
 
@@ -1028,16 +1028,12 @@ msgstr ""
 msgid "You can cancel subscription at any time!"
 msgstr ""
 
-#: includes/Frontend/Cart.php:484
-#: build/index.js:1
-#: src/index.js:100
-msgid "This subscription will be billed for"
-msgstr ""
-
-#: includes/Frontend/Cart.php:484
-#: build/index.js:1
-#: src/index.js:101
-msgid "times."
+#. translators: %s: number of payments.
+#: includes/Frontend/Cart.php:487
+#: build/index.js:4
+#: src/index.js:103
+#, php-format,js-format
+msgid "This subscription will be billed for %s times."
 msgstr ""
 
 #: includes/Frontend/MyAccount.php:140
