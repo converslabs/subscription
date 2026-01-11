@@ -1,6 +1,6 @@
 import { ExperimentalOrderMeta, registerCheckoutFilters, TotalsItem } from "@woocommerce/blocks-checkout";
 import { FormattedMonetaryAmount } from "@woocommerce/blocks-components";
-import { __ } from "@wordpress/i18n";
+import { __, sprintf } from "@wordpress/i18n";
 import { registerPlugin } from "@wordpress/plugins";
 
 import { getCurrencyFromPriceResponse } from "@woocommerce/price-format";
@@ -87,7 +87,7 @@ const RecurringTotals = ({ cart, extensions }) => {
                     : capitalizedType}
                 </div>
                 <small>{recurring.description}</small>
-                {recurring.can_user_cancel === "yes" && (
+                {recurring.can_user_cancel === "yes" && parseInt(recurring.max_no_payment) === 0 && (
                   <>
                     <br />
                     <small>{__("You can cancel subscription at any time!", "subscription")} </small>
@@ -97,8 +97,13 @@ const RecurringTotals = ({ cart, extensions }) => {
                   <>
                     <br />
                     <small>
-                      {__("This subscription will be billed for", "subscription")} {recurring.max_no_payment}{" "}
-                      {__("times.", "subscription")}
+                      {
+                        // translators: %s: number of payments.
+                        sprintf(
+                          __("This subscription will be billed for %s times.", "subscription"),
+                          recurring.max_no_payment,
+                        )
+                      }
                     </small>
                   </>
                 )}
