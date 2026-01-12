@@ -464,17 +464,20 @@ class Cart {
 							<span>x <?php echo esc_html( $recurr['max_no_payment'] ); ?></span>
 						<?php endif; ?>
 						<br />
-						<small>
-						<?php
-						$billing_text = $recurr['trial_status']
-										? __( 'First billing on', 'subscription' )
-										: __( 'Next billing on', 'subscription' );
 
-						?>
-							<?php echo esc_html( $billing_text ); ?>:
-							<?php echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] ); ?></small>
+						<small>
+							<?php
+								$billing_text = $recurr['trial_status']
+												? __( 'First billing on', 'subscription' )
+												: __( 'Next billing on', 'subscription' );
+
+								echo esc_html( $billing_text . ': ' );
+								echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] );
+							?>
+						</small>
+						
 						<?php if ( 'yes' === $recurr['can_user_cancel'] && 0 === (int) $recurr['max_no_payment'] ) : ?>
-							<br>
+							<br />
 							<small><?php esc_html_e( 'You can cancel subscription at any time!', 'subscription' ); ?></small>
 						<?php endif; ?>
 
