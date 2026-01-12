@@ -261,24 +261,9 @@ class Cart {
 						$cart_subscription['trial']
 					);
 
-					// Calculate price including tax
-					$product        = $cart_item['data'];
-					$price_excl_tax = (float) $cart_item['subscription']['per_cost'];
-					$qty            = $cart_item['quantity'];
-
-					// Get tax rate for the product
-					$tax_rates      = \WC_Tax::get_rates( $product->get_tax_class() );
-					$price_incl_tax = $price_excl_tax;
-
-					// Check if tax is enabled
-					$is_tax_enabled = wc_tax_enabled();
-					if ( $is_tax_enabled ) {
-						$tax_amount     = \WC_Tax::calc_tax( $price_excl_tax, $tax_rates, false );
-						$price_incl_tax = $price_excl_tax + array_sum( $tax_amount );
-					}
-
-					// Total amount
-					$total_amount = ( $price_incl_tax * $qty );
+					// Total amount with tax
+					$product      = $cart_item['data'];
+					$total_amount = wc_get_price_including_tax( $product, [ 'qty' => 1 ] );
 
 					// Subscription timing & type
 					$time = $cart_subscription['time'];
