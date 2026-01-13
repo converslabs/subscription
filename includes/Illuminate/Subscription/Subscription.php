@@ -9,6 +9,10 @@
 
 namespace SpringDevs\Subscription\Illuminate\Subscription;
 
+use SpringDevs\Subscription\Utils\Product;
+use SpringDevs\Subscription\Utils\ProductFactory;
+use WC_Product;
+
 /**
  * Class Subscription
  *
@@ -19,6 +23,20 @@ class Subscription {
 	 * Constructor.
 	 */
 	public function __construct() {
+	}
+
+	/**
+	 * Get WC product in subscription wrapper.
+	 *
+	 * @param WC_Product|int $product Product.
+	 * @return Product|false
+	 */
+	public static function get_subs_product( $product ) {
+		if ( ! $product instanceof WC_Product ) {
+			$product = wc_get_product( absint( $product ) );
+		}
+
+		return $product ? ProductFactory::load( $product ) : false;
 	}
 
 	/**
