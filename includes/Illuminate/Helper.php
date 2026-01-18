@@ -581,6 +581,8 @@ class Helper {
 					'next_date'       => self::next_date( ( $cart_subscription['time'] ?? 1 ) . ' ' . $cart_subscription['type'], $cart_subscription['trial'] ),
 					'can_user_cancel' => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
 					'max_no_payment'  => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+					'price'           => (float) $cart_subscription['per_cost'],
+					'quantity'        => (int) $cart_item['quantity'],
 				);
 			}
 		}
