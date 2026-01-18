@@ -570,7 +570,9 @@ class Helper {
 				$cart_subscription = $cart_item['subscription'];
 				$type              = $cart_subscription['type'];
 
-				$price_html = wc_price( (float) $cart_subscription['per_cost'] * (int) $cart_item['quantity'] ) . '/ ' . $type;
+				// Total amount with tax
+				$total_amount = wc_get_price_including_tax( $product, [ 'qty' => 1 ] );
+				$price_html   = wc_price( (float) $total_amount ) . '/ ' . $type;
 
 				$recurrs[ $key ] = array(
 					'trial_status'    => ! is_null( $cart_subscription['trial'] ),
