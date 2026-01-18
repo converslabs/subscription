@@ -261,24 +261,9 @@ class Cart {
 						$cart_subscription['trial']
 					);
 
-					// Calculate price including tax
-					$product        = $cart_item['data'];
-					$price_excl_tax = (float) $cart_item['subscription']['per_cost'];
-					$qty            = $cart_item['quantity'];
-
-					// Get tax rate for the product
-					$tax_rates      = \WC_Tax::get_rates( $product->get_tax_class() );
-					$price_incl_tax = $price_excl_tax;
-
-					// Check if tax is enabled
-					$is_tax_enabled = wc_tax_enabled();
-					if ( $is_tax_enabled ) {
-						$tax_amount     = \WC_Tax::calc_tax( $price_excl_tax, $tax_rates, false );
-						$price_incl_tax = $price_excl_tax + array_sum( $tax_amount );
-					}
-
-					// Total amount
-					$total_amount = ( $price_incl_tax * $qty );
+					// Total amount with tax
+					$product      = $cart_item['data'];
+					$total_amount = wc_get_price_including_tax( $product, [ 'qty' => 1 ] );
 
 					// Subscription timing & type
 					$time = $cart_subscription['time'];
@@ -464,17 +449,20 @@ class Cart {
 							<span>x <?php echo esc_html( $recurr['max_no_payment'] ); ?></span>
 						<?php endif; ?>
 						<br />
-						<small>
-						<?php
-						$billing_text = $recurr['trial_status']
-										? __( 'First billing on', 'subscription' )
-										: __( 'Next billing on', 'subscription' );
 
-						?>
-							<?php echo esc_html( $billing_text ); ?>:
-							<?php echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] ); ?></small>
-						<?php if ( 'yes' === $recurr['can_user_cancel'] && 0 !== (int) $recurr['max_no_payment'] ) : ?>
-							<br>
+						<small>
+							<?php
+								$billing_text = $recurr['trial_status']
+												? __( 'First billing on', 'subscription' )
+												: __( 'Next billing on', 'subscription' );
+
+								echo esc_html( $billing_text . ': ' );
+								echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] );
+							?>
+						</small>
+						
+						<?php if ( 'yes' === $recurr['can_user_cancel'] && 0 === (int) $recurr['max_no_payment'] ) : ?>
+							<br />
 							<small><?php esc_html_e( 'You can cancel subscription at any time!', 'subscription' ); ?></small>
 						<?php endif; ?>
 
@@ -483,8 +471,14 @@ class Cart {
 							<br>
 							<small>
 								<?php
-								// translators: %s: number of payments.
-								echo esc_html( sprintf( __( 'This subscription will be billed for %s times.', 'subscription' ), esc_html( $recurr['max_no_payment'] ) ) );
+								echo wp_kses_post(
+									sprintf(
+										// translators: 1: number of installments, 2: total amount.
+										__( 'This subscription will be billed in %1$s installments, for a total of %2$s.', 'subscription' ),
+										esc_html( $recurr['max_no_payment'] ),
+										wc_price( $recurr['price'] * $recurr['max_no_payment'] )
+									)
+								);
 								?>
 							</small>
 						<?php endif; ?>

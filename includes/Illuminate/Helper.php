@@ -570,7 +570,9 @@ class Helper {
 				$cart_subscription = $cart_item['subscription'];
 				$type              = $cart_subscription['type'];
 
-				$price_html = wc_price( (float) $cart_subscription['per_cost'] * (int) $cart_item['quantity'] ) . '/ ' . $type;
+				// Total amount with tax
+				$total_amount = wc_get_price_including_tax( $product, [ 'qty' => 1 ] );
+				$price_html   = wc_price( (float) $total_amount ) . '/ ' . $type;
 
 				$recurrs[ $key ] = array(
 					'trial_status'    => ! is_null( $cart_subscription['trial'] ),
@@ -579,6 +581,8 @@ class Helper {
 					'next_date'       => self::next_date( ( $cart_subscription['time'] ?? 1 ) . ' ' . $cart_subscription['type'], $cart_subscription['trial'] ),
 					'can_user_cancel' => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
 					'max_no_payment'  => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+					'price'           => (float) $cart_subscription['per_cost'],
+					'quantity'        => (int) $cart_item['quantity'],
 				);
 			}
 		}
@@ -680,7 +684,7 @@ class Helper {
 		$new_order->calculate_totals();
 		$new_order->save();
 
-		if ( ! is_admin() && function_exists( 'wc_add_notice' ) ) {
+		if ( ! is_admin() && function_exists( 'wc_add_notice' ) && WC()->session ) {
 			$message = 'Renewal Order(#' . $new_order->get_id() . ') Created.';
 			if ( $new_order->has_status( 'pending' ) ) {
 				$message .= 'Please <a href="' . $new_order->get_checkout_payment_url() . '">Pay now</a>';
@@ -1157,7 +1161,7 @@ class Helper {
 	public static function check_order_for_renewal( $old_order_id ) {
 		$old_order = wc_get_order( $old_order_id );
 		if ( ! $old_order || 'completed' !== $old_order->get_status() ) {
-			if ( ! is_admin() && function_exists( 'wc_add_notice' ) ) {
+			if ( ! is_admin() && function_exists( 'wc_add_notice' ) && WC()->session ) {
 				return wc_add_notice( __( 'Subscription renewal isn\'t possible due to previous order not completed or deletion.', 'subscription' ), 'error' );
 			}
 			return false;
