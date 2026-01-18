@@ -1,5 +1,11 @@
 *** WPSubscription Changelog ***
 
+2026-01-18 - version 1.8.17
+* fix: Cart showing incorrect TAX.
+* fix: WC product related error.
+* fix: WC session check error.
+* fix: Cart subscription text.
+
 2026-01-11 - version 1.8.16
 * fix: Load translations from WP.Org.
 * fix: Zero decimal price issue.

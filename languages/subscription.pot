@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-11T08:27:36+00:00\n"
+"POT-Creation-Date: 2026-01-18T10:42:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -934,7 +934,7 @@ msgstr ""
 
 #: includes/Frontend/ActionController.php:67
 #: includes/Frontend/ActionController.php:97
-#: includes/Frontend/Cart.php:511
+#: includes/Frontend/Cart.php:505
 msgid "This subscription has reached its maximum payment limit and cannot be renewed further."
 msgstr ""
 
@@ -977,63 +977,63 @@ msgid "price of the subscription description."
 msgstr ""
 
 #: includes/Frontend/Cart.php:237
-#: includes/Frontend/Cart.php:344
+#: includes/Frontend/Cart.php:329
 msgid "Maximum Total Payments"
 msgstr ""
 
-#: includes/Frontend/Cart.php:289
-#: includes/Frontend/Cart.php:471
+#: includes/Frontend/Cart.php:274
+#: includes/Frontend/Cart.php:457
 #: includes/Frontend/Order.php:124
 #: includes/Illuminate/views/subscription-table.php:70
 msgid "Next billing on"
 msgstr ""
 
-#: includes/Frontend/Cart.php:290
-#: includes/Frontend/Cart.php:470
+#: includes/Frontend/Cart.php:275
+#: includes/Frontend/Cart.php:456
 #: includes/Frontend/Order.php:141
 #: includes/Illuminate/views/subscription-table.php:87
 msgid "First billing on"
 msgstr ""
 
-#: includes/Frontend/Cart.php:319
+#: includes/Frontend/Cart.php:304
 msgid "time of the subscription type."
 msgstr ""
 
-#: includes/Frontend/Cart.php:324
+#: includes/Frontend/Cart.php:309
 msgid "the subscription type."
 msgstr ""
 
-#: includes/Frontend/Cart.php:329
+#: includes/Frontend/Cart.php:314
 msgid "the subscription trial."
 msgstr ""
 
-#: includes/Frontend/Cart.php:334
+#: includes/Frontend/Cart.php:319
 msgid "Signup Fee amount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:339
+#: includes/Frontend/Cart.php:324
 msgid "Recurring amount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:458
-#: includes/Frontend/Cart.php:459
+#: includes/Frontend/Cart.php:443
+#: includes/Frontend/Cart.php:444
 #: build/index.js:1
 #: src/index.js:74
 msgid "Recurring totals"
 msgstr ""
 
-#: includes/Frontend/Cart.php:478
+#: includes/Frontend/Cart.php:466
 #: build/index.js:1
 #: src/index.js:93
 msgid "You can cancel subscription at any time!"
 msgstr ""
 
-#. translators: %s: number of payments.
-#: includes/Frontend/Cart.php:487
+#. translators: 1: number of installments, 2: total amount.
+#: includes/Frontend/Cart.php:477
 #: build/index.js:4
-#: src/index.js:103
+#: src/index.js:102
 #, php-format,js-format
-msgid "This subscription will be billed for %s times."
+msgid "This subscription will be billed in %1$s installments, for a total of %2$s."
 msgstr ""
 
 #: includes/Frontend/MyAccount.php:140
@@ -1086,76 +1086,76 @@ msgstr ""
 msgid "You Already Subscribed These Product!"
 msgstr ""
 
-#: includes/functions.php:46
+#: includes/functions.php:44
 #: includes/Illuminate/Helper.php:31
 msgid "day"
 msgid_plural "days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/functions.php:48
+#: includes/functions.php:46
 #: includes/Illuminate/Helper.php:37
 msgid "week"
 msgid_plural "weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/functions.php:50
+#: includes/functions.php:48
 #: includes/Illuminate/Helper.php:43
 msgid "month"
 msgid_plural "months"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/functions.php:52
+#: includes/functions.php:50
 #: includes/Illuminate/Helper.php:49
 msgid "year"
 msgid_plural "years"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/functions.php:414
+#: includes/functions.php:412
 msgid "New Subscription Order"
 msgstr ""
 
-#: includes/functions.php:415
+#: includes/functions.php:413
 #: includes/Illuminate/Helper.php:437
 msgid "Renewal Order"
 msgstr ""
 
-#: includes/functions.php:491
+#: includes/functions.php:489
 msgid "Day"
 msgstr ""
 
-#: includes/functions.php:495
+#: includes/functions.php:493
 msgid "Week"
 msgstr ""
 
-#: includes/functions.php:499
+#: includes/functions.php:497
 msgid "Month"
 msgstr ""
 
-#: includes/functions.php:503
+#: includes/functions.php:501
 msgid "Year"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/functions.php:569
+#: includes/functions.php:571
 #, php-format
 msgid "Split payment plan completed successfully! %1$d of %2$d payments received."
 msgstr ""
 
-#: includes/functions.php:583
+#: includes/functions.php:585
 msgid "Split Payment - Plan Complete"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments, %3$s: completion date
-#: includes/functions.php:589
+#: includes/functions.php:591
 #, php-format
 msgid "Payment Summary: %1$d of %2$d installments completed on %3$s. All payments received successfully."
 msgstr ""
 
-#: includes/functions.php:603
+#: includes/functions.php:605
 msgid "Payment Summary - Complete"
 msgstr ""
 
@@ -1504,7 +1504,7 @@ msgstr ""
 msgid "New Subscription"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:1161
+#: includes/Illuminate/Helper.php:1165
 msgid "Subscription renewal isn't possible due to previous order not completed or deletion."
 msgstr ""
 

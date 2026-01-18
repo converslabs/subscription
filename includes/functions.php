@@ -505,6 +505,11 @@ if ( ! function_exists( 'wps_subscription_get_timing_types' ) ) {
 	}
 }
 
+/**
+ * Get WC product in subscription wrapper.
+ *
+ * @deprecated 1.8.17 Use SpringDevs\Subscription\Illuminate\Subscription\Subscription::get_subs_product().
+ */
 function sdevs_get_subscription_product( $product ): Product|false {
 	// Deprecated notice.
 	_deprecated_function( 'sdevs_get_subscription_product', '1.8.17', 'SpringDevs\Subscription\Illuminate\Subscription\Subscription::get_subs_product' );
