@@ -3,8 +3,6 @@
 use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 use SpringDevs\Subscription\Utils\Product;
-use SpringDevs\Subscription\Utils\ProductFactory;
-use SpringDevs\Subscription\Utils\SubscriptionProduct;
 
 /**
  * Include tailwind CSS file
@@ -507,12 +505,11 @@ if ( ! function_exists( 'wps_subscription_get_timing_types' ) ) {
 	}
 }
 
-function sdevs_get_subscription_product( $product ): Product {
-	if ( is_int( $product ) ) {
-		$product = wc_get_product( $product );
-	}
+function sdevs_get_subscription_product( $product ): Product|false {
+	// Deprecated notice.
+	_deprecated_function( 'sdevs_get_subscription_product', '1.8.17', 'SpringDevs\Subscription\Illuminate\Subscription\Subscription::get_subs_product' );
 
-	return ProductFactory::load( $product );
+	return Subscription::get_subs_product( $product );
 }
 
 /**
