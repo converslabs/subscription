@@ -85,14 +85,15 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	 * Pay renewal Order
 	 *
 	 * @param \WC_Order $renewal_order Renewal order.
-	 * @throws \WC_Stripe_Exception $e excepttion.
+	 * @throws \WC_Stripe_Exception $e exception.
 	 */
 	public function pay_renew_order( $renewal_order ) {
 		wp_subscrpt_write_log( "Processing renewal order #{$renewal_order->get_id()} for payment." );
 		wp_subscrpt_write_debug_log( "Processing renewal order #{$renewal_order->get_id()} for payment." );
 
 		try {
-			$this->validate_minimum_order_amount( $renewal_order );
+			$stripe_order_helper = new \WC_Stripe_Order_Helper();
+			$stripe_order_helper->validate_minimum_order_amount( $renewal_order );
 
 			$amount   = $renewal_order->get_total();
 			$order_id = $renewal_order->get_id();
@@ -104,12 +105,12 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 				return new \WP_Error( 'stripe_error', __( 'Customer not found', 'subscription' ) );
 			}
 
-			\WC_Stripe_Logger::log( "Info: Begin processing subscription payment for order {$order_id} for the amount of {$amount}" );
+			\WC_Stripe_Logger::info( "Begin processing subscription payment for order {$order_id} for the amount of {$amount}" );
 
 			$intent = $this->create_intent( $renewal_order, $prepared_source );
 
 			if ( empty( $intent->error ) ) {
-				$this->lock_order_payment( $renewal_order, $intent );
+				$stripe_order_helper->lock_order_payment( $renewal_order, $intent );
 				// Only confirm if Stripe still requires confirmation.
 				if ( \WC_Stripe_Intent_Status::REQUIRES_CONFIRMATION === $intent->status ) {
 					$intent = $this->confirm_intent( $intent, $renewal_order, $prepared_source );
@@ -119,7 +120,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			if ( ! empty( $intent->error ) ) {
 				$this->maybe_remove_non_existent_customer( $intent->error, $renewal_order );
 
-				$this->unlock_order_payment( $renewal_order );
+				$stripe_order_helper->unlock_order_payment( $renewal_order );
 				$this->throw_localized_message( $intent, $renewal_order );
 			}
 
@@ -128,9 +129,10 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 				$response = $this->get_latest_charge_from_intent( $intent );
 				$this->process_response( $response, $renewal_order );
 			}
-			$this->unlock_order_payment( $renewal_order );
+			$stripe_order_helper->unlock_order_payment( $renewal_order );
+
 		} catch ( \WC_Stripe_Exception $e ) {
-			\WC_Stripe_Logger::log( 'Error: ' . $e->getMessage() );
+			\WC_Stripe_Logger::error( 'Error: ' . $e->getMessage() );
 
 			$log_message = "Error processing renewal order #{$renewal_order->get_id()}: " . $e->getMessage();
 			wp_subscrpt_write_log( $log_message );
