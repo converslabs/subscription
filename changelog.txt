@@ -1,5 +1,9 @@
 *** WPSubscription Changelog ***
 
+2026-02-01 - version 1.8.18
+* fix: Function return type error.
+* fix: Stripe deprecated functions.
+
 2026-01-18 - version 1.8.17
 * fix: Cart showing incorrect TAX.
 * fix: WC product related error.
