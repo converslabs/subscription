@@ -9,6 +9,7 @@
 
 namespace SpringDevs\Subscription\Illuminate\Subscription;
 
+use SpringDevs\Subscription\Illuminate\Helper;
 use SpringDevs\Subscription\Utils\Product;
 use SpringDevs\Subscription\Utils\ProductFactory;
 use WC_Product;
@@ -21,8 +22,19 @@ use WC_Product;
 class Subscription {
 	/**
 	 * Constructor.
+	 *
+	 * ! test
 	 */
 	public function __construct() {
+		add_action(
+			'init',
+			function () {
+				$old_order = wc_get_order( 2904 );
+				$new_order = wc_get_order( 2910 );
+
+				Helper::clone_order_metadata( $new_order, $old_order );
+			}
+		);
 	}
 
 	/**
