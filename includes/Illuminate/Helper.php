@@ -1180,32 +1180,32 @@ class Helper {
 		$customer    = new \WC_Customer( $customer_id );
 		$email       = $customer->get_email();
 
-		// Billing info.
-		$billing_first_name = ! empty( $customer->get_billing_first_name() ) ? $customer->get_billing_first_name() : $order->get_billing_first_name();
-		$billing_last_name  = ! empty( $customer->get_billing_last_name() ) ? $customer->get_billing_last_name() : $order->get_billing_last_name();
-		$billing_email      = ! empty( $customer->get_billing_email() ) ? $customer->get_billing_email() : $order->get_billing_email();
-		$billing_phone      = ! empty( $customer->get_billing_phone() ) ? $customer->get_billing_phone() : $order->get_billing_phone();
-		$billing_company    = ! empty( $customer->get_billing_company() ) ? $customer->get_billing_company() : $order->get_billing_company();
+		// Billing info (get from order first, if empty get from customer).
+		$billing_first_name = ! empty( $order->get_billing_first_name() ) ? $order->get_billing_first_name() : $customer->get_billing_first_name();
+		$billing_last_name  = ! empty( $order->get_billing_last_name() ) ? $order->get_billing_last_name() : $customer->get_billing_last_name();
+		$billing_email      = ! empty( $order->get_billing_email() ) ? $order->get_billing_email() : $customer->get_billing_email();
+		$billing_phone      = ! empty( $order->get_billing_phone() ) ? $order->get_billing_phone() : $customer->get_billing_phone();
+		$billing_company    = ! empty( $order->get_billing_company() ) ? $order->get_billing_company() : $customer->get_billing_company();
 
-		$billing_city      = ! empty( $customer->get_billing_city() ) ? $customer->get_billing_city() : $order->get_billing_city();
-		$billing_state     = ! empty( $customer->get_billing_state() ) ? $customer->get_billing_state() : $order->get_billing_state();
-		$billing_country   = ! empty( $customer->get_billing_country() ) ? $customer->get_billing_country() : $order->get_billing_country();
-		$billing_postcode  = ! empty( $customer->get_billing_postcode() ) ? $customer->get_billing_postcode() : $order->get_billing_postcode();
-		$billing_address_1 = ! empty( $customer->get_billing_address_1() ) ? $customer->get_billing_address_1() : $order->get_billing_address_1();
-		$billing_address_2 = ! empty( $customer->get_billing_address_2() ) ? $customer->get_billing_address_2() : $order->get_billing_address_2();
+		$billing_city      = ! empty( $order->get_billing_city() ) ? $order->get_billing_city() : $customer->get_billing_city();
+		$billing_state     = ! empty( $order->get_billing_state() ) ? $order->get_billing_state() : $customer->get_billing_state();
+		$billing_country   = ! empty( $order->get_billing_country() ) ? $order->get_billing_country() : $customer->get_billing_country();
+		$billing_postcode  = ! empty( $order->get_billing_postcode() ) ? $order->get_billing_postcode() : $customer->get_billing_postcode();
+		$billing_address_1 = ! empty( $order->get_billing_address_1() ) ? $order->get_billing_address_1() : $customer->get_billing_address_1();
+		$billing_address_2 = ! empty( $order->get_billing_address_2() ) ? $order->get_billing_address_2() : $customer->get_billing_address_2();
 
-		// Shipping info.
-		$shipping_first_name = ! empty( $customer->get_shipping_first_name() ) ? $customer->get_shipping_first_name() : $order->get_shipping_first_name();
-		$shipping_last_name  = ! empty( $customer->get_shipping_last_name() ) ? $customer->get_shipping_last_name() : $order->get_shipping_last_name();
-		$shipping_phone      = ! empty( $customer->get_shipping_phone() ) ? $customer->get_shipping_phone() : $order->get_shipping_phone();
-		$shipping_company    = ! empty( $customer->get_shipping_company() ) ? $customer->get_shipping_company() : $order->get_shipping_company();
+		// Shipping info (get from order first, if empty get from customer).
+		$shipping_first_name = ! empty( $order->get_shipping_first_name() ) ? $order->get_shipping_first_name() : $customer->get_shipping_first_name();
+		$shipping_last_name  = ! empty( $order->get_shipping_last_name() ) ? $order->get_shipping_last_name() : $customer->get_shipping_last_name();
+		$shipping_phone      = ! empty( $order->get_shipping_phone() ) ? $order->get_shipping_phone() : $customer->get_shipping_phone();
+		$shipping_company    = ! empty( $order->get_shipping_company() ) ? $order->get_shipping_company() : $customer->get_shipping_company();
 
-		$shipping_city      = ! empty( $customer->get_shipping_city() ) ? $customer->get_shipping_city() : $order->get_shipping_city();
-		$shipping_state     = ! empty( $customer->get_shipping_state() ) ? $customer->get_shipping_state() : $order->get_shipping_state();
-		$shipping_country   = ! empty( $customer->get_shipping_country() ) ? $customer->get_shipping_country() : $order->get_shipping_country();
-		$shipping_postcode  = ! empty( $customer->get_shipping_postcode() ) ? $customer->get_shipping_postcode() : $order->get_shipping_postcode();
-		$shipping_address_1 = ! empty( $customer->get_shipping_address_1() ) ? $customer->get_shipping_address_1() : $order->get_shipping_address_1();
-		$shipping_address_2 = ! empty( $customer->get_shipping_address_2() ) ? $customer->get_shipping_address_2() : $order->get_shipping_address_2();
+		$shipping_city      = ! empty( $order->get_shipping_city() ) ? $order->get_shipping_city() : $customer->get_shipping_city();
+		$shipping_state     = ! empty( $order->get_shipping_state() ) ? $order->get_shipping_state() : $customer->get_shipping_state();
+		$shipping_country   = ! empty( $order->get_shipping_country() ) ? $order->get_shipping_country() : $customer->get_shipping_country();
+		$shipping_postcode  = ! empty( $order->get_shipping_postcode() ) ? $order->get_shipping_postcode() : $customer->get_shipping_postcode();
+		$shipping_address_1 = ! empty( $order->get_shipping_address_1() ) ? $order->get_shipping_address_1() : $customer->get_shipping_address_1();
+		$shipping_address_2 = ! empty( $order->get_shipping_address_2() ) ? $order->get_shipping_address_2() : $customer->get_shipping_address_2();
 
 		$order_meta = [
 			'customer_id' => $order->get_customer_id(),
