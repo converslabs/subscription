@@ -19,6 +19,9 @@ class Order {
 		add_action( 'woocommerce_order_status_changed', array( $this, 'order_status_changed' ) );
 		add_action( 'woocommerce_before_delete_order', array( $this, 'delete_the_subscription' ) );
 		add_action( 'subscrpt_subscription_activated', array( $this, 'generate_dates_for_subscription' ) );
+
+		// Fix order delivery info.
+		add_action( 'subscrpt_queue_order_delivery_info_recovery', [ Helper::class,'recover_order_delivery_info' ], 10, 2 );
 	}
 
 	/**

@@ -1097,10 +1097,8 @@ class Helper {
 		}
 
 		$parent_order_id = $last_order->order_id ?? 0;
-		if ( $parent_order_id ) {
-			$parent_order = wc_get_order( $parent_order_id );
-		}
-		return $parent_order_id ? $parent_order : null;
+		$parent_order    = wc_get_order( $parent_order_id );
+		return $parent_order;
 	}
 
 	/**
@@ -1291,22 +1289,21 @@ class Helper {
 		$old_order_meta = self::get_delivery_info_from_order( $old_order );
 
 		// Check for any missing information.
-		$missing_info = false;
+		$missing_billing_info = true;
 		foreach ( $old_order_meta['billing'] as $key => $value ) {
-			if ( empty( $value ) ) {
-				$missing_info = true;
+			if ( ! empty( $value ) ) {
+				$missing_billing_info = false;
 				break;
 			}
 		}
+		$missing_shipping_info = true;
 		foreach ( $old_order_meta['shipping'] as $key => $value ) {
-			if ( empty( $value ) ) {
-				$missing_info = true;
+			if ( ! empty( $value ) ) {
+				$missing_shipping_info = false;
 				break;
 			}
 		}
-
-		// ! test
-		$missing_info = true;
+		$missing_info = $missing_billing_info || $missing_shipping_info;
 
 		// Queue recovery task if any info is missing.
 		if ( $missing_info ) {
@@ -1319,16 +1316,33 @@ class Helper {
 			$args = [
 				'subscription_id' => $subscription_id,
 				'new_order_id'    => $new_order->get_id(),
-				'old_order_id'    => $old_order->get_id(),
 			];
-			dd( '🔽 args', $args );
 			as_enqueue_async_action( 'subscrpt_queue_order_delivery_info_recovery', $args );
 		}
 
 		// Set delivery info to new order.
 		self::set_delivery_info_to_order( $new_order, $old_order_meta );
+	}
 
-		dd( '🔽 old_order_meta', $old_order_meta );
+	/**
+	 * Recover delivery info for an order from its subscription.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @param int $new_order_id New Order ID.
+	 *
+	 * @return void
+	 */
+	public static function recover_order_delivery_info( $subscription_id, $new_order_id ) {
+		wp_subscrpt_write_debug_log( "Trying to recover delivery info for order #{$new_order_id} from subscription #{$subscription_id}." );
+
+		$parent_order = self::get_parent_order( $subscription_id );
+
+		// Get delivery info from parent order.
+		$parent_order_meta = self::get_delivery_info_from_order( $parent_order );
+
+		// Set delivery info to new order.
+		$new_order = wc_get_order( $new_order_id );
+		self::set_delivery_info_to_order( $new_order, $parent_order_meta );
 	}
 }
 
