@@ -23,6 +23,17 @@ class AutoRenewal {
 
 		// Clear grace period on subscription re-activation.
 		add_action( 'subscrpt_subscription_activated', [ $this, 'clear_grace_period_schedules' ] );
+
+		// ! test
+		add_action(
+			'init',
+			function () {
+				$old_order = wc_get_order( 2904 );
+				$new_order = wc_get_order( 2910 );
+
+				Helper::clone_order_metadata( $new_order, $old_order );
+			}
+		);
 	}
 
 	/**
