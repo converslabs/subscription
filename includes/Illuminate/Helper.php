@@ -1317,7 +1317,7 @@ class Helper {
 				'subscription_id' => $subscription_id,
 				'new_order_id'    => $new_order->get_id(),
 			];
-			as_enqueue_async_action( 'subscrpt_queue_order_delivery_info_recovery', $args );
+			as_enqueue_async_action( 'subscrpt_queue_order_delivery_info_recovery', $args, 'WPSubscription' );
 		}
 
 		// Set delivery info to new order.
