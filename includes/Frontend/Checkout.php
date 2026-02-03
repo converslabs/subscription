@@ -8,6 +8,7 @@
 namespace SpringDevs\Subscription\Frontend;
 
 use SpringDevs\Subscription\Illuminate\Helper;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 
 /**
  * Checkout class
@@ -65,7 +66,7 @@ class Checkout {
 		// Create subscription for order items.
 		$order_items = $order->get_items();
 		foreach ( $order_items as $order_item ) {
-			$product = sdevs_get_subscription_product( $order_item['product_id'] );
+			$product = Subscription::get_subs_product( $order_item['product_id'] );
 
 			if ( $product->is_type( 'simple' ) && ! subscrpt_pro_activated() ) {
 				if ( $product->is_enabled() ) {

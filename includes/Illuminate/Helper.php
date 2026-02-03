@@ -3,6 +3,7 @@
 namespace SpringDevs\Subscription\Illuminate;
 
 use SpringDevs\Subscription\Illuminate\Gateways\Stripe\Stripe;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 
 // HPOS: This file is compatible with WooCommerce High-Performance Order Storage (HPOS).
 // All WooCommerce order data is accessed via WooCommerce CRUD methods (wc_get_order, wc_get_orders, etc.).
@@ -607,7 +608,7 @@ class Helper {
 			$item_variation_id = $item_data['variation_id'] ?? 0;
 
 			$product_id = $item_variation_id ? $item_variation_id : $item_product_id;
-			$product    = sdevs_get_subscription_product( $product_id );
+			$product    = Subscription::get_subs_product( $product_id );
 
 			if ( $product && $product->is_enabled() ) {
 				$is_subscription_order = true;

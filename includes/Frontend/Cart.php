@@ -7,6 +7,7 @@ use Automattic\WooCommerce\Blocks\Package;
 use Automattic\WooCommerce\Blocks\Domain\Services\ExtendRestApi;
 use Automattic\WooCommerce\StoreApi\Schemas\V1\CartItemSchema;
 use Automattic\WooCommerce\StoreApi\Schemas\V1\CartSchema;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 
 /**
  * Cart class
@@ -44,7 +45,7 @@ class Cart {
 		$cart_items   = WC()->cart->cart_contents;
 		$error_notice = null;
 		$failed       = false;
-		$product      = sdevs_get_subscription_product( $product_id );
+		$product      = Subscription::get_subs_product( $product_id );
 		$enabled      = $product->is_enabled();
 
 		foreach ( $cart_items as $key => $cart_item ) {
@@ -87,7 +88,7 @@ class Cart {
 	 * @return float
 	 */
 	public function set_prices_for_calculation( $price, $product ) {
-		$product = sdevs_get_subscription_product( $product );
+		$product = Subscription::get_subs_product( $product );
 		if ( $product->is_enabled() && $product->is_type( 'simple' ) ) {
 			$trial_time_per = $product->get_meta( '_subscrpt_trial_timing_per' );
 			if ( ! empty( $trial_time_per ) && $trial_time_per > 0 && Helper::check_trial( $product->get_id() ) ) {
@@ -148,7 +149,7 @@ class Cart {
 				 * @var \WC_Product $product
 				 */
 				$product = $value['data'];
-				$product = sdevs_get_subscription_product( $product );
+				$product = Subscription::get_subs_product( $product );
 				if ( isset( $value['subscription'] ) ) {
 					if ( $product->is_type( 'simple' ) ) {
 						if ( Helper::get_typos( 1, $product->get_meta( '_subscrpt_timing_option' ) ) !== $value['subscription']['type'] || $product->get_trial() !== $value['subscription']['trial'] ) {
@@ -372,7 +373,7 @@ class Cart {
 	 * @return array
 	 */
 	public function add_to_cart_item_data( array $cart_item_data, int $product_id ): array {
-		$product = sdevs_get_subscription_product( $product_id );
+		$product = Subscription::get_subs_product( $product_id );
 		if ( ! $product->is_type( 'simple' ) ) {
 			return $cart_item_data;
 		}
@@ -415,7 +416,7 @@ class Cart {
 	 * @return string
 	 */
 	public function change_price_cart_html( $price, $cart_item ) {
-		$product = sdevs_get_subscription_product( $cart_item['product_id'] );
+		$product = Subscription::get_subs_product( $cart_item['product_id'] );
 		if ( ! $product->is_type( 'simple' ) ) {
 			return $price;
 		}

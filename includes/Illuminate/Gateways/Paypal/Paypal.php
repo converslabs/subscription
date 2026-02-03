@@ -6,6 +6,7 @@ use Exception;
 use PHPUnit\TextUI\Help;
 use SpringDevs\Subscription\Illuminate\Action;
 use SpringDevs\Subscription\Illuminate\Helper;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 use WC_Order;
 use WC_Order_Item_Product;
 use WC_Product;
@@ -1198,7 +1199,7 @@ class Paypal extends \WC_Payment_Gateway {
 	public function generate_plan_data( WC_Product $wc_product, string $paypal_product_id ): array {
 		// Get WPSubscription wrapped product.
 		// $wpsubs_product type WC_Product
-		$wpsubs_product = sdevs_get_subscription_product( $wc_product );
+		$wpsubs_product = Subscription::get_subs_product( $wc_product );
 
 		// Name.
 		$name = $this->truncate_string( $wc_product->get_name(), 126 );
