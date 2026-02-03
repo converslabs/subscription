@@ -87,12 +87,13 @@ const RecurringTotals = ({ cart, extensions }) => {
                     : capitalizedType}
                 </div>
                 <small>{recurring.description}</small>
-                {recurring.can_user_cancel === "yes" && parseInt(recurring.max_no_payment) === 0 && (
-                  <>
-                    <br />
-                    <small>{__("You can cancel subscription at any time!", "subscription")} </small>
-                  </>
-                )}
+                {recurring.can_user_cancel === "yes" &&
+                  (recurring.max_no_payment === "" || parseInt(recurring.max_no_payment) === 0) && (
+                    <>
+                      <br />
+                      <small>{__("You can cancel subscription at any time!", "subscription")} </small>
+                    </>
+                  )}
                 {recurring.max_no_payment > 0 && (
                   <>
                     <br />
