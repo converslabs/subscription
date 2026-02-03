@@ -1286,18 +1286,18 @@ class Helper {
 		$new_order->set_currency( $old_order->get_currency() );
 
 		// Get delivery info from old order.
-		$old_order_meta = self::get_delivery_info_from_order( $old_order );
+		$order_meta = self::get_delivery_info_from_order( $old_order );
 
 		// Check for any missing information.
 		$missing_billing_info = true;
-		foreach ( $old_order_meta['billing'] as $key => $value ) {
+		foreach ( $order_meta['billing'] as $key => $value ) {
 			if ( ! empty( $value ) ) {
 				$missing_billing_info = false;
 				break;
 			}
 		}
 		$missing_shipping_info = true;
-		foreach ( $old_order_meta['shipping'] as $key => $value ) {
+		foreach ( $order_meta['shipping'] as $key => $value ) {
 			if ( ! empty( $value ) ) {
 				$missing_shipping_info = false;
 				break;
@@ -1305,44 +1305,22 @@ class Helper {
 		}
 		$missing_info = $missing_billing_info || $missing_shipping_info;
 
-		// Queue recovery task if any info is missing.
+		// Get info from the parent order if missing.
 		if ( $missing_info ) {
-			wp_subscrpt_write_log( "Missing delivery info in old order #{$old_order->get_id()}. Queuing recovery task for new order #{$new_order->get_id()}." );
-
 			$subscription    = self::get_subscriptions_from_order( $old_order->get_id() );
 			$subscription    = reset( $subscription );
 			$subscription_id = ! empty( $subscription ) ? $subscription->subscription_id : 0;
 
-			$args = [
-				'subscription_id' => $subscription_id,
-				'new_order_id'    => $new_order->get_id(),
-			];
-			as_enqueue_async_action( 'subscrpt_queue_order_delivery_info_recovery', $args, 'WPSubscription' );
+			wp_subscrpt_write_log( "Missing delivery info in old order #{$old_order->get_id()} for subscription #{$subscription_id}. Trying to get from parent order." );
+
+			$parent_order = self::get_parent_order( $subscription_id );
+			if ( ! empty( $parent_order ) ) {
+				$order_meta = self::get_delivery_info_from_order( $parent_order );
+			}
 		}
 
 		// Set delivery info to new order.
-		self::set_delivery_info_to_order( $new_order, $old_order_meta );
-	}
-
-	/**
-	 * Recover delivery info for an order from its subscription.
-	 *
-	 * @param int $subscription_id Subscription ID.
-	 * @param int $new_order_id New Order ID.
-	 *
-	 * @return void
-	 */
-	public static function recover_order_delivery_info( $subscription_id, $new_order_id ) {
-		wp_subscrpt_write_debug_log( "Trying to recover delivery info for order #{$new_order_id} from subscription #{$subscription_id}." );
-
-		$parent_order = self::get_parent_order( $subscription_id );
-
-		// Get delivery info from parent order.
-		$parent_order_meta = self::get_delivery_info_from_order( $parent_order );
-
-		// Set delivery info to new order.
-		$new_order = wc_get_order( $new_order_id );
-		self::set_delivery_info_to_order( $new_order, $parent_order_meta );
+		self::set_delivery_info_to_order( $new_order, $order_meta );
 	}
 }
 
