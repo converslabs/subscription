@@ -1,5 +1,9 @@
 *** WPSubscription Changelog ***
 
+2026-02-08 - version 1.8.19
+* fix: Subscriber address information missing.
+* fix: Cart description missing in some cases.
+
 2026-02-01 - version 1.8.18
 * fix: Function return type error.
 * fix: Stripe deprecated functions.
