@@ -280,16 +280,10 @@ class Product {
 				$trial           = '<br/><small> + Get ' . $meta_trial_time . ' ' . ucfirst( $trial_type ) . ' free trial!</small>';
 			}
 
-			// Add split payment information if max_no_payment is set.
-			$max_no_payment     = $product->get_max_no_payment();
-			$split_payment_info = '';
-			if ( $max_no_payment > 0 ) {
-				$split_payment_info = ' x ' . $max_no_payment;
-			}
-
 			$timing_html = "<span id='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type}</span>";
+			$price_html  = $price . $timing_html . $trial;
 
-			return apply_filters( 'subscrpt_simple_price_html', ( $price . $timing_html . $split_payment_info . $trial ), $product, $price, $trial );
+			return apply_filters( 'subscrpt_simple_price_html', $price_html, $product, $price, $trial );
 		else :
 			return $price;
 		endif;
