@@ -569,11 +569,12 @@ class Helper {
 			$product = $cart_item['data'];
 			if ( $product->is_type( 'simple' ) && isset( $cart_item['subscription'] ) ) {
 				$cart_subscription = $cart_item['subscription'];
-				$type              = $cart_subscription['type'];
+				$type              = ucfirst( $cart_subscription['type'] );
 
 				// Total amount with tax
 				$total_amount = wc_get_price_including_tax( $product, [ 'qty' => 1 ] );
-				$price_html   = wc_price( (float) $total_amount ) . '/ ' . $type;
+				$timing_html  = "<span id='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type}</span>";
+				$price_html   = wc_price( (float) $total_amount ) . $timing_html;
 
 				$recurrs[ $key ] = array(
 					'trial_status'    => ! is_null( $cart_subscription['trial'] ),
