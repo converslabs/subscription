@@ -271,7 +271,7 @@ class Product {
 
 		if ( $product->is_enabled() ) :
 			$timing_option = $product->get_timing_option();
-			$type          = Helper::get_typos( 1, $timing_option, true );
+			$type          = ucfirst( Helper::get_typos( 1, $timing_option, true ) );
 
 			$trial = null;
 			if ( $product->has_trial() ) {
@@ -287,7 +287,9 @@ class Product {
 				$split_payment_info = ' x ' . $max_no_payment;
 			}
 
-			return apply_filters( 'subscrpt_simple_price_html', ( $price . ' / ' . ucfirst( $type ) . $split_payment_info . $trial ), $product, $price, $trial );
+			$timing_html = "<span id='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type}</span>";
+
+			return apply_filters( 'subscrpt_simple_price_html', ( $price . $timing_html . $split_payment_info . $trial ), $product, $price, $trial );
 		else :
 			return $price;
 		endif;
