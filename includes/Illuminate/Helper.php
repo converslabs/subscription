@@ -3,6 +3,7 @@
 namespace SpringDevs\Subscription\Illuminate;
 
 use SpringDevs\Subscription\Illuminate\Gateways\Stripe\Stripe;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 
 // HPOS: This file is compatible with WooCommerce High-Performance Order Storage (HPOS).
 // All WooCommerce order data is accessed via WooCommerce CRUD methods (wc_get_order, wc_get_orders, etc.).
@@ -607,7 +608,7 @@ class Helper {
 			$item_variation_id = $item_data['variation_id'] ?? 0;
 
 			$product_id = $item_variation_id ? $item_variation_id : $item_product_id;
-			$product    = sdevs_get_subscription_product( $product_id );
+			$product    = Subscription::get_subs_product( $product_id );
 
 			if ( $product && $product->is_enabled() ) {
 				$is_subscription_order = true;
@@ -1097,10 +1098,8 @@ class Helper {
 		}
 
 		$parent_order_id = $last_order->order_id ?? 0;
-		if ( $parent_order_id ) {
-			$parent_order = wc_get_order( $parent_order_id );
-		}
-		return $parent_order_id ? $parent_order : null;
+		$parent_order    = wc_get_order( $parent_order_id );
+		return $parent_order;
 	}
 
 	/**
@@ -1171,6 +1170,110 @@ class Helper {
 	}
 
 	/**
+	 * Get delivery info from order.
+	 *
+	 * @param \WC_Order $order Order object.
+	 * @return array
+	 */
+	public static function get_delivery_info_from_order( \WC_Order $order ) {
+		$customer_id = $order->get_customer_id();
+		$customer    = new \WC_Customer( $customer_id );
+		$email       = $customer->get_email();
+
+		// Billing info (get from order first, if empty get from customer).
+		$billing_first_name = ! empty( $order->get_billing_first_name() ) ? $order->get_billing_first_name() : $customer->get_billing_first_name();
+		$billing_last_name  = ! empty( $order->get_billing_last_name() ) ? $order->get_billing_last_name() : $customer->get_billing_last_name();
+		$billing_email      = ! empty( $order->get_billing_email() ) ? $order->get_billing_email() : $customer->get_billing_email();
+		$billing_phone      = ! empty( $order->get_billing_phone() ) ? $order->get_billing_phone() : $customer->get_billing_phone();
+		$billing_company    = ! empty( $order->get_billing_company() ) ? $order->get_billing_company() : $customer->get_billing_company();
+
+		$billing_city      = ! empty( $order->get_billing_city() ) ? $order->get_billing_city() : $customer->get_billing_city();
+		$billing_state     = ! empty( $order->get_billing_state() ) ? $order->get_billing_state() : $customer->get_billing_state();
+		$billing_country   = ! empty( $order->get_billing_country() ) ? $order->get_billing_country() : $customer->get_billing_country();
+		$billing_postcode  = ! empty( $order->get_billing_postcode() ) ? $order->get_billing_postcode() : $customer->get_billing_postcode();
+		$billing_address_1 = ! empty( $order->get_billing_address_1() ) ? $order->get_billing_address_1() : $customer->get_billing_address_1();
+		$billing_address_2 = ! empty( $order->get_billing_address_2() ) ? $order->get_billing_address_2() : $customer->get_billing_address_2();
+
+		// Shipping info (get from order first, if empty get from customer).
+		$shipping_first_name = ! empty( $order->get_shipping_first_name() ) ? $order->get_shipping_first_name() : $customer->get_shipping_first_name();
+		$shipping_last_name  = ! empty( $order->get_shipping_last_name() ) ? $order->get_shipping_last_name() : $customer->get_shipping_last_name();
+		$shipping_phone      = ! empty( $order->get_shipping_phone() ) ? $order->get_shipping_phone() : $customer->get_shipping_phone();
+		$shipping_company    = ! empty( $order->get_shipping_company() ) ? $order->get_shipping_company() : $customer->get_shipping_company();
+
+		$shipping_city      = ! empty( $order->get_shipping_city() ) ? $order->get_shipping_city() : $customer->get_shipping_city();
+		$shipping_state     = ! empty( $order->get_shipping_state() ) ? $order->get_shipping_state() : $customer->get_shipping_state();
+		$shipping_country   = ! empty( $order->get_shipping_country() ) ? $order->get_shipping_country() : $customer->get_shipping_country();
+		$shipping_postcode  = ! empty( $order->get_shipping_postcode() ) ? $order->get_shipping_postcode() : $customer->get_shipping_postcode();
+		$shipping_address_1 = ! empty( $order->get_shipping_address_1() ) ? $order->get_shipping_address_1() : $customer->get_shipping_address_1();
+		$shipping_address_2 = ! empty( $order->get_shipping_address_2() ) ? $order->get_shipping_address_2() : $customer->get_shipping_address_2();
+
+		$order_meta = [
+			'customer_id' => $order->get_customer_id(),
+			'email'       => $email,
+			'billing'     => [
+				'first_name' => $billing_first_name,
+				'last_name'  => $billing_last_name,
+				'email'      => $billing_email,
+				'phone'      => $billing_phone,
+				'company'    => $billing_company,
+				'city'       => $billing_city,
+				'state'      => $billing_state,
+				'country'    => $billing_country,
+				'postcode'   => $billing_postcode,
+				'address_1'  => $billing_address_1,
+				'address_2'  => $billing_address_2,
+			],
+			'shipping'    => [
+				'first_name' => $shipping_first_name,
+				'last_name'  => $shipping_last_name,
+				'phone'      => $shipping_phone,
+				'company'    => $shipping_company,
+				'city'       => $shipping_city,
+				'state'      => $shipping_state,
+				'country'    => $shipping_country,
+				'postcode'   => $shipping_postcode,
+				'address_1'  => $shipping_address_1,
+				'address_2'  => $shipping_address_2,
+			],
+		];
+
+		return $order_meta;
+	}
+
+	/**
+	 * Set delivery info to order.
+	 *
+	 * @param \WC_Order $order Order object.
+	 * @param array     $order_meta Order meta data.
+	 */
+	public static function set_delivery_info_to_order( \WC_Order $order, array $order_meta ) {
+		// Set Billing Info.
+		$order->set_billing_first_name( $order_meta['billing']['first_name'] ?? '' );
+		$order->set_billing_last_name( $order_meta['billing']['last_name'] ?? '' );
+		$order->set_billing_email( $order_meta['billing']['email'] ?? '' );
+		$order->set_billing_phone( $order_meta['billing']['phone'] ?? '' );
+		$order->set_billing_company( $order_meta['billing']['company'] ?? '' );
+		$order->set_billing_city( $order_meta['billing']['city'] ?? '' );
+		$order->set_billing_state( $order_meta['billing']['state'] ?? '' );
+		$order->set_billing_country( $order_meta['billing']['country'] ?? '' );
+		$order->set_billing_postcode( $order_meta['billing']['postcode'] ?? '' );
+		$order->set_billing_address_1( $order_meta['billing']['address_1'] ?? '' );
+		$order->set_billing_address_2( $order_meta['billing']['address_2'] ?? '' );
+
+		// Set Shipping Info.
+		$order->set_shipping_first_name( $order_meta['shipping']['first_name'] ?? '' );
+		$order->set_shipping_last_name( $order_meta['shipping']['last_name'] ?? '' );
+		$order->set_shipping_phone( $order_meta['shipping']['phone'] ?? '' );
+		$order->set_shipping_company( $order_meta['shipping']['company'] ?? '' );
+		$order->set_shipping_city( $order_meta['shipping']['city'] ?? '' );
+		$order->set_shipping_state( $order_meta['shipping']['state'] ?? '' );
+		$order->set_shipping_country( $order_meta['shipping']['country'] ?? '' );
+		$order->set_shipping_postcode( $order_meta['shipping']['postcode'] ?? '' );
+		$order->set_shipping_address_1( $order_meta['shipping']['address_1'] ?? '' );
+		$order->set_shipping_address_2( $order_meta['shipping']['address_2'] ?? '' );
+	}
+
+	/**
 	 * Save meta-data from old order
 	 *
 	 * @param \WC_Order $new_order new order object.
@@ -1179,33 +1282,46 @@ class Helper {
 	 * @return void
 	 */
 	public static function clone_order_metadata( $new_order, $old_order ) {
+		// Set customer and currency info.
 		$new_order->set_customer_id( $old_order->get_customer_id() );
 		$new_order->set_currency( $old_order->get_currency() );
 
-		// 3 Add Billing Fields
-		$customer = new \WC_Customer( $old_order->get_customer_id() );
-		$new_order->set_billing_city( $customer->get_billing_city() );
-		$new_order->set_billing_state( $customer->get_billing_state() );
-		$new_order->set_billing_postcode( $customer->get_billing_postcode() );
-		$new_order->set_billing_email( $customer->get_billing_email() );
-		$new_order->set_billing_phone( $customer->get_billing_phone() );
-		$new_order->set_billing_address_1( $customer->get_billing_address_1() );
-		$new_order->set_billing_address_2( $customer->get_billing_address_2() );
-		$new_order->set_billing_country( $customer->get_billing_country() );
-		$new_order->set_billing_first_name( $customer->get_billing_first_name() );
-		$new_order->set_billing_last_name( $customer->get_billing_last_name() );
-		$new_order->set_billing_company( $customer->get_billing_company() );
+		// Get delivery info from old order.
+		$order_meta = self::get_delivery_info_from_order( $old_order );
 
-		// 4 Add Shipping Fields
-		$new_order->set_shipping_country( $customer->get_shipping_country() );
-		$new_order->set_shipping_first_name( $customer->get_shipping_first_name() );
-		$new_order->set_shipping_last_name( $customer->get_shipping_last_name() );
-		$new_order->set_shipping_company( $customer->get_shipping_company() );
-		$new_order->set_shipping_address_1( $customer->get_shipping_address_1() );
-		$new_order->set_shipping_address_2( $customer->get_shipping_address_2() );
-		$new_order->set_shipping_city( $customer->get_shipping_city() );
-		$new_order->set_shipping_state( $customer->get_shipping_state() );
-		$new_order->set_shipping_postcode( $customer->get_shipping_postcode() );
+		// Check for any missing information.
+		$missing_billing_info = true;
+		foreach ( $order_meta['billing'] as $key => $value ) {
+			if ( ! empty( $value ) ) {
+				$missing_billing_info = false;
+				break;
+			}
+		}
+		$missing_shipping_info = true;
+		foreach ( $order_meta['shipping'] as $key => $value ) {
+			if ( ! empty( $value ) ) {
+				$missing_shipping_info = false;
+				break;
+			}
+		}
+		$missing_info = $missing_billing_info || $missing_shipping_info;
+
+		// Get info from the parent order if missing.
+		if ( $missing_info ) {
+			$subscription    = self::get_subscriptions_from_order( $old_order->get_id() );
+			$subscription    = reset( $subscription );
+			$subscription_id = ! empty( $subscription ) ? $subscription->subscription_id : 0;
+
+			wp_subscrpt_write_log( "Missing delivery info in old order #{$old_order->get_id()} for subscription #{$subscription_id}. Trying to get from parent order." );
+
+			$parent_order = self::get_parent_order( $subscription_id );
+			if ( ! empty( $parent_order ) ) {
+				$order_meta = self::get_delivery_info_from_order( $parent_order );
+			}
+		}
+
+		// Set delivery info to new order.
+		self::set_delivery_info_to_order( $new_order, $order_meta );
 	}
 }
 

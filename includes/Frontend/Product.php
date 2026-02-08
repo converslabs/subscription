@@ -3,6 +3,7 @@
 namespace SpringDevs\Subscription\Frontend;
 
 use SpringDevs\Subscription\Illuminate\Helper;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 
 // HPOS: This file is compatible with WooCommerce High-Performance Order Storage (HPOS).
 // All WooCommerce order data is accessed via WooCommerce CRUD methods (wc_get_order, wc_get_order_item_meta, etc.).
@@ -73,7 +74,7 @@ class Product {
 	 * @return mixed
 	 */
 	public function remove_button_active_products( $button, $product ) {
-		$product = sdevs_get_subscription_product( $product );
+		$product = Subscription::get_subs_product( $product );
 		if ( ! $product->is_type( 'simple' ) ) {
 			return $button;
 		}
@@ -98,7 +99,7 @@ class Product {
 	 */
 	public function text_if_active() {
 		global $product;
-		$sdevs_product = sdevs_get_subscription_product( $product );
+		$sdevs_product = Subscription::get_subs_product( $product );
 		if ( ! $sdevs_product->is_type( 'simple' ) ) {
 			return;
 		}
@@ -109,7 +110,7 @@ class Product {
 				return;
 			}
 			if ( 'one' === $limit ) {
-				$unexpired = Helper::subscription_exists( $product->get_id(), array( 'active', 'pending' ) );
+				$unexpired = Helper::subscription_exists( $sdevs_product->get_id(), array( 'active', 'pending' ) );
 				if ( ! $unexpired ) {
 					return false;
 				} else {
@@ -117,7 +118,7 @@ class Product {
 				}
 			}
 			if ( 'only_one' === $limit ) {
-				if ( ! Helper::check_trial( $product->get_id() ) ) {
+				if ( ! Helper::check_trial( $sdevs_product->get_id() ) ) {
 					echo '<strong>' . esc_html_e( 'You Already Subscribed These Product!', 'subscription' ) . '</strong>';
 				}
 			}
@@ -133,7 +134,7 @@ class Product {
 	 * @return boolean
 	 */
 	public function check_if_purchasable( $is_purchasable, $product ) {
-		$product = sdevs_get_subscription_product( $product );
+		$product = Subscription::get_subs_product( $product );
 		if ( $product->is_enabled() ) {
 			$limit = $product->get_limit();
 			if ( 'unlimited' === $limit ) {
@@ -239,7 +240,7 @@ class Product {
 	 * @param \WC_Product $product Product Object.
 	 */
 	public function change_single_add_to_cart_text( $text, $product ) {
-		$product = sdevs_get_subscription_product( $product );
+		$product = Subscription::get_subs_product( $product );
 		if ( $product->is_type( 'variable' ) || '' === $product->get_price() ) {
 			return $text;
 		}
@@ -263,7 +264,7 @@ class Product {
 	 * @return mixed
 	 */
 	public function change_price_html( $price, $product ) {
-		$product = sdevs_get_subscription_product( $product );
+		$product = Subscription::get_subs_product( $product );
 		if ( ! $product->is_type( 'simple' ) || '' === $price ) {
 			return $price;
 		}

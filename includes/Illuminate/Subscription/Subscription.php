@@ -9,6 +9,7 @@
 
 namespace SpringDevs\Subscription\Illuminate\Subscription;
 
+use SpringDevs\Subscription\Illuminate\Helper;
 use SpringDevs\Subscription\Utils\Product;
 use SpringDevs\Subscription\Utils\ProductFactory;
 use WC_Product;
@@ -19,12 +20,6 @@ use WC_Product;
  * @package Illuminate\Subscription
  */
 class Subscription {
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-	}
-
 	/**
 	 * Get WC product in subscription wrapper.
 	 *
