@@ -82,7 +82,7 @@ const RecurringTotals = ({ cart, extensions }) => {
               <div style={{ margin: "20px 0", float: "right" }}>
                 <div style={{ fontSize: "18px" }}>
                   <FormattedMonetaryAmount currency={currency} value={Math.round(recurring.price * multiplier)} />
-                  <span id="wpsubs-subscription-timing">
+                  <span class="wpsubs-subscription-timing">
                     &nbsp;/&nbsp;
                     {recurring.time && recurring.time > 1
                       ? `${recurring.time + "-" + capitalizedType} `

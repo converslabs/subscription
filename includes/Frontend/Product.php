@@ -280,7 +280,7 @@ class Product {
 				$trial           = '<br/><small> + Get ' . $meta_trial_time . ' ' . ucfirst( $trial_type ) . ' free trial!</small>';
 			}
 
-			$timing_html = "<span id='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type}</span>";
+			$timing_html = "<span class='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type}</span>";
 			$price_html  = $price . $timing_html . $trial;
 
 			return apply_filters( 'subscrpt_simple_price_html', $price_html, $product, $price, $trial );
