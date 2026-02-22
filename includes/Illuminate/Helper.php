@@ -59,8 +59,9 @@ class Helper {
 	 * Get verbose status from status slug.
 	 *
 	 * @param string $status Status.
+	 * @param bool   $return_all Whether to return all statuses or a single status.
 	 */
-	public static function get_verbose_status( $status ): string {
+	public static function get_verbose_status( $status, $return_all = false ): string|array {
 		$statuses = array(
 			'pending'      => __( 'Pending', 'subscription' ),
 			'active'       => __( 'Active', 'subscription' ),
@@ -71,6 +72,10 @@ class Helper {
 			'draft'        => __( 'Draft', 'subscription' ),
 			'trash'        => __( 'Trash', 'subscription' ),
 		);
+
+		if ( $return_all ) {
+			return $statuses;
+		}
 
 		$status = strtolower( $status );
 		return isset( $statuses[ $status ] ) ? $statuses[ $status ] : '';
