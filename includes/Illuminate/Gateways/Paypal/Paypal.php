@@ -730,11 +730,15 @@ class Paypal extends \WC_Payment_Gateway {
 			];
 		}
 
+		// Get return URL.
+		$return_url = $this->get_return_url( $order );
+		$return_url = wp_http_validate_url( $return_url ) ? $return_url : home_url( $return_url );
+
 		// Create Subscription in PayPal.
 		$paypal_subscription_data = [
 			'plan_id'             => $paypal_plan_id,
 			'application_context' => [
-				'return_url' => $this->get_return_url( $order ),
+				'return_url' => $return_url,
 				'cancel_url' => $order->get_cancel_order_url(),
 			],
 		];
