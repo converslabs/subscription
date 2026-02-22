@@ -81,10 +81,13 @@ const RecurringTotals = ({ cart, extensions }) => {
             return (
               <div style={{ margin: "20px 0", float: "right" }}>
                 <div style={{ fontSize: "18px" }}>
-                  <FormattedMonetaryAmount currency={currency} value={Math.round(recurring.price * multiplier)} /> /{" "}
-                  {recurring.time && recurring.time > 1
-                    ? `${recurring.time + "-" + capitalizedType} `
-                    : capitalizedType}
+                  <FormattedMonetaryAmount currency={currency} value={Math.round(recurring.price * multiplier)} />
+                  <span class="wpsubs-subscription-timing">
+                    &nbsp;/&nbsp;
+                    {recurring.time && recurring.time > 1
+                      ? `${recurring.time + "-" + capitalizedType} `
+                      : capitalizedType}
+                  </span>
                 </div>
                 <small>{recurring.description}</small>
                 {recurring.can_user_cancel === "yes" &&
