@@ -730,11 +730,15 @@ class Paypal extends \WC_Payment_Gateway {
 			];
 		}
 
+		// Get return URL.
+		$return_url = $this->get_return_url( $order );
+		$return_url = wp_http_validate_url( $return_url ) ? $return_url : home_url( $return_url );
+
 		// Create Subscription in PayPal.
 		$paypal_subscription_data = [
 			'plan_id'             => $paypal_plan_id,
 			'application_context' => [
-				'return_url' => $this->get_return_url( $order ),
+				'return_url' => $return_url,
 				'cancel_url' => $order->get_cancel_order_url(),
 			],
 		];
@@ -1166,31 +1170,6 @@ class Paypal extends \WC_Payment_Gateway {
 	}
 
 	/**
-	 * Function to remove thousands separator.
-	 *
-	 * @param string $price The price to format.
-	 */
-	public function wpsubs_format_price( string $price ): string {
-		$thousand_separator = wc_get_price_thousand_separator();
-		$decimal_separator  = wc_get_price_decimal_separator();
-
-		// Remove thousand separators.
-		$price = str_replace( $thousand_separator, '', $price );
-
-		// Remove trailing zeros.
-		if ( strpos( $price, $decimal_separator ) !== false ) {
-			$parts = explode( $decimal_separator, $price );
-
-			// Remove trailing zeros from the decimal part.
-			$parts[1] = rtrim( $parts[1], '0' );
-
-			// Rejoin the parts.
-			$price = '' === $parts[1] ? $parts[0] : $parts[0] . $decimal_separator . $parts[1];
-		}
-		return $price;
-	}
-
-	/**
 	 * Generate PayPal Plan Data.
 	 *
 	 * @param WC_Product $wc_product WooCommerce Product.
@@ -1209,7 +1188,6 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// Price.
 		$price = wc_get_price_including_tax( $wc_product );
-		$price = $this->wpsubs_format_price( $price );
 
 		// Convert plural interval to singular.
 		// subscrpt_get_typos function of the plugin have translator on the intervals. PayPal will only accept english.

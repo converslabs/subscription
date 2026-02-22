@@ -1,5 +1,10 @@
 *** WPSubscription Changelog ***
 
+2026-02-22 - version 1.8.20
+* fix: Deprecated subscription methods.
+* fix: Subscription timing inconsistencies.
+* fix: Subscription verbose status.
+
 2026-02-08 - version 1.8.19
 * fix: Subscriber address information missing.
 * fix: Cart description missing in some cases.

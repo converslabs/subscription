@@ -1,6 +1,6 @@
 {
   "name": "subscription",
-  "version": "1.8.19",
+  "version": "1.8.20",
   "author": "The WordPress Contributors",
   "license": "GPL-2.0-or-later",
   "main": "build/index.js",

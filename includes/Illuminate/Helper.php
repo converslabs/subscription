@@ -59,8 +59,9 @@ class Helper {
 	 * Get verbose status from status slug.
 	 *
 	 * @param string $status Status.
+	 * @param bool   $return_all Whether to return all statuses or a single status.
 	 */
-	public static function get_verbose_status( $status ): string {
+	public static function get_verbose_status( $status, $return_all = false ): string|array {
 		$statuses = array(
 			'pending'      => __( 'Pending', 'subscription' ),
 			'active'       => __( 'Active', 'subscription' ),
@@ -71,6 +72,10 @@ class Helper {
 			'draft'        => __( 'Draft', 'subscription' ),
 			'trash'        => __( 'Trash', 'subscription' ),
 		);
+
+		if ( $return_all ) {
+			return $statuses;
+		}
 
 		$status = strtolower( $status );
 		return isset( $statuses[ $status ] ) ? $statuses[ $status ] : '';
@@ -569,11 +574,12 @@ class Helper {
 			$product = $cart_item['data'];
 			if ( $product->is_type( 'simple' ) && isset( $cart_item['subscription'] ) ) {
 				$cart_subscription = $cart_item['subscription'];
-				$type              = $cart_subscription['type'];
+				$type              = ucfirst( $cart_subscription['type'] );
 
 				// Total amount with tax
 				$total_amount = wc_get_price_including_tax( $product, [ 'qty' => 1 ] );
-				$price_html   = wc_price( (float) $total_amount ) . '/ ' . $type;
+				$timing_html  = "<span class='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type}</span>";
+				$price_html   = wc_price( (float) $total_amount ) . $timing_html;
 
 				$recurrs[ $key ] = array(
 					'trial_status'    => ! is_null( $cart_subscription['trial'] ),
