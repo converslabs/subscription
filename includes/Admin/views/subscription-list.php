@@ -116,27 +116,22 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 					$is_grace_period = isset( $subscription_data['grace_period'] );
 					$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
-
-					// Build URLs
-					$nonce_action   = 'wpsubs_action_' . $subscription->ID;
-					$view_subs_url  = get_edit_post_link( $subscription->ID );
-					$trash_subs_url = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=trash&sub_id=' . $subscription->ID ), $nonce_action );
 					?>
 				<tr>
 					<td><input type="checkbox" name="subscription_ids[]" value="<?php echo esc_attr( $subscription->ID ); ?>"></td>
 					<td>
 						<div class="wp-subscription-title-wrap">
-							<a href="<?php echo esc_url( $view_subs_url ); ?>" class="subscrpt-id-link">
+							<a href="<?php echo esc_url( get_edit_post_link( $subscription->ID ) ); ?>" class="subscrpt-id-link">
 								#<?php echo esc_html( get_the_title( $subscription->ID ) ); ?>
 							</a>
 
 							<div class="wp-subscription-row-actions">
 								<?php if ( ! $is_trash ) : ?>
-									<a href="<?php echo esc_url( $view_subs_url ); ?>">View</a>
+									<a href="<?php echo esc_url( get_edit_post_link( $subscription->ID ) ); ?>">View</a>
 
 									<!-- <a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=duplicate&sub_id=' . $subscription->ID ) ); ?>">Duplicate</a> -->
 
-									<a href="<?php echo esc_url( $trash_subs_url ); ?>" onclick="return confirm('<?php esc_attr_e( 'Move this subscription to trash?', 'subscription' ); ?>')">Trash</a>
+									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=trash&sub_id=' . $subscription->ID ) ); ?>" onclick="return confirm('<?php esc_attr_e( 'Move this subscription to trash?', 'subscription' ); ?>')">Trash</a>
 
 								<?php else : ?>
 									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=restore&sub_id=' . $subscription->ID ) ); ?>">Restore</a>
