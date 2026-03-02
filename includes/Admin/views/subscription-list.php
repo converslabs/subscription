@@ -120,24 +120,29 @@ for ( $i = 0; $i < 12; $i++ ) {
 				<tr>
 					<td><input type="checkbox" name="subscription_ids[]" value="<?php echo esc_attr( $subscription->ID ); ?>"></td>
 					<td>
-						<a href="<?php echo esc_url( get_edit_post_link( $subscription->ID ) ); ?>" class="subscrpt-id-link">
-							#<?php echo esc_html( get_the_title( $subscription->ID ) ); ?>
-						</a>
-					</td>
-					<td style="min-width:320px;">
 						<div class="wp-subscription-title-wrap">
-							<span><?php echo esc_html( $product_name ); ?></span>
+							<a href="<?php echo esc_url( get_edit_post_link( $subscription->ID ) ); ?>" class="subscrpt-id-link">
+								#<?php echo esc_html( get_the_title( $subscription->ID ) ); ?>
+							</a>
+
 							<div class="wp-subscription-row-actions">
-								<a href="<?php echo esc_url( get_edit_post_link( $subscription->ID ) ); ?>">View</a>
 								<?php if ( ! $is_trash ) : ?>
-									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=duplicate&sub_id=' . $subscription->ID ) ); ?>">Duplicate</a>
+									<a href="<?php echo esc_url( get_edit_post_link( $subscription->ID ) ); ?>">View</a>
+
+									<!-- <a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=duplicate&sub_id=' . $subscription->ID ) ); ?>">Duplicate</a> -->
+
 									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=trash&sub_id=' . $subscription->ID ) ); ?>" onclick="return confirm('<?php esc_attr_e( 'Move this subscription to trash?', 'subscription' ); ?>')">Trash</a>
+
 								<?php else : ?>
 									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=restore&sub_id=' . $subscription->ID ) ); ?>">Restore</a>
+
 									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription&action=delete&sub_id=' . $subscription->ID ) ); ?>" onclick="return confirm('<?php esc_attr_e( 'Delete this subscription permanently? This action cannot be undone.', 'subscription' ); ?>')" style="color:#d93025;">Delete Permanently</a>
 								<?php endif; ?>
 							</div>
 						</div>
+					</td>
+					<td style="min-width:320px;">
+						<span><?php echo esc_html( $product_name ); ?></span>
 					</td>
 					<td>
 						<?php if ( $customer_url ) : ?>
