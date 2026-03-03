@@ -267,8 +267,9 @@ class Menu {
 			$action = sanitize_text_field( wp_unslash( $_GET['action'] ) );
 
 			// Verify nonce for security
-			$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
-			if ( ! wp_verify_nonce( $nonce, 'wpsubs_action_' . $sub_id ) ) {
+			$nonce        = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+			$nonce_action = 'wpsubs_action_' . $sub_id;
+			if ( ! wp_verify_nonce( $nonce, $nonce_action ) ) {
 				echo '<div class="notice notice-error"><p>' . esc_html__( 'Security check failed. Please try again.', 'subscription' ) . '</p></div>';
 				wp_die();
 			}
