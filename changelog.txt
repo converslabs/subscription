@@ -1,4 +1,4 @@
-*** Subscriptions Changelog ***
+*** WPSubscription Changelog ***
 
 2026-02-22 - version 1.8.20
 * fix: Deprecated subscription methods.

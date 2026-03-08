@@ -10,11 +10,11 @@ WC tested up to: 10.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Subscriptions maximizes recurring revenue on WooCommerce. Set flexible subscriptions and automated billing with support for Stripe, PayPal, and more, all with zero technical hassle.
+WPSubscription maximizes recurring revenue on WooCommerce. Set flexible subscriptions and automated billing with support for Stripe, PayPal, and more, all with zero technical hassle.
 
 == Description ==
 
-Your All-in-One Solution for Recurring Revenue. Maximize your store's growth with Subscriptions, the lightweight and powerful WooCommerce plugin designed to automate your recurring income.
+Your All-in-One Solution for Recurring Revenue. Maximize your store's growth with WPSubscription, the lightweight and powerful WooCommerce plugin designed to automate your recurring income.
 
 Effortlessly turn any product into a subscription with flexible billing cycles—daily, weekly, monthly, or yearly—while ensuring a seamless checkout experience.
 
@@ -253,7 +253,7 @@ We recommend backing up your website before performing any updates.
 
 == Upgrade to Pro ==
 This plugin has a Pro version with more features, priority support, and advanced integrations.
-Learn more: [Subscriptions](https://wpsubscription.co/)
+Learn more: [WPSubscription](https://wpsubscription.co/)
 
 == Screenshots ==
 
