@@ -14,7 +14,7 @@ WPSubscription maximizes recurring revenue on WooCommerce. Set flexible subscrip
 
 == Description ==
 
-Your All-in-One Solution for Recurring Revenue. Maximize your store's growth with Subscriptions, the lightweight and powerful WooCommerce plugin designed to automate your recurring income.
+Your All-in-One Solution for Recurring Revenue. Maximize your store's growth with WPSubscription, the lightweight and powerful WooCommerce plugin designed to automate your recurring income.
 
 Effortlessly turn any product into a subscription with flexible billing cycles—daily, weekly, monthly, or yearly—while ensuring a seamless checkout experience.
 

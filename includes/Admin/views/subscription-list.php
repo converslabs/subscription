@@ -20,6 +20,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 	<form method="post" id="subscriptions-form">
 		<div class="wp-subscription-list-header">
 			<div class="wp-subscription-filters">
+				<?php wp_nonce_field( 'wp_subscription_list_action' ); ?>
 				<input type="hidden" name="page" value="wp-subscription" />
 				<select name="subscrpt_status" value="<?php echo esc_attr( $status ); ?>">
 					<option value=""><?php esc_html_e( 'All Status', 'subscription' ); ?></option>

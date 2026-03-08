@@ -48,7 +48,7 @@ final class Sdevs_Subscription {
 	 *
 	 * @var string
 	 */
-	const version = '#WPSUBS_VERSION';
+	const VERSION = '#WPSUBS_VERSION';
 
 	/**
 	 * Holds various class instances
@@ -122,7 +122,7 @@ final class Sdevs_Subscription {
 	 * @return void
 	 */
 	public function define_constants() {
-		define( 'WP_SUBSCRIPTION_VERSION', self::version );
+		define( 'WP_SUBSCRIPTION_VERSION', self::VERSION );
 		define( 'WP_SUBSCRIPTION_FILE', __FILE__ );
 		define( 'WP_SUBSCRIPTION_PATH', dirname( WP_SUBSCRIPTION_FILE ) );
 		define( 'WP_SUBSCRIPTION_INCLUDES', WP_SUBSCRIPTION_PATH . '/includes' );
@@ -253,14 +253,7 @@ final class Sdevs_Subscription {
 	 * since version 4.6, so manual loading is not required.
 	 */
 	public function localization_setup() {
-		// Explicitly load translations for local/custom installs.
-		/*
-		load_plugin_textdomain(
-			'subscription',
-			false,
-			dirname( plugin_basename( __FILE__ ) ) . '/languages'
-		);
-		*/
+		// WordPress auto-loads translations for plugins hosted on WordPress.org since v4.6.
 	}
 
 	/**
