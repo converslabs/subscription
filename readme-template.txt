@@ -1,4 +1,4 @@
-=== Subscription for WooCommerce - WordPress Recurring Payments Plugin ===
+=== Subscription & Recurring Payment Plugin for WooCommerce ===
 Contributors: converswp, shamsbd71, aushamim
 Tags: woocommerce subscriptions, subscriptions, recurring, billing, stripe
 Requires at least: 6.0
@@ -10,11 +10,11 @@ WC tested up to: 10.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WPSubscription maximizes recurring revenue on WooCommerce. Set flexible subscriptions and automated billing with support for Stripe, PayPal, and more, all with zero technical hassle.
+Subscriptions maximizes recurring revenue on WooCommerce. Set flexible subscriptions and automated billing with support for Stripe, PayPal, and more, all with zero technical hassle.
 
 == Description ==
 
-Your All-in-One Solution for Recurring Revenue. Maximize your store's growth with WPSubscription, the lightweight and powerful WooCommerce plugin designed to automate your recurring income.
+Your All-in-One Solution for Recurring Revenue. Maximize your store's growth with Subscriptions, the lightweight and powerful WooCommerce plugin designed to automate your recurring income.
 
 Effortlessly turn any product into a subscription with flexible billing cycles—daily, weekly, monthly, or yearly—while ensuring a seamless checkout experience.
 
@@ -57,7 +57,7 @@ The **Subscription for WooCommerce plugin** gives both you and your customers fu
 
 Customers have the flexibility to pause, cancel, or update their plans at any time. This level of control, combined with recurring billing for WooCommerce, ensures that your subscription-based business runs smoothly and customers have a seamless experience managing their subscriptions.
 
-That's why it ranks as one of the best WooCommerce recurring payment plugins on the market today.
+That's why it ranks as an excellent WooCommerce recurring payment plugin on the market today.
 
 [youtube https://www.youtube.com/watch?v=o8usgcZp1nY]
 
@@ -185,6 +185,13 @@ If the documentation does not solve your issue, you can generate a Support Ticke
 
 Build or improve your eCommerce store confidently with the Subscriptions for WooCommerce plugin and expert WooCommerce services.
 
+== External services ==
+
+This plugin integrates with various third-party payment gateways to process recurring payments and manage subscriptions securely. Depending on the payment gateways you enable in the WooCommerce settings, order information and customer data may be securely transmitted to these external services.
+
+*   **Stripe:** When enabled, the plugin communicates with Stripe's API to process payments, manage subscriptions, and handle auto-renewals. Usage is subject to the [Stripe Services Agreement](https://stripe.com/legal/ssa) and [Stripe Privacy Policy](https://stripe.com/privacy).
+*   **PayPal:** When enabled, the plugin communicates with PayPal's API (api-m.paypal.com or api-m.sandbox.paypal.com) to process payments securely and manage subscription lifecycles. Usage is subject to the [PayPal Legal Agreements](https://www.paypal.com/legalhub/home) and [PayPal Privacy Statement](https://www.paypal.com/webapps/mpp/ua/privacy-full).
+
 == Frequently Asked Questions ==
 
 =Does this plugin work with the free version of WooCommerce?=
@@ -246,7 +253,7 @@ We recommend backing up your website before performing any updates.
 
 == Upgrade to Pro ==
 This plugin has a Pro version with more features, priority support, and advanced integrations.
-Learn more: [WPSubscription](https://wpsubscription.co/)
+Learn more: [Subscriptions](https://wpsubscription.co/)
 
 == Screenshots ==
 

@@ -141,7 +141,7 @@ class AutoRenewal {
 		$hook = 'subscrpt_scheduled_grace_end';
 		if ( function_exists( 'as_schedule_single_action' ) ) {
 			as_unschedule_action( $hook, [ 'subscription_id' => $subscription_id ] );
-			as_schedule_single_action( $grace_end_datetime, $hook, [ 'subscription_id' => $subscription_id ], 'WPSubscription' );
+			as_schedule_single_action( $grace_end_datetime, $hook, [ 'subscription_id' => $subscription_id ], 'Subscriptions' );
 		} else {
 			wp_clear_scheduled_hook( $hook, [ $subscription_id ] );
 			wp_schedule_single_event( $grace_end_datetime, $hook, [ $subscription_id ] );

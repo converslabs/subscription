@@ -1,12 +1,12 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly }
+
 /**
  * Related subscriptions for email.
  *
  * @var \WC_Order $order Order Object.
  * @var object[] $histories Order Object.
  */
-
-use SpringDevs\Subscription\Illuminate\Helper;
 
 ?>
 
@@ -62,7 +62,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;">
 					<?php esc_html_e( 'Recurring amount', 'subscription' ); ?> </th>
 				<td class="td"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo wp_kses_post( Helper::format_price_with_order_item( $cost, $item->get_id() ) ); ?></td>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo wp_kses_post( SpringDevs\Subscription\Illuminate\Helper::format_price_with_order_item( $cost, $item->get_id() ) ); ?></td>
 			</tr>
 			<?php if ( ! $has_trial ) { ?>
 			<tr>

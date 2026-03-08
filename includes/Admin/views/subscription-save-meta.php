@@ -1,4 +1,6 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly }
+
 /**
  * @var array $actions ;
  * @var array $actions_data ;

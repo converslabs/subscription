@@ -20,7 +20,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 class Stripe extends \WC_Stripe_Payment_Gateway {
 
 	/**
-	 * WPSubscription supported Stripe payment methods.
+	 * Subscriptions supported Stripe payment methods.
 	 */
 	public const WPSUBS_SUPPORTED_METHODS = [ 'stripe', 'stripe_ideal', 'stripe_sepa', 'sepa_debit', 'stripe_bancontact' ];
 

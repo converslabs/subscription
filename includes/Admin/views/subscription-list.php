@@ -1,6 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly }
 
-use SpringDevs\Subscription\Illuminate\Helper;
+
 
 if ( ! isset( $date_filter ) ) {
 	$date_filter = ''; } ?>
@@ -92,7 +93,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 				<?php
 				foreach ( $subscriptions as $subscription ) :
 					$subscription_id   = $subscription->ID;
-					$subscription_data = Helper::get_subscription_data( $subscription_id );
+					$subscription_data = SpringDevs\Subscription\Illuminate\Helper::get_subscription_data( $subscription_id );
 
 					$subscrpt_status = $subscription_data['status'] ?? '';
 					$subscrpt_status = empty( $subscrpt_status ) ? get_post_status( $subscription_id ) : $subscrpt_status;
@@ -170,7 +171,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 						<?php else : ?>
 							<span class="subscrpt-<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
 								<?php
-									$verbose_status = Helper::get_verbose_status( $subscrpt_status );
+									$verbose_status = SpringDevs\Subscription\Illuminate\Helper::get_verbose_status( $subscrpt_status );
 									echo esc_html( strlen( $verbose_status ) > 9 ? substr( $verbose_status, 0, 9 ) . '...' : $verbose_status );
 								?>
 							</span>

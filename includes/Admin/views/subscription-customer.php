@@ -1,13 +1,13 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly }
+
 /**
  * Subscription Customer Details
  *
  * @package wp_subscription
  */
 
-use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
-
-$view_subs_endpoint = Subscription::get_user_endpoint( 'view_subs' );
+$view_subs_endpoint = SpringDevs\Subscription\Illuminate\Subscription\Subscription::get_user_endpoint( 'view_subs' );
 $subs_frontend_url  = wc_get_endpoint_url( $view_subs_endpoint, get_the_ID(), wc_get_page_permalink( 'myaccount' ) );
 
 ?>

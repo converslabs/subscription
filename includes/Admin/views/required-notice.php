@@ -1,4 +1,6 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly }
+
 /*
 STYLE GUIDE FOR WP SUBSCRIPTION ADMIN PAGES:
 - Use .wp-subscription-admin-content for main content area.

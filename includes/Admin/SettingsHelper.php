@@ -162,19 +162,17 @@ class SettingsHelper {
 			$other_attrs_html .= sprintf( ' %s="%s" ', esc_attr( $attr_key ), esc_attr( $attr_value ) );
 		}
 
-		$html_content = <<<HTML
-			<input 
-				id="{$id}"
-				name="{$id}"
-				class="input! min-w-80! max-w-full! {$join_class}"
-				style="{$style_attr}"
-				type="{$type}"
-				placeholder="{$placeholder}"
-				value="{$value}"
-				{$disabled_attr}
-				{$other_attrs_html}
-			/>
-		HTML;
+		$html_content = '<input ' .
+			'id="' . $id . '" ' .
+			'name="' . $id . '" ' .
+			'class="input! min-w-80! max-w-full! ' . $join_class . '" ' .
+			'style="' . $style_attr . '" ' .
+			'type="' . $type . '" ' .
+			'placeholder="' . $placeholder . '" ' .
+			'value="' . $value . '" ' .
+			$disabled_attr . ' ' .
+			$other_attrs_html .
+			'/>';
 
 		return $html_content;
 	}
@@ -250,17 +248,13 @@ class SettingsHelper {
 			$options_html    .= $options_tmp_html;
 		}
 
-		$html_content = <<<HTML
-			<select
-				id="{$id}"
-				name="{$id}{$name_prefix}"
-				class="{$basic_classes} {$join_class}"
-				style="{$style_attr}"
-				{$other_attrs_html}
-			>
-				{$options_html}
-			</select>
-		HTML;
+		$html_content = '<select ' .
+			'id="' . $id . '" ' .
+			'name="' . $id . $name_prefix . '" ' .
+			'class="' . $basic_classes . ' ' . $join_class . '" ' .
+			'style="' . $style_attr . '" ' .
+			$other_attrs_html .
+			'>' . $options_html . '</select>';
 
 		return $html_content;
 	}
@@ -287,12 +281,10 @@ class SettingsHelper {
 			);
 		}
 
-		$html_content = <<<HTML
-            <div class="my-4 first-of-type:mt-0">
-                <h2 class="m-0!">{$title}</h2>
-				{$description_html}
-            </div>
-HTML;
+		$html_content = '<div class="my-4 first-of-type:mt-0">' .
+			'<h2 class="m-0!">' . $title . '</h2>' .
+			$description_html .
+			'</div>';
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -336,17 +328,11 @@ HTML;
 			);
 		}
 
-		$html_content = <<<HTML
-            <div class="grid grid-cols-6 gap-4">
-                <span class="font-semibold text-sm mt-0.5">{$title}</span>
-
-                <div class="col-span-5">
-                    {$text_el_html}
-                    <br/>
-                    {$description_html}
-                </div>
-            </div>
-HTML;
+		$html_content = '<div class="grid grid-cols-6 gap-4">' .
+			'<span class="font-semibold text-sm mt-0.5">' . $title . '</span>' .
+			'<div class="col-span-5">' .
+			$text_el_html . '<br/>' . $description_html .
+			'</div></div>';
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -403,33 +389,15 @@ HTML;
 		$checked_attr  = isset( $args['checked'] ) && (bool) $args['checked'] ? 'checked' : '';
 		$disabled_attr = isset( $args['disabled'] ) && (bool) $args['disabled'] ? 'disabled' : '';
 
-		$html_content = <<<HTML
-            <div class="grid grid-cols-6 gap-4">
-                <span class="font-semibold text-sm mt-0.5">{$title}</span>
-
-                <div class="col-span-5">
-                    <label for="{$id}">
-                        <input 
-                            id="{$id}"
-                            name="{$id}"
-                            class="wp-subscription-toggle"
-							style="{$style_attr}"
-                            type="checkbox" 
-                            value="{$value}"
-                            {$checked_attr}
-                            {$disabled_attr}
-							{$other_attrs_html}
-                        />
-                        <span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
-
-                        <span class="ml-2 text-sm align-middle">{$label}</span>
-                    </label>
-
-                    <br/>
-                    {$description_html}
-                </div>
-            </div>
-HTML;
+		$html_content = '<div class="grid grid-cols-6 gap-4">' .
+			'<span class="font-semibold text-sm mt-0.5">' . $title . '</span>' .
+			'<div class="col-span-5">' .
+			'<label for="' . $id . '">' .
+			'<input id="' . $id . '" name="' . $id . '" class="wp-subscription-toggle" style="' . $style_attr . '" type="checkbox" value="' . $value . '" ' . $checked_attr . ' ' . $disabled_attr . ' ' . $other_attrs_html . ' />' .
+			'<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>' .
+			'<span class="ml-2 text-sm align-middle">' . $label . '</span>' .
+			'</label><br/>' . $description_html .
+			'</div></div>';
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -472,17 +440,11 @@ HTML;
 			);
 		}
 
-		$html_content = <<<HTML
-            <div class="grid grid-cols-6 gap-4">
-                <span class="font-semibold text-sm mt-0.5">{$title}</span>
-
-                <div class="col-span-5">
-                    {$select_el_html}
-                    <br/>
-                    {$description_html}
-                </div>
-            </div>
-HTML;
+		$html_content = '<div class="grid grid-cols-6 gap-4">' .
+			'<span class="font-semibold text-sm mt-0.5">' . $title . '</span>' .
+			'<div class="col-span-5">' .
+			$select_el_html . '<br/>' . $description_html .
+			'</div></div>';
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -540,19 +502,11 @@ HTML;
 			$join_items_html .= $element_html;
 		}
 
-		$html_content = <<<HTML
-            <div class="grid grid-cols-6 gap-4">
-                <span class="font-semibold text-sm mt-0.5">{$title}</span>
-
-                <div class="col-span-5">
-					<div class="join {$vertical_class}">
-						{$join_items_html}
-					</div>
-                    <br/>
-                    {$description_html}
-                </div>
-            </div>
-HTML;
+		$html_content = '<div class="grid grid-cols-6 gap-4">' .
+			'<span class="font-semibold text-sm mt-0.5">' . $title . '</span>' .
+			'<div class="col-span-5">' .
+			'<div class="join ' . $vertical_class . '">' . $join_items_html . '</div><br/>' . $description_html .
+			'</div></div>';
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

@@ -1,9 +1,10 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly }
+
 /**
  * @var array $order_histories ;
  */
 
-use SpringDevs\Subscription\Illuminate\Helper;
 
 if ( empty( $order_histories ) ) :
 	?>
