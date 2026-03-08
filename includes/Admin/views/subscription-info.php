@@ -1,5 +1,7 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly }
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 
 
 /*
@@ -50,7 +52,7 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 					</tr>
 					<tr>
 						<th style="padding:8px 10px;">Cost</th>
-						<td style="padding:8px 10px;"><?php echo $cost; ?></td>
+						<td style="padding:8px 10px;"><?php echo wp_kses_post( $cost ); ?></td>
 					</tr>
 					<tr>
 						<th style="padding:8px 10px;">Qty</th>

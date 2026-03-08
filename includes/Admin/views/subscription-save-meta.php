@@ -1,7 +1,13 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly }
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
+wp_nonce_field( 'subscrpt_order_action_nonce', 'subscrpt_order_action_nonce_field' );
 
 /**
+ * Subscription save meta box view.
+ *
  * @var array $actions ;
  * @var array $actions_data ;
  * @var string $status ;

@@ -1,7 +1,11 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly }
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 
 /**
+ * Order history view.
+ *
  * @var array $order_histories ;
  */
 

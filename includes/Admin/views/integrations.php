@@ -3,6 +3,8 @@
  * Payment Gateways Admin Page
  *
  * Displays available payment gateway options as cards.
+ *
+ * @package SpringDevs\Subscription
  */
 
 // Exit if accessed directly.

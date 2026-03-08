@@ -41,7 +41,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 				<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search by subscription ID...', 'subscription' ); ?>" />
 				<select name="per_page">
 					<?php foreach ( array( 10, 20, 50, 100 ) as $n ) : ?>
-						<option value="<?php echo $n; ?>" <?php selected( isset( $_GET['per_page'] ) ? intval( $_GET['per_page'] ) : 20, $n ); ?>><?php echo $n; ?> per page</option>
+						<option value="<?php echo (int) $n; ?>" <?php selected( isset( $_GET['per_page'] ) ? intval( wp_unslash( $_GET['per_page'] ) ) : 20, $n ); ?>><?php echo (int) $n; ?> per page</option>
 					<?php endforeach; ?>
 				</select>
 				<button type="submit" name="filter_action" value="filter" class="button">Search</button>
@@ -214,7 +214,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 	
 	<?php if ( $max_num_pages > 1 ) : ?>
 	<div class="wp-subscription-pagination">
-		<span class="total">Total <?php echo intval( $total ); ?></span>
+		<span class="total">Total <?php echo (int) $total; ?></span>
 		<?php
 		$base_url   = remove_query_arg( 'paged' );
 		$show_pages = $max_num_pages > 1 || $max_num_pages == 1;
@@ -238,13 +238,13 @@ for ( $i = 0; $i < 12; $i++ ) {
 			if ( $is_current ) {
 				echo 'disabled';}
 			?>
-><?php echo $i; ?></a>
+><?php echo (int) $i; ?></a>
 		<?php endfor; ?>
 		<span class="goto-label">Go to</span>
 		<form method="get">
 			<input type="hidden" name="page" value="wp-subscription" />
-			<input type="number" name="paged" min="1" max="<?php echo $max_num_pages; ?>" value="<?php echo $paged; ?>" />
-			<input type="hidden" name="per_page" value="<?php echo $per_page; ?>" />
+			<input type="number" name="paged" min="1" max="<?php echo (int) $max_num_pages; ?>" value="<?php echo (int) $paged; ?>" />
+			<input type="hidden" name="per_page" value="<?php echo (int) $per_page; ?>" />
 			<button type="submit" class="button">OK</button>
 		</form>
 	</div>

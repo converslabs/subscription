@@ -30,7 +30,10 @@
         <exclude name="Squiz.PHP.NonExecutableCode.ReturnNotRequired"/>
 
         <!-- Allow $order, $type etc as local vars in templates (not truly overriding WP globals) -->
-        <exclude name="WordPress.Variables.GlobalVariables.OverrideProhibited"/>
+        <exclude name="WordPress.WP.GlobalVariablesOverride.Prohibited"/>
+
+        <!-- date() is used for formatting timestamps, though gmdate() is preferred -->
+        <exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
 
         <!-- Plugin bootstrap files legitimately combine a class with helper functions -->
         <exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>

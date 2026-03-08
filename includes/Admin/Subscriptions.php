@@ -780,6 +780,16 @@ class Subscriptions {
 		if ( wp_is_post_revision( $post_id ) || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! isset( $_POST['subscrpt_order_action'] ) ) {
 			return;
 		}
+
+		// Verify nonce for security.
+		if ( ! isset( $_POST['subscrpt_order_action_nonce_field'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['subscrpt_order_action_nonce_field'] ) ), 'subscrpt_order_action_nonce' ) ) {
+			return;
+		}
+
+		// Check permissions.
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
 		remove_all_actions( 'save_post' );
 
 		$action     = sanitize_text_field( wp_unslash( $_POST['subscrpt_order_action'] ) );
