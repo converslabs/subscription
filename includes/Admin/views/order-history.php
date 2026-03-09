@@ -1,9 +1,15 @@
 <?php
 /**
+ * Order history view.
+ *
  * @var array $order_histories ;
  */
 
-use SpringDevs\Subscription\Illuminate\Helper;
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 
 if ( empty( $order_histories ) ) :
 	?>

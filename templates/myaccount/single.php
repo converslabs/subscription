@@ -91,8 +91,13 @@ do_action( 'before_single_subscrpt_content', $id );
 		<tr>
 			<td>
 			<?php
-			$date_label = 'null' == $trial || 'off' === $trial_mode ? 'Start date' : ( 'extended' === $trial_mode ? 'Trial End & Subscription Start' : 'Trial End & First Billing' );
-			esc_html_e( $date_label, 'subscription' );
+			if ( 'null' == $trial || 'off' === $trial_mode ) {
+				esc_html_e( 'Start date', 'subscription' );
+			} elseif ( 'extended' === $trial_mode ) {
+				esc_html_e( 'Trial End & Subscription Start', 'subscription' );
+			} else {
+				esc_html_e( 'Trial End & First Billing', 'subscription' );
+			}
 			?>
 			</td>
 			<td><?php echo esc_html( $start_date ); ?></td>

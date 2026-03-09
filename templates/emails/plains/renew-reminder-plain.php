@@ -11,6 +11,11 @@
  * @var int $num_of_days_before Number of days before.
  */
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 echo esc_html( '= ' . $email_heading . " =\n\n" );
 
 // translators: Number of days before & day|days.

@@ -235,10 +235,12 @@ class Settings {
 
 	/**
 	 * Enqueue WooCommerce admin styles for settings page.
+	 *
+	 * @param string $hook The current admin page hook.
 	 */
 	public function enqueue_wc_admin_styles( $hook ) {
 		// Only load on our settings page
-		if ( isset( $_GET['post_type'] ) && strpos( $_GET['post_type'], 'subscrpt_order' ) !== false ) {
+		if ( isset( $_GET['post_type'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['post_type'] ) ), 'subscrpt_order' ) !== false ) {
 			// WooCommerce admin styles
 			wp_enqueue_style( 'woocommerce_admin_styles', WC()->plugin_url() . '/assets/css/admin.css', array(), WP_SUBSCRIPTION_VERSION );
 			// Optional: WooCommerce enhanced select2
