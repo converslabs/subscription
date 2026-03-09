@@ -1,5 +1,12 @@
 *** WPSubscription Changelog ***
 
+2026-03-09 - version 1.9.0
+* fix: Unauthorized actions.
+* fix: Admin subscription setting entries.
+* fix: External services documentation.
+* fix: Direct file access.
+* fix: Plugin description.
+
 2026-02-22 - version 1.8.20
 * fix: Deprecated subscription methods.
 * fix: Subscription timing inconsistencies.
