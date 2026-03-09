@@ -3,9 +3,12 @@
  *
  * @package SpringDevs\Subscription
  */
+
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+	exit;
 }
+
 ?>
 <div class="notice notice-error sdevs-install-plugin">
 	<div class="sdevs-notice-icon">

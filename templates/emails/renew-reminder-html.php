@@ -1,8 +1,4 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
 /**
  * Mail template for Subscription status changed (Admin).
  *
@@ -15,21 +11,25 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @var int $num_of_days_before Number of days before.
  */
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 ?>
 
 <?php do_action( 'woocommerce_email_header', $email_heading ); ?>
 
 <p>
-<?php
-echo esc_html(
-	sprintf(
-	// translators: Number of days before & day|days.
-		__( 'You have only %1$s %2$s left! Please renew the subscription before expired', 'subscription' ),
-		$num_of_days_before,
-		$num_of_days_before > 1 ? 'days' : 'day'
-	)
-);
-?>
+	<?php
+		echo esc_html(
+			sprintf(
+				// translators: Number of days before & day|days.
+				__( 'You have only %1$s %2$s left! Please renew the subscription before expired', 'subscription' ),
+				$num_of_days_before,
+				$num_of_days_before > 1 ? 'days' : 'day'
+			)
+		);
+		?>
 </p>
 
 <table class="td" cellspacing="0" cellpadding="6" style="width: 100%; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;" border="1">

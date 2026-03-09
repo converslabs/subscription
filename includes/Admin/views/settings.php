@@ -2,11 +2,12 @@
 /**
  * Subscription settings admin view.
  *
- * @package wp_subscription
+ * @package SpringDevs\Subscription\Admin
  */
 
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+	exit;
 }
 
 // Add Tailwind CSS for styling.

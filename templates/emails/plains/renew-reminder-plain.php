@@ -1,8 +1,4 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
 /**
  * Mail template for Subscription status changed (Admin).
  *
@@ -14,6 +10,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @var string $view_subscription_url Subscription view URL.
  * @var int $num_of_days_before Number of days before.
  */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 echo esc_html( '= ' . $email_heading . " =\n\n" );
 

@@ -1,12 +1,19 @@
 <?php
+/**
+ * Subscription admin list view.
+ *
+ * @package SpringDevs\Subscription\Admin
+ */
+
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+	exit;
 }
 
 if ( ! isset( $date_filter ) ) {
 	$date_filter = '';
-} ?>
-<?php
+}
+
 // Determine if filters are active
 $filters_active = ! empty( $status ) || ! empty( $date_filter ) || ! empty( $search );
 $months         = array();

@@ -1,14 +1,17 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
 /**
  * Related subscriptions for email.
  *
  * @var \WC_Order $order Order Object.
  * @var object[] $histories Order Object.
+ *
+ * @package SpringDevs\Subscription\Illuminate\Email
  */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 ?>
 

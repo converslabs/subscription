@@ -1,6 +1,13 @@
 <?php
+/**
+ * Subscription save meta box view.
+ *
+ * @package SpringDevs\Subscription\Admin
+ */
+
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+	exit;
 }
 
 wp_nonce_field( 'subscrpt_order_action_nonce', 'subscrpt_order_action_nonce_field' );

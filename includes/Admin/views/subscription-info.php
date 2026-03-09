@@ -1,9 +1,4 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
-
 /*
 STYLE GUIDE FOR WP SUBSCRIPTION ADMIN PAGES:
 - Use .wp-subscription-admin-content for main content area.
@@ -17,9 +12,16 @@ STYLE GUIDE FOR WP SUBSCRIPTION ADMIN PAGES:
 - Avoid excessive spacing or large paddings.
 - All new UI/UX changes must follow these conventions.
 */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! isset( $post ) || ! is_object( $post ) ) {
 	global $post;
 }
+
 $order_id         = get_post_meta( $post->ID, '_subscrpt_order_id', true );
 $order            = wc_get_order( $order_id );
 $order_item_id    = get_post_meta( $post->ID, '_subscrpt_order_item_id', true );
