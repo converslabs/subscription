@@ -2,13 +2,12 @@
 /**
  * Subscription settings admin view.
  *
- * @package wp_subscription
+ * @package SpringDevs\Subscription\Admin
  */
 
-use SpringDevs\Subscription\Admin\SettingsHelper;
-
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+	exit;
 }
 
 // Add Tailwind CSS for styling.
@@ -38,7 +37,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/
 					$field_type = $field['type'] ?? 'input';
 					$field_data = $field['field_data'] ?? [];
 
-					SettingsHelper::render_settings_field( $field_type, $field_data );
+					SpringDevs\Subscription\Admin\SettingsHelper::render_settings_field( $field_type, $field_data );
 
 					echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
 				}

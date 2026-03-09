@@ -55,7 +55,7 @@ class Menu {
 	public function create_admin_menu() {
 		$parent_slug = 'wp-subscription';
 		// Determine if the menu is active
-		$is_active = isset( $_GET['page'] ) && strpos( $_GET['page'], 'wp-subscription' ) === 0;
+		$is_active = isset( $_GET['page'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'wp-subscription' ) === 0;
 		$icon_url  = $is_active
 			? WP_SUBSCRIPTION_ASSETS . '/images/icons/subscription-20.png'
 			: WP_SUBSCRIPTION_ASSETS . '/images/icons/subscription-20-gray.png';
@@ -143,7 +143,7 @@ class Menu {
 	 */
 	public function render_admin_header() {
 		// Get current page slug
-		$current    = isset( $_GET['page'] ) ? sanitize_text_field( $_GET['page'] ) : 'wp-subscription';
+		$current    = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-subscription';
 		$menu_items = [
 			[
 				'slug'  => 'wp-subscription',
@@ -203,18 +203,24 @@ class Menu {
 		$this->render_admin_header();
 
 		// Handle filters
-		$status      = isset( $_GET['subscrpt_status'] ) ? sanitize_text_field( $_GET['subscrpt_status'] ) : '';
-		$search      = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
-		$date_filter = isset( $_GET['date_filter'] ) ? sanitize_text_field( $_GET['date_filter'] ) : '';
+		$status      = isset( $_GET['subscrpt_status'] ) ? sanitize_text_field( wp_unslash( $_GET['subscrpt_status'] ) ) : '';
+		$search      = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		$date_filter = isset( $_GET['date_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['date_filter'] ) ) : '';
 		$per_page    = isset( $_GET['per_page'] ) ? max( 1, intval( $_GET['per_page'] ) ) : 20;
 		$paged       = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
 
 		// Handle form submissions (both filters and bulk actions)
-		if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+		if ( 'POST' === $request_method ) {
+			// Verify nonce before processing any POST data.
+			$nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
+			if ( ! wp_verify_nonce( $nonce, 'wp_subscription_list_action' ) ) {
+				wp_die( esc_html__( 'Security check failed.', 'subscription' ) );
+			}
 			// Handle bulk actions
 			if ( isset( $_POST['bulk_action'] ) || isset( $_POST['bulk_action2'] ) ) {
-				$bulk_action = isset( $_POST['bulk_action'] ) ? sanitize_text_field( $_POST['bulk_action'] ) : sanitize_text_field( $_POST['bulk_action2'] );
-				$action      = isset( $_POST['action'] ) ? sanitize_text_field( $_POST['action'] ) : sanitize_text_field( $_POST['action2'] );
+				$bulk_action = isset( $_POST['bulk_action'] ) ? sanitize_text_field( wp_unslash( $_POST['bulk_action'] ) ) : sanitize_text_field( wp_unslash( $_POST['bulk_action2'] ?? '' ) );
+				$action      = isset( $_POST['action'] ) ? sanitize_text_field( wp_unslash( $_POST['action'] ) ) : sanitize_text_field( wp_unslash( $_POST['action2'] ?? '' ) );
 
 				if ( $bulk_action && $action && $action !== '-1' && isset( $_POST['subscription_ids'] ) && is_array( $_POST['subscription_ids'] ) ) {
 					$subscription_ids = array_map( 'intval', $_POST['subscription_ids'] );
@@ -243,13 +249,13 @@ class Menu {
 				$filter_params = array();
 
 				if ( ! empty( $_POST['subscrpt_status'] ) ) {
-					$filter_params['subscrpt_status'] = sanitize_text_field( $_POST['subscrpt_status'] );
+					$filter_params['subscrpt_status'] = sanitize_text_field( wp_unslash( $_POST['subscrpt_status'] ) );
 				}
 				if ( ! empty( $_POST['date_filter'] ) ) {
-					$filter_params['date_filter'] = sanitize_text_field( $_POST['date_filter'] );
+					$filter_params['date_filter'] = sanitize_text_field( wp_unslash( $_POST['date_filter'] ) );
 				}
 				if ( ! empty( $_POST['s'] ) ) {
-					$filter_params['s'] = sanitize_text_field( $_POST['s'] );
+					$filter_params['s'] = sanitize_text_field( wp_unslash( $_POST['s'] ) );
 				}
 				if ( ! empty( $_POST['per_page'] ) ) {
 					$filter_params['per_page'] = intval( $_POST['per_page'] );
@@ -264,7 +270,7 @@ class Menu {
 		// Handle individual actions
 		if ( isset( $_GET['action'] ) && ! empty( $_GET['sub_id'] ) ) {
 			$sub_id = intval( $_GET['sub_id'] );
-			$action = sanitize_text_field( $_GET['action'] );
+			$action = sanitize_text_field( wp_unslash( $_GET['action'] ) );
 
 			if ( $action === 'duplicate' ) {
 				$post = get_post( $sub_id );
@@ -546,7 +552,8 @@ class Menu {
 	 */
 	public function handle_bulk_action_ajax() {
 		// Verify nonce
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'wp_subscription_bulk_action_nonce' ) ) {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'wp_subscription_bulk_action_nonce' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'subscription' ) ) );
 		}
 
@@ -556,7 +563,7 @@ class Menu {
 		}
 
 		// Get action and subscription IDs
-		$bulk_action      = sanitize_text_field( $_POST['bulk_action'] );
+		$bulk_action      = isset( $_POST['bulk_action'] ) ? sanitize_text_field( wp_unslash( $_POST['bulk_action'] ) ) : '';
 		$subscription_ids = isset( $_POST['subscription_ids'] ) ? array_map( 'intval', $_POST['subscription_ids'] ) : array();
 
 		if ( empty( $subscription_ids ) ) {
@@ -666,7 +673,7 @@ class Menu {
 		if ( $processed_count > 0 ) {
 			wp_send_json_success( array( 'message' => $message ) );
 		} else {
-			wp_send_json_error( array( 'message' => $message ?: __( 'No subscriptions were processed.', 'subscription' ) ) );
+			wp_send_json_error( array( 'message' => $message ? $message : __( 'No subscriptions were processed.', 'subscription' ) ) );
 		}
 	}
 }

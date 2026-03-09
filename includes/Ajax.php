@@ -4,6 +4,8 @@ namespace SpringDevs\Subscription;
 
 /**
  * The Ajax class
+ *
+ * @package SpringDevs\Subscription
  */
 class Ajax {
 
@@ -58,7 +60,7 @@ class Ajax {
 		);
 
 		if ( is_wp_error( $api ) ) {
-			wp_die( $api );
+			wp_die( esc_html( $api->get_error_message() ) );
 		}
 
 		$title = sprintf(

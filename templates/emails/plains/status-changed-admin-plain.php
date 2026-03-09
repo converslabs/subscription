@@ -13,6 +13,11 @@
  * @var string $next_date Next payment date.
  */
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 echo esc_html( '= ' . $email_heading . " =\n\n" );
 
 // translators: first is older status and last is newly updated status.

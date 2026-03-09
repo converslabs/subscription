@@ -5,7 +5,10 @@
  * @package SpringDevs\Subscription\Admin
  */
 
-use SpringDevs\Subscription\Illuminate\Helper;
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 ?>
 <style>
@@ -29,10 +32,10 @@ use SpringDevs\Subscription\Illuminate\Helper;
 		<?php
 		foreach ( $histories as $history ) :
 			$subscription_id   = $history->subscription_id;
-			$subscription_data = Helper::get_subscription_data( $subscription_id );
+			$subscription_data = SpringDevs\Subscription\Illuminate\Helper::get_subscription_data( $subscription_id );
 
 			$subscrpt_status = $subscription_data['status'] ?? '';
-			$verbose_status  = Helper::get_verbose_status( $subscrpt_status );
+			$verbose_status  = SpringDevs\Subscription\Illuminate\Helper::get_verbose_status( $subscrpt_status );
 
 			$order_item_id = get_post_meta( $history->subscription_id, '_subscrpt_order_item_id', true );
 			$order_item    = $order->get_item( $history->order_item_id );
@@ -65,7 +68,7 @@ use SpringDevs\Subscription\Illuminate\Helper;
 						<?php echo esc_html( $order_item->get_name() ); ?>
 					</td>
 					<td>
-						<?php echo wp_kses_post( Helper::format_price_with_order_item( $price, $order_item->get_id() ) ); ?>
+						<?php echo wp_kses_post( SpringDevs\Subscription\Illuminate\Helper::format_price_with_order_item( $price, $order_item->get_id() ) ); ?>
 					</td>
 					<td>
 						<?php echo esc_html( $start_date ); ?>

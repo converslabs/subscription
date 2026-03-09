@@ -1,3 +1,14 @@
+<?php
+/**
+ * Subscription product edit form view.
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+?>
 <div id="sdevs_subscription_options"
 	class="panel woocommerce_options_panel option_group sdevs-form sdevs_panel show_if_simple" style="padding: 10px;">
 	<div class="show_if_subscription">

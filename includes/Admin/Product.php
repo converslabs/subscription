@@ -163,18 +163,18 @@ class Product {
 			}
 		}
 
-		if ( ! isset( $_POST['_subscript_nonce'], $_POST['subscrpt_timing'], $_POST['subscrpt_cart_txt'], $_POST['subscrpt_user_cancel'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_subscript_nonce'] ) ), '_subscript_edit_product_nonce' ) ) {
+		if ( ! isset( $_POST['_subscript_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_subscript_nonce'] ) ), '_subscript_edit_product_nonce' ) ) {
 			return;
 		}
 
 		remove_action( 'save_post_product', array( $this, 'save_subscrpt_data' ) );
 
 		$subscrpt_enable       = isset( $_POST['subscrpt_enable'] );
-		$subscrpt_timing       = sanitize_text_field( wp_unslash( $_POST['subscrpt_timing'] ) );
-		$subscrpt_trial_time   = sanitize_text_field( wp_unslash( $_POST['subscrpt_trial_time'] ) );
-		$subscrpt_trial_timing = sanitize_text_field( wp_unslash( $_POST['subscrpt_trial_timing'] ) );
-		$subscrpt_cart_txt     = sanitize_text_field( wp_unslash( $_POST['subscrpt_cart_txt'] ) );
-		$subscrpt_user_cancel  = sanitize_text_field( wp_unslash( $_POST['subscrpt_user_cancel'] ) );
+		$subscrpt_timing       = isset( $_POST['subscrpt_timing'] ) ? sanitize_text_field( wp_unslash( $_POST['subscrpt_timing'] ) ) : '';
+		$subscrpt_trial_time   = isset( $_POST['subscrpt_trial_time'] ) ? sanitize_text_field( wp_unslash( $_POST['subscrpt_trial_time'] ) ) : '';
+		$subscrpt_trial_timing = isset( $_POST['subscrpt_trial_timing'] ) ? sanitize_text_field( wp_unslash( $_POST['subscrpt_trial_timing'] ) ) : '';
+		$subscrpt_cart_txt     = isset( $_POST['subscrpt_cart_txt'] ) ? sanitize_text_field( wp_unslash( $_POST['subscrpt_cart_txt'] ) ) : '';
+		$subscrpt_user_cancel  = isset( $_POST['subscrpt_user_cancel'] ) ? sanitize_text_field( wp_unslash( $_POST['subscrpt_user_cancel'] ) ) : '';
 		$subscrpt_limit        = isset( $_POST['subscrpt_limit'] ) ? sanitize_text_field( wp_unslash( $_POST['subscrpt_limit'] ) ) : null;
 
 		$product = wc_get_product( $product_id );

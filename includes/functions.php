@@ -39,6 +39,14 @@ function subscrpt_get_action_url( $action, $nonce, $subscription_id ) {
 }
 
 
+/**
+ * Get typos.
+ *
+ * @param int    $number Number.
+ * @param string $typo   Typo.
+ *
+ * @return string
+ */
 function subscrpt_get_typos( $number, $typo ) {
 	if ( $number == 1 && $typo == 'days' ) {
 		return ucfirst( __( 'day', 'subscription' ) );
@@ -123,7 +131,7 @@ function subscrpt_get_max_payments( $subscription_id ) {
 }
 
 /**
- * Count total payments made for a subscription (including original + renewals).
+ * Count total payments made.
  *
  * @param int $subscription_id Subscription ID.
  * @return int Number of payments made.
@@ -133,17 +141,18 @@ function subscrpt_count_payments_made( $subscription_id ) {
 
 	$table_name = $wpdb->prefix . 'subscrpt_order_relation';
 
-	// Get all relations for this subscription
+	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	$relations = $wpdb->get_results(
 		$wpdb->prepare(
 			"SELECT sr.*, p.post_status, p.post_date 
-		FROM {$table_name} sr 
+		FROM $table_name sr 
 		INNER JOIN {$wpdb->posts} p ON sr.order_id = p.ID 
 		WHERE sr.subscription_id = %d
 		ORDER BY p.post_date ASC",
 			$subscription_id
 		)
 	);
+	// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 	// Define all payment-related order types (allow filtering for extensibility)
 	$payment_types = apply_filters( 'subscrpt_payment_order_types', array( 'new', 'renew', 'early-renew' ) );
@@ -354,17 +363,18 @@ function subscrpt_count_all_payment_attempts( $subscription_id ) {
 
 	$table_name = $wpdb->prefix . 'subscrpt_order_relation';
 
-	// Get all relations for this subscription
+	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	$relations = $wpdb->get_results(
 		$wpdb->prepare(
 			"SELECT sr.*, p.post_status, p.post_date 
-		FROM {$table_name} sr 
+		FROM $table_name sr 
 		INNER JOIN {$wpdb->posts} p ON sr.order_id = p.ID 
 		WHERE sr.subscription_id = %d
 		ORDER BY p.post_date ASC",
 			$subscription_id
 		)
 	);
+	// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 	// Define all payment-related order types
 	$payment_types = apply_filters( 'subscrpt_payment_order_types', array( 'new', 'renew', 'early-renew' ) );
@@ -405,6 +415,13 @@ if ( ! function_exists( 'wps_subscription_order_relation_type_cast' ) ) {
 		_deprecated_function( 'order_relation_type_cast', '1.5.3', 'wps_subscription_order_relation_type_cast' );
 		return wps_subscription_order_relation_type_cast( $key );
 	}
+	/**
+	 * Order relation type cast.
+	 *
+	 * @param string $key Key.
+	 *
+	 * @return string
+	 */
 	function wps_subscription_order_relation_type_cast( string $key ) {
 		$relational_type_keys = apply_filters(
 			'subscrpt_order_relational_types',
@@ -427,6 +444,11 @@ if ( ! function_exists( 'wps_subscription_is_wc_order_hpos_enabled' ) ) {
 		_deprecated_function( 'is_wc_order_hpos_enabled', '1.5.3', 'wps_subscription_is_wc_order_hpos_enabled' );
 		return wps_subscription_is_wc_order_hpos_enabled();
 	}
+	/**
+	 * Check if HPOS enabled.
+	 *
+	 * @return bool
+	 */
 	function wps_subscription_is_wc_order_hpos_enabled() {
 		return function_exists( 'wc_get_container' ) ?
 			wc_get_container()
@@ -478,6 +500,13 @@ if ( ! function_exists( 'wps_subscription_get_timing_types' ) ) {
 		_deprecated_function( 'get_timing_types', '1.5.3', 'wps_subscription_get_timing_types' );
 		return wps_subscription_get_timing_types( $key_value );
 	}
+	/**
+	 * Get timing types.
+	 *
+	 * @param bool $key_value Key value.
+	 *
+	 * @return array
+	 */
 	function wps_subscription_get_timing_types( $key_value = false ): array {
 		return $key_value ? array(
 			'days'   => 'Daily',

@@ -2,6 +2,9 @@
 
 namespace SpringDevs\Subscription\Utils;
 
+/**
+ * Product Factory Class.
+ */
 class ProductFactory {
 
 	public static function load( \WC_Product $product ): Product {

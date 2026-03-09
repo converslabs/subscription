@@ -1,8 +1,4 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
 /**
  * Mail template for Subscription status changed (Admin).
  *
@@ -14,6 +10,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @var string $view_subscription_url Subscription view URL.
  */
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 ?>
 
 <?php do_action( 'woocommerce_email_header', $email_heading ); ?>
