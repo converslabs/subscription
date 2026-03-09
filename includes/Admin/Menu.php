@@ -271,45 +271,18 @@ class Menu {
 		if ( isset( $_GET['action'] ) && ! empty( $_GET['sub_id'] ) ) {
 			$sub_id = intval( $_GET['sub_id'] );
 			$action = sanitize_text_field( wp_unslash( $_GET['action'] ) );
+			$nonce  = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
 
-			if ( $action === 'duplicate' ) {
-				$post = get_post( $sub_id );
-				if ( $post && $post->post_type === 'subscrpt_order' ) {
-					$new_post = [
-						'post_title'   => $post->post_title . ' (Copy)',
-						'post_content' => $post->post_content,
-						'post_status'  => 'draft',
-						'post_type'    => 'subscrpt_order',
-					];
-					$new_id   = wp_insert_post( $new_post );
-					if ( $new_id ) {
-						$meta = get_post_meta( $sub_id );
-						foreach ( $meta as $key => $values ) {
-							foreach ( $values as $value ) {
-								add_post_meta( $new_id, $key, maybe_unserialize( $value ) );
-							}
-						}
-					}
+			// Clean trash action.
+			if ( $action === 'clean_trash' ) {
+				// Verify nonce for security.
+				$nonce_action = 'wpsubs_action_clean_trash';
+				if ( ! wp_verify_nonce( $nonce, $nonce_action ) ) {
+					echo '<div class="notice notice-error"><p>' . esc_html__( 'Security check failed. Please try again.', 'subscription' ) . '</p></div>';
+					wp_die();
 				}
-				wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription' ) );
-				exit;
-			} elseif ( $action === 'trash' ) {
-				// Move to trash
-				wp_trash_post( $sub_id );
-				wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription' ) );
-				exit;
-			} elseif ( $action === 'restore' ) {
-				// Restore from trash
-				wp_untrash_post( $sub_id );
-				wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription' ) );
-				exit;
-			} elseif ( $action === 'delete' ) {
-				// Permanent delete
-				wp_delete_post( $sub_id, true );
-				wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription' ) );
-				exit;
-			} elseif ( $action === 'clean_trash' ) {
-				// Clean all trash items
+
+				// Clean all trash items.
 				$trash_posts = get_posts(
 					[
 						'post_type'   => 'subscrpt_order',
@@ -324,6 +297,51 @@ class Menu {
 				}
 
 				wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription&subscrpt_status=trash' ) );
+				exit;
+			} else {
+				// For other actions, verify nonce with subscription ID.
+				$nonce_action = 'wpsubs_action_' . $sub_id;
+				if ( ! wp_verify_nonce( $nonce, $nonce_action ) ) {
+					echo '<div class="notice notice-error"><p>' . esc_html__( 'Security check failed. Please try again.', 'subscription' ) . '</p></div>';
+					wp_die();
+				}
+
+				$redirect_url = admin_url( 'admin.php?page=wp-subscription' );
+
+				switch ( $action ) {
+					case 'duplicate':
+						$post = get_post( $sub_id );
+						if ( $post && $post->post_type === 'subscrpt_order' ) {
+							$new_post = [
+								'post_title'   => $post->post_title . ' (Copy)',
+								'post_content' => $post->post_content,
+								'post_status'  => 'draft',
+								'post_type'    => 'subscrpt_order',
+							];
+							$new_id   = wp_insert_post( $new_post );
+							if ( $new_id ) {
+								$meta = get_post_meta( $sub_id );
+								foreach ( $meta as $key => $values ) {
+									foreach ( $values as $value ) {
+										add_post_meta( $new_id, $key, maybe_unserialize( $value ) );
+									}
+								}
+							}
+						}
+						break;
+					case 'trash':
+						wp_trash_post( $sub_id );
+						break;
+					case 'restore':
+						wp_untrash_post( $sub_id );
+						break;
+					case 'delete':
+						wp_delete_post( $sub_id, true );
+						$redirect_url = admin_url( 'admin.php?page=wp-subscription&subscrpt_status=trash' );
+						break;
+				}
+
+				wp_safe_redirect( $redirect_url );
 				exit;
 			}
 		}
