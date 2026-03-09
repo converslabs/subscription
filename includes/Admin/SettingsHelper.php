@@ -162,19 +162,21 @@ class SettingsHelper {
 			$other_attrs_html .= sprintf( ' %s="%s" ', esc_attr( $attr_key ), esc_attr( $attr_value ) );
 		}
 
-		$html_content = '<input ' .
-			'id="' . $id . '" ' .
-			'name="' . $id . '" ' .
-			'class="input! min-w-80! max-w-full! ' . $join_class . '" ' .
-			'style="' . $style_attr . '" ' .
-			'type="' . $type . '" ' .
-			'placeholder="' . $placeholder . '" ' .
-			'value="' . $value . '" ' .
-			$disabled_attr . ' ' .
-			$other_attrs_html .
-			'/>';
-
-		return $html_content;
+		ob_start();
+		?>
+			<input 
+				id="<?php echo esc_attr( $id ); ?>"
+				name="<?php echo esc_attr( $id ); ?>"
+				class="input! min-w-80! max-w-full! <?php echo esc_attr( $join_class ); ?>"
+				style="<?php echo esc_attr( $style_attr ); ?>"
+				type="<?php echo esc_attr( $type ); ?>"
+				placeholder="<?php echo esc_attr( $placeholder ); ?>"
+				value="<?php echo esc_attr( $value ); ?>"
+				<?php echo esc_attr( $disabled_attr ); ?>
+				<?php echo wp_kses_post( $other_attrs_html ); ?>
+			/>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -248,15 +250,23 @@ class SettingsHelper {
 			$options_html    .= $options_tmp_html;
 		}
 
-		$html_content = '<select ' .
-			'id="' . $id . '" ' .
-			'name="' . $id . $name_prefix . '" ' .
-			'class="' . $basic_classes . ' ' . $join_class . '" ' .
-			'style="' . $style_attr . '" ' .
-			$other_attrs_html .
-			'>' . $options_html . '</select>';
-
-		return $html_content;
+		ob_start();
+		?>
+			<select
+				id="<?php echo esc_attr( $id ); ?>"
+				name="<?php echo esc_attr( $id . $name_prefix ); ?>"
+				class="<?php echo esc_attr( $basic_classes . ' ' . $join_class ); ?>"
+				style="<?php echo esc_attr( $style_attr ); ?>"
+				<?php echo wp_kses_post( $other_attrs_html ); ?>
+			>
+				<?php
+					// Output intentionally not escaped as options are already escaped during generation & re-escaping breaks output.
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo $options_html;
+				?>
+			</select>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -273,18 +283,19 @@ class SettingsHelper {
 		$title       = $args['title'] ?? '';
 		$description = $args['description'] ?? '';
 
-		$description_html = '';
-		if ( ! empty( $description ) ) {
-			$description_html = sprintf(
-				'<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">%s</p>',
-				wp_kses_post( $description )
-			);
-		}
+		ob_start();
+		?>
+			<div class="my-4 first-of-type:mt-0">
+				<h2 class="m-0!"><?php echo esc_html( $title ); ?></h2>
 
-		$html_content = '<div class="my-4 first-of-type:mt-0">' .
-			'<h2 class="m-0!">' . $title . '</h2>' .
-			$description_html .
-			'</div>';
+				<?php if ( ! empty( $description ) ) : ?>
+					<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">
+						<?php echo wp_kses_post( $description ); ?>
+					</p>
+				<?php endif; ?>
+			</div>
+		<?php
+		$html_content = ob_get_clean();
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
