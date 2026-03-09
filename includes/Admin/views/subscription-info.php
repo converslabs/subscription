@@ -1,4 +1,10 @@
 <?php
+/**
+ * Subscription Info Admin View Template
+ *
+ * @package SpringDevs\Subscription\Admin
+ */
+
 /*
 STYLE GUIDE FOR WP SUBSCRIPTION ADMIN PAGES:
 - Use .wp-subscription-admin-content for main content area.
