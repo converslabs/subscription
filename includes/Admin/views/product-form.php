@@ -1,6 +1,8 @@
-<?php if ( ! defined( 'ABSPATH' ) ) {
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
-} ?>
+}
+?>
 <div id="sdevs_subscription_options"
 	class="panel woocommerce_options_panel option_group sdevs-form sdevs_panel show_if_simple" style="padding: 10px;">
 	<div class="show_if_subscription">
