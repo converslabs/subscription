@@ -1,8 +1,4 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
 /**
  * Subscriptions Table
  *
@@ -12,8 +8,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This template can be overridden by copying it to <your_theme>/subscription/myaccount/subscriptions.php
  */
 
-use SpringDevs\Subscription\Illuminate\Helper;
-use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 ?>
 
 <table class="woocommerce-orders-table woocommerce-MyAccount-orders shop_table shop_table_responsive my_account_orders account-orders-table my_account_subscrpt">
@@ -34,10 +32,10 @@ use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 				$postslist->the_post();
 
 				$subscription_id   = get_the_ID();
-				$subscription_data = Helper::get_subscription_data( $subscription_id );
+				$subscription_data = SpringDevs\Subscription\Illuminate\Helper::get_subscription_data( $subscription_id );
 
 				$subscrpt_status = $subscription_data['status'] ?? '';
-				$verbose_status  = Helper::get_verbose_status( $subscrpt_status );
+				$verbose_status  = SpringDevs\Subscription\Illuminate\Helper::get_verbose_status( $subscrpt_status );
 
 				$order_id      = $subscription_data['order']['order_id'] ?? 0;
 				$order_item_id = $subscription_data['order']['order_item_id'] ?? 0;
@@ -67,14 +65,14 @@ use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 					$price = number_format( (float) $price, 2, '.', '' );
 				}
 
-				$product_price_html = Helper::format_price_with_order_item( $price, $order_item->get_id() );
+				$product_price_html = SpringDevs\Subscription\Illuminate\Helper::format_price_with_order_item( $price, $order_item->get_id() );
 
 				$is_grace_period = isset( $subscription_data['grace_period'] );
 				$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
 
 				$my_account_page_id = get_option( 'woocommerce_myaccount_page_id' );
 				$my_account_url     = get_permalink( $my_account_page_id );
-				$view_sub_endpoint  = Subscription::get_user_endpoint( 'view_subs' );
+				$view_sub_endpoint  = SpringDevs\Subscription\Illuminate\Subscription\Subscription::get_user_endpoint( 'view_subs' );
 				$view_sub_url       = wc_get_endpoint_url( $view_sub_endpoint, get_the_ID(), $my_account_url );
 				?>
 

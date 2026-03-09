@@ -1,10 +1,19 @@
 <?php
+/**
+ * Subscription admin list view.
+ *
+ * @package SpringDevs\Subscription\Admin
+ */
 
-use SpringDevs\Subscription\Illuminate\Helper;
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 if ( ! isset( $date_filter ) ) {
-	$date_filter = ''; } ?>
-<?php
+	$date_filter = '';
+}
+
 // Determine if filters are active
 $filters_active = ! empty( $status ) || ! empty( $date_filter ) || ! empty( $search );
 $months         = array();
@@ -19,6 +28,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 	<form method="post" id="subscriptions-form">
 		<div class="wp-subscription-list-header">
 			<div class="wp-subscription-filters">
+				<?php wp_nonce_field( 'wp_subscription_list_action' ); ?>
 				<input type="hidden" name="page" value="wp-subscription" />
 				<select name="subscrpt_status" value="<?php echo esc_attr( $status ); ?>">
 					<option value=""><?php esc_html_e( 'All Status', 'subscription' ); ?></option>
@@ -38,7 +48,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 				<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search by subscription ID...', 'subscription' ); ?>" />
 				<select name="per_page">
 					<?php foreach ( array( 10, 20, 50, 100 ) as $n ) : ?>
-						<option value="<?php echo $n; ?>" <?php selected( isset( $_GET['per_page'] ) ? intval( $_GET['per_page'] ) : 20, $n ); ?>><?php echo $n; ?> per page</option>
+						<option value="<?php echo (int) $n; ?>" <?php selected( isset( $_GET['per_page'] ) ? intval( wp_unslash( $_GET['per_page'] ) ) : 20, $n ); ?>><?php echo (int) $n; ?> per page</option>
 					<?php endforeach; ?>
 				</select>
 				<button type="submit" name="filter_action" value="filter" class="button">Search</button>
@@ -96,7 +106,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 				<?php
 				foreach ( $subscriptions as $subscription ) :
 					$subscription_id   = $subscription->ID;
-					$subscription_data = Helper::get_subscription_data( $subscription_id );
+					$subscription_data = SpringDevs\Subscription\Illuminate\Helper::get_subscription_data( $subscription_id );
 
 					$subscrpt_status = $subscription_data['status'] ?? '';
 					$subscrpt_status = empty( $subscrpt_status ) ? get_post_status( $subscription_id ) : $subscrpt_status;
@@ -187,7 +197,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 						<?php else : ?>
 							<span class="subscrpt-<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
 								<?php
-									$verbose_status = Helper::get_verbose_status( $subscrpt_status );
+									$verbose_status = SpringDevs\Subscription\Illuminate\Helper::get_verbose_status( $subscrpt_status );
 									echo esc_html( strlen( $verbose_status ) > 9 ? substr( $verbose_status, 0, 9 ) . '...' : $verbose_status );
 								?>
 							</span>
@@ -228,7 +238,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 	
 	<?php if ( $max_num_pages > 1 ) : ?>
 	<div class="wp-subscription-pagination">
-		<span class="total">Total <?php echo intval( $total ); ?></span>
+		<span class="total">Total <?php echo (int) $total; ?></span>
 		<?php
 		$base_url   = remove_query_arg( 'paged' );
 		$show_pages = $max_num_pages > 1 || $max_num_pages == 1;
@@ -252,13 +262,13 @@ for ( $i = 0; $i < 12; $i++ ) {
 			if ( $is_current ) {
 				echo 'disabled';}
 			?>
-><?php echo $i; ?></a>
+><?php echo (int) $i; ?></a>
 		<?php endfor; ?>
 		<span class="goto-label">Go to</span>
 		<form method="get">
 			<input type="hidden" name="page" value="wp-subscription" />
-			<input type="number" name="paged" min="1" max="<?php echo $max_num_pages; ?>" value="<?php echo $paged; ?>" />
-			<input type="hidden" name="per_page" value="<?php echo $per_page; ?>" />
+			<input type="number" name="paged" min="1" max="<?php echo (int) $max_num_pages; ?>" value="<?php echo (int) $paged; ?>" />
+			<input type="hidden" name="per_page" value="<?php echo (int) $per_page; ?>" />
 			<button type="submit" class="button">OK</button>
 		</form>
 	</div>

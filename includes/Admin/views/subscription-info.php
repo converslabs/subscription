@@ -1,5 +1,10 @@
 <?php
-use SpringDevs\Subscription\Illuminate\Helper;
+/**
+ * Subscription Info Admin View Template
+ *
+ * @package SpringDevs\Subscription\Admin
+ */
+
 /*
 STYLE GUIDE FOR WP SUBSCRIPTION ADMIN PAGES:
 - Use .wp-subscription-admin-content for main content area.
@@ -13,15 +18,22 @@ STYLE GUIDE FOR WP SUBSCRIPTION ADMIN PAGES:
 - Avoid excessive spacing or large paddings.
 - All new UI/UX changes must follow these conventions.
 */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! isset( $post ) || ! is_object( $post ) ) {
 	global $post;
 }
+
 $order_id         = get_post_meta( $post->ID, '_subscrpt_order_id', true );
 $order            = wc_get_order( $order_id );
 $order_item_id    = get_post_meta( $post->ID, '_subscrpt_order_item_id', true );
 $order_item       = $order ? $order->get_item( $order_item_id ) : null;
 $product_name     = $order_item ? $order_item->get_name() : '-';
-$cost             = $order_item ? Helper::format_price_with_order_item( get_post_meta( $post->ID, '_subscrpt_price', true ), $order_item_id ) : '-';
+$cost             = $order_item ? SpringDevs\Subscription\Illuminate\Helper::format_price_with_order_item( get_post_meta( $post->ID, '_subscrpt_price', true ), $order_item_id ) : '-';
 $qty              = $order_item ? 'x' . $order_item->get_quantity() : '-';
 $customer         = $order ? $order->get_formatted_billing_full_name() : '-';
 $customer_id      = $order ? $order->get_customer_id() : 0;
@@ -48,7 +60,7 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 					</tr>
 					<tr>
 						<th style="padding:8px 10px;">Cost</th>
-						<td style="padding:8px 10px;"><?php echo $cost; ?></td>
+						<td style="padding:8px 10px;"><?php echo wp_kses_post( $cost ); ?></td>
 					</tr>
 					<tr>
 						<th style="padding:8px 10px;">Qty</th>
@@ -197,7 +209,7 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 											/* translators: %1$s: duration time, %2$s: duration type */
 											esc_html__( '%1$s %2$s after first payment', 'subscription' ),
 											esc_html( $custom_duration_time ),
-											esc_html( ucfirst( Helper::get_typos( $custom_duration_time, $custom_duration_type, true ) ) )
+											esc_html( ucfirst( SpringDevs\Subscription\Illuminate\Helper::get_typos( $custom_duration_time, $custom_duration_type, true ) ) )
 										);
 										break;
 									default:

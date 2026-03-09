@@ -144,7 +144,7 @@ class Order {
 		$has_trial = isset( $item_meta['trial'] ) && strlen( $item_meta['trial'] ) > 2;
 
 		if ( $has_trial ) {
-			echo '<br/><small> + Got ' . $trial . ' free trial!</small>';
+			echo '<br/><small> + Got ' . esc_html( $trial ) . ' free trial!</small>';
 		}
 	}
 

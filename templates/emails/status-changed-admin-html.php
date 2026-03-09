@@ -13,6 +13,11 @@
  * @var string $next_date Next payment date.
  */
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 // translators: first is older status and last is newly updated status.
 $opening_paragraph = __( 'Subscription status changed from %1$s to %2$s', 'subscription' );
 ?>

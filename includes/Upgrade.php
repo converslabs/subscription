@@ -8,6 +8,9 @@ use SpringDevs\Subscription\Installer;
 // Do NOT use direct SQL for live WooCommerce order data access—use WooCommerce CRUD for HPOS compatibility.
 // All live order data access must use WooCommerce CRUD methods.
 
+/**
+ * Upgrade class
+ */
 class Upgrade {
 
 	public function run() {
@@ -27,8 +30,7 @@ class Upgrade {
 
 	public function move_product_meta() {
 		global $wpdb;
-		$product_meta_query = 'SELECT * FROM ' . $wpdb->prefix . "postmeta WHERE meta_key='subscrpt_general'";
-		$products_meta      = $wpdb->get_results( $product_meta_query );
+		$products_meta = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->postmeta} WHERE meta_key = %s", 'subscrpt_general' ) );
 		foreach ( $products_meta as $product_meta ) {
 			update_post_meta( $product_meta->post_id, '_subscrpt_meta', unserialize( $product_meta->meta_value ) );
 			update_post_meta(
@@ -48,11 +50,9 @@ class Upgrade {
 	public function update_subscription_meta() {
 		global $wpdb;
 
-		$subscription_meta_query = 'SELECT * FROM ' . $wpdb->prefix . "postmeta WHERE meta_key='_subscrpt_order_general'";
-		$subscriptions_meta      = $wpdb->get_results( $subscription_meta_query );
+		$subscriptions_meta = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->postmeta} WHERE meta_key = %s", '_subscrpt_order_general' ) );
 
-		$subscription_history_query = 'SELECT * FROM ' . $wpdb->prefix . "postmeta WHERE meta_key='_subscrpt_order_history'";
-		$histories                  = $wpdb->get_results( $subscription_history_query );
+		$histories = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->postmeta} WHERE meta_key = %s", '_subscrpt_order_history' ) );
 
 		foreach ( $subscriptions_meta as $subscription_meta ) {
 			$subscription_meta_value = unserialize( $subscription_meta->meta_value );
@@ -128,8 +128,7 @@ class Upgrade {
 
 	public function update_comment_meta() {
 		global $wpdb;
-		$query         = 'SELECT * FROM ' . $wpdb->prefix . "commentmeta WHERE meta_key='subscrpt_activity'";
-		$comments_meta = $wpdb->get_results( $query );
+		$comments_meta = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->commentmeta} WHERE meta_key = %s", 'subscrpt_activity' ) );
 		foreach ( $comments_meta as $comment_meta ) {
 			update_comment_meta( $comment_meta->comment_id, '_subscrpt_activity', $comment_meta->meta_value );
 			delete_comment_meta( $comment_meta->comment_id, 'subscrpt_activity' );
