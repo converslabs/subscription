@@ -4,11 +4,19 @@
  * @package SpringDevs\Subscription
  */
 
+/*
+STYLE GUIDE FOR WP SUBSCRIPTION ADMIN PAGES:
+- Use .wp-subscription-admin-content for main content area.
+- Use .wp-subscription-admin-box for white card/box with shadow and 6-8px border-radius.
+- Use compact, modern, visually unified design for all sections.
+- Use Georgia, serif for titles, system sans-serif for body.
+- All new UI/UX changes must follow these conventions.
+*/
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
 ?>
 <div class="notice notice-error sdevs-install-plugin">
 	<div class="sdevs-notice-icon">
