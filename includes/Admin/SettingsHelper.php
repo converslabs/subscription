@@ -260,7 +260,7 @@ class SettingsHelper {
 				<?php echo wp_kses_post( $other_attrs_html ); ?>
 			>
 				<?php
-					// Output intentionally not escaped as options are already escaped during generation & re-escaping breaks output.
+					// Output intentionally not escaped as options are already escaped during generation & re-escaping breaks the HTML structure.
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo $options_html;
 				?>
@@ -331,19 +331,27 @@ class SettingsHelper {
 		// Input HTML.
 		$text_el_html = self::inp_element( $args );
 
-		$description_html = '';
-		if ( ! empty( $description ) ) {
-			$description_html = sprintf(
-				'<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">%s</p>',
-				wp_kses_post( $description )
-			);
-		}
+		ob_start();
+		?>
+			<div class="grid grid-cols-6 gap-4">
+				<span class="font-semibold text-sm mt-0.5"><?php echo esc_html( $title ); ?></span>
 
-		$html_content = '<div class="grid grid-cols-6 gap-4">' .
-			'<span class="font-semibold text-sm mt-0.5">' . $title . '</span>' .
-			'<div class="col-span-5">' .
-			$text_el_html . '<br/>' . $description_html .
-			'</div></div>';
+				<div class="col-span-5">
+					<?php
+						// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo $text_el_html;
+					?>
+					<br/>
+					<?php if ( ! empty( $description ) ) : ?>
+						<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">
+							<?php echo wp_kses_post( $description ); ?>
+						</p>
+					<?php endif; ?>
+				</div>
+			</div>
+		<?php
+		$html_content = ob_get_clean();
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -400,15 +408,39 @@ class SettingsHelper {
 		$checked_attr  = isset( $args['checked'] ) && (bool) $args['checked'] ? 'checked' : '';
 		$disabled_attr = isset( $args['disabled'] ) && (bool) $args['disabled'] ? 'disabled' : '';
 
-		$html_content = '<div class="grid grid-cols-6 gap-4">' .
-			'<span class="font-semibold text-sm mt-0.5">' . $title . '</span>' .
-			'<div class="col-span-5">' .
-			'<label for="' . $id . '">' .
-			'<input id="' . $id . '" name="' . $id . '" class="wp-subscription-toggle" style="' . $style_attr . '" type="checkbox" value="' . $value . '" ' . $checked_attr . ' ' . $disabled_attr . ' ' . $other_attrs_html . ' />' .
-			'<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>' .
-			'<span class="ml-2 text-sm align-middle">' . $label . '</span>' .
-			'</label><br/>' . $description_html .
-			'</div></div>';
+		ob_start();
+		?>
+			<div class="grid grid-cols-6 gap-4">
+				<span class="font-semibold text-sm mt-0.5"><?php echo esc_html( $title ); ?></span>
+
+				<div class="col-span-5">
+					<label for="<?php echo esc_attr( $id ); ?>">
+						<input 
+							id="<?php echo esc_attr( $id ); ?>"
+							name="<?php echo esc_attr( $id ); ?>"
+							class="wp-subscription-toggle"
+							style="<?php echo esc_attr( $style_attr ); ?>"
+							type="checkbox" 
+							value="<?php echo esc_attr( $value ); ?>"
+							<?php echo esc_attr( $checked_attr ); ?>
+							<?php echo esc_attr( $disabled_attr ); ?>
+							<?php
+								// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
+								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								echo $other_attrs_html;
+							?>
+						/>
+						<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
+
+						<span class="ml-2 text-sm align-middle"><?php echo esc_html( $label ); ?></span>
+					</label>
+
+					<br/>
+					<?php echo wp_kses_post( $description_html ); ?>
+				</div>
+			</div>
+		<?php
+		$html_content = ob_get_clean();
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -443,19 +475,27 @@ class SettingsHelper {
 		// Select HTML.
 		$select_el_html = self::select_element( $args );
 
-		$description_html = '';
-		if ( ! empty( $description ) ) {
-			$description_html = sprintf(
-				'<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">%s</p>',
-				wp_kses_post( $description )
-			);
-		}
+		ob_start();
+		?>
+			<div class="grid grid-cols-6 gap-4">
+				<span class="font-semibold text-sm mt-0.5"><?php echo esc_html( $title ); ?></span>
 
-		$html_content = '<div class="grid grid-cols-6 gap-4">' .
-			'<span class="font-semibold text-sm mt-0.5">' . $title . '</span>' .
-			'<div class="col-span-5">' .
-			$select_el_html . '<br/>' . $description_html .
-			'</div></div>';
+				<div class="col-span-5">
+					<?php
+						// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo $select_el_html;
+					?>
+					<br/>
+					<?php if ( ! empty( $description ) ) : ?>
+						<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">
+							<?php echo wp_kses_post( $description ); ?>
+						</p>
+					<?php endif; ?>
+				</div>
+			</div>
+		<?php
+		$html_content = ob_get_clean();
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -498,26 +538,33 @@ class SettingsHelper {
 		$title       = $args['title'] ?? '';
 		$description = $args['description'] ?? '';
 
-		$description_html = '';
-		if ( ! empty( $description ) ) {
-			$description_html = sprintf(
-				'<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">%s</p>',
-				wp_kses_post( $description )
-			);
-		}
-
 		$vertical_class = ( $args['vertical'] ?? false ) ? 'join-vertical' : '';
 
-		$join_items_html = '';
-		foreach ( ( $args['elements'] ?? [] ) as $element_html ) {
-			$join_items_html .= $element_html;
-		}
+		ob_start();
+		?>
+			<div class="grid grid-cols-6 gap-4">
+				<span class="font-semibold text-sm mt-0.5"><?php echo esc_html( $title ); ?></span>
 
-		$html_content = '<div class="grid grid-cols-6 gap-4">' .
-			'<span class="font-semibold text-sm mt-0.5">' . $title . '</span>' .
-			'<div class="col-span-5">' .
-			'<div class="join ' . $vertical_class . '">' . $join_items_html . '</div><br/>' . $description_html .
-			'</div></div>';
+				<div class="col-span-5">
+					<div class="join <?php echo esc_attr( $vertical_class ); ?>">
+						<?php
+						foreach ( ( $args['elements'] ?? [] ) as $element_html ) {
+							// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo $element_html;
+						}
+						?>
+					</div>
+					<br/>
+					<?php if ( ! empty( $description ) ) : ?>
+						<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">
+							<?php echo wp_kses_post( $description ); ?>
+						</p>
+					<?php endif; ?>
+				</div>
+			</div>
+		<?php
+		$html_content = ob_get_clean();
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
