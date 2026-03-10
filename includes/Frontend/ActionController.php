@@ -82,7 +82,7 @@ class ActionController {
 			} else {
 				Action::status( $action, $subscrpt_id );
 			}
-		} elseif ( 'reactive' === $action ) {
+		} elseif ( 'reactivate' === $action ) {
 			Action::status( 'active', $subscrpt_id );
 		} elseif ( 'renew-on' === $action ) {
 			update_post_meta( $subscrpt_id, '_subscrpt_auto_renew', 1 );
