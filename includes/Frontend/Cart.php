@@ -468,7 +468,7 @@ class Cart {
 						<?php endif; ?>
 
 						<!-- add how many times will be build if _subscrpt_renewal_limit is not 0 -->
-						<?php if ( $recurr['max_no_payment'] > 0 ) : ?>
+						<?php if ( (int) $recurr['max_no_payment'] > 0 ) : ?>
 							<br>
 							<small>
 								<?php
@@ -477,7 +477,7 @@ class Cart {
 										// translators: 1: number of installments, 2: total amount.
 										__( 'This subscription will be billed in %1$s installments, for a total of %2$s.', 'subscription' ),
 										esc_html( $recurr['max_no_payment'] ),
-										wc_price( $recurr['price'] * $recurr['max_no_payment'] )
+										wc_price( $recurr['price'] * (int) $recurr['max_no_payment'] )
 									)
 								);
 								?>
