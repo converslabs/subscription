@@ -90,11 +90,7 @@ class Checkout {
 					$selected_subscription_id = null;
 					if ( $is_renew && $renew_subscription_id && 'cancelled' !== $post_status ) {
 						$selected_subscription_id = $renew_subscription_id;
-						Helper::process_order_renewal(
-							$selected_subscription_id,
-							$order_id,
-							$order_item->get_id()
-						);
+						Helper::process_order_renewal( $selected_subscription_id, $order_id, $order_item->get_id() );
 					} else {
 						$selected_subscription_id = Helper::process_new_subscription_order( $order_item, $post_status, $product );
 					}

@@ -53,6 +53,11 @@ class Order {
 					update_post_meta( $subscription_id, '_subscrpt_trial_ended', $start_date );
 					update_post_meta( $subscription_id, '_subscrpt_trial_mode', 'on' );
 				}
+
+				if ( ! empty( $trial_started ) ) {
+					$start_date = $trial_started;
+					$next_date  = $start_date;
+				}
 			}
 
 			update_post_meta( $subscription_id, '_subscrpt_start_date', $start_date );
