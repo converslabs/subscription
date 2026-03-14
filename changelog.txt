@@ -1,5 +1,11 @@
 *** WPSubscription Changelog ***
 
+2026-03-15 - version 1.9.1
+* fix: Subscription trials.
+* fix: Cart text issue.
+* fix: Reactivate subscription button.
+* fix: Stripe initialization error.
+
 2026-03-09 - version 1.9.0
 * fix: Unauthorized actions.
 * fix: Admin subscription setting entries.
