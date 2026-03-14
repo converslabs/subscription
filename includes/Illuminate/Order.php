@@ -19,6 +19,8 @@ class Order {
 		add_action( 'woocommerce_order_status_changed', array( $this, 'order_status_changed' ) );
 		add_action( 'woocommerce_before_delete_order', array( $this, 'delete_the_subscription' ) );
 		add_action( 'subscrpt_subscription_activated', array( $this, 'generate_dates_for_subscription' ) );
+
+		add_action( 'subscrpt_queue_trial_order_autocomplete', array( $this, 'auto_complete_subscription_trial_order' ) );
 	}
 
 	/**
@@ -52,6 +54,11 @@ class Order {
 					update_post_meta( $subscription_id, '_subscrpt_trial_started', time() );
 					update_post_meta( $subscription_id, '_subscrpt_trial_ended', $start_date );
 					update_post_meta( $subscription_id, '_subscrpt_trial_mode', 'on' );
+				}
+
+				if ( ! empty( $trial_ended ) ) {
+					$start_date = $trial_ended;
+					$next_date  = $start_date;
 				}
 			}
 
@@ -182,12 +189,16 @@ class Order {
 
 		foreach ( $histories as $history ) {
 			if ( 'new' === $history->type || 'renew' === $history->type ) {
+				$subscription_id = $history->subscription_id;
 				wp_update_post(
 					array(
-						'ID'          => $history->subscription_id,
+						'ID'          => $subscription_id,
 						'post_status' => $post_status,
 					)
 				);
+
+				// If possible change order status to completed if it has a trial subscription.
+				$this->maybe_trigger_auto_complete_trial_order( $order_id, $subscription_id );
 
 				// Increment renewal count for completed renewal orders (wps-pro)
 				if ( 'renew' === $history->type && 'active' === $post_status && function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activated() ) {
@@ -399,5 +410,54 @@ class Order {
 			// Mark milestone as logged
 			update_post_meta( $subscription_id, $milestone_key, current_time( 'timestamp' ) );
 		}
+	}
+
+	/**
+	 * Maybe complete the order if it has a trial subscription and is still in processing status.
+	 *
+	 * @param int $order_id Order ID.
+	 * @param int $subscription_id Subscription ID.
+	 */
+	public function maybe_trigger_auto_complete_trial_order( $order_id, $subscription_id ) {
+		$order       = wc_get_order( $order_id );
+		$order_items = $order->get_items();
+
+		// Only attempt to complete if order is still in processing status.
+		if ( 'processing' !== $order->get_status() ) {
+			return;
+		}
+
+		$is_subs_trial_order = false;
+		foreach ( $order_items as $order_item ) {
+			$subscrpt_meta = $order_item->get_meta( '_subscrpt_meta', true );
+
+			if ( ! empty( $subscrpt_meta ) && isset( $subscrpt_meta['trial'] ) ) {
+				$is_subs_trial_order = true;
+			}
+		}
+
+		if ( $is_subs_trial_order ) {
+			as_enqueue_async_action( 'subscrpt_queue_trial_order_autocomplete', [ 'order_id' => $order_id ] );
+
+			$log_message = "Queued auto complete task for free trial order [ID: {$order_id}]";
+			wp_subscrpt_write_log( $log_message );
+			wp_subscrpt_write_debug_log( $log_message );
+		}
+	}
+
+	/**
+	 * Autocomplete subscription trial order.
+	 *
+	 * @param int $order_id Order ID.
+	 */
+	public function auto_complete_subscription_trial_order( $order_id ) {
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
+
+		sleep( 3 ); // Adding a small delay to ensure order status is updated before we check it.
+
+		$order->update_status( 'completed', __( 'Subscription order with trial.', 'subscription' ) );
 	}
 }

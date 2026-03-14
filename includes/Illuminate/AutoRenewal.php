@@ -108,6 +108,13 @@ class AutoRenewal {
 		}
 
 		if ( subscrpt_is_auto_renew_enabled() ) {
+			// Change subscription status to pending if it was a trial subscription.
+			$trial = get_post_meta( $subscription_id, '_subscrpt_trial', true );
+			if ( ! empty( $trial ) ) {
+				Action::status( 'pending', $subscription_id );
+			}
+
+			// Create renewal order.
 			Helper::create_renewal_order( $subscription_id );
 		}
 	}
