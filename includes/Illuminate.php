@@ -45,6 +45,10 @@ class Illuminate {
 	 */
 	public function stripe_initialization() {
 		if ( function_exists( 'woocommerce_gateway_stripe' ) ) {
+			if ( ! class_exists( 'WC_Payment_Gateway_CC' ) ) {
+				include_once dirname( WC_PLUGIN_FILE ) . '/includes/gateways/class-wc-payment-gateway-cc.php';
+			}
+
 			include_once dirname( WC_STRIPE_MAIN_FILE ) . '/includes/compat/trait-wc-stripe-subscriptions-utilities.php';
 			include_once dirname( WC_STRIPE_MAIN_FILE ) . '/includes/compat/trait-wc-stripe-pre-orders.php';
 			include_once dirname( WC_STRIPE_MAIN_FILE ) . '/includes/compat/trait-wc-stripe-subscriptions.php';

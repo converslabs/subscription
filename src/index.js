@@ -97,7 +97,7 @@ const RecurringTotals = ({ cart, extensions }) => {
                       <small>{__("You can cancel subscription at any time!", "subscription")} </small>
                     </>
                   )}
-                {recurring.max_no_payment > 0 && (
+                {parseInt(recurring.max_no_payment) > 0 && (
                   <>
                     <br />
                     <small>
@@ -108,7 +108,7 @@ const RecurringTotals = ({ cart, extensions }) => {
                           "subscription",
                         ),
                         recurring.max_no_payment,
-                        formatPrice(Math.round(recurring.price * multiplier * recurring.max_no_payment), {
+                        formatPrice(Math.round(recurring.price * multiplier * parseInt(recurring.max_no_payment)), {
                           currency: currency.code,
                           currency_symbol: currency.symbol,
                           decimal_separator: currency.decimalSeparator,

@@ -146,11 +146,11 @@ class MyAccount {
 					'class' => 'cancel',
 				);
 			} elseif ( trim( $status ) === trim( 'pe_cancelled' ) ) {
-				$label = __( 'Reactive', 'subscription' );
-				$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'reactive', $id, $status );
+				$label = __( 'Reactivate', 'subscription' );
+				$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'reactivate', $id, $status );
 
-				$action_buttons['reactive'] = array(
-					'url'   => subscrpt_get_action_url( 'reactive', $subscrpt_nonce, $id ),
+				$action_buttons['reactivate'] = array(
+					'url'   => subscrpt_get_action_url( 'reactivate', $subscrpt_nonce, $id ),
 					'label' => $label,
 				);
 			} elseif ( 'expired' === $status && 'pending' !== $order->get_status() ) {

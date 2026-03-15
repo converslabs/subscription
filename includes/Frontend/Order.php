@@ -65,9 +65,7 @@ class Order {
 			$is_grace_period = isset( $subscription_data['grace_period'] );
 			$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
 
-			// TODO: Fix trial system and update the code accordingly.
-			// $trial = isset( $subscription_data['trial'] );
-			$trial = false;
+			$trial = isset( $subscription_data['trial'] );
 			?>
 
 			<table class="woocommerce-table woocommerce-table--order-details shop_table order_details">
