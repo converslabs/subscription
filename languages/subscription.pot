@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-09T08:24:06+00:00\n"
+"POT-Creation-Date: 2026-03-15T04:03:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -316,7 +316,7 @@ msgstr ""
 #: includes/Admin/Subscriptions.php:519
 #: includes/Admin/views/order-history.php:28
 #: includes/Admin/views/related-subscriptions.php:28
-#: includes/Frontend/Order.php:87
+#: includes/Frontend/Order.php:85
 #: includes/Illuminate/views/subscription-table.php:61
 #: templates/myaccount/single.php:53
 #: templates/myaccount/single.php:348
@@ -430,7 +430,7 @@ msgid "No shipping address set."
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:405
-#: includes/Frontend/Order.php:133
+#: includes/Frontend/Order.php:131
 #: includes/Illuminate/views/subscription-table.php:84
 #: templates/myaccount/single.php:87
 msgid "Trial"
@@ -458,7 +458,7 @@ msgstr ""
 #: includes/Admin/Subscriptions.php:528
 #: includes/Admin/views/related-subscriptions.php:89
 #: includes/Admin/views/subscription-list.php:189
-#: includes/Frontend/Order.php:97
+#: includes/Frontend/Order.php:95
 #: templates/myaccount/single.php:62
 #: templates/myaccount/subscriptions.php:90
 #, php-format
@@ -736,7 +736,7 @@ msgstr ""
 
 #: includes/Admin/views/related-subscriptions.php:25
 #: includes/Admin/views/subscription-info.php:175
-#: includes/Illuminate/Order.php:94
+#: includes/Illuminate/Order.php:101
 #: templates/myaccount/single.php:183
 msgid "Recurring"
 msgstr ""
@@ -989,14 +989,14 @@ msgstr ""
 
 #: includes/Frontend/Cart.php:275
 #: includes/Frontend/Cart.php:458
-#: includes/Frontend/Order.php:124
+#: includes/Frontend/Order.php:122
 #: includes/Illuminate/views/subscription-table.php:75
 msgid "Next billing on"
 msgstr ""
 
 #: includes/Frontend/Cart.php:276
 #: includes/Frontend/Cart.php:457
-#: includes/Frontend/Order.php:141
+#: includes/Frontend/Order.php:139
 #: includes/Illuminate/views/subscription-table.php:92
 msgid "First billing on"
 msgstr ""
@@ -1047,7 +1047,7 @@ msgid "Cancel"
 msgstr ""
 
 #: includes/Frontend/MyAccount.php:149
-msgid "Reactive"
+msgid "Reactivate"
 msgstr ""
 
 #: includes/Frontend/MyAccount.php:159
@@ -1078,11 +1078,11 @@ msgstr ""
 msgid "Subscription #%s"
 msgstr ""
 
-#: includes/Frontend/Order.php:77
+#: includes/Frontend/Order.php:75
 msgid "Subscription ID"
 msgstr ""
 
-#: includes/Frontend/Order.php:114
+#: includes/Frontend/Order.php:112
 #: includes/Illuminate/views/subscription-table.php:68
 msgid "Recurring amount"
 msgstr ""
@@ -1515,69 +1515,73 @@ msgid "Subscription renewal isn't possible due to previous order not completed o
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency
-#: includes/Illuminate/Order.php:273
+#: includes/Illuminate/Order.php:284
 #, php-format
 msgid "Split payment %1$d of %2$d received (%3$s %4$s). Initial access granted."
 msgstr ""
 
-#: includes/Illuminate/Order.php:279
+#: includes/Illuminate/Order.php:290
 msgid "Split Payment - Initial"
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency, %5$d: remaining
-#: includes/Illuminate/Order.php:283
+#: includes/Illuminate/Order.php:294
 #, php-format
 msgid "Split payment %1$d of %2$d received (%3$s %4$s). %5$d payments remaining."
 msgstr ""
 
-#: includes/Illuminate/Order.php:290
+#: includes/Illuminate/Order.php:301
 msgid "Split Payment - Installment"
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$d: subscription id
-#: includes/Illuminate/Order.php:309
+#: includes/Illuminate/Order.php:320
 #, php-format
 msgid "Split payment %1$d of %2$d received for subscription #%3$d"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:348
+#: includes/Illuminate/Order.php:359
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (25%%)."
 msgstr ""
 
-#: includes/Illuminate/Order.php:352
+#: includes/Illuminate/Order.php:363
 msgid "Payment Milestone - 25%"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:358
+#: includes/Illuminate/Order.php:369
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (50%%). Halfway there!"
 msgstr ""
 
-#: includes/Illuminate/Order.php:362
+#: includes/Illuminate/Order.php:373
 msgid "Payment Milestone - 50%"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:368
+#: includes/Illuminate/Order.php:379
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (75%%). Almost complete!"
 msgstr ""
 
-#: includes/Illuminate/Order.php:372
+#: includes/Illuminate/Order.php:383
 msgid "Payment Milestone - 75%"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:378
+#: includes/Illuminate/Order.php:389
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (100%%). Split payment plan complete!"
 msgstr ""
 
-#: includes/Illuminate/Order.php:382
+#: includes/Illuminate/Order.php:393
 msgid "Payment Milestone - 100%"
+msgstr ""
+
+#: includes/Illuminate/Order.php:461
+msgid "Subscription order with trial."
 msgstr ""
 
 #: includes/Illuminate/Post.php:27
