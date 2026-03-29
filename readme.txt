@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim
 Tags: woocommerce subscriptions, subscriptions, recurring, billing, stripe
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 1.9.1
+Stable tag: 1.9.2
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -278,6 +278,18 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 19. Create WooCommerce Product with Subscription Option
 
 == Changelog ==
+
+= 1.9.2 - Mar 29, 2026 =
+-  fix: Renamed reserved WP_SUBSCRIPTION_* constants to SUBSCRPT_* to comply with WordPress.org naming guidelines.
+-  fix: Renamed wp_-prefixed global functions (wp_subscrpt_write_log, wp_subs_multiselect_field, etc.) to subscrpt_ prefix.
+-  fix: Renamed non-prefixed AJAX actions (install_woocommerce_plugin, activate_woocommerce_plugin) to subscrpt_ prefix.
+-  fix: Stripe gateway class now wrapped in class_exists check to prevent fatal error when WooCommerce Stripe plugin is inactive.
+-  fix: Guest checkout auto-login now restricted to newly created accounts only, preventing unexpected re-login for existing users.
+-  fix: Replaced insecure JavaScript location.href redirects in ActionController with wp_safe_redirect().
+-  fix: PayPal webhook inputs now sanitized before processing.
+-  fix: Settings field output now escaped with wp_kses_post for improved security.
+-  fix: Plugin name updated to comply with WordPress.org trademark guidelines.
+-  compat: Legacy WP_SUBSCRIPTION_* constants and old function names remain available via includes/LegacyCompat.php.
 
 = 1.9.1 - Mar 15, 2026 =
 -   fix: Subscription trials.
