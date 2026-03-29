@@ -14,10 +14,8 @@ class Ajax {
 	 * Initialize the class
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_install_woocommerce_plugin', array( $this, 'install_woocommerce_plugin' ) );
-		add_action( 'wp_ajax_wps_subscription_activate_woocommerce_plugin', array( $this, 'wps_subscription_activate_woocommerce_plugin' ) );
-
-		add_action( 'wp_ajax_activate_woocommerce_plugin', array( $this, 'activate_woocommerce_plugin' ) );
+		add_action( 'wp_ajax_subscrpt_install_woocommerce_plugin', array( $this, 'install_woocommerce_plugin' ) );
+		add_action( 'wp_ajax_subscrpt_activate_woocommerce_plugin', array( $this, 'wps_subscription_activate_woocommerce_plugin' ) );
 	}
 
 	/**

@@ -15,7 +15,7 @@ jQuery(document).ready(function ($) {
       url: sdevs_installer_helper_obj.ajax_url,
       data: {
         install_plugin: "woocommerce",
-        action: "install_woocommerce_plugin",
+        action: "subscrpt_install_woocommerce_plugin",
       },
       beforeSend: function () {
         $(".sdevs-loading-icon").show();
@@ -35,7 +35,7 @@ jQuery(document).ready(function ($) {
       url: sdevs_installer_helper_obj.ajax_url,
       data: {
         activate_plugin: "woocommerce",
-        action: "wps_subscription_activate_woocommerce_plugin",
+        action: "subscrpt_activate_woocommerce_plugin",
       },
       beforeSend: function () {
         $(".sdevs-loading-icon").show();

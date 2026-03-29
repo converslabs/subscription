@@ -63,7 +63,7 @@ class Paypal extends \WC_Payment_Gateway {
 		$this->method_title       = __( 'PayPal for WPSubscription', 'subscription' );
 		$this->method_description = __( 'Accept wp subscription recurring payments through PayPal. Only WP Subscription is supported.', 'subscription' );
 		$this->supports           = [ 'products', 'subscriptions', 'refunds' ];
-		$this->icon               = apply_filters( 'wp_subscription_paypal_icon', WP_SUBSCRIPTION_URL . '/assets/images/paypal.svg' );
+		$this->icon               = apply_filters( 'wp_subscription_paypal_icon', SUBSCRPT_URL . '/assets/images/paypal.svg' );
 
 		// Load the settings.
 		$this->init_form_fields();
@@ -122,13 +122,13 @@ class Paypal extends \WC_Payment_Gateway {
 	 */
 	public function init_form_fields() {
 		// Gateway settings styles.
-		wp_enqueue_style( 'wp-subscription-gateway-settings', WP_SUBSCRIPTION_ASSETS . '/css/gateway.css', [], WP_SUBSCRIPTION_VERSION, 'all' );
+		wp_enqueue_style( 'wp-subscription-gateway-settings', SUBSCRPT_ASSETS . '/css/gateway.css', [], SUBSCRPT_VERSION, 'all' );
 
 		// Settings JS.
-		wp_enqueue_script( 'wp-subscription-gateway-settings-script', WP_SUBSCRIPTION_ASSETS . '/js/gateway.js', [ 'jquery' ], WP_SUBSCRIPTION_VERSION, true );
+		wp_enqueue_script( 'wp-subscription-gateway-settings-script', SUBSCRPT_ASSETS . '/js/gateway.js', [ 'jquery' ], SUBSCRPT_VERSION, true );
 
 		// Live/Sandbox toggle script.
-		wp_enqueue_script( 'wp-subscription-gateway-settings-toggle-script', WP_SUBSCRIPTION_ASSETS . '/js/gateway_options_toggler.js', [ 'jquery' ], WP_SUBSCRIPTION_VERSION, true );
+		wp_enqueue_script( 'wp-subscription-gateway-settings-toggle-script', SUBSCRPT_ASSETS . '/js/gateway_options_toggler.js', [ 'jquery' ], SUBSCRPT_VERSION, true );
 
 		$this->form_fields = [
 			'enabled'                    => [

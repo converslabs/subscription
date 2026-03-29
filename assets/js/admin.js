@@ -131,7 +131,7 @@ jQuery(document).ready(() => {
       url: wp_subscription_ajax.ajaxurl,
       type: "POST",
       data: {
-        action: "wp_subscription_bulk_action",
+        action: "subscrpt_bulk_action",
         bulk_action: action,
         subscription_ids: subscriptionIds,
         nonce: wp_subscription_ajax.nonce,

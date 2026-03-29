@@ -15,7 +15,7 @@ class Links {
 	 * Initialize the class
 	 */
 	public function __construct() {
-		add_filter( 'plugin_action_links_' . plugin_basename( WP_SUBSCRIPTION_FILE ), array( $this, 'plugin_action_links' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( SUBSCRPT_FILE ), array( $this, 'plugin_action_links' ) );
 	}
 
 	/**
