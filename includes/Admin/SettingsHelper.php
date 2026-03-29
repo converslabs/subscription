@@ -297,9 +297,7 @@ class SettingsHelper {
 		<?php
 		$html_content = ob_get_clean();
 
-		// Output not escaped intentionally. Breaks the HTML structure when escaped.
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		return $should_print ? print( $html_content ) : $html_content;
+		return $should_print ? print( wp_kses_post( $html_content ) ) : $html_content;
 	}
 
 	/**
@@ -353,9 +351,7 @@ class SettingsHelper {
 		<?php
 		$html_content = ob_get_clean();
 
-		// Output not escaped intentionally. Breaks the HTML structure when escaped.
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		return $should_print ? print( $html_content ) : $html_content;
+		return $should_print ? print( wp_kses_post( $html_content ) ) : $html_content;
 	}
 
 	/**
@@ -442,9 +438,7 @@ class SettingsHelper {
 		<?php
 		$html_content = ob_get_clean();
 
-		// Output not escaped intentionally. Breaks the HTML structure when escaped.
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		return $should_print ? print( $html_content ) : $html_content;
+		return $should_print ? print( wp_kses_post( $html_content ) ) : $html_content;
 	}
 
 	/**
@@ -497,9 +491,7 @@ class SettingsHelper {
 		<?php
 		$html_content = ob_get_clean();
 
-		// Output not escaped intentionally. Breaks the HTML structure when escaped.
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		return $should_print ? print( $html_content ) : $html_content;
+		return $should_print ? print( wp_kses_post( $html_content ) ) : $html_content;
 	}
 
 	/**
@@ -566,8 +558,6 @@ class SettingsHelper {
 		<?php
 		$html_content = ob_get_clean();
 
-		// Output not escaped intentionally. Breaks the HTML structure when escaped.
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		return $should_print ? print( $html_content ) : $html_content;
+		return $should_print ? print( wp_kses_post( $html_content ) ) : $html_content;
 	}
 }

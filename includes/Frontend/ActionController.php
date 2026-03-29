@@ -65,9 +65,8 @@ class ActionController {
 		$renewal_actions = apply_filters( 'subscrpt_renewal_actions', array( 'renew', 'renew-on', 'early-renew' ) );
 		if ( in_array( $action, $renewal_actions, true ) && subscrpt_is_max_payments_reached( $subscrpt_id ) ) {
 			wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'subscription' ), 'error' );
-			// phpcs:ignore
-			echo ( "<script>location.href = '" . wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
-			return;
+			wp_safe_redirect( wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) );
+			exit;
 		}
 
 		if ( 'renew' === $action && ! subscrpt_is_auto_renew_enabled() ) {
@@ -95,15 +94,14 @@ class ActionController {
 			if ( subscrpt_is_max_payments_reached( $subscrpt_id ) &&
 				( strpos( $action, 'renew' ) !== false || strpos( $action, 'renewal' ) !== false ) ) {
 				wc_add_notice( __( 'This subscription has reached its maximum payment limit and cannot be renewed further.', 'subscription' ), 'error' );
-				// phpcs:ignore
-				echo ( "<script>location.href = '" . wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
-				return;
+				wp_safe_redirect( wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) );
+				exit;
 			}
 
 			do_action( 'subscrpt_execute_actions', $subscrpt_id, $action );
 		}
-		// phpcs:ignore
-		echo ( "<script>location.href = '" . wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) . "';</script>" );
+		wp_safe_redirect( wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) );
+		exit;
 	}
 
 	/**
@@ -140,10 +138,7 @@ class ActionController {
 	 * @param String $url URL.
 	 */
 	public function redirect( $url ) {
-		?>
-		<script>
-			window.location.href = '<?php echo esc_url_raw( $url ); ?>';
-		</script>
-		<?php
+		wp_safe_redirect( esc_url( $url ) );
+		exit;
 	}
 }
