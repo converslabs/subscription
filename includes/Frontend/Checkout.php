@@ -224,10 +224,12 @@ class Checkout {
 			do_action( 'woocommerce_created_customer', $user_id, [], true );
 		}
 
-		// Login the user.
-		// ? this is temporary, user will be logged out after the checkout.
+		// Auto-login the newly created account so the subscription can be associated with the user.
+		// This ONLY runs when $is_new_customer is true — i.e. when wp_insert_user() succeeded
+		// just above in this same request. It never fires for returning/existing users.
+		// wc_set_customer_auth_cookie() is the WooCommerce-sanctioned way to log a customer in
+		// during checkout; wp_set_auth_cookie() is the WP fallback if WC is not available.
 		if ( ! is_user_logged_in() && $is_new_customer && $user_id ) {
-			// Log the user in
 			wp_set_current_user( $user_id );
 			if ( function_exists( 'wc_set_customer_auth_cookie' ) ) {
 				wc_set_customer_auth_cookie( $user_id );
@@ -235,13 +237,10 @@ class Checkout {
 				wp_set_auth_cookie( $user_id );
 			}
 
-			// Optional: trigger login action
-			do_action( 'wp_login', get_userdata( $user_id )->user_login, get_userdata( $user_id ) );
-
 			// Set flag for manual login tracking.
 			set_transient( 'subscrpt_manual_login_' . $user_id, true, 15 * MINUTE_IN_SECONDS );
 
-			wp_subscrpt_write_debug_log( 'Auto-logged in newly created user ID: ' . $user_id . ' after checkout.' );
+			subscrpt_write_debug_log( 'Auto-logged in newly created user ID: ' . $user_id . ' after checkout.' );
 		}
 
 		return $user_id;
