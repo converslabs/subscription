@@ -426,8 +426,6 @@ class Menu {
 		} else {
 			// Allow pro plugin to override the entire stats page content.
 			do_action( 'subscrpt_render_stats_page' );
-			// Legacy hook alias — subscription-pro hooks into this name.
-			do_action( 'wp_subscription_render_stats_page' );
 		}
 
 		$this->render_admin_footer();
