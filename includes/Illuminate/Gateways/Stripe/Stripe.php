@@ -401,7 +401,10 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	 */
 	public function modify_create_intent_request_for_subscriptions( $request, $order, $prepared_source ) {
 		$is_subscription_order = $this->order_has_subscription_relation( $order->get_id() );
-		if ( ! $is_subscription_order ) {
+		$is_renewal_order      = $this->is_subscription_renewal_order( $order->get_id() );
+
+		// Don't add setup_future_usage for renewal orders (payment method already saved)
+		if ( ! $is_subscription_order || $is_renewal_order ) {
 			return $request;
 		}
 
