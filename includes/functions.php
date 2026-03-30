@@ -14,7 +14,7 @@ use SpringDevs\Subscription\Utils\Product;
  * * Use "`yarn watch:tailwind`" to continuously build the tailwind CSS file.
  */
 function subscrpt_include_tailwind_css() {
-	wp_enqueue_style( 'wpsubs-tailwind', WP_SUBSCRIPTION_ASSETS . '/css/tailwind/output.css', [], WP_SUBSCRIPTION_VERSION );
+	wp_enqueue_style( 'wpsubs-tailwind', SUBSCRPT_ASSETS . '/css/tailwind/output.css', [], SUBSCRPT_VERSION );
 }
 
 /**
@@ -552,7 +552,7 @@ function sdevs_get_subscription_product( $product ) {
  * @param mixed $message      Message.
  * @param bool  $should_print Print the output.
  */
-function wp_subscrpt_write_log( $message, bool $should_print = false ): void {
+function subscrpt_write_log( $message, bool $should_print = false ): void {
 	$logger = wc_get_logger();
 
 	$message = is_array( $message ) || is_object( $message ) ? wp_json_encode( $message ) : $message;
@@ -566,7 +566,7 @@ function wp_subscrpt_write_log( $message, bool $should_print = false ): void {
  *
  * @param mixed $log logs.
  */
-function wp_subscrpt_write_debug_log( $log ): void {
+function subscrpt_write_debug_log( $log ): void {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
 		if ( is_array( $log ) || is_object( $log ) ) {
 			error_log( print_r( $log, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
@@ -653,7 +653,7 @@ function subscrpt_add_payment_completion_note( $subscription_id, $payments_made,
  *     @type string       $name              Optional. Input name. Defaults to $id.'[]'.
  * }
  */
-function wp_subs_multiselect_field( $field ) {
+function subscrpt_multiselect_field( $field ) {
 	$defaults = [
 		'id'            => '',
 		'label'         => '',

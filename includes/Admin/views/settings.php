@@ -14,10 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 subscrpt_include_tailwind_css();
 
 // Add admin settings styles.
-wp_enqueue_style( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/css/admin-settings.css', [], WP_SUBSCRIPTION_VERSION );
+wp_enqueue_style( 'wp-subscription-admin-settings', SUBSCRPT_ASSETS . '/css/admin-settings.css', [], SUBSCRPT_VERSION );
 
 // Add admin settings scripts.
-wp_enqueue_script( 'wp-subscription-admin-settings', WP_SUBSCRIPTION_ASSETS . '/js/admin-settings.js', [ 'jquery' ], WP_SUBSCRIPTION_VERSION, true );
+wp_enqueue_script( 'wp-subscription-admin-settings', SUBSCRPT_ASSETS . '/js/admin-settings.js', [ 'jquery' ], SUBSCRPT_VERSION, true );
 
 ?>
 <div class="wp-subscription-admin-content" style="max-width:1240px;margin:32px auto 0 auto">

@@ -54,7 +54,9 @@ class Illuminate {
 			include_once dirname( WC_STRIPE_MAIN_FILE ) . '/includes/compat/trait-wc-stripe-subscriptions.php';
 			include_once dirname( WC_STRIPE_MAIN_FILE ) . '/includes/abstracts/abstract-wc-stripe-payment-gateway.php';
 
-			new Stripe();
+			if ( class_exists( '\WC_Stripe_Payment_Gateway' ) ) {
+				new Stripe();
+			}
 		}
 	}
 

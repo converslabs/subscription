@@ -151,7 +151,7 @@ trait Email {
 	 * @return void
 	 */
 	public function set_template( string $id ) {
-		$this->template_base = WP_SUBSCRIPTION_TEMPLATES;
+		$this->template_base = SUBSCRPT_TEMPLATES;
 		if ( isset( $this->templates[ $id ] ) ) {
 			$this->template_html  = $this->templates[ $id ]['html'];
 			$this->template_plain = $this->templates[ $id ]['plain'];

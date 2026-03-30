@@ -354,6 +354,7 @@ class SettingsHelper {
 		$html_content = ob_get_clean();
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
+		// All form elements inside $html_content are pre-escaped during generation (esc_attr, esc_html).
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $should_print ? print( $html_content ) : $html_content;
 	}
@@ -443,6 +444,7 @@ class SettingsHelper {
 		$html_content = ob_get_clean();
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
+		// All form elements inside $html_content are pre-escaped during generation (esc_attr, esc_html).
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $should_print ? print( $html_content ) : $html_content;
 	}
@@ -498,6 +500,7 @@ class SettingsHelper {
 		$html_content = ob_get_clean();
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
+		// All form elements inside $html_content are pre-escaped during generation (esc_attr, esc_html).
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $should_print ? print( $html_content ) : $html_content;
 	}
@@ -567,6 +570,7 @@ class SettingsHelper {
 		$html_content = ob_get_clean();
 
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
+		// All form elements inside $html_content are pre-escaped during generation (esc_attr, esc_html).
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $should_print ? print( $html_content ) : $html_content;
 	}

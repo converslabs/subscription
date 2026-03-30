@@ -31,7 +31,7 @@ class Integrations {
 		add_action( 'admin_menu', array( $this, 'register_admin_menu' ), 20 );
 
 		// WP Subscription navbar.
-		add_filter( 'wp_subscription_admin_header_menu_items', [ $this, 'add_integrations_menu_item' ], 10, 2 );
+		add_filter( 'subscrpt_admin_header_menu_items', [ $this, 'add_integrations_menu_item' ], 10, 2 );
 
 		// Enqueue integrations scripts.
 		// add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_integrations_scripts' ] );
@@ -86,7 +86,7 @@ class Integrations {
 	 * Enqueue scripts for integrations page.
 	 */
 	public function enqueue_integrations_scripts() {
-		wp_enqueue_script( 'wp-subs-integrations', WP_SUBSCRIPTION_ASSETS . '/js/integration_settings.js', [ 'jquery' ], WP_SUBSCRIPTION_VERSION, true );
+		wp_enqueue_script( 'wp-subs-integrations', SUBSCRPT_ASSETS . '/js/integration_settings.js', [ 'jquery' ], SUBSCRPT_VERSION, true );
 
 		wp_localize_script(
 			'wp-subs-integrations',
@@ -204,7 +204,7 @@ class Integrations {
 			[
 				'title'              => 'PayPal for WP Subscription',
 				'description'        => 'Accept subscription payments via PayPal.',
-				'icon_url'           => WP_SUBSCRIPTION_ASSETS . '/images/paypal.svg',
+				'icon_url'           => SUBSCRPT_ASSETS . '/images/paypal.svg',
 				'is_installed'       => 'on' === get_option( 'wp_subs_paypal_integration_enabled', 'off' ),
 				'is_active'          => self::is_gateway_enabled( 'wp_subscription_paypal' ),
 				'supports_recurring' => true,
@@ -255,7 +255,7 @@ class Integrations {
 			[
 				'title'              => 'Paddle',
 				'description'        => 'Process subscription payments securely with Paddle.',
-				'icon_url'           => WP_SUBSCRIPTION_ASSETS . '/images/paddle.svg',
+				'icon_url'           => SUBSCRPT_ASSETS . '/images/paddle.svg',
 				'is_installed'       => class_exists( 'SmartPayWoo\Gateways\Paddle\SmartPay_Paddle' ),
 				'is_active'          => self::is_gateway_enabled( 'smartpay_paddle' ),
 				'supports_recurring' => true,
@@ -356,7 +356,7 @@ class Integrations {
 		$integrations = $this->filter_integration_actions( $integrations );
 
 		// Integrations styles.
-		// wp_enqueue_style( 'wp-subs-integration-settings', WP_SUBSCRIPTION_ASSETS . '/css/integration_settings.css', [], WP_SUBSCRIPTION_VERSION, 'all' );
+		// wp_enqueue_style( 'wp-subs-integration-settings', SUBSCRPT_ASSETS . '/css/integration_settings.css', [], SUBSCRPT_VERSION, 'all' );
 
 		$menu = new \SpringDevs\Subscription\Admin\Menu();
 		$menu->render_admin_header();

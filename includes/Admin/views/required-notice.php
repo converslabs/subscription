@@ -1,3 +1,4 @@
+<?php
 /**
  * WooCommerce dependency notice.
  *
@@ -20,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="notice notice-error sdevs-install-plugin">
 	<div class="sdevs-notice-icon">
-		<img src="<?php echo esc_url( WP_SUBSCRIPTION_ASSETS . '/images/logo.png' ); ?>" alt="woocommerce-logo" />
+		<img src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/logo.png' ); ?>" alt="woocommerce-logo" />
 	</div>
 	<div class="sdevs-notice-content">
 		<h2><?php esc_html_e( 'Thanks for using Subscription for WooCommerce', 'subscription' ); ?></h2>
