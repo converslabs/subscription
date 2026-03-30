@@ -279,17 +279,17 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 
 == Changelog ==
 
-= 1.9.2 - Mar 29, 2026 =
--  fix: Renamed reserved WP_SUBSCRIPTION_* constants to SUBSCRPT_* to comply with WordPress.org naming guidelines.
--  fix: Renamed wp_-prefixed global functions (wp_subscrpt_write_log, wp_subs_multiselect_field, etc.) to subscrpt_ prefix.
--  fix: Renamed non-prefixed AJAX actions (install_woocommerce_plugin, activate_woocommerce_plugin) to subscrpt_ prefix.
--  fix: Stripe gateway class now wrapped in class_exists check to prevent fatal error when WooCommerce Stripe plugin is inactive.
--  fix: Guest checkout auto-login now restricted to newly created accounts only, preventing unexpected re-login for existing users.
--  fix: Replaced insecure JavaScript location.href redirects in ActionController with wp_safe_redirect().
--  fix: PayPal webhook inputs now sanitized before processing.
--  fix: Settings field output now escaped with wp_kses_post for improved security.
--  fix: Plugin name updated to comply with WordPress.org trademark guidelines.
--  compat: Legacy WP_SUBSCRIPTION_* constants and old function names remain available via includes/LegacyCompat.php.
+= 1.9.2 - Mar 30, 2026 =
+-   fix: Renamed reserved WP_SUBSCRIPTION_* constants to SUBSCRPT_* to comply with WordPress.org naming guidelines.
+-   fix: Renamed wp_-prefixed global functions (wp_subscrpt_write_log, wp_subs_multiselect_field, etc.) to subscrpt_ prefix.
+-   fix: Renamed non-prefixed AJAX actions (install_woocommerce_plugin, activate_woocommerce_plugin) to subscrpt_ prefix.
+-   fix: Stripe gateway class now wrapped in class_exists check to prevent fatal error when WooCommerce Stripe plugin is inactive.
+-   fix: Replaced insecure JavaScript redirections in ActionController with wp_safe_redirect().
+-   fix: PayPal webhook inputs now sanitized before processing.
+-   fix: Plugin name updated to comply with WordPress.org trademark guidelines.
+-   fix: Guest checkout improvements.
+-   fix: Prevent setup_future_usage from being added to renewal orders in Stripe.
+-   compat: Legacy WP_SUBSCRIPTION_* constants and old function names remain available via includes/LegacyCompat.php.
 
 = 1.9.1 - Mar 15, 2026 =
 -   fix: Subscription trials.
