@@ -15,7 +15,7 @@ class Menu {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'create_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
-		add_action( 'wp_ajax_wp_subscription_bulk_action', array( $this, 'handle_bulk_action_ajax' ) );
+		add_action( 'wp_ajax_subscrpt_bulk_action', array( $this, 'handle_bulk_action_ajax' ) );
 	}
 
 	/**
@@ -24,17 +24,17 @@ class Menu {
 	public function enqueue_admin_assets() {
 		wp_enqueue_style(
 			'wp-subscription-admin',
-			WP_SUBSCRIPTION_ASSETS . '/css/admin.css',
+			SUBSCRPT_ASSETS . '/css/admin.css',
 			array(),
-			WP_SUBSCRIPTION_VERSION
+			SUBSCRPT_VERSION
 		);
 
 		// Enqueue admin JavaScript for subscription list functionality
 		wp_enqueue_script(
 			'sdevs_subscription_admin',
-			WP_SUBSCRIPTION_ASSETS . '/js/admin.js',
+			SUBSCRPT_ASSETS . '/js/admin.js',
 			array( 'jquery' ),
-			WP_SUBSCRIPTION_VERSION,
+			SUBSCRPT_VERSION,
 			true
 		);
 
@@ -43,7 +43,7 @@ class Menu {
 			'sdevs_subscription_admin',
 			'wp_subscription_ajax',
 			array(
-				'nonce'   => wp_create_nonce( 'wp_subscription_bulk_action_nonce' ),
+				'nonce'   => wp_create_nonce( 'subscrpt_bulk_action_nonce' ),
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
 			)
 		);
@@ -57,8 +57,8 @@ class Menu {
 		// Determine if the menu is active
 		$is_active = isset( $_GET['page'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'wp-subscription' ) === 0;
 		$icon_url  = $is_active
-			? WP_SUBSCRIPTION_ASSETS . '/images/icons/subscription-20.png'
-			: WP_SUBSCRIPTION_ASSETS . '/images/icons/subscription-20-gray.png';
+			? SUBSCRPT_ASSETS . '/images/icons/subscription-20.png'
+			: SUBSCRPT_ASSETS . '/images/icons/subscription-20-gray.png';
 		// Main menu
 		add_menu_page(
 			__( 'WP Subscription', 'subscription' ),
@@ -162,7 +162,7 @@ class Menu {
 			],
 		];
 		// Allow pro plugin to inject menu items
-		$menu_items = apply_filters( 'wp_subscription_admin_header_menu_items', $menu_items, $current );
+		$menu_items = apply_filters( 'subscrpt_admin_header_menu_items', $menu_items, $current );
 		$menu_items = array_merge(
 			$menu_items,
 			[
@@ -177,7 +177,7 @@ class Menu {
 		<div class="wp-subscription-admin-header">
 			<div style="width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;">
 				<div class="wp-subscription-admin-header-left" style="display:flex;align-items:center;gap:14px;">
-					<img style="height:30px;" src="<?php echo esc_url( WP_SUBSCRIPTION_ASSETS . '/images/logo-title.svg' ); ?>" alt="WP Subscription" class="wp-subscription-logo">
+					<img style="height:30px;" src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/logo-title.svg' ); ?>" alt="WP Subscription" class="wp-subscription-logo">
 					<nav class="wp-subscription-admin-header-menu">
 						<?php foreach ( $menu_items as $item ) : ?>
 							<a href="<?php echo esc_url( $item['url'] ); ?>" class="<?php echo ( $current === $item['slug'] ) ? 'current' : ''; ?>">
@@ -214,7 +214,7 @@ class Menu {
 		if ( 'POST' === $request_method ) {
 			// Verify nonce before processing any POST data.
 			$nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
-			if ( ! wp_verify_nonce( $nonce, 'wp_subscription_list_action' ) ) {
+			if ( ! wp_verify_nonce( $nonce, 'subscrpt_list_action' ) ) {
 				wp_die( esc_html__( 'Security check failed.', 'subscription' ) );
 			}
 			// Handle bulk actions
@@ -424,8 +424,8 @@ class Menu {
 			</div>
 			<?php
 		} else {
-			// Allow pro plugin to override the entire stats page content
-			do_action( 'wp_subscription_render_stats_page' );
+			// Allow pro plugin to override the entire stats page content.
+			do_action( 'subscrpt_render_stats_page' );
 		}
 
 		$this->render_admin_footer();
@@ -571,7 +571,7 @@ class Menu {
 	public function handle_bulk_action_ajax() {
 		// Verify nonce
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'wp_subscription_bulk_action_nonce' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'subscrpt_bulk_action_nonce' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'subscription' ) ) );
 		}
 

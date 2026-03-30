@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Subscription & Recurring Payment Plugin for WooCommerce
+ * Plugin Name: Subscription & Recurring Payment for WooCommerce
  * Plugin URI: https://wpsubscription.co/
  * Description: WPSubscription allow WooCommerce to enables recurring payments, subscriptions, and auto-renewals for digital and physical products. Supports Stripe, PayPal, Paddle, and more.
  *
@@ -21,6 +21,9 @@
  * WC tested up to: 10.3
  *
  * Requires Plugins: woocommerce
+ *
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  *
  * @package Subscription
  */
@@ -122,13 +125,17 @@ final class Sdevs_Subscription {
 	 * @return void
 	 */
 	public function define_constants() {
-		define( 'WP_SUBSCRIPTION_VERSION', self::VERSION );
-		define( 'WP_SUBSCRIPTION_FILE', __FILE__ );
-		define( 'WP_SUBSCRIPTION_PATH', dirname( WP_SUBSCRIPTION_FILE ) );
-		define( 'WP_SUBSCRIPTION_INCLUDES', WP_SUBSCRIPTION_PATH . '/includes' );
-		define( 'WP_SUBSCRIPTION_TEMPLATES', WP_SUBSCRIPTION_PATH . '/templates/' );
-		define( 'WP_SUBSCRIPTION_URL', plugins_url( '', WP_SUBSCRIPTION_FILE ) );
-		define( 'WP_SUBSCRIPTION_ASSETS', WP_SUBSCRIPTION_URL . '/assets' );
+		define( 'SUBSCRPT_VERSION', self::VERSION );
+		define( 'SUBSCRPT_FILE', __FILE__ );
+		define( 'SUBSCRPT_PATH', dirname( SUBSCRPT_FILE ) );
+		define( 'SUBSCRPT_INCLUDES', SUBSCRPT_PATH . '/includes' );
+		define( 'SUBSCRPT_TEMPLATES', SUBSCRPT_PATH . '/templates/' );
+		define( 'SUBSCRPT_URL', plugins_url( '', SUBSCRPT_FILE ) );
+		define( 'SUBSCRPT_ASSETS', SUBSCRPT_URL . '/assets' );
+
+		// Load legacy constant aliases (WP_SUBSCRIPTION_* → SUBSCRPT_*) for
+		// backwards compatibility with subscription-pro and third-party code.
+		require_once SUBSCRPT_INCLUDES . '/LegacyCompat.php';
 	}
 
 	/**
@@ -165,7 +172,7 @@ final class Sdevs_Subscription {
 	 */
 	public function includes() {
 		// Include functions file first to ensure global functions are available
-		require_once WP_SUBSCRIPTION_INCLUDES . '/functions.php';
+		require_once SUBSCRPT_INCLUDES . '/functions.php';
 
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['admin'] = new SpringDevs\Subscription\Admin();
@@ -284,11 +291,11 @@ final class Sdevs_Subscription {
 } // Sdevs_Wc_Subscription
 
 // Add Paypal Gateway Blocks.
-if ( ! function_exists( 'wp_subscription_register_paypal_block' ) ) {
+if ( ! function_exists( 'subscrpt_register_paypal_block' ) ) {
 	/**
 	 * Register the PayPal block for WooCommerce Blocks.
 	 */
-	function wp_subscription_register_paypal_block() {
+	function subscrpt_register_paypal_block() {
 		// Check if the required class exists.
 		if ( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
 			return;
@@ -308,7 +315,7 @@ if ( ! function_exists( 'wp_subscription_register_paypal_block' ) ) {
 		// Is PayPal integration enabled?
 		$is_paypal_integration_enabled = 'on' === get_option( 'wp_subs_paypal_integration_enabled', 'off' );
 		if ( $is_paypal_integration_enabled ) {
-			add_action( 'woocommerce_blocks_loaded', 'wp_subscription_register_paypal_block' );
+			add_action( 'woocommerce_blocks_loaded', 'subscrpt_register_paypal_block' );
 		}
 	}
 }

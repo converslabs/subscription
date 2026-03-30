@@ -53,13 +53,13 @@ final class Paypal_Blocks_Integration extends AbstractPaymentMethodType {
 	public function get_payment_method_script_handles() {
 		wp_register_script(
 			'wp_subscription_paypal-blocks-integration',
-			WP_SUBSCRIPTION_URL . '/assets/js/wp_subscription_paypal-block.js',
+			SUBSCRPT_URL . '/assets/js/wp_subscription_paypal-block.js',
 			[ 'wc-blocks-registry', 'wc-settings', 'wp-element', 'wp-html-entities', 'wp-i18n' ],
 			1,
 			true
 		);
 		if ( function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations( 'wp_subscription_paypal-blocks-integration', 'subscription', WP_SUBSCRIPTION_PATH . '/languages' );
+			wp_set_script_translations( 'wp_subscription_paypal-blocks-integration', 'subscription', SUBSCRPT_PATH . '/languages' );
 		}
 
 		return array( 'wp_subscription_paypal-blocks-integration' );

@@ -14,10 +14,8 @@ class Ajax {
 	 * Initialize the class
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_install_woocommerce_plugin', array( $this, 'install_woocommerce_plugin' ) );
-		add_action( 'wp_ajax_wps_subscription_activate_woocommerce_plugin', array( $this, 'wps_subscription_activate_woocommerce_plugin' ) );
-
-		add_action( 'wp_ajax_activate_woocommerce_plugin', array( $this, 'activate_woocommerce_plugin' ) );
+		add_action( 'wp_ajax_subscrpt_install_woocommerce_plugin', array( $this, 'install_woocommerce_plugin' ) );
+		add_action( 'wp_ajax_subscrpt_activate_woocommerce_plugin', array( $this, 'wps_subscription_activate_woocommerce_plugin' ) );
 	}
 
 	/**
@@ -30,10 +28,10 @@ class Ajax {
 		include_once ABSPATH . 'wp-admin/includes/misc.php';
 
 		if ( ! class_exists( 'Plugin_Upgrader' ) ) {
-			include ABSPATH . 'wp-admin/includes/class-plugin-upgrader.php';
+			require_once ABSPATH . 'wp-admin/includes/class-plugin-upgrader.php';
 		}
 		if ( ! class_exists( 'Plugin_Installer_Skin' ) ) {
-			include ABSPATH . 'wp-admin/includes/class-plugin-installer-skin.php';
+			require_once ABSPATH . 'wp-admin/includes/class-plugin-installer-skin.php';
 		}
 
 		$plugin = 'woocommerce';

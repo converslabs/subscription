@@ -1,22 +1,22 @@
 # Copyright (C) 2026 ConversWP
-# This file is distributed under the same license as the Subscription & Recurring Payment Plugin for WooCommerce plugin.
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Subscription & Recurring Payment Plugin for WooCommerce #WPSUBS_VERSION\n"
+"Project-Id-Version: Subscription & Recurring Payment for WooCommerce #WPSUBS_VERSION\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/subscription\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-15T04:03:31+00:00\n"
+"POT-Creation-Date: 2026-03-30T08:52:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
 
 #. Plugin Name of the plugin
 #: subscription.php
-msgid "Subscription & Recurring Payment Plugin for WooCommerce"
+msgid "Subscription & Recurring Payment for WooCommerce"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -293,8 +293,8 @@ msgid "If a subscriber's subscription is manually cancelled or expires, they wil
 msgstr ""
 
 #: includes/Admin/SettingsHelper.php:327
-#: includes/Admin/SettingsHelper.php:386
-#: includes/Admin/SettingsHelper.php:471
+#: includes/Admin/SettingsHelper.php:387
+#: includes/Admin/SettingsHelper.php:473
 msgid "Field ID is required."
 msgstr ""
 
@@ -318,8 +318,8 @@ msgstr ""
 #: includes/Admin/views/related-subscriptions.php:28
 #: includes/Frontend/Order.php:85
 #: includes/Illuminate/views/subscription-table.php:61
-#: templates/myaccount/single.php:53
-#: templates/myaccount/single.php:348
+#: templates/myaccount/single.php:57
+#: templates/myaccount/single.php:352
 #: templates/myaccount/subscriptions.php:21
 msgid "Status"
 msgstr ""
@@ -337,7 +337,7 @@ msgid "Customer Details"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:193
-#: templates/myaccount/single.php:341
+#: templates/myaccount/single.php:345
 msgid "Related Orders"
 msgstr ""
 
@@ -372,7 +372,7 @@ msgstr ""
 #: templates/emails/status-changed-admin-html.php:37
 #: templates/emails/subscription-cancelled-html.php:35
 #: templates/emails/subscription-expired-html.php:35
-#: templates/myaccount/single.php:279
+#: templates/myaccount/single.php:283
 #: templates/myaccount/subscriptions.php:22
 msgid "Product"
 msgstr ""
@@ -392,7 +392,7 @@ msgstr ""
 #: includes/Admin/Subscriptions.php:371
 #: includes/Admin/Subscriptions.php:583
 #: includes/Admin/views/subscription-info.php:121
-#: templates/myaccount/single.php:171
+#: templates/myaccount/single.php:175
 msgid "Total Payments"
 msgstr ""
 
@@ -432,7 +432,7 @@ msgstr ""
 #: includes/Admin/Subscriptions.php:405
 #: includes/Frontend/Order.php:131
 #: includes/Illuminate/views/subscription-table.php:84
-#: templates/myaccount/single.php:87
+#: templates/myaccount/single.php:91
 msgid "Trial"
 msgstr ""
 
@@ -459,7 +459,7 @@ msgstr ""
 #: includes/Admin/views/related-subscriptions.php:89
 #: includes/Admin/views/subscription-list.php:189
 #: includes/Frontend/Order.php:95
-#: templates/myaccount/single.php:62
+#: templates/myaccount/single.php:66
 #: templates/myaccount/subscriptions.php:90
 #, php-format
 msgid "%d days remaining!"
@@ -637,29 +637,29 @@ msgid "Get Support"
 msgstr ""
 
 #: includes/Admin/views/order-history.php:16
-#: templates/myaccount/single.php:356
+#: templates/myaccount/single.php:360
 msgid "No related orders found."
 msgstr ""
 
 #: includes/Admin/views/order-history.php:25
-#: templates/myaccount/single.php:49
-#: templates/myaccount/single.php:345
+#: templates/myaccount/single.php:53
+#: templates/myaccount/single.php:349
 msgid "Order"
 msgstr ""
 
 #: includes/Admin/views/order-history.php:26
-#: templates/myaccount/single.php:346
+#: templates/myaccount/single.php:350
 msgid "Type"
 msgstr ""
 
 #: includes/Admin/views/order-history.php:27
-#: templates/myaccount/single.php:347
+#: templates/myaccount/single.php:351
 msgid "Date"
 msgstr ""
 
 #: includes/Admin/views/order-history.php:29
-#: templates/myaccount/single.php:280
-#: templates/myaccount/single.php:349
+#: templates/myaccount/single.php:284
+#: templates/myaccount/single.php:353
 #: templates/myaccount/subscriptions.php:24
 msgid "Total"
 msgstr ""
@@ -737,7 +737,7 @@ msgstr ""
 #: includes/Admin/views/related-subscriptions.php:25
 #: includes/Admin/views/subscription-info.php:175
 #: includes/Illuminate/Order.php:101
-#: templates/myaccount/single.php:183
+#: templates/myaccount/single.php:187
 msgid "Recurring"
 msgstr ""
 
@@ -749,7 +749,7 @@ msgstr ""
 msgid "Expiry date"
 msgstr ""
 
-#: includes/Admin/views/required-notice.php:26
+#: includes/Admin/views/required-notice.php:27
 msgid "Thanks for using Subscription for WooCommerce"
 msgstr ""
 
@@ -798,41 +798,41 @@ msgid "View Frontend"
 msgstr ""
 
 #: includes/Admin/views/subscription-info.php:169
-#: templates/myaccount/single.php:177
+#: templates/myaccount/single.php:181
 msgid "Payment Type"
 msgstr ""
 
 #: includes/Admin/views/subscription-info.php:173
-#: templates/myaccount/single.php:181
+#: templates/myaccount/single.php:185
 msgid "Split Payment"
 msgstr ""
 
 #: includes/Admin/views/subscription-info.php:197
-#: templates/myaccount/single.php:212
+#: templates/myaccount/single.php:216
 msgid "Access Duration"
 msgstr ""
 
 #: includes/Admin/views/subscription-info.php:202
-#: templates/myaccount/single.php:217
+#: templates/myaccount/single.php:221
 msgid "Lifetime access after completion"
 msgstr ""
 
 #: includes/Admin/views/subscription-info.php:205
 #: includes/Admin/views/subscription-info.php:216
-#: templates/myaccount/single.php:220
-#: templates/myaccount/single.php:231
+#: templates/myaccount/single.php:224
+#: templates/myaccount/single.php:235
 msgid "Full subscription duration"
 msgstr ""
 
 #. translators: %1$s: duration time, %2$s: duration type
 #: includes/Admin/views/subscription-info.php:210
-#: templates/myaccount/single.php:225
+#: templates/myaccount/single.php:229
 #, php-format
 msgid "%1$s %2$s after first payment"
 msgstr ""
 
 #: includes/Admin/views/subscription-info.php:226
-#: templates/myaccount/single.php:241
+#: templates/myaccount/single.php:245
 msgid "Access Ends On"
 msgstr ""
 
@@ -928,7 +928,7 @@ msgid "Choose Action"
 msgstr ""
 
 #. translators: Plugin name and version.
-#: includes/Ajax.php:68
+#: includes/Ajax.php:66
 #, php-format
 msgid "Installing Plugin: %s"
 msgstr ""
@@ -939,7 +939,7 @@ msgid "You don't have permission to modify this subscription. If you believe thi
 msgstr ""
 
 #: includes/Frontend/ActionController.php:67
-#: includes/Frontend/ActionController.php:97
+#: includes/Frontend/ActionController.php:96
 #: includes/Frontend/Cart.php:506
 msgid "This subscription has reached its maximum payment limit and cannot be renewed further."
 msgstr ""
@@ -1052,7 +1052,7 @@ msgstr ""
 
 #: includes/Frontend/MyAccount.php:159
 #: includes/Frontend/Product.php:250
-#: templates/myaccount/single.php:328
+#: templates/myaccount/single.php:332
 msgid "Renew"
 msgstr ""
 
@@ -1340,80 +1340,80 @@ msgid "PayPal payment completed successfully."
 msgstr ""
 
 #. translators: %1$s: alert name; %2$s: order id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:492
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:496
 #, php-format
 msgid "PayPal webhook received [%s]. Order not found."
 msgstr ""
 
 #. translators: %1$s: alert name; %2$s: order id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:508
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:512
 #, php-format
 msgid "PayPal webhook received [%s]. No actions taken."
 msgstr ""
 
 #. translators: %1$s: alert name; %2$s: subscription id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:912
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:916
 #, php-format
 msgid "Transaction webhook received [%1$s]. No order found for subscription ID [%2$s]."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:925
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:929
 msgid "Payment completed by paypal webhook."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:930
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:934
 msgid "Failed to complete payment. Requested by paypal webhook."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:939
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:943
 msgid "Payment refunded by paypal webhook."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:944
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:948
 msgid "Failed to refund payment. Requested by paypal webhook."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:954
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:958
 #, php-format
 msgid "Transaction webhook received [%s]. No actions taken."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:980
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:984
 msgid "Subscription not found. Attempting to get from order item."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:999
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1003
 #, php-format
 msgid "Subscription webhook received [%s]. Subscription not found."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1012
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1016
 msgid "Subscription activated by PayPal webhook."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1018
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1031
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1044
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1022
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1035
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1048
 msgid "Subscription webhook received. No actions taken."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1025
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1029
 msgid "Subscription expired by PayPal webhook."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1038
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1042
 msgid "Subscription cancelled by PayPal webhook."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1050
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1054
 #, php-format
 msgid "Subscription webhook received [%s]. No actions taken."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1336
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1340
 msgid "PayPal Product Creation Error: Product data is incomplete. Name and type are required."
 msgstr ""
 
@@ -1833,47 +1833,47 @@ msgstr ""
 msgid "Amount"
 msgstr ""
 
-#: templates/myaccount/single.php:80
+#: templates/myaccount/single.php:84
 msgid "Grace Period Ends On"
 msgstr ""
 
-#: templates/myaccount/single.php:95
+#: templates/myaccount/single.php:99
 msgid "Start date"
 msgstr ""
 
-#: templates/myaccount/single.php:97
+#: templates/myaccount/single.php:101
 msgid "Trial End & Subscription Start"
 msgstr ""
 
-#: templates/myaccount/single.php:99
+#: templates/myaccount/single.php:103
 msgid "Trial End & First Billing"
 msgstr ""
 
-#: templates/myaccount/single.php:109
+#: templates/myaccount/single.php:113
 msgid "Next payment date"
 msgstr ""
 
-#: templates/myaccount/single.php:249
+#: templates/myaccount/single.php:253
 msgid "Payment"
 msgstr ""
 
-#: templates/myaccount/single.php:257
+#: templates/myaccount/single.php:261
 msgid "Actions"
 msgstr ""
 
-#: templates/myaccount/single.php:275
+#: templates/myaccount/single.php:279
 msgid "Subscription Totals"
 msgstr ""
 
-#: templates/myaccount/single.php:308
+#: templates/myaccount/single.php:312
 msgid "Subtotal"
 msgstr ""
 
-#: templates/myaccount/single.php:318
+#: templates/myaccount/single.php:322
 msgid "Tax"
 msgstr ""
 
-#: templates/myaccount/single.php:407
+#: templates/myaccount/single.php:411
 msgid "Billing address"
 msgstr ""
 

@@ -15,7 +15,7 @@ class Links {
 	 * Initialize the class
 	 */
 	public function __construct() {
-		add_filter( 'plugin_action_links_' . plugin_basename( WP_SUBSCRIPTION_FILE ), array( $this, 'plugin_action_links' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( SUBSCRPT_FILE ), array( $this, 'plugin_action_links' ) );
 	}
 
 	/**
@@ -28,7 +28,7 @@ class Links {
 			$links[] = '<a href="https://wpsubscription.co" target="_blank" style="color:#3db634;">' . __( 'Upgrade to premium', 'subscription' ) . '</a>';
 		}
 		$links[] = '<a href="https://wordpress.org/support/plugin/subscription" target="_blank">' . __( 'Support', 'subscription' ) . '</a>';
-		$links[] = '<a href="https://wordpress.org/support/plugin/subscription/reviews/?rate=5#new-post" target="_blank">' . __( 'Review', 'subscription' ) . '</a>';
+		$links[] = '<a href="https://wordpress.org/support/plugin/subscription/reviews/" target="_blank">' . __( 'Review', 'subscription' ) . '</a>';
 		return $links;
 	}
 }

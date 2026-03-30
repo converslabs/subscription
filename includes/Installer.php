@@ -30,7 +30,7 @@ class Installer {
 			update_option( 'subscrpt_installed', time() );
 		}
 
-		update_option( 'subscrpt_version', WP_SUBSCRIPTION_VERSION );
+		update_option( 'subscrpt_version', SUBSCRPT_VERSION );
 
 		update_option( 'subscrpt_manual_renew_cart_notice', 'Subscriptional product added to cart. Please complete the checkout to renew subscription.' );
 	}

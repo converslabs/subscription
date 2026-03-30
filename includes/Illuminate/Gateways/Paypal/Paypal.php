@@ -63,7 +63,7 @@ class Paypal extends \WC_Payment_Gateway {
 		$this->method_title       = __( 'PayPal for WPSubscription', 'subscription' );
 		$this->method_description = __( 'Accept wp subscription recurring payments through PayPal. Only WP Subscription is supported.', 'subscription' );
 		$this->supports           = [ 'products', 'subscriptions', 'refunds' ];
-		$this->icon               = apply_filters( 'wp_subscription_paypal_icon', WP_SUBSCRIPTION_URL . '/assets/images/paypal.svg' );
+		$this->icon               = apply_filters( 'wp_subscription_paypal_icon', SUBSCRPT_URL . '/assets/images/paypal.svg' );
 
 		// Load the settings.
 		$this->init_form_fields();
@@ -122,13 +122,13 @@ class Paypal extends \WC_Payment_Gateway {
 	 */
 	public function init_form_fields() {
 		// Gateway settings styles.
-		wp_enqueue_style( 'wp-subscription-gateway-settings', WP_SUBSCRIPTION_ASSETS . '/css/gateway.css', [], WP_SUBSCRIPTION_VERSION, 'all' );
+		wp_enqueue_style( 'wp-subscription-gateway-settings', SUBSCRPT_ASSETS . '/css/gateway.css', [], SUBSCRPT_VERSION, 'all' );
 
 		// Settings JS.
-		wp_enqueue_script( 'wp-subscription-gateway-settings-script', WP_SUBSCRIPTION_ASSETS . '/js/gateway.js', [ 'jquery' ], WP_SUBSCRIPTION_VERSION, true );
+		wp_enqueue_script( 'wp-subscription-gateway-settings-script', SUBSCRPT_ASSETS . '/js/gateway.js', [ 'jquery' ], SUBSCRPT_VERSION, true );
 
 		// Live/Sandbox toggle script.
-		wp_enqueue_script( 'wp-subscription-gateway-settings-toggle-script', WP_SUBSCRIPTION_ASSETS . '/js/gateway_options_toggler.js', [ 'jquery' ], WP_SUBSCRIPTION_VERSION, true );
+		wp_enqueue_script( 'wp-subscription-gateway-settings-toggle-script', SUBSCRPT_ASSETS . '/js/gateway_options_toggler.js', [ 'jquery' ], SUBSCRPT_VERSION, true );
 
 		$this->form_fields = [
 			'enabled'                    => [
@@ -422,7 +422,7 @@ class Paypal extends \WC_Payment_Gateway {
 
 		if ( empty( $raw_body ) ) {
 			wp_subscrpt_write_log( 'PayPal webhook data is empty.' );
-			wp_subscrpt_write_debug_log( "PayPal - process_webhook EMPTY \n" . $raw_body );
+			wp_subscrpt_write_debug_log( 'PayPal - process_webhook EMPTY' );
 			wp_die( 'PayPal webhook data is empty.', '400 Bad Request', [ 'response' => 400 ] );
 		}
 
@@ -433,7 +433,7 @@ class Paypal extends \WC_Payment_Gateway {
 		$webhook_data = json_decode( $raw_body, true );
 
 		// Get event type from webhook data.
-		$event = $webhook_data['event_type'] ?? '';
+		$event = isset( $webhook_data['event_type'] ) ? sanitize_text_field( $webhook_data['event_type'] ) : '';
 
 		// Supported transaction events.
 		$transaction_events = [
@@ -454,7 +454,9 @@ class Paypal extends \WC_Payment_Gateway {
 		$order = null;
 
 		// Get transaction ID from webhook data.
-		$transaction_id = $webhook_data['resource']['sale_id'] ?? $webhook_data['resource']['id'] ?? '';
+		$transaction_id = isset( $webhook_data['resource']['sale_id'] )
+			? sanitize_text_field( $webhook_data['resource']['sale_id'] )
+			: ( isset( $webhook_data['resource']['id'] ) ? sanitize_text_field( $webhook_data['resource']['id'] ) : '' );
 
 		// Get order by Transaction ID.
 		if ( ! empty( $transaction_id ) ) {
@@ -466,7 +468,9 @@ class Paypal extends \WC_Payment_Gateway {
 		}
 
 		// Get subscription ID from webhook data.
-		$subscription_id = $webhook_data['resource']['billing_agreement_id'] ?? $webhook_data['resource']['id'] ?? null;
+		$subscription_id = isset( $webhook_data['resource']['billing_agreement_id'] )
+			? sanitize_text_field( $webhook_data['resource']['billing_agreement_id'] )
+			: ( isset( $webhook_data['resource']['id'] ) ? sanitize_text_field( $webhook_data['resource']['id'] ) : null );
 
 		// Get order by Subscription ID.
 		if ( ! $order && ! empty( $subscription_id ) ) {
@@ -551,7 +555,7 @@ class Paypal extends \WC_Payment_Gateway {
 
 		if ( ! $verified ) {
 			wp_subscrpt_write_log( 'PayPal webhook verification failed.' );
-			wp_subscrpt_write_debug_log( 'Webhook verification failed for data: ' . $raw_body );
+			wp_subscrpt_write_debug_log( 'Webhook verification failed for data: ' . sanitize_text_field( $raw_body ) );
 			wp_die( 'Error: PayPal webhook verification failed.', '403 Forbidden', array( 'response' => 403 ) );
 		}
 	}
