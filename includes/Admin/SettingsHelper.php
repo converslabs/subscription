@@ -351,7 +351,10 @@ class SettingsHelper {
 		<?php
 		$html_content = ob_get_clean();
 
-		return $should_print ? print( wp_kses_post( $html_content ) ) : $html_content;
+		// All form elements inside $html_content are pre-escaped during generation (esc_attr, esc_html).
+		// wp_kses_post cannot be used here as it strips <input>, <label> and other form elements.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $should_print ? print( $html_content ) : $html_content;
 	}
 
 	/**
@@ -438,7 +441,10 @@ class SettingsHelper {
 		<?php
 		$html_content = ob_get_clean();
 
-		return $should_print ? print( wp_kses_post( $html_content ) ) : $html_content;
+		// All form elements inside $html_content are pre-escaped during generation (esc_attr, esc_html).
+		// wp_kses_post cannot be used here as it strips <input>, <label> and other form elements.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $should_print ? print( $html_content ) : $html_content;
 	}
 
 	/**
@@ -491,7 +497,10 @@ class SettingsHelper {
 		<?php
 		$html_content = ob_get_clean();
 
-		return $should_print ? print( wp_kses_post( $html_content ) ) : $html_content;
+		// All form elements inside $html_content are pre-escaped during generation (esc_attr, esc_html).
+		// wp_kses_post cannot be used here as it strips <select>, <option> and other form elements.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $should_print ? print( $html_content ) : $html_content;
 	}
 
 	/**
@@ -558,6 +567,9 @@ class SettingsHelper {
 		<?php
 		$html_content = ob_get_clean();
 
-		return $should_print ? print( wp_kses_post( $html_content ) ) : $html_content;
+		// All form elements inside $html_content are pre-escaped during generation (esc_attr, esc_html).
+		// wp_kses_post cannot be used here as it strips <input>, <label> and other form elements.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $should_print ? print( $html_content ) : $html_content;
 	}
 }
