@@ -58,6 +58,8 @@ if ( ! function_exists( 'wp_subscrpt_write_debug_log' ) ) {
 	 * @deprecated Use subscrpt_write_debug_log() instead.
 	 */
 	function wp_subscrpt_write_debug_log( $log ): void {
+		_deprecated_function( 'wp_subscrpt_write_debug_log', '1.9.3', 'subscrpt_write_debug_log' );
+
 		subscrpt_write_debug_log( $log );
 	}
 }
@@ -67,6 +69,8 @@ if ( ! function_exists( 'wp_subs_multiselect_field' ) ) {
 	 * @deprecated Use subscrpt_multiselect_field() instead.
 	 */
 	function wp_subs_multiselect_field( $field ) {
+		_deprecated_function( 'wp_subs_multiselect_field', '1.9.3', 'subscrpt_multiselect_field' );
+
 		subscrpt_multiselect_field( $field );
 	}
 }
@@ -76,6 +80,8 @@ if ( ! function_exists( 'wp_subscription_register_paypal_block' ) ) {
 	 * @deprecated Use subscrpt_register_paypal_block() instead.
 	 */
 	function wp_subscription_register_paypal_block() {
+		_deprecated_function( 'wp_subscription_register_paypal_block', '1.9.3', 'subscrpt_register_paypal_block' );
+
 		subscrpt_register_paypal_block();
 	}
 }
