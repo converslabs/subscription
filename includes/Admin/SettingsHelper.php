@@ -116,7 +116,12 @@ class SettingsHelper {
 	 * @param array  $args Field arguments.
 	 * @param bool   $should_print Whether to print the field or return as HTML string.
 	 */
-	public static function render_settings_field( $field = 'input', $args, $should_print = true ) {
+	public static function render_settings_field( $field, $args, $should_print = true ) {
+		if ( empty( $field ) ) {
+			$field = 'input'; // Default field type.
+			subscrpt_write_debug_log( "[SettingsHelper] Field type not specified. Defaulting to 'input'." );
+		}
+
 		switch ( $field ) {
 			case 'heading':
 				return self::render_heading( $args, $should_print );
