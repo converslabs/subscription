@@ -140,36 +140,87 @@ All variables are injected by the email class. Declare them at the top of the fi
 
 ---
 
-## JavaScript (`src/`)
+## JavaScript
 
-### Build setup
+### Two separate JS systems
 
-- Entry point: `src/index.js`
+| System               | Location          | Purpose                                        | Loaded on             |
+| -------------------- | ----------------- | ---------------------------------------------- | --------------------- |
+| **wp-scripts build** | `src/` → `build/` | WooCommerce Blocks integration (Cart/Checkout) | Frontend only         |
+| **Plain JS files**   | `assets/js/`      | Admin UI behaviour, gateway toggles, installer | Admin only (per-page) |
+
+These are completely separate — do not mix them. `src/index.js` is not a general-purpose frontend script; it is the block integration registered as `sdevs_subscrpt_cart_block`.
+
+---
+
+### `src/` — WooCommerce Blocks (built via wp-scripts)
+
+- Entry: `src/index.js`
 - CSS: `src/css/`
-- Built to `build/` via `@wordpress/scripts` (Webpack)
+- Output: `build/` (Webpack via `@wordpress/scripts`)
 - WooCommerce dependency extraction is active — `@woocommerce/*` packages are treated as externals
+- Only add code here if it is specifically for the Cart or Checkout block integration
 
 ```bash
 yarn build:wpscripts   # build once
 yarn watch:wpscripts   # watch mode
 ```
 
-### When to use JS
+---
 
-JavaScript is appropriate for:
+### `assets/js/` — Admin plain JS files
 
-- Block editor integrations (Cart/Checkout blocks)
-- Interactive admin UI elements that need React (use `@wordpress/components`)
-- Dynamic frontend behaviour that can't be handled server-side
+Vanilla JS / jQuery files for admin UI behaviour. Current files:
 
-For static admin pages, PHP views are preferred over JS-rendered components.
+| File                         | Handle                     | Loaded by                | Scope                            |
+| ---------------------------- | -------------------------- | ------------------------ | -------------------------------- |
+| `admin.js`                   | `sdevs_subscription_admin` | `Admin/Product.php`      | Product edit screen              |
+| `installer.js`               | `sdevs_installer`          | `Admin/Required.php`     | Conditionally (plugin installer) |
+| `integration_settings.js`    | _(direct)_                 | `Admin/Integrations.php` | Integrations page only           |
+| `gateway.js`                 | _(direct)_                 | Gateway class            | Gateway settings page            |
+| `gateway_options_toggler.js` | _(direct)_                 | Gateway class            | Gateway settings page            |
+| `admin-settings.js`          | _(direct)_                 | Settings class           | Settings page                    |
 
-### `@wordpress/components`
+### Registration vs enqueue
 
-For new interactive admin UI, prefer WP core components over custom markup:
+Scripts reused across multiple pages are **registered** in `includes/Assets.php` and **enqueued** by the class that needs them:
+
+```php
+// In Assets.php — register once
+'sdevs_subscription_admin' => [
+    'src'       => $plugin_js_assets_path . 'admin.js',
+    'deps'      => [ 'jquery' ],
+    'in_footer' => true,
+],
+
+// In Admin/Product.php — enqueue only where needed
+wp_enqueue_script( 'sdevs_subscription_admin' );
+```
+
+Scripts used by only one class can be registered and enqueued inline in that class — no need to add them to `Assets.php`.
+
+### Keep files focused — split when needed
+
+Do not add unrelated behaviour to an existing JS file because it happens to load on the same page. Create a new file in `assets/js/` with a descriptive name and enqueue it only where needed.
+
+Split a file when:
+
+- It handles two distinct features that could load independently
+- Most of its code is irrelevant to most pages it loads on
+- A new page needs only a small slice of a much larger file
+
+### When to use JS at all
+
+- WooCommerce Blocks integration → `src/`
+- Admin UI interactions needing DOM manipulation or AJAX → `assets/js/`
+- Interactive admin elements needing React → `src/` with `@wordpress/components`
+
+For static admin views, prefer PHP. Do not add JS to render markup that can be output server-side.
+
+### `@wordpress/components` (React)
+
+For new interactive admin UI that genuinely needs React, use WP core components and add them to `src/`:
 
 ```js
 import { Button, Notice, Card, CardBody } from "@wordpress/components";
 ```
-
-This aligns with the planned admin UI migration direction and ensures visual consistency with WordPress core.
