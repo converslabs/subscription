@@ -83,7 +83,7 @@ Never batch both renames into one commit.
 
 ---
 
-## Bug reports
+## Bug fixing
 
 ### Step 1 — Gather details before touching any code
 
@@ -98,11 +98,23 @@ Do not start investigating or writing code until both of these are clear.
 
 Read all relevant files and trace the execution path. Confirm the root cause before proposing or writing a fix.
 
-### Step 3 — Fix and verify
+### Step 3 — Write a plan first
+
+Before writing any code, produce a plan that includes:
+
+- What the fix does and why
+- Which files will be created or modified (with paths)
+- The implementation approach
+- Any hooks that will be added or extended
+- Any risks or backwards-compatibility concerns
+
+**Wait for explicit approval before writing any code.**
+
+### Step 4 — Fix and verify
 
 After applying the fix, check for side effects (see [Side effect checklist](#side-effect-checklist) below).
 
-### Step 4 — Wrap up
+### Step 5 — Wrap up
 
 - Summarise what was changed and why (root cause → fix applied)
 - Commit with the correct format (`fix: 🐛 short description`) and push
