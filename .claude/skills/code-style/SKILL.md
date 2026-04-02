@@ -33,6 +33,35 @@ These rules are **disabled** — do not apply them:
 
 Everything else in the WordPress ruleset is still enforced.
 
+### PSR-4 autoloading
+
+Composer maps a single PSR-4 root:
+
+```
+SpringDevs\Subscription\  →  includes/
+```
+
+This means the namespace structure must mirror the directory structure under `includes/`, and every class name must exactly match its filename. Getting this wrong causes silent autoload failures that are hard to debug.
+
+**Rules:**
+
+- One class (or interface/trait/enum) per file
+- Filename = class name, PascalCase, `.php` extension — e.g. class `AutoRenewal` → `AutoRenewal.php`
+- Directory path = namespace path — e.g. `SpringDevs\Subscription\Admin\Settings` → `includes/Admin/Settings.php`
+- The file naming PHPCS rules are disabled (so PHPCS won't flag PascalCase filenames), but PSR-4 requires it anyway
+
+**Examples:**
+
+| Class                                     | File                           |
+| ----------------------------------------- | ------------------------------ |
+| `SpringDevs\Subscription\Illuminate\Cron` | `includes/Illuminate/Cron.php` |
+| `SpringDevs\Subscription\Admin\Settings`  | `includes/Admin/Settings.php`  |
+| `SpringDevs\Subscription\Frontend\Cart`   | `includes/Frontend/Cart.php`   |
+
+**Global functions** (not autoloaded via PSR-4) live in `includes/functions.php`, which is loaded directly by Composer via the `files` autoload entry. New global utility functions go there.
+
+The legacy `Sdevs_Subscription` class in `subscription.php` is intentionally outside the namespace and PSR-4 — do not move it.
+
 ### Naming conventions (enforced by convention, not PHPCS)
 
 | Symbol type             | Prefix      | Example                                             |
