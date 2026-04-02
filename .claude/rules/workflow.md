@@ -138,6 +138,24 @@ After building, run through the [Side effect checklist](#side-effect-checklist).
 
 ---
 
+## Continuous skill improvement
+
+While coding, if you notice that a skill in `.claude/skills/` is incomplete, inaccurate, or missing information that would help future work on this plugin — improve it immediately, before moving on.
+
+This includes:
+
+- A hook that exists in the codebase but isn't listed in `subscrpt-hooks`
+- A coding pattern or exception not covered by `code-style`
+- A WooCommerce integration detail missing from `woocommerce-integration`
+- A release step that turned out to be different from what `release-workflow` describes
+- Any project convention you had to discover by reading code that should have been documented
+
+Treat skill improvements as atomic commits just like code changes — one improvement per commit, with type `docs: 📝`.
+
+**Do not defer skill improvements.** If you notice a gap mid-task, fix the skill right then. The goal is that each coding session leaves the skills more accurate than they were before.
+
+---
+
 ## Side effect checklist
 
 Run this after every bug fix and every feature build before committing:
