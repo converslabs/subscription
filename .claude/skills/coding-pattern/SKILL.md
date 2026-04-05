@@ -1,5 +1,5 @@
 ---
-name: code-style
+name: coding-pattern
 description: >
   Use this skill whenever you are writing, reviewing, or formatting code in this WordPress subscription plugin.
   Covers PHP coding standards (WordPress CS + PHPCS rules), JavaScript/CSS formatting (Prettier + wp-scripts),
