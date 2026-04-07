@@ -28,9 +28,9 @@ class AutoRenewal {
 	/**
 	 * Filter renewal product args.
 	 *
-	 * @param array          $product_args product args.
-	 * @param \WC_Product    $product Product Object.
-	 * @param \WC_Order_Item $order_item Order Item Object.
+	 * @param array                  $product_args product args.
+	 * @param \WC_Product            $product Product Object.
+	 * @param \WC_Order_Item_Product $order_item Order Item Object.
 	 *
 	 * @return array
 	 */

@@ -651,8 +651,18 @@ class Helper {
 		}
 
 		$order_item         = $old_order->get_item( $order_item_id );
-		$subscription_price = get_post_meta( $subscription_id, '_subscrpt_price', true );
-		$product_args       = array(
+		$subscription_price = (float) get_post_meta( $subscription_id, '_subscrpt_price', true );
+
+		// Subsctract tax from subscription price if prices include tax. WC_Order will calculate tax based on this.
+		if ( wc_prices_include_tax() ) {
+			$product            = ( $order_item instanceof \WC_Order_Item_Product ) ? $order_item->get_product() : null;
+			$tax_class          = $product ? $product->get_tax_class() : '';
+			$tax_rates          = \WC_Tax::get_rates( $tax_class );
+			$taxes              = \WC_Tax::calc_inclusive_tax( $subscription_price, $tax_rates );
+			$subscription_price = $subscription_price - array_sum( $taxes );
+		}
+
+		$product_args = array(
 			'name'     => $order_item->get_name(),
 			'subtotal' => $subscription_price,
 			'total'    => $subscription_price,
@@ -1111,13 +1121,13 @@ class Helper {
 	/**
 	 * Create new order for renewal.
 	 *
-	 * @param \WC_Order      $old_order Old Order Object.
-	 * @param \WC_Order_Item $order_item Old Order Item Object.
-	 * @param array          $product_args Product args for add product.
+	 * @param \WC_Order              $old_order Old Order Object.
+	 * @param \WC_Order_Item_Product $order_item Old Order Item Object.
+	 * @param array                  $product_args Product args for add product.
 	 *
 	 * @return array|false
 	 */
-	public static function create_new_order_for_renewal( \WC_Order $old_order, \WC_Order_Item $order_item, array $product_args ) {
+	public static function create_new_order_for_renewal( \WC_Order $old_order, \WC_Order_Item_Product $order_item, array $product_args ) {
 		$product      = $order_item->get_product();
 		$user_id      = $old_order->get_user_id();
 		$new_order    = wc_create_order(
