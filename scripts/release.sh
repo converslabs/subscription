@@ -46,6 +46,7 @@ setVersion(){
   FILES=(
     "./releases/$PLUGIN_NAME/$PLUGIN_NAME.php"
     "./releases/$PLUGIN_NAME/readme-template.txt"
+    "./releases/$PLUGIN_NAME/languages/subscription.pot"
   )
 
   for FILE in "${FILES[@]}"; do
