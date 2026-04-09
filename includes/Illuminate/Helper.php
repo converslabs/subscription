@@ -672,17 +672,6 @@ class Helper {
 		update_post_meta( $subscription_id, '_subscrpt_order_item_id', $new_order_item_id );
 
 		self::clone_order_metadata( $new_order, $old_order );
-		self::clone_stripe_metadata_for_renewal( $subscription_id, $old_order, $new_order );
-
-		// Store Stripe subscription ID if available
-		$stripe_supported_methods = Stripe::WPSUBS_SUPPORTED_METHODS;
-		if ( in_array( $old_order->get_payment_method(), $stripe_supported_methods, true ) ) {
-			$stripe_subscription_id = $old_order->get_meta( '_stripe_subscription_id' );
-			if ( $stripe_subscription_id ) {
-				$new_order->update_meta_data( '_stripe_subscription_id', $stripe_subscription_id );
-				$new_order->save();
-			}
-		}
 
 		// Allow modification of the renewal order before saving.
 		$new_order = apply_filters( 'subscrpt_before_saving_renewal_order', $new_order, $old_order, $subscription_id );

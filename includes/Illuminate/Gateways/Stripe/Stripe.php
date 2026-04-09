@@ -33,7 +33,10 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	 * Initialize the class
 	 */
 	public function __construct() {
+		// Hook into WPSubscription renewal events
 		add_action( 'subscrpt_after_create_renew_order', array( $this, 'after_create_renew_order' ), 10, 3 );
+		add_filter( 'subscrpt_before_saving_renewal_order', array( $this, 'copy_stripe_metadata' ), 10, 3 );
+
 		add_filter( 'wc_stripe_payment_metadata', array( $this, 'add_payment_metadata' ), 10, 2 );
 
 		// Ensure a reusable payment method is stored for subscription checkouts (needed for iDEAL/SEPA auto-renewals).
@@ -79,6 +82,33 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		}
 
 		$this->pay_renew_order( $new_order );
+	}
+
+	/**
+	 * Copy Stripe metadata from old order to renewal order
+	 *
+	 * @param \WC_Order $new_order Renewal order.
+	 * @param \WC_Order $old_order Parent order.
+	 * @param int       $subscription_id Subscription ID.
+	 */
+	public function copy_stripe_metadata( $new_order, $old_order, $subscription_id ) {
+		$stripe_supported_methods = self::WPSUBS_SUPPORTED_METHODS;
+		$old_method               = $old_order->get_payment_method();
+		$is_stripe_pm             = ! empty( $old_method ) && in_array( $old_method, $stripe_supported_methods, true );
+
+		if ( ! $is_stripe_pm ) {
+			return $new_order;
+		}
+
+		Helper::clone_stripe_metadata_for_renewal( $subscription_id, $old_order, $new_order );
+
+		// Store Stripe subscription ID if available
+		$stripe_subscription_id = $old_order->get_meta( '_stripe_subscription_id' );
+		if ( $stripe_subscription_id ) {
+			$new_order->update_meta_data( '_stripe_subscription_id', $stripe_subscription_id );
+		}
+
+		return $new_order;
 	}
 
 	/**
