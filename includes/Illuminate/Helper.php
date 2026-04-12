@@ -651,8 +651,18 @@ class Helper {
 		}
 
 		$order_item         = $old_order->get_item( $order_item_id );
-		$subscription_price = get_post_meta( $subscription_id, '_subscrpt_price', true );
-		$product_args       = array(
+		$subscription_price = (float) get_post_meta( $subscription_id, '_subscrpt_price', true );
+
+		// Subsctract tax from subscription price if prices include tax. WC_Order will calculate tax based on this.
+		if ( wc_prices_include_tax() ) {
+			$product            = ( $order_item instanceof \WC_Order_Item_Product ) ? $order_item->get_product() : null;
+			$tax_class          = $product ? $product->get_tax_class() : '';
+			$tax_rates          = \WC_Tax::get_rates( $tax_class );
+			$taxes              = \WC_Tax::calc_inclusive_tax( $subscription_price, $tax_rates );
+			$subscription_price = $subscription_price - array_sum( $taxes );
+		}
+
+		$product_args = array(
 			'name'     => $order_item->get_name(),
 			'subtotal' => $subscription_price,
 			'total'    => $subscription_price,
@@ -672,17 +682,6 @@ class Helper {
 		update_post_meta( $subscription_id, '_subscrpt_order_item_id', $new_order_item_id );
 
 		self::clone_order_metadata( $new_order, $old_order );
-		self::clone_stripe_metadata_for_renewal( $subscription_id, $old_order, $new_order );
-
-		// Store Stripe subscription ID if available
-		$stripe_supported_methods = Stripe::WPSUBS_SUPPORTED_METHODS;
-		if ( in_array( $old_order->get_payment_method(), $stripe_supported_methods, true ) ) {
-			$stripe_subscription_id = $old_order->get_meta( '_stripe_subscription_id' );
-			if ( $stripe_subscription_id ) {
-				$new_order->update_meta_data( '_stripe_subscription_id', $stripe_subscription_id );
-				$new_order->save();
-			}
-		}
 
 		// Allow modification of the renewal order before saving.
 		$new_order = apply_filters( 'subscrpt_before_saving_renewal_order', $new_order, $old_order, $subscription_id );
@@ -1111,13 +1110,13 @@ class Helper {
 	/**
 	 * Create new order for renewal.
 	 *
-	 * @param \WC_Order      $old_order Old Order Object.
-	 * @param \WC_Order_Item $order_item Old Order Item Object.
-	 * @param array          $product_args Product args for add product.
+	 * @param \WC_Order              $old_order Old Order Object.
+	 * @param \WC_Order_Item_Product $order_item Old Order Item Object.
+	 * @param array                  $product_args Product args for add product.
 	 *
 	 * @return array|false
 	 */
-	public static function create_new_order_for_renewal( \WC_Order $old_order, \WC_Order_Item $order_item, array $product_args ) {
+	public static function create_new_order_for_renewal( \WC_Order $old_order, \WC_Order_Item_Product $order_item, array $product_args ) {
 		$product      = $order_item->get_product();
 		$user_id      = $old_order->get_user_id();
 		$new_order    = wc_create_order(

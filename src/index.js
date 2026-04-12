@@ -42,9 +42,11 @@ const modifySubtotalPriceFormat = (defaultValue, extensions, args, validation) =
     // Check max_no_payment - handle string, number, null, undefined
     const maxPayments = parseInt(sdevs_subscription.max_no_payment, 10);
     const paymentInfo = !isNaN(maxPayments) && maxPayments > 0 ? ` x ${maxPayments}` : "";
-    return `<price/> ${__("Every", "subscription")} ${
-      sdevs_subscription.time && sdevs_subscription.time > 1 ? " " + sdevs_subscription.time + "-" : ""
-    }${capitalizedType}${paymentInfo}`;
+
+    const timePart = sdevs_subscription.time && sdevs_subscription.time > 1 ? sdevs_subscription.time + "-" : "";
+    const priceText = "<price/>\u00A0" + __("Every", "subscription") + " " + timePart + capitalizedType + paymentInfo;
+
+    return priceText;
   }
 
   return defaultValue;

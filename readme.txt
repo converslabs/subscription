@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim
 Tags: woocommerce subscriptions, subscriptions, recurring, billing, stripe
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 1.9.2
+Stable tag: 1.9.3
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -278,6 +278,11 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 19. Create WooCommerce Product with Subscription Option
 
 == Changelog ==
+
+= 1.9.3 - Apr 12, 2026 =
+-   fix: Stripe unavailable error during renewal.
+-   fix: Optional parameter error from some methods.
+-   fix: Language base file Project ID version.
 
 = 1.9.2 - Mar 30, 2026 =
 -   fix: Renamed reserved WP_SUBSCRIPTION_* constants to SUBSCRPT_* to comply with WordPress.org naming guidelines.

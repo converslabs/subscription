@@ -185,13 +185,21 @@ From the in-file style guide in `includes/Admin/views/required-notice.php`:
 - Title font: Georgia, serif. Body: system sans-serif.
 - Tailwind utilities are available inside any element with class `wpsubs-tw-root`.
 
+### Enqueueing Assets
+
+- Always use `wp_enqueue_script()` / `wp_enqueue_style()`
+- Register first, enqueue only on pages where needed
+- Use WordPress bundled libraries (jQuery, React, wp-element, etc.) — never bundle your own copy
+- Use `wp_set_script_translations()` for JS i18n when needed.
+- Set `strategy => 'defer'` for scripts when possible
+
 ### PHP Rules (enforced by PHPCS / `phpcs.xml`)
 
 - WordPress Coding Standards, PHP 7.4+ target, minimum WP 5.0.
 - Excluded rules: file naming, `PrefixAllGlobals`, Yoda conditions, short array syntax.
-- All output must be escaped (`esc_html`, `esc_attr`, `wp_kses_post`). All input sanitized. AJAX handlers must verify nonces and `current_user_can()`.
+- All output must be escaped (`esc_html`, `esc_attr`, `wp_kses_post`). All input sanitized. AJAX handlers must verify nonces and `current_user_can()`. Unless explecitely told to ignore.
 - Use `wp_safe_redirect()` + `exit` for redirects — never `echo "<script>location.href=..."`.
-- Gateway classes that extend external base classes (Stripe, etc.) must be wrapped in `class_exists()`.
+- Gateway classes that extend external base classes (Stripe, etc.) must be wrapped in `class_exists()` where initialized.
 
 ### Documentation
 
