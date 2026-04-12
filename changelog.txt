@@ -1,5 +1,10 @@
 *** WPSubscription Changelog ***
 
+2026-04-12 - version 1.9.3
+* fix: Stripe unavailable error during renewal.
+* fix: Optional parameter error from some methods.
+* fix: Language base file Project ID version.
+
 2026-03-30 - version 1.9.2
 * fix: Renamed reserved WP_SUBSCRIPTION_* constants to SUBSCRPT_* to comply with WordPress.org naming guidelines.
 * fix: Renamed wp_-prefixed global functions (wp_subscrpt_write_log, wp_subs_multiselect_field, etc.) to subscrpt_ prefix.
