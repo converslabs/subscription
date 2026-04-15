@@ -15,7 +15,21 @@ This skill combines structured clarification, root cause investigation, and Open
 
 ---
 
+## Preamble — Activate Caveman Mode
+
+Before anything else, invoke caveman lite for the clarification phase:
+
+```
+/caveman lite
+```
+
+Switch levels as the pipeline progresses — see per-phase instructions below. Code blocks, error messages, and OpenSpec artifacts always write normal.
+
+---
+
 ## Phase 1 — Intake: Clarify Before Anything Else
+
+**Caveman level: `lite`** — keep questions readable and easy to answer.
 
 Before touching any code or creating any OpenSpec artifacts, gather enough information to understand the bug precisely. Ask only for what isn't already provided — don't repeat questions the user already answered.
 
@@ -36,6 +50,8 @@ Do not proceed to Phase 2 until you have at minimum: observed behavior, expected
 
 ## Phase 2 — Investigate: Find the Root Cause
 
+**Caveman level: `full`** — switch now: `/caveman`. Technical findings, root cause analysis, and file traces reported in compressed form.
+
 With the intake complete, explore the codebase _before_ proposing a fix. The goal is to understand _why_ the bug happens, not just _where_ the symptom appears.
 
 **What to do:**
@@ -51,6 +67,8 @@ Document your findings mentally or as brief notes. These feed directly into the 
 ---
 
 ## Phase 3 — Propose: Generate OpenSpec Artifacts
+
+**Caveman level: `full`** — artifact content writes normal; surrounding communication stays compressed.
 
 Now create a structured OpenSpec change that captures everything you've learned.
 
@@ -101,6 +119,8 @@ Each task should be one logical unit of work — small enough to implement and r
 
 ## Phase 4 — Apply: Implement Incrementally
 
+**Caveman level: `full`** — task summaries and checkpoint messages stay compressed.
+
 Work through the tasks from `tasks.md` **one at a time**. The goal is to keep each change small and reviewable so the user can catch problems early rather than reviewing a large diff at the end.
 
 **For each task:**
@@ -126,6 +146,8 @@ Work through the tasks from `tasks.md` **one at a time**. The goal is to keep ea
 ---
 
 ## Phase 5 — Verify and Wrap Up
+
+**Caveman level: `full`** — wrap-up messages stay compressed.
 
 After all tasks are complete:
 
