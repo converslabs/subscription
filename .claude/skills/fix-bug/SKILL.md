@@ -54,15 +54,15 @@ Do not proceed to Phase 2 until you have at minimum: observed behavior, expected
 
 With the intake complete, explore the codebase _before_ proposing a fix. The goal is to understand _why_ the bug happens, not just _where_ the symptom appears.
 
-**What to do:**
+**Launch the `code-search` agent** with the bug description and symptoms as input. The agent knows the plugin's architecture and will return exact file paths, line numbers, execution traces, and recent git changes for the affected area.
 
-- Trace the execution path from the user action to the broken behavior (hooks, AJAX handlers, REST endpoints, WooCommerce filters)
-- Find the actual root cause — the place where behavior diverges from what it should be
-- Check recent commits on relevant files (`git log --oneline -- <file>`) to spot regressions
-- Identify all files affected by the fix (sometimes a bug surfaces in one place but must be fixed in another)
-- Note any hooks that will be touched — the Pro plugin depends on `subscrpt_*` hooks
+Once the agent returns, read the key files it identified, then:
 
-Document your findings mentally or as brief notes. These feed directly into the OpenSpec artifacts you'll create next.
+- Pinpoint the actual root cause — where behaviour diverges from expected
+- Note any `subscrpt_*` hooks that will be touched (Pro depends on these)
+- Identify all files the fix must touch (bug may surface in one place, root cause in another)
+
+Document your findings. These feed directly into the OpenSpec artifacts you'll create next.
 
 ---
 
@@ -159,10 +159,4 @@ After all tasks are complete:
 
 ## Project-Specific Guardrails
 
-Keep these in mind throughout — they're specific to this plugin and easy to overlook:
-
-- **Hook contract**: Never rename or remove a `subscrpt_*` hook without a deprecation plan. Pro listens to these. If a hook must change, keep the old one firing alongside the new one for at least one major version.
-- **Escaping**: All output must be escaped (`esc_html`, `esc_attr`, `wp_kses_post`). If the bug fix touches any output, verify escaping is in place.
-- **Nonces + capabilities**: AJAX handlers must verify nonces and `current_user_can()`. If the fix touches an AJAX handler, check both.
-- **Constants**: Use `SUBSCRPT_*` constants in new code, not the deprecated `WP_SUBSCRIPTION_*` ones.
-- **Payment gateways**: Classes that extend Stripe or PayPal must be wrapped in `class_exists()` — don't remove this guard.
+Follow project-specific guardrails in `CLAUDE.md` (hooks, escaping, nonces, constants, gateways, CSS prefix, assets).

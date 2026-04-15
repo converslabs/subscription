@@ -54,13 +54,14 @@ Do not proceed to Phase 2 until you have at minimum: what it does, why it's need
 
 With the intake complete, explore the codebase _before_ designing anything. The goal is to find existing patterns to follow and integration points to use, not to improvise from scratch.
 
-**What to do:**
+**Launch the `code-search` agent** with the feature description and affected area as input. The agent knows the plugin's architecture and will return relevant file paths, existing hook wiring, similar implementations, and templates to follow.
 
-- Find existing implementations in the affected area (similar classes, hooks, templates, AJAX handlers)
-- Identify integration points: which WordPress/WooCommerce hooks to use, which files to extend
-- Check if similar functionality already exists and can be reused or extended instead of rebuilt
+Once the agent returns, read the key files it identified, then:
+
+- Confirm which layer owns this feature (Admin / Frontend / Illuminate)
+- Identify reusable classes, hooks, or templates — avoid rebuilding what already exists
 - Note any `subscrpt_*` hooks the feature will need to fire or listen to
-- Check if the current branch is appropriate for this feature — if unrelated, invoke the `git-branch-creation` skill
+- Check if the current branch is appropriate — if unrelated, invoke the `git-branch-creation` skill
 
 Document your findings. These feed directly into the OpenSpec artifacts you'll create next.
 
@@ -159,13 +160,4 @@ After all tasks are complete:
 
 ## Project-Specific Guardrails
 
-Keep these in mind throughout — they apply to all new code in this plugin:
-
-- **New hooks**: Any new `do_action('subscrpt_*')` or `apply_filters('subscrpt_*')` must have PHPDoc with parameter descriptions. New hooks are an immediate public API — Pro may start depending on them as soon as they ship.
-- **Escaping**: All new output must be escaped (`esc_html`, `esc_attr`, `wp_kses_post`). No exceptions.
-- **Nonces + capabilities**: New AJAX handlers must verify a nonce and `current_user_can()`. New REST endpoints must declare `permission_callback`.
-- **Constants**: Use `SUBSCRPT_*` in all new code. Never use the deprecated `WP_SUBSCRIPTION_*` names.
-- **Payment gateways**: Classes that extend Stripe or PayPal must be wrapped in `class_exists()` at their init point — never instantiate without this guard.
-- **CSS classes**: New UI components use the `subscrpt-` prefix. Do not use `wp-subscription-` for new elements (that prefix is legacy; don't extend it).
-- **Assets**: Register scripts/styles first, then enqueue only on pages where needed. Use `strategy => 'defer'` where possible. Never bundle copies of WordPress-bundled libraries.
-- **Hook contract**: If the feature requires modifying an existing `subscrpt_*` hook signature (parameters, order, when it fires), keep the old behaviour alongside the new for at least one major version and flag it explicitly in design.md.
+Follow project-specific guardrails in `CLAUDE.md` (hooks, escaping, nonces, constants, gateways, CSS prefix, assets).
