@@ -33,7 +33,7 @@ final class Paypal_Blocks_Integration extends AbstractPaymentMethodType {
 	 */
 	public function initialize() {
 		$this->settings = get_option( 'woocommerce_wp_subscription_paypal_settings', [] );
-		$this->gateway  = new Paypal();
+		$this->gateway  = Paypal::get_instance();
 	}
 
 	/**

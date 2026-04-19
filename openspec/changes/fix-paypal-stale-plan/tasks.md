@@ -16,6 +16,6 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Manually verify: create product, checkout via PayPal, change price, checkout again — confirm new plan created with correct price
-- [ ] 4.2 Manually verify: revert price to original, checkout — confirm original plan reused (no new plan in PayPal)
+- [x] 4.1 Manually verify: create product, checkout via PayPal, change price, checkout again — confirm new plan created with correct price
+- [x] 4.2 Manually verify: revert price to original, checkout — confirm original plan reused (no new plan in PayPal)
 - [x] 4.3 Run side-effect-check skill

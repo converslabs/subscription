@@ -20,6 +20,13 @@ use WC_Product;
 class Paypal extends \WC_Payment_Gateway {
 
 	/**
+	 * Singleton instance.
+	 *
+	 * @var self|null
+	 */
+	private static ?self $instance = null;
+
+	/**
 	 * Sandbox mode.
 	 *
 	 * @var bool
@@ -93,8 +100,28 @@ class Paypal extends \WC_Payment_Gateway {
 		// Set API endpoint.
 		$this->api_endpoint = $this->sandbox_mode ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 
+		// Store first instance as the singleton (WooCommerce creates it; blocks integration reuses it).
+		if ( null === self::$instance ) {
+			self::$instance = $this;
+		}
+
 		// Actions.
 		$this->init_actions();
+	}
+
+	/**
+	 * Get the singleton gateway instance.
+	 *
+	 * Returns the WooCommerce-managed instance when available. Falls back to
+	 * creating a new instance only if the gateway has not been loaded yet.
+	 *
+	 * @return self
+	 */
+	public static function get_instance(): self {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
 	}
 
 	/**
@@ -1050,7 +1077,7 @@ class Paypal extends \WC_Payment_Gateway {
 				break;
 
 			case 'BILLING.SUBSCRIPTION.CANCELLED':
-				if ( ! in_array( get_post_status( $subscription->subscription_id ), [ 'cancelled' ], true ) ) {
+				if ( ! in_array( get_post_status( $subscription->subscription_id ), [ 'cancelled', 'expired' ], true ) ) {
 					Action::status( 'cancelled', $subscription->subscription_id );
 
 					$log_message = __( 'Subscription cancelled by PayPal webhook.', 'subscription' );
