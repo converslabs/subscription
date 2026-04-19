@@ -114,7 +114,7 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// Cancel subscription.
 		add_action( 'subscrpt_subscription_expired', [ $this, 'handle_subscription_cancellation' ] );
-		add_action( 'subscrpt_subscription_cancelled_email_notification', [ $this, 'handle_subscription_cancellation' ] );
+		add_action( 'subscrpt_subscription_cancelled', [ $this, 'handle_subscription_cancellation' ] );
 	}
 
 	/**
@@ -842,37 +842,36 @@ class Paypal extends \WC_Payment_Gateway {
 			$wc_product = wc_get_product( $wc_variation_id );
 		}
 
-		// Get data from product meta.
-		$plan_id = get_post_meta( $wc_product_id, $this->get_meta_key( 'plan_id' ), true );
-		// $plan_description = get_post_meta( $wc_product_id, $this->get_meta_key( 'plan_desc' ), true );
+		// Generate fingerprint of current critical billing fields (price, currency, interval, trial, signup fee, cycles).
+		$fingerprint = $this->generate_plan_fingerprint( $wc_product );
 
-		if ( empty( $plan_id ) ) {
-			$plan_id = null;
+		// Load stored plans array from product meta.
+		$stored_plans = get_post_meta( $wc_product_id, $this->get_meta_key( 'plans' ), true );
+		if ( ! is_array( $stored_plans ) ) {
+			$stored_plans = [];
 		}
 
-		// Generate plan data.
-		$plan_data = $this->generate_plan_data( $wc_product, $paypal_product_id );
-
-		// TODO: implement logic to find and get plan.
-		// ---------- .
-
-		// Create plan if not available.
-		if ( empty( $plan_id ) ) {
-			$paypal_plan = $this->create_paypal_plan( $plan_data, $access_token );
-
-			if ( $paypal_plan ) {
-				$plan_id = $paypal_plan->id;
-
-				// Save PayPal plan ID and description in WooCommerce product meta.
-				update_post_meta( $wc_product_id, $this->get_meta_key( 'plan_id' ), $plan_id );
-				update_post_meta( $wc_product_id, $this->get_meta_key( 'plan_desc' ), $paypal_plan->description ?? '' );
+		// Return the existing plan whose fingerprint matches the current product configuration.
+		foreach ( $stored_plans as $plan_entry ) {
+			if ( isset( $plan_entry['fingerprint'] ) && $plan_entry['fingerprint'] === $fingerprint ) {
+				return $plan_entry['plan_id'];
 			}
 		}
 
-		// TODO: implement logic to update plan if changed.
-		// ---------- .
+		// No matching plan found — create a new one for the current configuration.
+		$plan_data   = $this->generate_plan_data( $wc_product, $paypal_product_id );
+		$paypal_plan = $this->create_paypal_plan( $plan_data, $access_token );
 
-		return $plan_id;
+		if ( $paypal_plan ) {
+			$stored_plans[] = [
+				'plan_id'     => $paypal_plan->id,
+				'fingerprint' => $fingerprint,
+			];
+			update_post_meta( $wc_product_id, $this->get_meta_key( 'plans' ), $stored_plans );
+			return $paypal_plan->id;
+		}
+
+		return null;
 	}
 
 	/**
@@ -998,6 +997,12 @@ class Paypal extends \WC_Payment_Gateway {
 
 				if ( ! empty( $tmp_subs ) ) {
 					$subscription = $tmp_subs;
+
+					if ( ! empty( $subscription->subscription_id ?? null ) ) {
+						$log_message = __( 'Subscription found. Processing webhook.', 'subscription' );
+						wp_subscrpt_write_log( $log_message );
+						wp_subscrpt_write_debug_log( $log_message );
+					}
 					break;
 				}
 			}
@@ -1026,7 +1031,8 @@ class Paypal extends \WC_Payment_Gateway {
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
-				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'subscription' ) ), '200 success', array( 'response' => 200 ) );
+				// translators: %s: alert name.
+				wp_die( esc_html( sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event ) ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			case 'BILLING.SUBSCRIPTION.EXPIRED':
@@ -1039,7 +1045,8 @@ class Paypal extends \WC_Payment_Gateway {
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
-				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'subscription' ) ), '200 success', array( 'response' => 200 ) );
+				// translators: %s: alert name.
+				wp_die( esc_html( sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event ) ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			case 'BILLING.SUBSCRIPTION.CANCELLED':
@@ -1052,7 +1059,8 @@ class Paypal extends \WC_Payment_Gateway {
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
-				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'subscription' ) ), '200 success', array( 'response' => 200 ) );
+				// translators: %s: alert name.
+				wp_die( esc_html( sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event ) ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			default:
@@ -1079,7 +1087,7 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// get order payment method
 		$payment_method = $order->get_payment_method();
-		if ( 'paypal' !== $payment_method ) {
+		if ( $this->id !== $payment_method ) {
 			return;
 		}
 
@@ -1128,18 +1136,24 @@ class Paypal extends \WC_Payment_Gateway {
 		// Get PayPal Access Token.
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
-			wp_subscrpt_write_log( 'Access token not found. Trying to get again.' );
+			wp_subscrpt_write_log( 'Access token not found. Retrying.' );
 
 			$access_token = $this->get_paypal_access_token();
 
 			if ( ! $access_token ) {
-				wp_subscrpt_write_log( 'Subscription cancel failed.' );
+				wp_subscrpt_write_log( 'Access token not found.' );
+				wp_subscrpt_write_log( "Failed to cancel subscription #{$subscription_id} in PayPal." );
 				return;
 			}
 		}
 
 		// Cancel subscription in PayPal.
-		$this->cancel_paypal_subscription( $paypal_subscription_id, $access_token, 'Customer requested cancellation.' );
+		$result = $this->cancel_paypal_subscription( $paypal_subscription_id, $access_token, 'Customer requested cancellation.' );
+		if ( $result ) {
+			wp_subscrpt_write_log( "Subscription #{$subscription_id} cancelled successfully in PayPal." );
+		} else {
+			wp_subscrpt_write_log( "Failed to cancel subscription #{$subscription_id} in PayPal." );
+		}
 	}
 
 	// * ------------------------------------------------------------------------ * //
@@ -1168,6 +1182,7 @@ class Paypal extends \WC_Payment_Gateway {
 			'product_data'    => 'product_data',
 			'plan_id'         => 'plan_id',
 			'plan_desc'       => 'plan_description',
+			'plans'           => 'plans',
 			'subscription_id' => 'subscription_id',
 		];
 		$selected_key = $keys[ $key ] ?? $key;
@@ -1178,6 +1193,61 @@ class Paypal extends \WC_Payment_Gateway {
 		}
 
 		return '_wp_subs_paypal_' . $mode_string . $selected_key;
+	}
+
+	/**
+	 * Convert a billing interval string to PayPal's uppercase singular format.
+	 * subscrpt_get_typos function of the plugin have translator on the intervals. PayPal will only accept english.
+	 *
+	 * @param string $interval Raw interval string (e.g. 'month', 'months', 'WEEK').
+	 * @return string PayPal interval constant: DAY, WEEK, MONTH, or YEAR.
+	 */
+	private function convert_paypal_interval( string $interval ): string {
+		switch ( strtolower( $interval ) ) {
+			case 'day':
+			case 'days':
+				return 'DAY';
+			case 'week':
+			case 'weeks':
+				return 'WEEK';
+			case 'month':
+			case 'months':
+				return 'MONTH';
+			case 'year':
+			case 'years':
+				return 'YEAR';
+			default:
+				return 'MONTH';
+		}
+	}
+
+	/**
+	 * Generate a fingerprint hash of all critical billing fields for a product.
+	 *
+	 * The fingerprint encodes every field that determines a distinct PayPal billing
+	 * plan (price, currency, interval, trial, signup fee, cycle count). Two products
+	 * with identical critical fields produce the same fingerprint and can share a plan.
+	 *
+	 * @param WC_Product $wc_product WooCommerce product (simple or variation).
+	 * @return string MD5 hash of the critical fields.
+	 */
+	private function generate_plan_fingerprint( WC_Product $wc_product ): string {
+		$wpsubs_product = Subscription::get_subs_product( $wc_product );
+		$meta_cycles    = $wc_product->get_meta( '_subscrpt_max_no_payment' );
+		$total_cycles   = $meta_cycles ? $meta_cycles : 0;
+
+		$data = [
+			'price'          => number_format( (float) wc_get_price_including_tax( $wc_product ), 2, '.', '' ),
+			'currency'       => get_woocommerce_currency(),
+			'interval'       => $this->convert_paypal_interval( $wpsubs_product->get_timing_option() ),
+			'interval_count' => (int) $wpsubs_product->get_timing_per(),
+			'trial_interval' => $this->convert_paypal_interval( $wpsubs_product->get_trial_timing_option() ),
+			'trial_count'    => (int) $wpsubs_product->get_trial_timing_per(),
+			'signup_fee'     => number_format( (float) $wpsubs_product->get_signup_fee(), 2, '.', '' ),
+			'total_cycles'   => (int) $total_cycles,
+		];
+
+		return md5( wp_json_encode( $data ) );
 	}
 
 	/**
@@ -1200,37 +1270,16 @@ class Paypal extends \WC_Payment_Gateway {
 		// Price.
 		$price = wc_get_price_including_tax( $wc_product );
 
-		// Convert plural interval to singular.
-		// subscrpt_get_typos function of the plugin have translator on the intervals. PayPal will only accept english.
-		$convert_interval = function ( $interval ) {
-			switch ( strtolower( $interval ) ) {
-				case 'day':
-				case 'days':
-					return 'DAY';
-				case 'week':
-				case 'weeks':
-					return 'WEEK';
-				case 'month':
-				case 'months':
-					return 'MONTH';
-				case 'year':
-				case 'years':
-					return 'YEAR';
-				default:
-					return 'MONTH';
-			}
-		};
-
 		// Recurring Details.
 		$plan_length    = $wpsubs_product->get_timing_per();
-		$plan_interval  = $convert_interval( $wpsubs_product->get_timing_option() );
+		$plan_interval  = $this->convert_paypal_interval( $wpsubs_product->get_timing_option() );
 		$trial_length   = $wpsubs_product->get_trial_timing_per();
-		$trial_interval = $convert_interval( $wpsubs_product->get_trial_timing_option() );
+		$trial_interval = $this->convert_paypal_interval( $wpsubs_product->get_trial_timing_option() );
 		$signup_fee     = $wpsubs_product->get_signup_fee();
 
 		// get value for total_cycles from _subscrpt_max_no_payment
-		$total_cycles = $wc_product->get_meta( '_subscrpt_max_no_payment' ) ?: 0;
-		$total_cycles = $total_cycles ?? 1;
+		$meta_cycles  = $wc_product->get_meta( '_subscrpt_max_no_payment' );
+		$total_cycles = $meta_cycles ? $meta_cycles : 0;
 
 		// Billing Cycles.
 		$billing_cycles = [];
