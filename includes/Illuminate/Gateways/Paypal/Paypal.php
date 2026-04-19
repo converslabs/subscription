@@ -1047,47 +1047,58 @@ class Paypal extends \WC_Payment_Gateway {
 			wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
 		}
 
+		$subscription_id = $subscription->subscription_id;
+
 		switch ( $event ) {
 			case 'BILLING.SUBSCRIPTION.ACTIVATED':
-				if ( ! in_array( get_post_status( $subscription->subscription_id ), [ 'active' ], true ) ) {
-					Action::status( 'active', $subscription->subscription_id );
+				if ( ! in_array( get_post_status( $subscription_id ), [ 'active' ], true ) ) {
+					Action::status( 'active', $subscription_id );
+
+					update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'active' );
 
 					$log_message = __( 'Subscription activated by PayPal webhook.', 'subscription' );
 					wp_subscrpt_write_log( $log_message );
-					wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
 				// translators: %s: alert name.
-				wp_die( esc_html( sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event ) ), '200 success', array( 'response' => 200 ) );
+				$log_message = sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event );
+				wp_subscrpt_write_log( $log_message );
+				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			case 'BILLING.SUBSCRIPTION.EXPIRED':
-				if ( in_array( get_post_status( $subscription->subscription_id ), [ 'active', 'pe_cancelled' ], true ) ) {
-					Action::status( 'expired', $subscription->subscription_id );
+				if ( in_array( get_post_status( $subscription_id ), [ 'active', 'pe_cancelled' ], true ) ) {
+					Action::status( 'expired', $subscription_id );
+
+					update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'expired' );
 
 					$log_message = __( 'Subscription expired by PayPal webhook.', 'subscription' );
 					wp_subscrpt_write_log( $log_message );
-					wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
 				// translators: %s: alert name.
-				wp_die( esc_html( sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event ) ), '200 success', array( 'response' => 200 ) );
+				$log_message = sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event );
+				wp_subscrpt_write_log( $log_message );
+				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			case 'BILLING.SUBSCRIPTION.CANCELLED':
-				if ( ! in_array( get_post_status( $subscription->subscription_id ), [ 'cancelled', 'expired' ], true ) ) {
-					Action::status( 'cancelled', $subscription->subscription_id );
+				if ( ! in_array( get_post_status( $subscription_id ), [ 'cancelled', 'expired' ], true ) ) {
+					Action::status( 'cancelled', $subscription_id );
+
+					update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'cancelled' );
 
 					$log_message = __( 'Subscription cancelled by PayPal webhook.', 'subscription' );
 					wp_subscrpt_write_log( $log_message );
-					wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
 				// translators: %s: alert name.
-				wp_die( esc_html( sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event ) ), '200 success', array( 'response' => 200 ) );
+				$log_message = sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event );
+				wp_subscrpt_write_log( $log_message );
+				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			default:
@@ -1112,9 +1123,14 @@ class Paypal extends \WC_Payment_Gateway {
 		$order_id = get_post_meta( $subscription_id, '_subscrpt_order_id', true );
 		$order    = wc_get_order( $order_id );
 
-		// get order payment method
+		// Get order payment method
 		$payment_method = $order->get_payment_method();
-		if ( $this->id !== $payment_method ) {
+
+		// Get paypal subscription status from subscription meta.
+		$paypal_subs_status = get_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), true );
+
+		// Only process if the payment method is PayPal and the subscription is not already cancelled.
+		if ( ( $this->id !== $payment_method ) || ( ! empty( $paypal_subs_status ) && $paypal_subs_status === 'cancelled' ) ) {
 			return;
 		}
 
@@ -1177,6 +1193,8 @@ class Paypal extends \WC_Payment_Gateway {
 		// Cancel subscription in PayPal.
 		$result = $this->cancel_paypal_subscription( $paypal_subscription_id, $access_token, 'Customer requested cancellation.' );
 		if ( $result ) {
+			update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'cancelled' );
+
 			wp_subscrpt_write_log( "Subscription #{$subscription_id} cancelled successfully in PayPal." );
 		} else {
 			wp_subscrpt_write_log( "Failed to cancel subscription #{$subscription_id} in PayPal." );
@@ -1206,11 +1224,12 @@ class Paypal extends \WC_Payment_Gateway {
 	 */
 	public function get_meta_key( string $key, ?string $mode_override = null ): string {
 		$keys         = [
-			'product_data'    => 'product_data',
-			'plan_id'         => 'plan_id',
-			'plan_desc'       => 'plan_description',
-			'plans'           => 'plans',
-			'subscription_id' => 'subscription_id',
+			'product_data'       => 'product_data',
+			'plan_id'            => 'plan_id',
+			'plan_desc'          => 'plan_description',
+			'plans'              => 'plans',
+			'subscription_id'    => 'subscription_id',
+			'paypal_subs_status' => 'paypal_subs_status',
 		];
 		$selected_key = $keys[ $key ] ?? $key;
 
