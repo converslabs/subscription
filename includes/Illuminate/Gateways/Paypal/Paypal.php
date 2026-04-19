@@ -338,9 +338,12 @@ class Paypal extends \WC_Payment_Gateway {
 			return;
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// ? We are checking $_GET parameters directly from PayPal redirect, nonce is not applicable here.
 		$paypal_subscription_id = isset( $_GET['subscription_id'] ) ? sanitize_text_field( wp_unslash( $_GET['subscription_id'] ) ) : '';
 		$paypal_ba_token        = isset( $_GET['ba_token'] ) ? sanitize_text_field( wp_unslash( $_GET['ba_token'] ) ) : '';
 		$paypal_token           = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$paypal_payment_approved = false;
 
@@ -493,7 +496,7 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( empty( $order ) ) {
 			$log_message = sprintf(
 				// translators: %1$s: alert name; %2$s: order id.
-				__( 'PayPal webhook received [%s]. Order not found.', 'subscription' ),
+				__( 'PayPal webhook received [%s]. Order not found. Stopping Process.', 'subscription' ),
 				$event,
 			);
 			wp_subscrpt_write_log( $log_message );
@@ -981,7 +984,11 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// If no subscription, try to get from order item.
 		if ( empty( $subscription ) ) {
-			$log_message = __( 'Subscription not found. Attempting to get from order item.', 'subscription' );
+			$log_message = sprintf(
+				// translators: %s: alert name.
+				__( 'Subscription webhook received [%s]. Subscription not found. Attempting to get from order item.', 'subscription' ),
+				$event
+			);
 			wp_subscrpt_write_log( $log_message );
 			wp_subscrpt_write_debug_log( $log_message );
 
@@ -1000,7 +1007,7 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( empty( $subscription ) || empty( $subscription->subscription_id ?? null ) ) {
 			$log_message = sprintf(
 					// translators: %s: alert name.
-				__( 'Subscription webhook received [%s]. Subscription not found.', 'subscription' ),
+				__( 'Subscription webhook received [%s]. Subscription not found. Stopping Process.', 'subscription' ),
 				$event,
 			);
 			wp_subscrpt_write_log( $log_message );
@@ -1248,7 +1255,7 @@ class Paypal extends \WC_Payment_Gateway {
 			'total_cycles'   => 0,
 			'pricing_scheme' => [
 				'fixed_price' => [
-					'value'         => $price,
+					'value'         => number_format( (float) $price, 2, '.', '' ),
 					'currency_code' => get_woocommerce_currency(),
 				],
 			],
@@ -1264,7 +1271,7 @@ class Paypal extends \WC_Payment_Gateway {
 			'setup_fee_failure_action'  => 'CANCEL',
 			'payment_failure_threshold' => 3,
 			'setup_fee'                 => [
-				'value'         => (string) $signup_fee,
+				'value'         => number_format( (float) $signup_fee, 2, '.', '' ),
 				'currency_code' => get_woocommerce_currency(),
 			],
 		];
