@@ -974,23 +974,29 @@ class Paypal extends \WC_Payment_Gateway {
 				break;
 
 			case 'PAYMENT.SALE.REFUNDED':
-				if ( $order->update_status( 'refunded' ) ) {
-					$order->add_order_note( __( 'Payment refunded by paypal webhook.', 'subscription' ) );
-					$order->save();
+				$refund_amount = (float) ( $webhook_data['resource']['amount']['total'] ?? 0 );
+				$order_total   = (float) $order->get_total();
+				$is_full       = $refund_amount >= $order_total;
 
-					// translators: %s: alert name.
-					$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment refunded.', 'subscription' ), $event );
-					wp_subscrpt_write_log( $log_message );
-					wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
-				} else {
-					$order->add_order_note( __( 'Failed to refund payment. Requested by paypal webhook.', 'subscription' ) );
-					$order->save();
-
-					// translators: %s: alert name.
-					$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment refund failed.', 'subscription' ), $event );
-					wp_subscrpt_write_log( $log_message );
-					wp_die( esc_html( $log_message ), '506 Internal Error', array( 'response' => 506 ) );
+				if ( $is_full ) {
+					$order->update_status( 'refunded' );
 				}
+
+				$order->add_order_note(
+					$is_full
+						? __( 'Full payment refunded by PayPal webhook.', 'subscription' )
+						: sprintf(
+							// translators: %s: refunded amount.
+							__( 'Partial payment refunded by PayPal webhook. Amount: %s', 'subscription' ),
+							wc_price( $refund_amount, [ 'currency' => $order->get_currency() ] )
+						)
+				);
+				$order->save();
+
+				// translators: %s: alert name.
+				$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment refunded.', 'subscription' ), $event );
+				wp_subscrpt_write_log( $log_message );
+				wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
 				break;
 
 			default:
