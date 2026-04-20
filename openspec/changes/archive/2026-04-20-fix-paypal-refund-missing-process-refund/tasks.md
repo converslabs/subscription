@@ -4,6 +4,6 @@
 
 ## 2. Verify
 
-- [ ] 2.1 Manually test full refund on a completed PayPal subscription order
-- [ ] 2.2 Manually test partial refund on a completed PayPal subscription order
-- [ ] 2.3 Run side-effect-check skill
+- [x] 2.1 Manually test full refund on a completed PayPal subscription order
+- [x] 2.2 Manually test partial refund on a completed PayPal subscription order
+- [x] 2.3 Run side-effect-check skill
