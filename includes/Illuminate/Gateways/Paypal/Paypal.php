@@ -942,7 +942,7 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( ! $order ) {
 			$log_message = sprintf(
 				// translators: %1$s: alert name; %2$s: subscription id.
-				__( 'Transaction webhook received [%1$s]. No order found for subscription ID [%2$s].', 'subscription' ),
+				__( 'Transaction webhook received [%1$s]. No order found for subscription #%2$s.', 'subscription' ),
 				$event,
 				$subscription_id
 			);
@@ -958,12 +958,18 @@ class Paypal extends \WC_Payment_Gateway {
 					$order->add_order_note( __( 'Payment completed by paypal webhook.', 'subscription' ) );
 					$order->save();
 
-					wp_die( 'Order activated.', '200 Success', array( 'response' => 200 ) );
+					// translators: %s: alert name.
+					$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment completed.', 'subscription' ), $event );
+					wp_subscrpt_write_log( $log_message );
+					wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
 				} else {
 					$order->add_order_note( __( 'Failed to complete payment. Requested by paypal webhook.', 'subscription' ) );
 					$order->save();
 
-					wp_die( 'Order activation failed.', '506 Internal Error', array( 'response' => 506 ) );
+					// translators: %s: alert name.
+					$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment completion failed.', 'subscription' ), $event );
+					wp_subscrpt_write_log( $log_message );
+					wp_die( esc_html( $log_message ), '506 Internal Error', array( 'response' => 506 ) );
 				}
 				break;
 
@@ -972,12 +978,18 @@ class Paypal extends \WC_Payment_Gateway {
 					$order->add_order_note( __( 'Payment refunded by paypal webhook.', 'subscription' ) );
 					$order->save();
 
-					wp_die( 'Order refunded.', '200 Success', array( 'response' => 200 ) );
+					// translators: %s: alert name.
+					$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment refunded.', 'subscription' ), $event );
+					wp_subscrpt_write_log( $log_message );
+					wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
 				} else {
 					$order->add_order_note( __( 'Failed to refund payment. Requested by paypal webhook.', 'subscription' ) );
 					$order->save();
 
-					wp_die( 'Order refund failed.', '506 Internal Error', array( 'response' => 506 ) );
+					// translators: %s: alert name.
+					$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment refund failed.', 'subscription' ), $event );
+					wp_subscrpt_write_log( $log_message );
+					wp_die( esc_html( $log_message ), '506 Internal Error', array( 'response' => 506 ) );
 				}
 				break;
 
