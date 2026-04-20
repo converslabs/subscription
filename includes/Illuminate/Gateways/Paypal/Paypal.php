@@ -1026,7 +1026,11 @@ class Paypal extends \WC_Payment_Gateway {
 					$subscription = $tmp_subs;
 
 					if ( ! empty( $subscription->subscription_id ?? null ) ) {
-						$log_message = __( 'Subscription found. Processing webhook.', 'subscription' );
+						$log_message = sprintf(
+							// translators: %s: subscription id.
+							__( 'Subscription found [ID: %s]. Processing webhook.', 'subscription' ),
+							$subscription->subscription_id
+						);
 						wp_subscrpt_write_log( $log_message );
 						wp_subscrpt_write_debug_log( $log_message );
 					}
@@ -1590,6 +1594,86 @@ class Paypal extends \WC_Payment_Gateway {
 			wp_subscrpt_write_log( $log_message );
 			wp_subscrpt_write_debug_log( $log_message );
 			return null;
+		}
+	}
+
+	/**
+	 * Process a refund via PayPal Captures API.
+	 *
+	 * @param int    $order_id WooCommerce order ID.
+	 * @param float  $amount   Amount to refund, or null for full refund.
+	 * @param string $reason   Reason for refund.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
+	 */
+	public function process_refund( $order_id, $amount = null, $reason = '' ) {
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return new \WP_Error( 'invalid_order', __( 'Order not found.', 'subscription' ) );
+		}
+
+		$capture_id = $order->get_transaction_id();
+		if ( ! $capture_id ) {
+			return new \WP_Error( 'no_capture_id', __( 'PayPal capture ID not found on this order.', 'subscription' ) );
+		}
+
+		$access_token = $this->get_paypal_access_token();
+		if ( ! $access_token ) {
+			return new \WP_Error( 'no_access_token', __( 'Failed to get PayPal access token.', 'subscription' ) );
+		}
+
+		try {
+			$url  = $this->api_endpoint . "/v1/payments/sale/{$capture_id}/refund";
+			$body = [];
+
+			if ( null !== $amount ) {
+				$body['amount'] = [
+					'total'    => number_format( (float) $amount, 2, '.', '' ),
+					'currency' => $order->get_currency(),
+				];
+			}
+
+			if ( ! empty( $reason ) ) {
+				$body['description'] = substr( $reason, 0, 255 );
+			}
+
+			$args = [
+				'method'  => 'POST',
+				'headers' => [
+					'Authorization'     => 'Bearer ' . $access_token,
+					'Content-Type'      => 'application/json',
+					'PayPal-Request-Id' => uniqid( 'wp-subs-refund-', true ),
+				],
+				'body'    => wp_json_encode( $body ),
+			];
+
+			$response      = wp_remote_post( $url, $args );
+			$response_code = (int) wp_remote_retrieve_response_code( $response );
+			$response_data = json_decode( wp_remote_retrieve_body( $response ) );
+
+			if ( 201 === $response_code ) {
+				$refund_id = $response_data->id ?? '';
+				$order->add_order_note(
+					sprintf(
+						// translators: %s: PayPal refund ID.
+						__( 'PayPal refund initiated. Refund ID: %s', 'subscription' ),
+						$refund_id
+					)
+				);
+				return true;
+			}
+
+			$error_message = $response_data->message ?? $response_data->error_description ?? 'Unknown error';
+			$log_message   = 'PayPal refund failed: ' . $error_message;
+			wp_subscrpt_write_log( $log_message );
+			wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
+
+			return new \WP_Error( 'paypal_refund_failed', $error_message );
+
+		} catch ( Exception $e ) {
+			$log_message = 'PayPal refund exception: ' . $e->getMessage();
+			wp_subscrpt_write_log( $log_message );
+			wp_subscrpt_write_debug_log( $log_message );
+			return new \WP_Error( 'paypal_refund_exception', $e->getMessage() );
 		}
 	}
 

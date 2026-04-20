@@ -38,13 +38,6 @@
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2"
   },
-  "devEngines": {
-    "packageManager": {
-      "name": "yarn",
-      "version": "latest",
-      "onFail": "error"
-    }
-  },
   "lint-staged": {
     "*.php": [
       "sh -c 'composer auto-lint:php -- \"$@\" || true' --",
