@@ -577,7 +577,8 @@ class Helper {
 				$type              = ucfirst( $cart_subscription['type'] );
 
 				// Total amount with tax
-				$total_amount = wc_get_price_including_tax( $product, [ 'qty' => 1 ] );
+				$quantity     = (int) $cart_item['quantity'];
+				$total_amount = wc_get_price_including_tax( $product, [ 'qty' => $quantity ] );
 				$timing_html  = "<span class='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type}</span>";
 				$price_html   = wc_price( (float) $total_amount ) . $timing_html;
 
