@@ -191,7 +191,7 @@ class Checkout {
 			$user_id = wp_insert_user( $args );
 
 			if ( is_wp_error( $user_id ) ) {
-				wp_subscrpt_write_log( 'Failed to auto-create user during checkout. Error: ' . $user_id->get_error_message() );
+				subscrpt_write_log( 'Failed to auto-create user during checkout. Error: ' . $user_id->get_error_message() );
 				return null;
 			}
 

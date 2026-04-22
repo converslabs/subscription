@@ -646,7 +646,7 @@ class Helper {
 		$old_order     = self::check_order_for_renewal( $order_id );
 
 		if ( ! $old_order ) {
-			wp_subscrpt_write_log( "Old order not found for renewal. Skipping creating renewal order. [ Subscription ID: {$subscription_id} ]" );
+			subscrpt_write_log( "Old order not found for renewal. Skipping creating renewal order. [ Subscription ID: {$subscription_id} ]" );
 			return;
 		}
 
@@ -671,7 +671,7 @@ class Helper {
 		// creating new order.
 		$new_order_data = self::create_new_order_for_renewal( $old_order, $order_item, $product_args );
 		if ( ! $new_order_data ) {
-			wp_subscrpt_write_log( "Failed to create renewal order. [ Subscription ID: {$subscription_id} ]" );
+			subscrpt_write_log( "Failed to create renewal order. [ Subscription ID: {$subscription_id} ]" );
 			return;
 		}
 		$new_order         = $new_order_data['order'];
@@ -915,10 +915,10 @@ class Helper {
 			$new_order->set_payment_method_title( $old_order->get_payment_method_title() );
 
 			// Add debug log.
-			wp_subscrpt_write_debug_log( "Stripe metadata cloned for renewal order #{$new_order->get_id()} from old order #{$old_order->get_id()}" );
+			subscrpt_write_debug_log( "Stripe metadata cloned for renewal order #{$new_order->get_id()} from old order #{$old_order->get_id()}" );
 		} else {
-			wp_subscrpt_write_log( "Stripe metadata not processed. Auto renewal may fail. [ Renewal order #{$new_order->get_id()}, Old order #{$old_order->get_id()} ]" );
-			wp_subscrpt_write_debug_log( "Stripe metadata did not clone for renewal order #{$new_order->get_id()} from old order #{$old_order->get_id()}" );
+			subscrpt_write_log( "Stripe metadata not processed. Auto renewal may fail. [ Renewal order #{$new_order->get_id()}, Old order #{$old_order->get_id()} ]" );
+			subscrpt_write_debug_log( "Stripe metadata did not clone for renewal order #{$new_order->get_id()} from old order #{$old_order->get_id()}" );
 		}
 	}
 
@@ -1147,7 +1147,7 @@ class Helper {
 		);
 
 		// Add debug log.
-		wp_subscrpt_write_debug_log( "Renewal order #{$new_order->get_id()} created for old order #{$old_order->get_id()}" );
+		subscrpt_write_debug_log( "Renewal order #{$new_order->get_id()} created for old order #{$old_order->get_id()}" );
 
 		return array(
 			'order'         => $new_order,
@@ -1317,7 +1317,7 @@ class Helper {
 			$subscription    = reset( $subscription );
 			$subscription_id = ! empty( $subscription ) ? $subscription->subscription_id : 0;
 
-			wp_subscrpt_write_log( "Missing delivery info in old order #{$old_order->get_id()} for subscription #{$subscription_id}. Trying to get from parent order." );
+			subscrpt_write_log( "Missing delivery info in old order #{$old_order->get_id()} for subscription #{$subscription_id}. Trying to get from parent order." );
 
 			$parent_order = self::get_parent_order( $subscription_id );
 			if ( ! empty( $parent_order ) ) {

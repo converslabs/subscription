@@ -360,8 +360,8 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( 'completed' === $order->get_status() ) {
 			// Translators: %d is the order ID.
 			$log_message = sprintf( __( 'Order %d was already completed. Skipping PayPal check.', 'subscription' ), $order_id );
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 			return;
 		}
 
@@ -451,8 +451,8 @@ class Paypal extends \WC_Payment_Gateway {
 		$headers  = function_exists( 'getallheaders' ) ? getallheaders() : [];
 
 		if ( empty( $raw_body ) ) {
-			wp_subscrpt_write_log( 'PayPal webhook data is empty.' );
-			wp_subscrpt_write_debug_log( 'PayPal - process_webhook EMPTY' );
+			subscrpt_write_log( 'PayPal webhook data is empty.' );
+			subscrpt_write_debug_log( 'PayPal - process_webhook EMPTY' );
 			wp_die( 'PayPal webhook data is empty.', '400 Bad Request', [ 'response' => 400 ] );
 		}
 
@@ -526,8 +526,8 @@ class Paypal extends \WC_Payment_Gateway {
 				__( 'PayPal webhook received [%s]. Order not found. Stopping Process.', 'subscription' ),
 				$event,
 			);
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 			wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
 		}
 
@@ -542,8 +542,8 @@ class Paypal extends \WC_Payment_Gateway {
 				__( 'PayPal webhook received [%s]. No actions taken.', 'subscription' ),
 				$event,
 			);
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 			wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 		}
 	}
@@ -558,7 +558,7 @@ class Paypal extends \WC_Payment_Gateway {
 		// Get PayPal Access Token.
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
-			wp_subscrpt_write_log( 'PayPal webhook: Access Token unavailable.' );
+			subscrpt_write_log( 'PayPal webhook: Access Token unavailable.' );
 			wp_die( 'Error: Access token not available. Cannot verify webhook.', '401 Unauthorized', array( 'response' => 401 ) );
 		}
 
@@ -578,14 +578,14 @@ class Paypal extends \WC_Payment_Gateway {
 
 		if ( ! $verified ) {
 			// Fallback to manual method if REST API verification fails.
-			wp_subscrpt_write_log( 'PayPal webhook REST API verification failed. Retrying with manual verification.' );
+			subscrpt_write_log( 'PayPal webhook REST API verification failed. Retrying with manual verification.' );
 
 			$verified = $this->verify_paypal_webhook_manual( $payload, $raw_body );
 		}
 
 		if ( ! $verified ) {
-			wp_subscrpt_write_log( 'PayPal webhook verification failed.' );
-			wp_subscrpt_write_debug_log( 'Webhook verification failed for data: ' . sanitize_text_field( $raw_body ) );
+			subscrpt_write_log( 'PayPal webhook verification failed.' );
+			subscrpt_write_debug_log( 'Webhook verification failed for data: ' . sanitize_text_field( $raw_body ) );
 			wp_die( 'Error: PayPal webhook verification failed.', '403 Forbidden', array( 'response' => 403 ) );
 		}
 	}
@@ -618,7 +618,7 @@ class Paypal extends \WC_Payment_Gateway {
 			$verification_status = $response_data['verification_status'] ?? null;
 
 			if ( empty( $verification_status ) || 'success' !== strtolower( $verification_status ) ) {
-				wp_subscrpt_write_debug_log( 'PayPal Webhook Verification: ' . wp_json_encode( $response_data ) );
+				subscrpt_write_debug_log( 'PayPal Webhook Verification: ' . wp_json_encode( $response_data ) );
 				return false;
 			}
 
@@ -626,8 +626,8 @@ class Paypal extends \WC_Payment_Gateway {
 
 		} catch ( Exception $e ) {
 			$log_message = 'PayPal Webhook Verification Failed: ' . $e->getMessage();
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 			return false;
 		}
 	}
@@ -946,8 +946,8 @@ class Paypal extends \WC_Payment_Gateway {
 				$event,
 				$subscription_id
 			);
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 			wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
 		}
 
@@ -960,7 +960,7 @@ class Paypal extends \WC_Payment_Gateway {
 
 					// translators: %s: alert name.
 					$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment completed.', 'subscription' ), $event );
-					wp_subscrpt_write_log( $log_message );
+					subscrpt_write_log( $log_message );
 					wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
 				} else {
 					$order->add_order_note( __( 'Failed to complete payment. Requested by paypal webhook.', 'subscription' ) );
@@ -968,7 +968,7 @@ class Paypal extends \WC_Payment_Gateway {
 
 					// translators: %s: alert name.
 					$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment completion failed.', 'subscription' ), $event );
-					wp_subscrpt_write_log( $log_message );
+					subscrpt_write_log( $log_message );
 					wp_die( esc_html( $log_message ), '506 Internal Error', array( 'response' => 506 ) );
 				}
 				break;
@@ -995,7 +995,7 @@ class Paypal extends \WC_Payment_Gateway {
 
 				// translators: %s: alert name.
 				$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment refunded.', 'subscription' ), $event );
-				wp_subscrpt_write_log( $log_message );
+				subscrpt_write_log( $log_message );
 				wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
 				break;
 
@@ -1005,8 +1005,8 @@ class Paypal extends \WC_Payment_Gateway {
 					__( 'Transaction webhook received [%s]. No actions taken.', 'subscription' ),
 					$event,
 				);
-				wp_subscrpt_write_log( $log_message );
-				wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 		}
 	}
@@ -1033,8 +1033,8 @@ class Paypal extends \WC_Payment_Gateway {
 				__( 'Subscription webhook received [%s]. Subscription not found. Attempting to get from order item.', 'subscription' ),
 				$event
 			);
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 
 			$order_items = $order->get_items();
 			foreach ( $order_items as $item ) {
@@ -1049,8 +1049,8 @@ class Paypal extends \WC_Payment_Gateway {
 							__( 'Subscription found [ID: %s]. Processing webhook.', 'subscription' ),
 							$subscription->subscription_id
 						);
-						wp_subscrpt_write_log( $log_message );
-						wp_subscrpt_write_debug_log( $log_message );
+						subscrpt_write_log( $log_message );
+						subscrpt_write_debug_log( $log_message );
 					}
 					break;
 				}
@@ -1064,8 +1064,8 @@ class Paypal extends \WC_Payment_Gateway {
 				__( 'Subscription webhook received [%s]. Subscription not found. Stopping Process.', 'subscription' ),
 				$event,
 			);
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 			wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
 		}
 
@@ -1079,13 +1079,13 @@ class Paypal extends \WC_Payment_Gateway {
 					update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'active' );
 
 					$log_message = __( 'Subscription activated by PayPal webhook.', 'subscription' );
-					wp_subscrpt_write_log( $log_message );
+					subscrpt_write_log( $log_message );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
 				// translators: %s: alert name.
 				$log_message = sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event );
-				wp_subscrpt_write_log( $log_message );
+				subscrpt_write_log( $log_message );
 				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				break;
 
@@ -1096,13 +1096,13 @@ class Paypal extends \WC_Payment_Gateway {
 					update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'expired' );
 
 					$log_message = __( 'Subscription expired by PayPal webhook.', 'subscription' );
-					wp_subscrpt_write_log( $log_message );
+					subscrpt_write_log( $log_message );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
 				// translators: %s: alert name.
 				$log_message = sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event );
-				wp_subscrpt_write_log( $log_message );
+				subscrpt_write_log( $log_message );
 				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				break;
 
@@ -1113,13 +1113,13 @@ class Paypal extends \WC_Payment_Gateway {
 					update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'cancelled' );
 
 					$log_message = __( 'Subscription cancelled by PayPal webhook.', 'subscription' );
-					wp_subscrpt_write_log( $log_message );
+					subscrpt_write_log( $log_message );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
 				// translators: %s: alert name.
 				$log_message = sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event );
-				wp_subscrpt_write_log( $log_message );
+				subscrpt_write_log( $log_message );
 				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				break;
 
@@ -1129,8 +1129,8 @@ class Paypal extends \WC_Payment_Gateway {
 					__( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ),
 					$event,
 				);
-				wp_subscrpt_write_log( $log_message );
-				wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				break;
 		}
@@ -1160,7 +1160,7 @@ class Paypal extends \WC_Payment_Gateway {
 		$paypal_subscription_id = $order->get_meta( $this->get_meta_key( 'subscription_id' ) );
 
 		if ( empty( $paypal_subscription_id ) ) {
-			wp_subscrpt_write_log( 'PayPal subscription ID not found in order meta. Attempting to get from order history.' );
+			subscrpt_write_log( 'PayPal subscription ID not found in order meta. Attempting to get from order history.' );
 
 			global $wpdb;
 			$table_name      = $wpdb->prefix . 'subscrpt_order_relation';
@@ -1201,13 +1201,13 @@ class Paypal extends \WC_Payment_Gateway {
 		// Get PayPal Access Token.
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
-			wp_subscrpt_write_log( 'Access token not found. Retrying.' );
+			subscrpt_write_log( 'Access token not found. Retrying.' );
 
 			$access_token = $this->get_paypal_access_token();
 
 			if ( ! $access_token ) {
-				wp_subscrpt_write_log( 'Access token not found.' );
-				wp_subscrpt_write_log( "Failed to cancel subscription #{$subscription_id} in PayPal." );
+				subscrpt_write_log( 'Access token not found.' );
+				subscrpt_write_log( "Failed to cancel subscription #{$subscription_id} in PayPal." );
 				return;
 			}
 		}
@@ -1217,9 +1217,9 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( $result ) {
 			update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'cancelled' );
 
-			wp_subscrpt_write_log( "Subscription #{$subscription_id} cancelled successfully in PayPal." );
+			subscrpt_write_log( "Subscription #{$subscription_id} cancelled successfully in PayPal." );
 		} else {
-			wp_subscrpt_write_log( "Failed to cancel subscription #{$subscription_id} in PayPal." );
+			subscrpt_write_log( "Failed to cancel subscription #{$subscription_id} in PayPal." );
 		}
 	}
 
@@ -1437,8 +1437,8 @@ class Paypal extends \WC_Payment_Gateway {
 			if ( isset( $response_data->error ) || ! isset( $response_data->access_token ) ) {
 				$error_description = ! empty( $response_data ) ? $response_data->error_description ?? 'Unknown error' : 'Unknown error';
 				$log_message       = 'Gateway Error : PayPal access token - ' . $error_description;
-				wp_subscrpt_write_log( $log_message );
-				wp_subscrpt_write_debug_log( $log_message );
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message );
 
 				return null;
 			}
@@ -1446,8 +1446,8 @@ class Paypal extends \WC_Payment_Gateway {
 			return $response_data->access_token;
 		} catch ( Exception $e ) {
 			$log_message = $e->getMessage();
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 
 			return null;
 		}
@@ -1462,8 +1462,8 @@ class Paypal extends \WC_Payment_Gateway {
 	private function create_paypal_product( array $product_data, string $access_token ): ?object {
 		if ( empty( $product_data['name'] ?? null ) || empty( $product_data['type'] ?? null ) ) {
 			$log_message = __( 'PayPal Product Creation Error: Product data is incomplete. Name and type are required.', 'subscription' );
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 			return null;
 		}
 
@@ -1503,16 +1503,16 @@ class Paypal extends \WC_Payment_Gateway {
 
 			if ( empty( $response_data->id ?? null ) ) {
 				$log_message = 'Error creating PayPal product: ' . ( $response_data->error_description ?? 'Unknown error' );
-				wp_subscrpt_write_log( $log_message );
-				wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;
 			}
 
 			return $response_data;
 		} catch ( Exception $e ) {
 			$log_message = 'Error creating PayPal product: ' . $e->getMessage();
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 			return null;
 		}
 	}
@@ -1556,16 +1556,16 @@ class Paypal extends \WC_Payment_Gateway {
 
 			if ( empty( $response_data->id ?? null ) ) {
 				$log_message = 'Error creating PayPal plan: ' . ( $response_data->error_description ?? $response_data->message ?? 'Unknown error' );
-				wp_subscrpt_write_log( $log_message );
-				wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;
 			}
 
 			return $response_data;
 		} catch ( Exception $e ) {
 			$log_message = 'Error creating PayPal plan: ' . $e->getMessage();
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 			return null;
 		}
 	}
@@ -1601,16 +1601,16 @@ class Paypal extends \WC_Payment_Gateway {
 
 			if ( empty( $response_data->id ?? null ) ) {
 				$log_message = 'Error creating PayPal subscription: ' . ( $response_data->error_description ?? $response_data->message ?? 'Unknown error' );
-				wp_subscrpt_write_log( $log_message );
-				wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;
 			}
 
 			return $response_data;
 		} catch ( Exception $e ) {
 			$log_message = 'Error creating PayPal subscription: ' . $e->getMessage();
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 			return null;
 		}
 	}
@@ -1682,15 +1682,15 @@ class Paypal extends \WC_Payment_Gateway {
 
 			$error_message = $response_data->message ?? $response_data->error_description ?? 'Unknown error';
 			$log_message   = 'PayPal refund failed: ' . $error_message;
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 
 			return new \WP_Error( 'paypal_refund_failed', $error_message );
 
 		} catch ( Exception $e ) {
 			$log_message = 'PayPal refund exception: ' . $e->getMessage();
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 			return new \WP_Error( 'paypal_refund_exception', $e->getMessage() );
 		}
 	}
@@ -1725,16 +1725,16 @@ class Paypal extends \WC_Payment_Gateway {
 
 			if ( ! empty( $response_data->message ?? null ) ) {
 				$log_message = 'Error cancelling PayPal subscription: ' . ( $response_data->message ?? 'Unknown error' );
-				wp_subscrpt_write_log( $log_message );
-				wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return false;
 			}
 
 			return true;
 		} catch ( Exception $e ) {
 			$log_message = 'Error cancelling PayPal subscription: ' . $e->getMessage();
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 			return false;
 		}
 	}
@@ -1748,7 +1748,7 @@ class Paypal extends \WC_Payment_Gateway {
 		// Get PayPal Access Token.
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
-			wp_subscrpt_write_log( 'Failed to get PayPal order; Access Token unavailable.' );
+			subscrpt_write_log( 'Failed to get PayPal order; Access Token unavailable.' );
 			return false;
 		}
 
@@ -1767,16 +1767,16 @@ class Paypal extends \WC_Payment_Gateway {
 
 			if ( empty( $response_data->id ?? null ) ) {
 				$log_message = 'Error getting PayPal order: ' . ( $response_data->error_description ?? $response_data->message ?? 'Unknown error' );
-				wp_subscrpt_write_log( $log_message );
-				wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;
 			}
 
 			return $response_data;
 		} catch ( Exception $e ) {
 			$log_message = 'Failed to get PayPal order; ' . $e->getMessage();
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 			return false;
 		}
 	}
@@ -1790,7 +1790,7 @@ class Paypal extends \WC_Payment_Gateway {
 		// Get PayPal Access Token.
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
-			wp_subscrpt_write_log( 'Failed to get PayPal Subscription; Access Token unavailable.' );
+			subscrpt_write_log( 'Failed to get PayPal Subscription; Access Token unavailable.' );
 			return null;
 		}
 
@@ -1809,16 +1809,16 @@ class Paypal extends \WC_Payment_Gateway {
 
 			if ( empty( $response_data->id ?? null ) ) {
 				$log_message = 'Error getting PayPal subscription: ' . ( $response_data->error_description ?? $response_data->message ?? 'Unknown error' );
-				wp_subscrpt_write_log( $log_message );
-				wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;
 			}
 
 			return $response_data;
 		} catch ( Exception $e ) {
 			$log_message = 'Failed to get PayPal subscription; ' . $e->getMessage();
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 			return null;
 		}
 	}

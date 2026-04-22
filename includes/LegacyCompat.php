@@ -49,6 +49,7 @@ if ( ! function_exists( 'wp_subscrpt_write_log' ) ) {
 	 * @deprecated Use subscrpt_write_log() instead.
 	 */
 	function wp_subscrpt_write_log( $message, bool $should_print = false ): void {
+		_deprecated_function( 'wp_subscrpt_write_log', '1.9.2', 'subscrpt_write_log' );
 		subscrpt_write_log( $message, $should_print );
 	}
 }
