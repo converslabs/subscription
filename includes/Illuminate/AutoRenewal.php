@@ -142,7 +142,7 @@ class AutoRenewal {
 		// Grace period started.
 		do_action( 'subscrpt_grace_period_started', $subscription_id );
 
-		wp_subscrpt_write_log( "Subscription #{$subscription_id} grace period started." );
+		subscrpt_write_log( "Subscription #{$subscription_id} grace period started." );
 
 		// Set hook to run when grace period ends.
 		$hook = 'subscrpt_scheduled_grace_end';
@@ -161,7 +161,7 @@ class AutoRenewal {
 	 * @param int $subscription_id Subscription ID.
 	 */
 	public function trigger_grace_end_hook( $subscription_id ) {
-		wp_subscrpt_write_log( "Subscription #{$subscription_id} grace period ended." );
+		subscrpt_write_log( "Subscription #{$subscription_id} grace period ended." );
 
 		// Grace period ended.
 		do_action( 'subscrpt_grace_period_ended', $subscription_id );
