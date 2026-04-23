@@ -1,5 +1,12 @@
 *** WPSubscription Changelog ***
 
+2026-04-23 - version 1.9.4
+* fix: PayPal price with different decimals.
+* fix: PayPal refunds.
+* fix: PayPal webhook not updating subscriptions.
+* fix: PayPal plan update when product info changes in WooCommerce.
+* fix: Creating duplicate plans for updated product info in WooCommerce.
+
 2026-04-12 - version 1.9.3
 * fix: Stripe unavailable error during renewal.
 * fix: Optional parameter error from some methods.
