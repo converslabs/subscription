@@ -20,6 +20,13 @@ use WC_Product;
 class Paypal extends \WC_Payment_Gateway {
 
 	/**
+	 * Singleton instance.
+	 *
+	 * @var self|null
+	 */
+	private static ?self $instance = null;
+
+	/**
 	 * Sandbox mode.
 	 *
 	 * @var bool
@@ -93,8 +100,28 @@ class Paypal extends \WC_Payment_Gateway {
 		// Set API endpoint.
 		$this->api_endpoint = $this->sandbox_mode ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 
+		// Store first instance as the singleton (WooCommerce creates it; blocks integration reuses it).
+		if ( null === self::$instance ) {
+			self::$instance = $this;
+		}
+
 		// Actions.
 		$this->init_actions();
+	}
+
+	/**
+	 * Get the singleton gateway instance.
+	 *
+	 * Returns the WooCommerce-managed instance when available. Falls back to
+	 * creating a new instance only if the gateway has not been loaded yet.
+	 *
+	 * @return self
+	 */
+	public static function get_instance(): self {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
 	}
 
 	/**
@@ -114,7 +141,7 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// Cancel subscription.
 		add_action( 'subscrpt_subscription_expired', [ $this, 'handle_subscription_cancellation' ] );
-		add_action( 'subscrpt_subscription_cancelled_email_notification', [ $this, 'handle_subscription_cancellation' ] );
+		add_action( 'subscrpt_subscription_cancelled', [ $this, 'handle_subscription_cancellation' ] );
 	}
 
 	/**
@@ -338,9 +365,12 @@ class Paypal extends \WC_Payment_Gateway {
 			return;
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// ? We are checking $_GET parameters directly from PayPal redirect, nonce is not applicable here.
 		$paypal_subscription_id = isset( $_GET['subscription_id'] ) ? sanitize_text_field( wp_unslash( $_GET['subscription_id'] ) ) : '';
 		$paypal_ba_token        = isset( $_GET['ba_token'] ) ? sanitize_text_field( wp_unslash( $_GET['ba_token'] ) ) : '';
 		$paypal_token           = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$paypal_payment_approved = false;
 
@@ -493,7 +523,7 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( empty( $order ) ) {
 			$log_message = sprintf(
 				// translators: %1$s: alert name; %2$s: order id.
-				__( 'PayPal webhook received [%s]. Order not found.', 'subscription' ),
+				__( 'PayPal webhook received [%s]. Order not found. Stopping Process.', 'subscription' ),
 				$event,
 			);
 			wp_subscrpt_write_log( $log_message );
@@ -839,37 +869,36 @@ class Paypal extends \WC_Payment_Gateway {
 			$wc_product = wc_get_product( $wc_variation_id );
 		}
 
-		// Get data from product meta.
-		$plan_id = get_post_meta( $wc_product_id, $this->get_meta_key( 'plan_id' ), true );
-		// $plan_description = get_post_meta( $wc_product_id, $this->get_meta_key( 'plan_desc' ), true );
+		// Generate fingerprint of current critical billing fields (price, currency, interval, trial, signup fee, cycles).
+		$fingerprint = $this->generate_plan_fingerprint( $wc_product );
 
-		if ( empty( $plan_id ) ) {
-			$plan_id = null;
+		// Load stored plans array from product meta.
+		$stored_plans = get_post_meta( $wc_product_id, $this->get_meta_key( 'plans' ), true );
+		if ( ! is_array( $stored_plans ) ) {
+			$stored_plans = [];
 		}
 
-		// Generate plan data.
-		$plan_data = $this->generate_plan_data( $wc_product, $paypal_product_id );
-
-		// TODO: implement logic to find and get plan.
-		// ---------- .
-
-		// Create plan if not available.
-		if ( empty( $plan_id ) ) {
-			$paypal_plan = $this->create_paypal_plan( $plan_data, $access_token );
-
-			if ( $paypal_plan ) {
-				$plan_id = $paypal_plan->id;
-
-				// Save PayPal plan ID and description in WooCommerce product meta.
-				update_post_meta( $wc_product_id, $this->get_meta_key( 'plan_id' ), $plan_id );
-				update_post_meta( $wc_product_id, $this->get_meta_key( 'plan_desc' ), $paypal_plan->description ?? '' );
+		// Return the existing plan whose fingerprint matches the current product configuration.
+		foreach ( $stored_plans as $plan_entry ) {
+			if ( isset( $plan_entry['fingerprint'] ) && $plan_entry['fingerprint'] === $fingerprint ) {
+				return $plan_entry['plan_id'];
 			}
 		}
 
-		// TODO: implement logic to update plan if changed.
-		// ---------- .
+		// No matching plan found — create a new one for the current configuration.
+		$plan_data   = $this->generate_plan_data( $wc_product, $paypal_product_id );
+		$paypal_plan = $this->create_paypal_plan( $plan_data, $access_token );
 
-		return $plan_id;
+		if ( $paypal_plan ) {
+			$stored_plans[] = [
+				'plan_id'     => $paypal_plan->id,
+				'fingerprint' => $fingerprint,
+			];
+			update_post_meta( $wc_product_id, $this->get_meta_key( 'plans' ), $stored_plans );
+			return $paypal_plan->id;
+		}
+
+		return null;
 	}
 
 	/**
@@ -913,7 +942,7 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( ! $order ) {
 			$log_message = sprintf(
 				// translators: %1$s: alert name; %2$s: subscription id.
-				__( 'Transaction webhook received [%1$s]. No order found for subscription ID [%2$s].', 'subscription' ),
+				__( 'Transaction webhook received [%1$s]. No order found for subscription #%2$s.', 'subscription' ),
 				$event,
 				$subscription_id
 			);
@@ -929,27 +958,45 @@ class Paypal extends \WC_Payment_Gateway {
 					$order->add_order_note( __( 'Payment completed by paypal webhook.', 'subscription' ) );
 					$order->save();
 
-					wp_die( 'Order activated.', '200 Success', array( 'response' => 200 ) );
+					// translators: %s: alert name.
+					$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment completed.', 'subscription' ), $event );
+					wp_subscrpt_write_log( $log_message );
+					wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
 				} else {
 					$order->add_order_note( __( 'Failed to complete payment. Requested by paypal webhook.', 'subscription' ) );
 					$order->save();
 
-					wp_die( 'Order activation failed.', '506 Internal Error', array( 'response' => 506 ) );
+					// translators: %s: alert name.
+					$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment completion failed.', 'subscription' ), $event );
+					wp_subscrpt_write_log( $log_message );
+					wp_die( esc_html( $log_message ), '506 Internal Error', array( 'response' => 506 ) );
 				}
 				break;
 
 			case 'PAYMENT.SALE.REFUNDED':
-				if ( $order->update_status( 'refunded' ) ) {
-					$order->add_order_note( __( 'Payment refunded by paypal webhook.', 'subscription' ) );
-					$order->save();
+				$refund_amount = (float) ( $webhook_data['resource']['amount']['total'] ?? 0 );
+				$order_total   = (float) $order->get_total();
+				$is_full       = $refund_amount >= $order_total;
 
-					wp_die( 'Order refunded.', '200 Success', array( 'response' => 200 ) );
-				} else {
-					$order->add_order_note( __( 'Failed to refund payment. Requested by paypal webhook.', 'subscription' ) );
-					$order->save();
-
-					wp_die( 'Order refund failed.', '506 Internal Error', array( 'response' => 506 ) );
+				if ( $is_full ) {
+					$order->update_status( 'refunded' );
 				}
+
+				$order->add_order_note(
+					$is_full
+						? __( 'Full payment refunded by PayPal webhook.', 'subscription' )
+						: sprintf(
+							// translators: %s: refunded amount.
+							__( 'Partial payment refunded by PayPal webhook. Amount: %s', 'subscription' ),
+							wc_price( $refund_amount, [ 'currency' => $order->get_currency() ] )
+						)
+				);
+				$order->save();
+
+				// translators: %s: alert name.
+				$log_message = sprintf( __( 'Transaction webhook received [%s]. Payment refunded.', 'subscription' ), $event );
+				wp_subscrpt_write_log( $log_message );
+				wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
 				break;
 
 			default:
@@ -981,7 +1028,11 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// If no subscription, try to get from order item.
 		if ( empty( $subscription ) ) {
-			$log_message = __( 'Subscription not found. Attempting to get from order item.', 'subscription' );
+			$log_message = sprintf(
+				// translators: %s: alert name.
+				__( 'Subscription webhook received [%s]. Subscription not found. Attempting to get from order item.', 'subscription' ),
+				$event
+			);
 			wp_subscrpt_write_log( $log_message );
 			wp_subscrpt_write_debug_log( $log_message );
 
@@ -991,6 +1042,16 @@ class Paypal extends \WC_Payment_Gateway {
 
 				if ( ! empty( $tmp_subs ) ) {
 					$subscription = $tmp_subs;
+
+					if ( ! empty( $subscription->subscription_id ?? null ) ) {
+						$log_message = sprintf(
+							// translators: %s: subscription id.
+							__( 'Subscription found [ID: %s]. Processing webhook.', 'subscription' ),
+							$subscription->subscription_id
+						);
+						wp_subscrpt_write_log( $log_message );
+						wp_subscrpt_write_debug_log( $log_message );
+					}
 					break;
 				}
 			}
@@ -1000,7 +1061,7 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( empty( $subscription ) || empty( $subscription->subscription_id ?? null ) ) {
 			$log_message = sprintf(
 					// translators: %s: alert name.
-				__( 'Subscription webhook received [%s]. Subscription not found.', 'subscription' ),
+				__( 'Subscription webhook received [%s]. Subscription not found. Stopping Process.', 'subscription' ),
 				$event,
 			);
 			wp_subscrpt_write_log( $log_message );
@@ -1008,44 +1069,58 @@ class Paypal extends \WC_Payment_Gateway {
 			wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
 		}
 
+		$subscription_id = $subscription->subscription_id;
+
 		switch ( $event ) {
 			case 'BILLING.SUBSCRIPTION.ACTIVATED':
-				if ( ! in_array( get_post_status( $subscription->subscription_id ), [ 'active' ], true ) ) {
-					Action::status( 'active', $subscription->subscription_id );
+				if ( ! in_array( get_post_status( $subscription_id ), [ 'active' ], true ) ) {
+					Action::status( 'active', $subscription_id );
+
+					update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'active' );
 
 					$log_message = __( 'Subscription activated by PayPal webhook.', 'subscription' );
 					wp_subscrpt_write_log( $log_message );
-					wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
-				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'subscription' ) ), '200 success', array( 'response' => 200 ) );
+				// translators: %s: alert name.
+				$log_message = sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event );
+				wp_subscrpt_write_log( $log_message );
+				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			case 'BILLING.SUBSCRIPTION.EXPIRED':
-				if ( in_array( get_post_status( $subscription->subscription_id ), [ 'active', 'pe_cancelled' ], true ) ) {
-					Action::status( 'expired', $subscription->subscription_id );
+				if ( in_array( get_post_status( $subscription_id ), [ 'active', 'pe_cancelled' ], true ) ) {
+					Action::status( 'expired', $subscription_id );
+
+					update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'expired' );
 
 					$log_message = __( 'Subscription expired by PayPal webhook.', 'subscription' );
 					wp_subscrpt_write_log( $log_message );
-					wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
-				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'subscription' ) ), '200 success', array( 'response' => 200 ) );
+				// translators: %s: alert name.
+				$log_message = sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event );
+				wp_subscrpt_write_log( $log_message );
+				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			case 'BILLING.SUBSCRIPTION.CANCELLED':
-				if ( ! in_array( get_post_status( $subscription->subscription_id ), [ 'cancelled' ], true ) ) {
-					Action::status( 'cancelled', $subscription->subscription_id );
+				if ( ! in_array( get_post_status( $subscription_id ), [ 'cancelled', 'expired' ], true ) ) {
+					Action::status( 'cancelled', $subscription_id );
+
+					update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'cancelled' );
 
 					$log_message = __( 'Subscription cancelled by PayPal webhook.', 'subscription' );
 					wp_subscrpt_write_log( $log_message );
-					wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
 					wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				}
 
-				wp_die( esc_html( __( 'Subscription webhook received. No actions taken.', 'subscription' ) ), '200 success', array( 'response' => 200 ) );
+				// translators: %s: alert name.
+				$log_message = sprintf( __( 'Subscription webhook received [%s]. No actions taken.', 'subscription' ), $event );
+				wp_subscrpt_write_log( $log_message );
+				wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
 				break;
 
 			default:
@@ -1070,9 +1145,14 @@ class Paypal extends \WC_Payment_Gateway {
 		$order_id = get_post_meta( $subscription_id, '_subscrpt_order_id', true );
 		$order    = wc_get_order( $order_id );
 
-		// get order payment method
+		// Get order payment method
 		$payment_method = $order->get_payment_method();
-		if ( 'paypal' !== $payment_method ) {
+
+		// Get paypal subscription status from subscription meta.
+		$paypal_subs_status = get_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), true );
+
+		// Only process if the payment method is PayPal and the subscription is not already cancelled.
+		if ( ( $this->id !== $payment_method ) || ( ! empty( $paypal_subs_status ) && $paypal_subs_status === 'cancelled' ) ) {
 			return;
 		}
 
@@ -1121,18 +1201,26 @@ class Paypal extends \WC_Payment_Gateway {
 		// Get PayPal Access Token.
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
-			wp_subscrpt_write_log( 'Access token not found. Trying to get again.' );
+			wp_subscrpt_write_log( 'Access token not found. Retrying.' );
 
 			$access_token = $this->get_paypal_access_token();
 
 			if ( ! $access_token ) {
-				wp_subscrpt_write_log( 'Subscription cancel failed.' );
+				wp_subscrpt_write_log( 'Access token not found.' );
+				wp_subscrpt_write_log( "Failed to cancel subscription #{$subscription_id} in PayPal." );
 				return;
 			}
 		}
 
 		// Cancel subscription in PayPal.
-		$this->cancel_paypal_subscription( $paypal_subscription_id, $access_token, 'Customer requested cancellation.' );
+		$result = $this->cancel_paypal_subscription( $paypal_subscription_id, $access_token, 'Customer requested cancellation.' );
+		if ( $result ) {
+			update_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), 'cancelled' );
+
+			wp_subscrpt_write_log( "Subscription #{$subscription_id} cancelled successfully in PayPal." );
+		} else {
+			wp_subscrpt_write_log( "Failed to cancel subscription #{$subscription_id} in PayPal." );
+		}
 	}
 
 	// * ------------------------------------------------------------------------ * //
@@ -1158,10 +1246,12 @@ class Paypal extends \WC_Payment_Gateway {
 	 */
 	public function get_meta_key( string $key, ?string $mode_override = null ): string {
 		$keys         = [
-			'product_data'    => 'product_data',
-			'plan_id'         => 'plan_id',
-			'plan_desc'       => 'plan_description',
-			'subscription_id' => 'subscription_id',
+			'product_data'       => 'product_data',
+			'plan_id'            => 'plan_id',
+			'plan_desc'          => 'plan_description',
+			'plans'              => 'plans',
+			'subscription_id'    => 'subscription_id',
+			'paypal_subs_status' => 'paypal_subs_status',
 		];
 		$selected_key = $keys[ $key ] ?? $key;
 
@@ -1171,6 +1261,61 @@ class Paypal extends \WC_Payment_Gateway {
 		}
 
 		return '_wp_subs_paypal_' . $mode_string . $selected_key;
+	}
+
+	/**
+	 * Convert a billing interval string to PayPal's uppercase singular format.
+	 * subscrpt_get_typos function of the plugin have translator on the intervals. PayPal will only accept english.
+	 *
+	 * @param string $interval Raw interval string (e.g. 'month', 'months', 'WEEK').
+	 * @return string PayPal interval constant: DAY, WEEK, MONTH, or YEAR.
+	 */
+	private function convert_paypal_interval( string $interval ): string {
+		switch ( strtolower( $interval ) ) {
+			case 'day':
+			case 'days':
+				return 'DAY';
+			case 'week':
+			case 'weeks':
+				return 'WEEK';
+			case 'month':
+			case 'months':
+				return 'MONTH';
+			case 'year':
+			case 'years':
+				return 'YEAR';
+			default:
+				return 'MONTH';
+		}
+	}
+
+	/**
+	 * Generate a fingerprint hash of all critical billing fields for a product.
+	 *
+	 * The fingerprint encodes every field that determines a distinct PayPal billing
+	 * plan (price, currency, interval, trial, signup fee, cycle count). Two products
+	 * with identical critical fields produce the same fingerprint and can share a plan.
+	 *
+	 * @param WC_Product $wc_product WooCommerce product (simple or variation).
+	 * @return string MD5 hash of the critical fields.
+	 */
+	private function generate_plan_fingerprint( WC_Product $wc_product ): string {
+		$wpsubs_product = Subscription::get_subs_product( $wc_product );
+		$meta_cycles    = $wc_product->get_meta( '_subscrpt_max_no_payment' );
+		$total_cycles   = $meta_cycles ? $meta_cycles : 0;
+
+		$data = [
+			'price'          => number_format( (float) wc_get_price_including_tax( $wc_product ), 2, '.', '' ),
+			'currency'       => get_woocommerce_currency(),
+			'interval'       => $this->convert_paypal_interval( $wpsubs_product->get_timing_option() ),
+			'interval_count' => (int) $wpsubs_product->get_timing_per(),
+			'trial_interval' => $this->convert_paypal_interval( $wpsubs_product->get_trial_timing_option() ),
+			'trial_count'    => (int) $wpsubs_product->get_trial_timing_per(),
+			'signup_fee'     => number_format( (float) $wpsubs_product->get_signup_fee(), 2, '.', '' ),
+			'total_cycles'   => (int) $total_cycles,
+		];
+
+		return md5( wp_json_encode( $data ) );
 	}
 
 	/**
@@ -1193,37 +1338,16 @@ class Paypal extends \WC_Payment_Gateway {
 		// Price.
 		$price = wc_get_price_including_tax( $wc_product );
 
-		// Convert plural interval to singular.
-		// subscrpt_get_typos function of the plugin have translator on the intervals. PayPal will only accept english.
-		$convert_interval = function ( $interval ) {
-			switch ( strtolower( $interval ) ) {
-				case 'day':
-				case 'days':
-					return 'DAY';
-				case 'week':
-				case 'weeks':
-					return 'WEEK';
-				case 'month':
-				case 'months':
-					return 'MONTH';
-				case 'year':
-				case 'years':
-					return 'YEAR';
-				default:
-					return 'MONTH';
-			}
-		};
-
 		// Recurring Details.
 		$plan_length    = $wpsubs_product->get_timing_per();
-		$plan_interval  = $convert_interval( $wpsubs_product->get_timing_option() );
+		$plan_interval  = $this->convert_paypal_interval( $wpsubs_product->get_timing_option() );
 		$trial_length   = $wpsubs_product->get_trial_timing_per();
-		$trial_interval = $convert_interval( $wpsubs_product->get_trial_timing_option() );
+		$trial_interval = $this->convert_paypal_interval( $wpsubs_product->get_trial_timing_option() );
 		$signup_fee     = $wpsubs_product->get_signup_fee();
 
 		// get value for total_cycles from _subscrpt_max_no_payment
-		$total_cycles = $wc_product->get_meta( '_subscrpt_max_no_payment' ) ?: 0;
-		$total_cycles = $total_cycles ?? 1;
+		$meta_cycles  = $wc_product->get_meta( '_subscrpt_max_no_payment' );
+		$total_cycles = $meta_cycles ? $meta_cycles : 0;
 
 		// Billing Cycles.
 		$billing_cycles = [];
@@ -1248,7 +1372,7 @@ class Paypal extends \WC_Payment_Gateway {
 			'total_cycles'   => 0,
 			'pricing_scheme' => [
 				'fixed_price' => [
-					'value'         => $price,
+					'value'         => number_format( (float) $price, 2, '.', '' ),
 					'currency_code' => get_woocommerce_currency(),
 				],
 			],
@@ -1264,7 +1388,7 @@ class Paypal extends \WC_Payment_Gateway {
 			'setup_fee_failure_action'  => 'CANCEL',
 			'payment_failure_threshold' => 3,
 			'setup_fee'                 => [
-				'value'         => (string) $signup_fee,
+				'value'         => number_format( (float) $signup_fee, 2, '.', '' ),
 				'currency_code' => get_woocommerce_currency(),
 			],
 		];
@@ -1488,6 +1612,86 @@ class Paypal extends \WC_Payment_Gateway {
 			wp_subscrpt_write_log( $log_message );
 			wp_subscrpt_write_debug_log( $log_message );
 			return null;
+		}
+	}
+
+	/**
+	 * Process a refund via PayPal Captures API.
+	 *
+	 * @param int    $order_id WooCommerce order ID.
+	 * @param float  $amount   Amount to refund, or null for full refund.
+	 * @param string $reason   Reason for refund.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
+	 */
+	public function process_refund( $order_id, $amount = null, $reason = '' ) {
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return new \WP_Error( 'invalid_order', __( 'Order not found.', 'subscription' ) );
+		}
+
+		$capture_id = $order->get_transaction_id();
+		if ( ! $capture_id ) {
+			return new \WP_Error( 'no_capture_id', __( 'PayPal capture ID not found on this order.', 'subscription' ) );
+		}
+
+		$access_token = $this->get_paypal_access_token();
+		if ( ! $access_token ) {
+			return new \WP_Error( 'no_access_token', __( 'Failed to get PayPal access token.', 'subscription' ) );
+		}
+
+		try {
+			$url  = $this->api_endpoint . "/v1/payments/sale/{$capture_id}/refund";
+			$body = [];
+
+			if ( null !== $amount ) {
+				$body['amount'] = [
+					'total'    => number_format( (float) $amount, 2, '.', '' ),
+					'currency' => $order->get_currency(),
+				];
+			}
+
+			if ( ! empty( $reason ) ) {
+				$body['description'] = substr( $reason, 0, 255 );
+			}
+
+			$args = [
+				'method'  => 'POST',
+				'headers' => [
+					'Authorization'     => 'Bearer ' . $access_token,
+					'Content-Type'      => 'application/json',
+					'PayPal-Request-Id' => uniqid( 'wp-subs-refund-', true ),
+				],
+				'body'    => wp_json_encode( $body ),
+			];
+
+			$response      = wp_remote_post( $url, $args );
+			$response_code = (int) wp_remote_retrieve_response_code( $response );
+			$response_data = json_decode( wp_remote_retrieve_body( $response ) );
+
+			if ( 201 === $response_code ) {
+				$refund_id = $response_data->id ?? '';
+				$order->add_order_note(
+					sprintf(
+						// translators: %s: PayPal refund ID.
+						__( 'PayPal refund initiated. Refund ID: %s', 'subscription' ),
+						$refund_id
+					)
+				);
+				return true;
+			}
+
+			$error_message = $response_data->message ?? $response_data->error_description ?? 'Unknown error';
+			$log_message   = 'PayPal refund failed: ' . $error_message;
+			wp_subscrpt_write_log( $log_message );
+			wp_subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
+
+			return new \WP_Error( 'paypal_refund_failed', $error_message );
+
+		} catch ( Exception $e ) {
+			$log_message = 'PayPal refund exception: ' . $e->getMessage();
+			wp_subscrpt_write_log( $log_message );
+			wp_subscrpt_write_debug_log( $log_message );
+			return new \WP_Error( 'paypal_refund_exception', $e->getMessage() );
 		}
 	}
 
