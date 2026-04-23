@@ -577,7 +577,8 @@ class Helper {
 				$type              = ucfirst( $cart_subscription['type'] );
 
 				// Total amount with tax
-				$total_amount = wc_get_price_including_tax( $product, [ 'qty' => 1 ] );
+				$quantity     = (int) $cart_item['quantity'];
+				$total_amount = wc_get_price_including_tax( $product, [ 'qty' => $quantity ] );
 				$timing_html  = "<span class='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type}</span>";
 				$price_html   = wc_price( (float) $total_amount ) . $timing_html;
 
@@ -652,8 +653,9 @@ class Helper {
 
 		$order_item         = $old_order->get_item( $order_item_id );
 		$subscription_price = (float) get_post_meta( $subscription_id, '_subscrpt_price', true );
+		$qty                = $order_item->get_quantity();
 
-		// Subsctract tax from subscription price if prices include tax. WC_Order will calculate tax based on this.
+		// Subtract tax from per-unit subscription price if prices include tax. WC_Order will calculate tax on line total.
 		if ( wc_prices_include_tax() ) {
 			$product            = ( $order_item instanceof \WC_Order_Item_Product ) ? $order_item->get_product() : null;
 			$tax_class          = $product ? $product->get_tax_class() : '';
@@ -662,10 +664,11 @@ class Helper {
 			$subscription_price = $subscription_price - array_sum( $taxes );
 		}
 
+		$line_total   = $subscription_price * $qty;
 		$product_args = array(
 			'name'     => $order_item->get_name(),
-			'subtotal' => $subscription_price,
-			'total'    => $subscription_price,
+			'subtotal' => $line_total,
+			'total'    => $line_total,
 		);
 
 		// creating new order.

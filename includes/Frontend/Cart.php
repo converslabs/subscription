@@ -264,7 +264,8 @@ class Cart {
 
 					// Total amount with tax
 					$product      = $cart_item['data'];
-					$total_amount = wc_get_price_including_tax( $product, [ 'qty' => 1 ] );
+					$quantity     = (int) $cart_item['quantity'];
+					$total_amount = wc_get_price_including_tax( $product, [ 'qty' => $quantity ] );
 
 					// Subscription timing & type
 					$time = $cart_subscription['time'];
