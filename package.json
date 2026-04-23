@@ -1,6 +1,6 @@
 {
   "name": "subscription",
-  "version": "1.9.3",
+  "version": "1.9.4",
   "author": "The WordPress Contributors",
   "license": "GPL-2.0-or-later",
   "main": "build/index.js",
@@ -37,13 +37,6 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "yarn",
-      "version": "latest",
-      "onFail": "error"
-    }
   },
   "lint-staged": {
     "*.php": [

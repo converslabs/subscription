@@ -440,8 +440,8 @@ class Order {
 			as_enqueue_async_action( 'subscrpt_queue_trial_order_autocomplete', [ 'order_id' => $order_id ] );
 
 			$log_message = "Queued auto complete task for free trial order [ID: {$order_id}]";
-			wp_subscrpt_write_log( $log_message );
-			wp_subscrpt_write_debug_log( $log_message );
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message );
 		}
 	}
 

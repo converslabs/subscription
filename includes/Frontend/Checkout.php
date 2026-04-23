@@ -98,7 +98,7 @@ class Checkout {
 					if ( $selected_subscription_id ) {
 						// product related.
 						update_post_meta( $selected_subscription_id, '_subscrpt_timing_option', $timing_option );
-						update_post_meta( $selected_subscription_id, '_subscrpt_price', $product->get_price() * $order_item['quantity'] );
+						update_post_meta( $selected_subscription_id, '_subscrpt_price', $product->get_price() );
 						update_post_meta( $selected_subscription_id, '_subscrpt_user_cancel', $product->get_meta( '_subscrpt_user_cancel' ) );
 
 						// order related.
@@ -191,7 +191,7 @@ class Checkout {
 			$user_id = wp_insert_user( $args );
 
 			if ( is_wp_error( $user_id ) ) {
-				wp_subscrpt_write_log( 'Failed to auto-create user during checkout. Error: ' . $user_id->get_error_message() );
+				subscrpt_write_log( 'Failed to auto-create user during checkout. Error: ' . $user_id->get_error_message() );
 				return null;
 			}
 

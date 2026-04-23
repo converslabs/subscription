@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-12T05:50:21+00:00\n"
+"POT-Creation-Date: 2026-04-23T10:06:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -456,7 +456,7 @@ msgstr ""
 
 #. translators: Number of days remaining in grace period.
 #: includes/Admin/Subscriptions.php:528
-#: includes/Admin/views/related-subscriptions.php:89
+#: includes/Admin/views/related-subscriptions.php:87
 #: includes/Admin/views/subscription-list.php:189
 #: includes/Frontend/Order.php:95
 #: templates/myaccount/single.php:66
@@ -940,7 +940,7 @@ msgstr ""
 
 #: includes/Frontend/ActionController.php:67
 #: includes/Frontend/ActionController.php:96
-#: includes/Frontend/Cart.php:506
+#: includes/Frontend/Cart.php:507
 msgid "This subscription has reached its maximum payment limit and cannot be renewed further."
 msgstr ""
 
@@ -983,59 +983,59 @@ msgid "price of the subscription description."
 msgstr ""
 
 #: includes/Frontend/Cart.php:238
-#: includes/Frontend/Cart.php:330
+#: includes/Frontend/Cart.php:331
 msgid "Maximum Total Payments"
 msgstr ""
 
-#: includes/Frontend/Cart.php:275
-#: includes/Frontend/Cart.php:458
+#: includes/Frontend/Cart.php:276
+#: includes/Frontend/Cart.php:459
 #: includes/Frontend/Order.php:122
 #: includes/Illuminate/views/subscription-table.php:75
 msgid "Next billing on"
 msgstr ""
 
-#: includes/Frontend/Cart.php:276
-#: includes/Frontend/Cart.php:457
+#: includes/Frontend/Cart.php:277
+#: includes/Frontend/Cart.php:458
 #: includes/Frontend/Order.php:139
 #: includes/Illuminate/views/subscription-table.php:92
 msgid "First billing on"
 msgstr ""
 
-#: includes/Frontend/Cart.php:305
+#: includes/Frontend/Cart.php:306
 msgid "time of the subscription type."
 msgstr ""
 
-#: includes/Frontend/Cart.php:310
+#: includes/Frontend/Cart.php:311
 msgid "the subscription type."
 msgstr ""
 
-#: includes/Frontend/Cart.php:315
+#: includes/Frontend/Cart.php:316
 msgid "the subscription trial."
 msgstr ""
 
-#: includes/Frontend/Cart.php:320
+#: includes/Frontend/Cart.php:321
 msgid "Signup Fee amount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:325
+#: includes/Frontend/Cart.php:326
 msgid "Recurring amount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:444
 #: includes/Frontend/Cart.php:445
+#: includes/Frontend/Cart.php:446
 #: build/index.js:1
 #: src/index.js:76
 msgid "Recurring totals"
 msgstr ""
 
-#: includes/Frontend/Cart.php:467
+#: includes/Frontend/Cart.php:468
 #: build/index.js:1
 #: src/index.js:99
 msgid "You can cancel subscription at any time!"
 msgstr ""
 
 #. translators: 1: number of installments, 2: total amount.
-#: includes/Frontend/Cart.php:478
+#: includes/Frontend/Cart.php:479
 #: build/index.js:4
 #: src/index.js:108
 #, php-format,js-format
@@ -1206,215 +1206,258 @@ msgstr ""
 msgid "#{subscription_id} subscription expired!"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:63
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:70
 msgid "PayPal for WPSubscription"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:64
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:71
 msgid "Accept wp subscription recurring payments through PayPal. Only WP Subscription is supported."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:135
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:162
 msgid "Enable/Disable"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:137
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:164
 msgid "Enable PayPal for WPSubscription"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:139
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:166
 msgid "Enable or Disable PayPal for WPSubscription payment gateway"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:144
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:171
 msgid "Test Mode"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:146
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:173
 msgid "Enable PayPal Sandbox"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:148
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:175
 msgid "PayPal sandbox can be used to test payments without using real money."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:154
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:181
 msgid "Title"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:156
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:183
 msgid "This controls the title which the user sees during checkout."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:157
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:184
 #: assets/js/wp_subscription_paypal-block.js:27
 msgid "PayPal"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:161
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:188
 msgid "Description"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:163
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:190
 msgid "This controls the description which the user sees during checkout."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:164
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:191
 msgid "Pay via PayPal; you can pay with your credit card if you do not have a PayPal account."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:170
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:197
 msgid "PayPal Credentials"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:176
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:203
 msgid "PayPal Sandbox Credentials"
 msgstr ""
 
 #. Translators: %1$s is the link to PayPal developer account, %2$s is the link to My Apps & Credentials.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:187
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:214
 #, php-format
 msgid "Create a <a href=\"%1$s\" target=\"_blank\">PayPal developer account</a>, go to <a href=\"%2$s\" target=\"_blank\">My Apps & Credentials</a>, select the toggle ( Sandbox or Live ), create an app, and copy <b>Client ID</b> and <b>Secret</b>."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:193
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:220
 msgid "Email"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:195
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:222
 msgid "PayPal Email Address (used to receive payments)"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:202
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:228
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:229
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:255
 msgid "Client ID"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:204
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:230
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:231
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:257
 msgid "Enter your PayPal Client ID copied from PayPal Apps & Credentials."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:210
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:236
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:237
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:263
 msgid "Secret"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:212
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:238
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:239
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:265
 msgid "Enter your PayPal Secret copied from PayPal Apps & Credentials."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:218
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:244
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:245
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:271
 msgid "Webhook ID"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:220
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:246
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:247
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:273
 msgid "Enter your Webhook ID copied from PayPal Apps & Credentials for webhook validation."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:253
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:280
 msgid "Webhook URL"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:255
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:282
 msgid "<p>In the <strong style=\"color:#1d4ed8\">Apps & Credentials</strong> page of PayPal developer account open the newly created application and click <strong style=\"color:#1d4ed8\">Add Webhook</strong> button.<br> On the <strong>Webhook URL</strong> field use this webhook link"
 msgstr ""
 
 #. Translators: %s is the title of the payment gateway.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:290
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:317
 #, php-format
 msgid "<strong>%s</strong> options are disabled. PayPal Standard does not support your store currency."
 msgstr ""
 
 #. Translators: %d is the order ID.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:335
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:362
 #, php-format
 msgid "Order %d was already completed. Skipping PayPal check."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:381
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:411
 msgid "PayPal payment completed successfully."
 msgstr ""
 
 #. translators: %1$s: alert name; %2$s: order id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:496
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:526
 #, php-format
-msgid "PayPal webhook received [%s]. Order not found."
+msgid "PayPal webhook received [%s]. Order not found. Stopping Process."
 msgstr ""
 
 #. translators: %1$s: alert name; %2$s: order id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:512
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:542
 #, php-format
 msgid "PayPal webhook received [%s]. No actions taken."
 msgstr ""
 
 #. translators: %1$s: alert name; %2$s: subscription id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:916
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:945
 #, php-format
-msgid "Transaction webhook received [%1$s]. No order found for subscription ID [%2$s]."
+msgid "Transaction webhook received [%1$s]. No order found for subscription #%2$s."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:929
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:958
 msgid "Payment completed by paypal webhook."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:934
+#. translators: %s: alert name.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:962
+#, php-format
+msgid "Transaction webhook received [%s]. Payment completed."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:966
 msgid "Failed to complete payment. Requested by paypal webhook."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:943
-msgid "Payment refunded by paypal webhook."
+#. translators: %s: alert name.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:970
+#, php-format
+msgid "Transaction webhook received [%s]. Payment completion failed."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:948
-msgid "Failed to refund payment. Requested by paypal webhook."
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:987
+msgid "Full payment refunded by PayPal webhook."
+msgstr ""
+
+#. translators: %s: refunded amount.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:990
+#, php-format
+msgid "Partial payment refunded by PayPal webhook. Amount: %s"
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:958
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:997
+#, php-format
+msgid "Transaction webhook received [%s]. Payment refunded."
+msgstr ""
+
+#. translators: %s: alert name.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1005
 #, php-format
 msgid "Transaction webhook received [%s]. No actions taken."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:984
-msgid "Subscription not found. Attempting to get from order item."
+#. translators: %s: alert name.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1033
+#, php-format
+msgid "Subscription webhook received [%s]. Subscription not found. Attempting to get from order item."
+msgstr ""
+
+#. translators: %s: subscription id.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1049
+#, php-format
+msgid "Subscription found [ID: %s]. Processing webhook."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1003
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1064
 #, php-format
-msgid "Subscription webhook received [%s]. Subscription not found."
+msgid "Subscription webhook received [%s]. Subscription not found. Stopping Process."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1016
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1081
 msgid "Subscription activated by PayPal webhook."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1022
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1035
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1048
-msgid "Subscription webhook received. No actions taken."
-msgstr ""
-
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1029
-msgid "Subscription expired by PayPal webhook."
-msgstr ""
-
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1042
-msgid "Subscription cancelled by PayPal webhook."
-msgstr ""
-
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1054
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1087
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1104
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1121
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1129
 #, php-format
 msgid "Subscription webhook received [%s]. No actions taken."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1340
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1098
+msgid "Subscription expired by PayPal webhook."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1115
+msgid "Subscription cancelled by PayPal webhook."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1464
 msgid "PayPal Product Creation Error: Product data is incomplete. Name and type are required."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1629
+msgid "Order not found."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1634
+msgid "PayPal capture ID not found on this order."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1639
+msgid "Failed to get PayPal access token."
+msgstr ""
+
+#. translators: %s: PayPal refund ID.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1676
+#, php-format
+msgid "PayPal refund initiated. Refund ID: %s"
 msgstr ""
 
 #: includes/Illuminate/Gateways/Stripe/Stripe.php:135
@@ -1510,7 +1553,7 @@ msgstr ""
 msgid "New Subscription"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:1169
+#: includes/Illuminate/Helper.php:1172
 msgid "Subscription renewal isn't possible due to previous order not completed or deletion."
 msgstr ""
 

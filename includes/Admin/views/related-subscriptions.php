@@ -76,8 +76,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<td>
 						<?php echo esc_html( $next_date ); ?>
 					</td>
-					<!-- <td><span class="subscrpt-<?php echo esc_attr( $status_object->name ); ?>"><?php echo esc_html( $status_object->label ); ?></span></td> -->
-
 					<td>
 						<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
 							<span class="subscrpt-active grace-active">
