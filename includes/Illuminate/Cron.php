@@ -23,19 +23,28 @@ class Cron {
 
 	/**
 	 * Migrate to subscrpt_hourly_cron and ensure correct interval.
-	 * Clears the legacy subscrpt_daily_cron event on every request until it is gone,
-	 * then exits immediately once subscrpt_hourly_cron is correctly registered.
+	 *
+	 * Skips rescheduling when running inside wp-cron.php (DOING_CRON) to avoid
+	 * a race condition where WP temporarily removes an event from the queue before
+	 * firing it — without the guard, we would reschedule at midnight and corrupt
+	 * WP-Cron's own next-run timestamp.
 	 *
 	 * @return void
 	 */
 	private function maybe_reschedule_cron() {
-		// Remove legacy event name unconditionally so orphaned daily events are cleaned up.
+		// Remove legacy event name — no-op once migration is complete.
 		wp_clear_scheduled_hook( 'subscrpt_daily_cron' );
+
+		// Do not interfere with WP-Cron's own event lifecycle when running via wp-cron.php.
+		if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+			return;
+		}
 
 		$event = wp_get_scheduled_event( 'subscrpt_hourly_cron' );
 		if ( $event && 'hourly' === $event->schedule ) {
 			return;
 		}
+
 		wp_clear_scheduled_hook( 'subscrpt_hourly_cron' );
 		wp_schedule_event( strtotime( 'tomorrow midnight' ), 'hourly', 'subscrpt_hourly_cron' );
 	}
