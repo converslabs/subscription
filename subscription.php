@@ -162,7 +162,8 @@ final class Sdevs_Subscription {
 	 * Nothing being called here yet.
 	 */
 	public function deactivate() {
-		wp_clear_scheduled_hook( 'subscrpt_daily_cron' );
+		wp_clear_scheduled_hook( 'subscrpt_hourly_cron' );
+		wp_clear_scheduled_hook( 'subscrpt_daily_cron' ); // legacy cleanup for sites migrating from old hook name
 	}
 
 	/**
