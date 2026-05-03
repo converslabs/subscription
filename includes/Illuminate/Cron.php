@@ -13,25 +13,55 @@ class Cron {
 	 * Initialize the class.
 	 */
 	public function __construct() {
-		add_action( 'subscrpt_daily_cron', array( $this, 'daily_cron_task' ) );
+		add_action( 'subscrpt_hourly_cron', array( $this, 'hourly_cron_task' ) );
+
+		// ? Dev Note: This is a backward compatibility measure. Remove following action and maybe_reschedule_cron() method after 1 Jan, 2027.
+		// Safety net: if the old WP-Cron event fires before migration clears it, still process subscriptions.
+		add_action( 'subscrpt_daily_cron', array( $this, 'hourly_cron_task' ) );
+		$this->maybe_reschedule_cron();
 	}
 
 	/**
-	 * Run daily cron task to check if subscription expired.
+	 * Migrate to subscrpt_hourly_cron and ensure correct interval.
+	 *
+	 * Skips rescheduling when running inside wp-cron.php (DOING_CRON) to avoid
+	 * a race condition where WP temporarily removes an event from the queue before
+	 * firing it — without the guard, we would reschedule at midnight and corrupt
+	 * WP-Cron's own next-run timestamp.
+	 *
+	 * @return void
 	 */
-	public function daily_cron_task() {
-		// Trigger after cron
+	private function maybe_reschedule_cron() {
+		// Remove legacy event name — no-op once migration is complete.
+		wp_clear_scheduled_hook( 'subscrpt_daily_cron' );
+
+		// Do not interfere with WP-Cron's own event lifecycle when running via wp-cron.php.
+		if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+			return;
+		}
+
+		$event = wp_get_scheduled_event( 'subscrpt_hourly_cron' );
+		if ( $event && 'hourly' === $event->schedule ) {
+			return;
+		}
+
+		wp_clear_scheduled_hook( 'subscrpt_hourly_cron' );
+		wp_schedule_event( strtotime( 'tomorrow midnight' ), 'hourly', 'subscrpt_hourly_cron' );
+	}
+
+	/**
+	 * Run hourly cron task to check if subscriptions have expired.
+	 */
+	public function hourly_cron_task() {
 		do_action( 'before_subscription_update_cron' );
 
-		// Expire subscriptions
 		$this->update_subscription_statusses();
 
-		// Trigger after cron
 		do_action( 'after_subscription_update_cron' );
 	}
 
 	/**
-	 * Update subscription statusses
+	 * Update subscription statuses.
 	 */
 	public function update_subscription_statusses() {
 		$args = array(

@@ -41,8 +41,8 @@ class Installer {
 	 * @return void
 	 */
 	public function register_schedules() {
-		if ( ! wp_next_scheduled( 'subscrpt_daily_cron' ) ) {
-			wp_schedule_event( time(), 'daily', 'subscrpt_daily_cron' );
+		if ( ! wp_next_scheduled( 'subscrpt_hourly_cron' ) ) {
+			wp_schedule_event( strtotime( 'tomorrow midnight' ), 'hourly', 'subscrpt_hourly_cron' );
 		}
 	}
 
