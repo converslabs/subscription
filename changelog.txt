@@ -1,5 +1,9 @@
 *** WPSubscription Changelog ***
 
+2026-05-03 - version 1.9.5
+* fix: More frequent subscription check.
+* fix: Missing auto-renew data in subscription helper.
+
 2026-04-23 - version 1.9.4
 * fix: PayPal price with different decimals.
 * fix: PayPal refunds.
