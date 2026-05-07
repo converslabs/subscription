@@ -65,11 +65,11 @@ class PaypalDB {
 	 * Insert or replace a mapping row.
 	 *
 	 * @param string $paypal_id       PayPal billing agreement / subscription ID.
-	 * @param int    $order_id        WooCommerce order ID.
 	 * @param int    $subscription_id WP Subscription post ID.
+	 * @param int    $order_id        WooCommerce order ID.
 	 * @return void
 	 */
-	public static function upsert_mapping( string $paypal_id, int $order_id = 0, int $subscription_id = 0 ): void {
+	public static function upsert_mapping( string $paypal_id, int $subscription_id = 0, int $order_id = 0 ): void {
 		global $wpdb;
 		$table = self::table_name();
 
@@ -84,28 +84,11 @@ class PaypalDB {
 			],
 			[ '%s', '%d', '%d' ]
 		);
-	}
 
-	/**
-	 * Update subscription_id for a given order_id.
-	 *
-	 * @param int $order_id        WooCommerce order ID.
-	 * @param int $subscription_id WP Subscription post ID.
-	 * @return int|false Number of rows updated or false on failure.
-	 */
-	public static function update_subscription_for_order( int $order_id, int $subscription_id ) {
-		global $wpdb;
-		$table = self::table_name();
-
-		// Direct query required: plugin-owned mapping table has no WP abstraction layer. No caching: write operation, caching not applicable.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		return $wpdb->update(
-			$table,
-			[ 'subscription_id' => $subscription_id ],
-			[ 'order_id' => $order_id ],
-			[ '%d' ],
-			[ '%d' ]
-		);
+		// Invalidate read caches for this paypal_id.
+		$hash = md5( $paypal_id );
+		wp_cache_delete( 'subscrpt_paypal_sub_' . $hash, 'subscrpt_paypal' );
+		wp_cache_delete( 'subscrpt_paypal_order_' . $hash, 'subscrpt_paypal' );
 	}
 
 	/**
@@ -116,13 +99,24 @@ class PaypalDB {
 	 */
 	public static function get_subscription_by_paypal_id( string $paypal_id ): ?int {
 		global $wpdb;
-		$table = self::table_name();
+		$table     = self::table_name();
+		$cache_key = 'subscrpt_paypal_sub_' . md5( $paypal_id );
 
-		// Direct query required: plugin-owned mapping table has no WP abstraction layer. No caching: paypal_id mappings change on every subscription event, stale cache would cause webhook misrouting.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$cached = wp_cache_get( $cache_key, 'subscrpt_paypal' );
+		if ( false !== $cached ) {
+			return (int) $cached;
+		}
+
+		// Direct query required: plugin-owned mapping table has no WP abstraction layer.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$val = $wpdb->get_var( $wpdb->prepare( 'SELECT subscription_id FROM %i WHERE paypal_id = %s LIMIT 1', $table, $paypal_id ) );
 
-		return $val ? (int) $val : null;
+		if ( $val ) {
+			wp_cache_set( $cache_key, (int) $val, 'subscrpt_paypal' );
+			return (int) $val;
+		}
+
+		return null;
 	}
 
 	/**
@@ -133,12 +127,23 @@ class PaypalDB {
 	 */
 	public static function get_order_by_paypal_id( string $paypal_id ): ?int {
 		global $wpdb;
-		$table = self::table_name();
+		$table     = self::table_name();
+		$cache_key = 'subscrpt_paypal_order_' . md5( $paypal_id );
 
-		// Direct query required: plugin-owned mapping table has no WP abstraction layer. No caching: paypal_id mappings change on every subscription event, stale cache would cause webhook misrouting.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$cached = wp_cache_get( $cache_key, 'subscrpt_paypal' );
+		if ( false !== $cached ) {
+			return (int) $cached;
+		}
+
+		// Direct query required: plugin-owned mapping table has no WP abstraction layer.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$val = $wpdb->get_var( $wpdb->prepare( 'SELECT order_id FROM %i WHERE paypal_id = %s LIMIT 1', $table, $paypal_id ) );
 
-		return $val ? (int) $val : null;
+		if ( $val ) {
+			wp_cache_set( $cache_key, (int) $val, 'subscrpt_paypal' );
+			return (int) $val;
+		}
+
+		return null;
 	}
 }

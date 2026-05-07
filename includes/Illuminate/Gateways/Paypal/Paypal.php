@@ -465,8 +465,7 @@ class Paypal extends \WC_Payment_Gateway {
 		}
 
 		// Verify webhook.
-		// ! test - aushamim
-		// $this->verify_webhook( $headers, $raw_body );
+		$this->verify_webhook( $headers, $raw_body );
 
 		// Decode webhook data.
 		$webhook_data = json_decode( $raw_body, true );
@@ -489,6 +488,38 @@ class Paypal extends \WC_Payment_Gateway {
 			'BILLING.SUBSCRIPTION.CANCELLED',
 		];
 
+		// Get subscription ID from webhook data.
+		$paypal_subscription_id = isset( $webhook_data['resource']['billing_agreement_id'] )
+			? sanitize_text_field( $webhook_data['resource']['billing_agreement_id'] )
+			: ( isset( $webhook_data['resource']['id'] ) ? sanitize_text_field( $webhook_data['resource']['id'] ) : null );
+
+		// Look up WP subscription ID from the PayPal mapping table.
+		$wp_subscription_id = ! empty( $paypal_subscription_id ) ? PaypalDB::get_subscription_by_paypal_id( $paypal_subscription_id ) : null;
+
+		// If no WP subscription ID found, try to find the order using the PayPal subscription ID in order meta.
+		if ( empty( $wp_subscription_id ) && ! empty( $paypal_subscription_id ) ) {
+			$chk_orders = wc_get_orders(
+				[
+					'meta_key'   => $this->get_meta_key( 'subscription_id' ),
+					'meta_value' => $paypal_subscription_id,
+					'limit'      => 1,
+				]
+			);
+
+			$chk_order         = ! empty( $chk_orders ) ? reset( $chk_orders ) : null;
+			$chk_subscriptions = $chk_order ? Helper::get_subscriptions_from_order( $chk_order->get_id() ) : null;
+			$chk_subscription  = ! empty( $chk_subscriptions ) ? reset( $chk_subscriptions ) : null;
+
+			// Update mapping table.
+			if ( ! empty( $chk_subscription ) ) {
+				PaypalDB::upsert_mapping(
+					$paypal_subscription_id,
+					(int) $chk_subscription->subscription_id,
+					(int) $chk_order->get_id()
+				);
+			}
+		}
+
 		// Order object.
 		$order = null;
 
@@ -506,17 +537,18 @@ class Paypal extends \WC_Payment_Gateway {
 			}
 		}
 
-		// Get subscription ID from webhook data.
-		$paypal_subscription_id = isset( $webhook_data['resource']['billing_agreement_id'] )
-			? sanitize_text_field( $webhook_data['resource']['billing_agreement_id'] )
-			: ( isset( $webhook_data['resource']['id'] ) ? sanitize_text_field( $webhook_data['resource']['id'] ) : null );
+		// Add mapping on first order.
+		if ( ! empty( $order ) && empty( $wp_subscription_id ) && ! empty( $paypal_subscription_id ) ) {
+			$chk_subscriptions = Helper::get_subscriptions_from_order( $order->get_id() );
+			$chk_subscription  = ! empty( $chk_subscriptions ) ? reset( $chk_subscriptions ) : null;
 
-		// Get order by Subscription ID.
-		if ( ! $order && ! empty( $paypal_subscription_id ) ) {
-			$orders = wc_get_orders( [ 'subscription_id' => $paypal_subscription_id ] );
-
-			if ( ! empty( $orders ) ) {
-				$order = reset( $orders );
+			// Update mapping table.
+			if ( ! empty( $chk_subscription ) ) {
+				PaypalDB::upsert_mapping(
+					$paypal_subscription_id,
+					(int) $chk_subscription->subscription_id,
+					(int) $order->get_id()
+				);
 			}
 		}
 
@@ -532,12 +564,12 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( empty( $order ) ) {
 			$log_message = sprintf(
 				// translators: %1$s: alert name; %2$s: order id.
-				__( 'PayPal webhook received [%s]. Order not found. Stopping Process.', 'subscription' ),
+				__( 'PayPal webhook received [%s]. Order not found. Queuing for retry.', 'subscription' ),
 				$event,
 			);
 			subscrpt_write_log( $log_message );
 			subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
-			wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
+			wp_die( esc_html( $log_message ), '425 Too Early', array( 'response' => 425 ) );
 		}
 
 		// Finally, handle the webhook.
