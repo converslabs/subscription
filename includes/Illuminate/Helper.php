@@ -971,7 +971,7 @@ class Helper {
 		}
 
 		$subs_post = get_post( $subscription_id );
-		$user_id   = (int) $subs_post->post_author ?? 0;
+		$user_id   = ! empty( $subs_post ) ? (int) $subs_post->post_author : 0;
 
 		$product_id = get_post_meta( $subscription_id, '_subscrpt_product_id', true );
 		$product_id = ! empty( $product_id ) ? (int) $product_id : 0;
