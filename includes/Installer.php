@@ -2,6 +2,8 @@
 
 namespace SpringDevs\Subscription;
 
+use SpringDevs\Subscription\Illuminate\Gateways\Paypal\PaypalDB;
+
 /**
  * Class Installer
  *
@@ -57,6 +59,7 @@ class Installer {
 		}
 
 		$this->create_histories_table();
+		PaypalDB::maybe_create_tables();
 	}
 
 	/**

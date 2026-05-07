@@ -22,7 +22,8 @@
     "prepare": "husky",
     "release": "scripts/release.sh",
     "svn": "scripts/svn.sh",
-    "update-lang-files": "wp i18n make-pot . ./languages/subscription.pot --exclude=node_modules,vendor,svn"
+    "update-lang-files": "wp i18n make-pot . ./languages/subscription.pot --exclude=node_modules,vendor,svn",
+    "listen-webhook": "NODE_TLS_REJECT_UNAUTHORIZED=0 node ./scripts/smee.js"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.16",
@@ -36,7 +37,8 @@
     "daisyui": "^5.3.10",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "smee-client": "^5.0.0"
   },
   "lint-staged": {
     "*.php": [
