@@ -498,13 +498,13 @@ class Paypal extends \WC_Payment_Gateway {
 		}
 
 		// Get subscription ID from webhook data.
-		$subscription_id = isset( $webhook_data['resource']['billing_agreement_id'] )
+		$paypal_subscription_id = isset( $webhook_data['resource']['billing_agreement_id'] )
 			? sanitize_text_field( $webhook_data['resource']['billing_agreement_id'] )
 			: ( isset( $webhook_data['resource']['id'] ) ? sanitize_text_field( $webhook_data['resource']['id'] ) : null );
 
 		// Get order by Subscription ID.
-		if ( ! $order && ! empty( $subscription_id ) ) {
-			$orders = wc_get_orders( [ 'subscription_id' => $subscription_id ] );
+		if ( ! $order && ! empty( $paypal_subscription_id ) ) {
+			$orders = wc_get_orders( [ 'subscription_id' => $paypal_subscription_id ] );
 
 			if ( ! empty( $orders ) ) {
 				$order = reset( $orders );
@@ -533,9 +533,9 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// Finally, handle the webhook.
 		if ( in_array( $event, $transaction_events, true ) ) {
-			$this->handle_transaction_event( $webhook_data, $order, $transaction_id, $subscription_id );
+			$this->handle_transaction_event( $webhook_data, $order, $transaction_id, $paypal_subscription_id );
 		} elseif ( in_array( $event, $subscription_events, true ) ) {
-			$this->handle_subscription_event( $webhook_data, $order, $transaction_id, $subscription_id );
+			$this->handle_subscription_event( $webhook_data, $order, $transaction_id, $paypal_subscription_id );
 		} else {
 			$log_message = sprintf(
 				// translators: %1$s: alert name; %2$s: order id.
