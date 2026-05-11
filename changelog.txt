@@ -1,7 +1,7 @@
 *** WPSubscription Changelog ***
 
-2026-05-10 - version 1.9.6
-* fix: Renewal order creation error when previous renewal order is unavailable.
+2026-05-11 - version 1.9.6
+* fix: Renewal order creation error when the previous renewal order is unavailable.
 
 2026-05-03 - version 1.9.5
 * fix: More frequent subscription check.
