@@ -647,6 +647,18 @@ class Helper {
 		$old_order     = self::check_order_for_renewal( $order_id );
 
 		if ( ! $old_order ) {
+			// The stored item may belong to a trashed or non-completed order (e.g. a renewal that was deleted). Walk the relation table newest-first to find the last completed order we can use as the renewal source.
+			foreach ( self::get_related_orders( $subscription_id ) as $row ) {
+				$candidate = wc_get_order( (int) ( $row->order_id ?? 0 ) );
+				if ( $candidate && 'completed' === $candidate->get_status() ) {
+					$old_order     = $candidate;
+					$order_item_id = (int) ( $row->order_item_id ?? 0 );
+					break;
+				}
+			}
+		}
+
+		if ( ! $old_order ) {
 			subscrpt_write_log( "Old order not found for renewal. Skipping creating renewal order. [ Subscription ID: {$subscription_id} ]" );
 			return;
 		}

@@ -312,7 +312,8 @@ body.wp-subscription_page_wp-subscription-settings #wpcontent,
 body.wp-subscription_page_wp-subscription-tools #wpcontent,
 body.wp-subscription_page_wp-subscription-support #wpcontent,
 body.wp-subscription_page_wp-subscription-delivery #wpcontent,
-body.wp-subscription_page_wp-subscription-integrations #wpcontent {
+body.wp-subscription_page_wp-subscription-integrations #wpcontent,
+body.wp-subscription_page_wp-subscription-recovery #wpcontent {
   padding-left: 0 !important;
 }
 
