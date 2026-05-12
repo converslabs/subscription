@@ -175,8 +175,8 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			$subscription    = reset( $subscription );
 			$subscription_id = $subscription->subscription_id ?? 0;
 
-			// Trigger failed payment mail.
-			do_action( 'subscrpt_payment_failure_email_notification', $subscription_id );
+			// Trigger failed actions.
+			do_action( 'subscrpt_subscription_payment_failed', $subscription_id );
 		}
 	}
 
