@@ -993,7 +993,7 @@ class Helper {
 
 		$chk_product_id = $variation_id ? $variation_id : $product_id;
 
-		$status = get_post_status( $subscription_id );
+		$status = get_post_status( $subscription_id ); // pending, active, cancelled, pe_cancelled, expired
 		$price  = get_post_meta( $subscription_id, '_subscrpt_price', true );
 
 		$signup_fee = get_post_meta( $subscription_id, '_subscrpt_signup_fee', true );
