@@ -456,18 +456,18 @@ class Menu {
 
 		if ( ! subscrpt_pro_activated() ) {
 			?>
-			<div style="position:relative;">
+			<div style="position: relative;">
 				<div style="filter:blur(10px);pointer-events:none;">
 					<div style="max-width:1240px;margin:32px auto 0 auto;">
 						<img
-							src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/previews/subscrpt-health-prevew.png' ); ?>"
-							alt="<?php esc_attr_e( 'Subscription Health page preview', 'subscription' ); ?>"
+							src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/previews/subscrpt-health-preview.png' ); ?>"
+							alt="<?php esc_attr_e( 'page preview', 'subscription' ); ?>"
 							style="width:100%;display:block;"
 						/>
 					</div>
 				</div>
-				<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:32px;">
-					<div style="background:#fff;border-radius:12px;padding:28px 32px;text-align:center;max-width:440px;box-shadow:0 8px 48px rgba(0,0,0,0.22);">
+				<div style="position:absolute;inset:0;display:flex;align-items:top;justify-content:center;padding:100px 32px 32px;">
+					<div style="height:fit-content;background:#fff;border-radius:12px;padding:28px 32px;text-align:center;max-width:440px;box-shadow:0 8px 48px rgba(0,0,0,0.22);">
 
 						<!-- Lock icon with radial glow -->
 						<div style="position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
@@ -487,14 +487,13 @@ class Menu {
 
 						<!-- Subtitle -->
 						<div style="font-size:14px;color:#6b7280;margin-bottom:20px;line-height:1.6;">
-							<?php esc_html_e( 'Subscription Health monitoring requires WPSubscription Pro. Track subscriptions needing attention, revenue at risk, and more.', 'subscription' ); ?>
+							<?php esc_html_e( 'Subscription Health requires monitoring WPSubscription Pro. Unlock advanced features, priority support, and more.', 'subscription' ); ?>
 						</div>
 
 						<!-- CTA button -->
-						<a href="https://wpsubscription.co/?utm_source=plugin&utm_medium=health_preview&utm_campaign=upgrade_pro" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#ff6a34;color:#fff;font-size:15px;font-weight:600;padding:14px 28px;border-radius:8px;text-decoration:none;">
+						<a href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#ff6a34;color:#fff;font-size:15px;font-weight:600;padding:14px 28px;border-radius:8px;text-decoration:none;">
 							⚡ <?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?>
 						</a>
-
 					</div>
 				</div>
 			</div>
