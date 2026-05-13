@@ -460,7 +460,7 @@ class Menu {
 				<div style="filter:blur(10px);pointer-events:none;">
 					<div style="max-width:1240px;margin:32px auto 0 auto;">
 						<img
-							src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/subscrpt-health-prevew.png' ); ?>"
+							src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/previews/subscrpt-health-prevew.png' ); ?>"
 							alt="<?php esc_attr_e( 'Subscription Health page preview', 'subscription' ); ?>"
 							style="width:100%;display:block;"
 						/>
