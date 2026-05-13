@@ -23,7 +23,9 @@ for ( $i = 0; $i < 12; $i++ ) {
 }
 ?>
 <div class="wp-subscription-admin-content list-page">
-	<div class="wp-subscription-list-title"><h1 class="wp-heading-inline">Subscriptions</h1></div>
+	<div class="wp-subscription-list-title">
+		<h1 class="wp-heading-inline" style="margin-top: 0;"><?php esc_html_e( 'Subscriptions', 'subscription' ); ?></h1>
+	</div>
 	
 	<form method="post" id="subscriptions-form">
 		<div class="wp-subscription-list-header">
