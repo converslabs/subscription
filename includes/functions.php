@@ -743,3 +743,66 @@ function subscrpt_multiselect_field( $field ) {
 	<?php
 	// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 }
+
+/**
+ * Render a preview for pages that require WPSubscription Pro, with a blurred background image and a call-to-action overlay.
+ *
+ * @param array $args Preview arguments.
+ */
+function subscrpt_render_page_preview( array $args = [] ) {
+	$defaults = [
+		'preview_image_url' => SUBSCRPT_ASSETS . '/images/previews/subscrpt-health-preview.png',
+		'cta_title'         => __( 'Upgrade to WPSubscription Pro', 'subscription' ),
+		'cta_description'   => __( 'This page requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro.', 'subscription' ),
+		'cta_button_text'   => __( '⚡ Upgrade to Pro', 'subscription' ),
+		'cta_button_url'    => 'https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro',
+	];
+
+	$args = wp_parse_args( $args, $defaults );
+
+	ob_start();
+	?>
+		<div style="position: relative;">
+			<div style="filter:blur(4px);pointer-events:none;">
+				<div style="max-width:1240px;margin:32px auto 0 auto;">
+					<img
+						src="<?php echo esc_url( $args['preview_image_url'] ); ?>"
+						alt="<?php esc_attr_e( 'page preview', 'subscription' ); ?>"
+						style="width:100%;display:block;"
+					/>
+				</div>
+			</div>
+			<div style="position:absolute;inset:0;display:flex;align-items:top;justify-content:center;padding:100px 32px 32px;">
+				<div style="height:fit-content;background:#fff;border-radius:12px;padding:28px 32px;text-align:center;max-width:440px;box-shadow:0 8px 48px rgba(0,0,0,0.22);">
+
+					<!-- Lock icon with radial glow -->
+					<div style="position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+						<div style="position:absolute;width:100px;height:100px;background:radial-gradient(circle,rgba(255,106,52,0.22) 0%,transparent 70%);border-radius:50%;"></div>
+						<div style="position:relative;width:56px;height:56px;border:1.5px solid #ff6a34;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#fff;">
+							<svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#ff6a34" stroke-width="2" aria-hidden="true">
+								<rect x="5" y="11" width="14" height="10" rx="2"/>
+								<path stroke-linecap="round" d="M8 11V7a4 4 0 018 0v4"/>
+							</svg>
+						</div>
+					</div>
+
+					<!-- Title -->
+					<div style="font-size:22px;font-weight:700;color:#111;margin-bottom:10px;line-height:1.3;">
+						<?php echo esc_html( $args['cta_title'] ); ?>
+					</div>
+
+					<!-- Subtitle -->
+					<div style="font-size:14px;color:#6b7280;margin-bottom:20px;line-height:1.6;">
+						<?php echo esc_html( $args['cta_description'] ); ?>
+					</div>
+
+					<!-- CTA button -->
+					<a href="<?php echo esc_url( $args['cta_button_url'] ); ?>" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#ff6a34;color:#fff;font-size:15px;font-weight:600;padding:14px 28px;border-radius:8px;text-decoration:none;">
+						<?php echo esc_html( $args['cta_button_text'] ); ?>
+					</a>
+				</div>
+			</div>
+		</div>
+	<?php
+	return ob_get_clean();
+}
