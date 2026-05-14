@@ -406,11 +406,12 @@ class Paypal extends \WC_Payment_Gateway {
 			}
 		}
 
-		// Fallback to check PayPal Order if Subscription is not available.
-		if ( ! $paypal_payment_approved && ! empty( $paypal_token ) ) {
-			$paypal_order_data = $this->get_paypal_order( $paypal_token );
+		// Always fetch PayPal order when token is available — used for both approval fallback and transaction ID extraction.
+		$paypal_order_data = ! empty( $paypal_token ) ? $this->get_paypal_order( $paypal_token ) : null;
 
-			if ( $paypal_order_data && in_array( $paypal_order_data->status ?? '', [ 'APPROVED', 'COMPLETED' ], true ) ) {
+		// Fallback to check PayPal Order if Subscription is not available.
+		if ( ! $paypal_payment_approved && $paypal_order_data ) {
+			if ( in_array( $paypal_order_data->status ?? '', [ 'APPROVED', 'COMPLETED' ], true ) ) {
 				$paypal_payment_approved = true;
 			}
 		}
@@ -518,10 +519,10 @@ class Paypal extends \WC_Payment_Gateway {
 			: ( isset( $webhook_data['resource']['id'] ) ? sanitize_text_field( $webhook_data['resource']['id'] ) : null );
 
 		// Look up WP subscription ID from the PayPal mapping table.
-		$wp_subscription_id = ! empty( $paypal_subscription_id ) ? PaypalDB::get_subscription_by_paypal_id( $paypal_subscription_id ) : null;
+		$wpsubs_id = ! empty( $paypal_subscription_id ) ? PaypalDB::get_subscription_by_paypal_id( $paypal_subscription_id ) : null;
 
 		// If no WP subscription ID found, try to find the order using the PayPal subscription ID in order meta.
-		if ( empty( $wp_subscription_id ) && ! empty( $paypal_subscription_id ) ) {
+		if ( empty( $wpsubs_id ) && ! empty( $paypal_subscription_id ) ) {
 			$chk_orders = wc_get_orders(
 				[
 					'meta_key'   => $this->get_meta_key( 'subscription_id' ),
@@ -551,6 +552,7 @@ class Paypal extends \WC_Payment_Gateway {
 					(int) $chk_subscription->subscription_id,
 					(int) $chk_order->get_id()
 				);
+				$wpsubs_id = (int) $chk_subscription->subscription_id;
 			}
 		}
 
@@ -580,9 +582,11 @@ class Paypal extends \WC_Payment_Gateway {
 			}
 		}
 
-		if ( empty( $order ) ) {
+		// Gate subscription events only when both $order and $wpsubs_id are unresolved.
+		// Transaction events resolve $order internally; subscription events can use $wpsubs_id directly.
+		if ( empty( $order ) && empty( $wpsubs_id ) && in_array( $event, $subscription_events, true ) ) {
 			$log_message = sprintf(
-				// translators: %1$s: alert name; %2$s: order id.
+				// translators: %s: event name.
 				__( 'PayPal webhook received [%s]. Order not found. Queuing for retry.', 'subscription' ),
 				$event,
 			);
@@ -593,9 +597,9 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// Finally, handle the webhook.
 		if ( in_array( $event, $transaction_events, true ) ) {
-			$this->handle_transaction_event( $webhook_data, $order, $transaction_id, $paypal_subscription_id );
+			$this->handle_transaction_event( $webhook_data, $order, $transaction_id, $paypal_subscription_id, $wpsubs_id );
 		} elseif ( in_array( $event, $subscription_events, true ) ) {
-			$this->handle_subscription_event( $webhook_data, $order, $transaction_id, $paypal_subscription_id );
+			$this->handle_subscription_event( $webhook_data, $order, $transaction_id, $paypal_subscription_id, $wpsubs_id );
 		} else {
 			$log_message = sprintf(
 				// translators: %1$s: alert name; %2$s: order id.
@@ -990,31 +994,94 @@ class Paypal extends \WC_Payment_Gateway {
 	/**
 	 * Handle transaction event from PayPal.
 	 *
-	 * @param array       $webhook_data Webhook data from PayPal.
-	 * @param WC_Order    $order Order object.
-	 * @param string|null $transaction_id Transaction ID from webhook data.
-	 * @param string|null $subscription_id Subscription ID from webhook data.
+	 * @param array         $webhook_data    Webhook data from PayPal.
+	 * @param WC_Order|null $order           Order object, or null if not yet resolved by transaction ID.
+	 * @param string|null   $transaction_id  Transaction ID from webhook data.
+	 * @param string|null   $subscription_id PayPal subscription ID from webhook data.
+	 * @param int|null      $wpsubs_id       WP subscription post ID resolved from mapping table.
 	 */
-	public function handle_transaction_event( array $webhook_data, WC_Order $order, ?string $transaction_id, ?string $subscription_id ) {
+	public function handle_transaction_event( array $webhook_data, ?WC_Order $order, ?string $transaction_id, ?string $subscription_id, ?int $wpsubs_id = null ) {
 		// Get event type.
 		$event = $webhook_data['event_type'] ?? 'N/A';
 
-		if ( ! $order ) {
-			$log_message = sprintf(
-				// translators: %1$s: alert name; %2$s: subscription id.
-				__( 'Transaction webhook received [%1$s]. No order found for subscription #%2$s.', 'subscription' ),
-				$event,
-				$subscription_id
-			);
-			subscrpt_write_log( $log_message );
-			subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
-			wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
-		}
-
 		switch ( $event ) {
 			case 'PAYMENT.SALE.COMPLETED':
+				// If order was found by transaction_id and is already completed, this is a duplicate delivery.
+				if ( $order && $order->has_status( 'completed' ) ) {
+					$log_message = sprintf(
+						// translators: %s: transaction id.
+						__( 'Transaction webhook [PAYMENT.SALE.COMPLETED] already processed for transaction #%s. Skipping.', 'subscription' ),
+						$transaction_id
+					);
+					subscrpt_write_log( $log_message );
+					wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
+				}
+
+				// Resolve order via subscription when not found by transaction_id.
+				if ( ! $order && $wpsubs_id ) {
+					$related      = Helper::get_related_orders( $wpsubs_id );
+					$latest_row   = ! empty( $related ) ? reset( $related ) : null;
+					$latest_order = $latest_row ? wc_get_order( (int) $latest_row->order_id ) : null;
+
+					if ( $latest_order ) {
+						$existing_txn = $latest_order->get_transaction_id();
+
+						if ( $existing_txn && $existing_txn === $transaction_id ) {
+							// Same transaction already on the order — duplicate delivery.
+							$log_message = sprintf(
+								// translators: %s: transaction id.
+								__( 'Transaction webhook [PAYMENT.SALE.COMPLETED] already processed for transaction #%s. Skipping.', 'subscription' ),
+								$transaction_id
+							);
+							subscrpt_write_log( $log_message );
+							wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
+						} elseif ( $existing_txn && $existing_txn !== $transaction_id ) {
+							// Order already has a different transaction — this is a renewal payment.
+							$order = Helper::create_renewal_order( $wpsubs_id );
+						} else {
+							// No transaction ID yet — initial payment arriving before or after thank-you page.
+							$order = $latest_order;
+						}
+					}
+				}
+
+				if ( ! $order ) {
+					$log_message = sprintf(
+						// translators: %1$s: event; %2$s: subscription id.
+						__( 'Transaction webhook received [%1$s]. No order found for subscription #%2$s.', 'subscription' ),
+						$event,
+						$subscription_id
+					);
+					subscrpt_write_log( $log_message );
+					subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+					wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
+				}
+
+				if ( ! $order instanceof \WC_Order ) {
+					$log_message = sprintf(
+						// translators: %s: subscription id.
+						__( 'Transaction webhook received [PAYMENT.SALE.COMPLETED]. Failed to create renewal order for subscription #%s.', 'subscription' ),
+						$wpsubs_id
+					);
+					subscrpt_write_log( $log_message );
+					subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+					wp_die( esc_html( $log_message ), '500 Internal Error', array( 'response' => 500 ) );
+				}
+
+				$order->set_transaction_id( $transaction_id );
+
+				// If already completed (e.g. thank-you page ran first), just record the transaction ID.
+				if ( $order->has_status( 'completed' ) ) {
+					$order->add_order_note( __( 'PayPal transaction ID recorded by webhook.', 'subscription' ) );
+					$order->save();
+
+					// translators: %s: alert name.
+					$log_message = sprintf( __( 'Transaction webhook received [%s]. Order already completed; transaction ID updated.', 'subscription' ), $event );
+					subscrpt_write_log( $log_message );
+					wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
+				}
+
 				if ( $order->update_status( 'completed' ) ) {
-					$order->set_transaction_id( $transaction_id );
 					$order->add_order_note( __( 'Payment completed by paypal webhook.', 'subscription' ) );
 					$order->save();
 
@@ -1034,6 +1101,18 @@ class Paypal extends \WC_Payment_Gateway {
 				break;
 
 			case 'PAYMENT.SALE.REFUNDED':
+				if ( ! $order ) {
+					$log_message = sprintf(
+						// translators: %1$s: event; %2$s: subscription id.
+						__( 'Transaction webhook received [%1$s]. No order found for subscription #%2$s.', 'subscription' ),
+						$event,
+						$subscription_id
+					);
+					subscrpt_write_log( $log_message );
+					subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+					wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
+				}
+
 				$refund_amount = (float) ( $webhook_data['resource']['amount']['total'] ?? 0 );
 				$order_total   = (float) $order->get_total();
 				$is_full       = $refund_amount >= $order_total;
@@ -1074,62 +1153,67 @@ class Paypal extends \WC_Payment_Gateway {
 	/**
 	 * Handle subscription event from PayPal.
 	 *
-	 * @param array       $webhook_data Webhook data from PayPal.
-	 * @param WC_Order    $order Order object.
-	 * @param string|null $transaction_id Transaction ID from webhook data.
-	 * @param string|null $paypal_subscription_id Subscription ID from webhook data.
+	 * @param array         $webhook_data           Webhook data from PayPal.
+	 * @param WC_Order|null $order                  Order object, or null when resolved via $wpsubs_id.
+	 * @param string|null   $transaction_id          Transaction ID from webhook data.
+	 * @param string|null   $paypal_subscription_id  PayPal subscription ID from webhook data.
+	 * @param int|null      $wpsubs_id               WP subscription post ID resolved from mapping table.
 	 */
-	public function handle_subscription_event( array $webhook_data, WC_Order $order, ?string $transaction_id, ?string $paypal_subscription_id ) {
+	public function handle_subscription_event( array $webhook_data, ?WC_Order $order, ?string $transaction_id, ?string $paypal_subscription_id, ?int $wpsubs_id = null ) {
 		// Get event type.
 		$event = $webhook_data['event_type'] ?? 'N/A';
 
-		// Subscription.
-		$subscription = Helper::get_subscriptions_from_order( $order );
+		if ( ! $wpsubs_id ) {
+			// Subscription.
+			$subscription = Helper::get_subscriptions_from_order( $order );
 
-		// If no subscription, try to get from order item.
-		if ( empty( $subscription ) ) {
-			$log_message = sprintf(
+			// If no subscription, try to get from order item.
+			if ( empty( $subscription ) ) {
+				$log_message = sprintf(
 				// translators: %s: alert name.
-				__( 'Subscription webhook received [%s]. Subscription not found. Attempting to get from order item.', 'subscription' ),
-				$event
-			);
-			subscrpt_write_log( $log_message );
-			subscrpt_write_debug_log( $log_message );
+					__( 'Subscription webhook received [%s]. Subscription not found. Attempting to get from order item.', 'subscription' ),
+					$event
+				);
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message );
 
-			$order_items = $order->get_items();
-			foreach ( $order_items as $item ) {
-				$tmp_subs = Helper::get_subscription_from_order_item_id( $item->get_id() );
+				$order_items = $order->get_items();
+				foreach ( $order_items as $item ) {
+					$tmp_subs = Helper::get_subscription_from_order_item_id( $item->get_id() );
 
-				if ( ! empty( $tmp_subs ) ) {
-					$subscription = $tmp_subs;
+					if ( ! empty( $tmp_subs ) ) {
+						$subscription = $tmp_subs;
 
-					if ( ! empty( $subscription->subscription_id ?? null ) ) {
-						$log_message = sprintf(
-							// translators: %s: subscription id.
-							__( 'Subscription found [ID: %s]. Processing webhook.', 'subscription' ),
-							$subscription->subscription_id
-						);
-						subscrpt_write_log( $log_message );
-						subscrpt_write_debug_log( $log_message );
+						if ( ! empty( $subscription->subscription_id ?? null ) ) {
+							$log_message = sprintf(
+								// translators: %s: subscription id.
+								__( 'Subscription found [ID: %s]. Processing webhook.', 'subscription' ),
+								$subscription->subscription_id
+							);
+							subscrpt_write_log( $log_message );
+							subscrpt_write_debug_log( $log_message );
+						}
+						break;
 					}
-					break;
 				}
 			}
-		}
 
-		// If still no subscription, exit.
-		if ( empty( $subscription ) || empty( $subscription->subscription_id ?? null ) ) {
-			$log_message = sprintf(
+			// If still no subscription, exit.
+			if ( empty( $subscription ) || empty( $subscription->subscription_id ?? null ) ) {
+				$log_message = sprintf(
 					// translators: %s: alert name.
-				__( 'Subscription webhook received [%s]. Subscription not found. Stopping Process.', 'subscription' ),
-				$event,
-			);
-			subscrpt_write_log( $log_message );
-			subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
-			wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
-		}
+					__( 'Subscription webhook received [%s]. Subscription not found. Stopping Process.', 'subscription' ),
+					$event,
+				);
+				subscrpt_write_log( $log_message );
+				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+				wp_die( esc_html( $log_message ), '404 not found', array( 'response' => 404 ) );
+			}
 
-		$subscription_id = $subscription->subscription_id;
+			$subscription_id = $subscription->subscription_id;
+		} else {
+			$subscription_id = $wpsubs_id;
+		}
 
 		switch ( $event ) {
 			case 'BILLING.SUBSCRIPTION.ACTIVATED':
