@@ -410,8 +410,10 @@ class Paypal extends \WC_Payment_Gateway {
 		$paypal_order_data = ! empty( $paypal_token ) ? $this->get_paypal_order( $paypal_token ) : null;
 
 		// Fallback to check PayPal Order if Subscription is not available.
-		if ( ! $paypal_payment_approved && $paypal_order_data ) {
-			if ( in_array( $paypal_order_data->status ?? '', [ 'APPROVED', 'COMPLETED' ], true ) ) {
+		if ( ! $paypal_payment_approved && ! empty( $paypal_token ) ) {
+			$paypal_order_data = $this->get_paypal_order( $paypal_token );
+
+			if ( $paypal_order_data && in_array( $paypal_order_data->status ?? '', [ 'APPROVED', 'COMPLETED' ], true ) ) {
 				$paypal_payment_approved = true;
 			}
 		}
