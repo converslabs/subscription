@@ -418,6 +418,30 @@ class Paypal extends \WC_Payment_Gateway {
 		if ( $paypal_payment_approved ) {
 			$order->update_status( 'completed', __( 'PayPal payment completed successfully.', 'subscription' ) );
 			$order->save();
+
+			// Pre-populate mapping table so the first webhook can resolve without the slow order-meta fallback query.
+			if ( ! empty( $paypal_subscription_id ) ) {
+				$subscriptions = Helper::get_subscriptions_from_order( $order_id );
+				$subscription  = ! empty( $subscriptions ) ? reset( $subscriptions ) : null;
+
+				if ( ! $subscription ) {
+					foreach ( $order->get_items() as $item ) {
+						$tmp = Helper::get_subscription_from_order_item_id( $item->get_id() );
+						if ( ! empty( $tmp ) ) {
+							$subscription = $tmp;
+							break;
+						}
+					}
+				}
+
+				if ( $subscription ) {
+					PaypalDB::upsert_mapping(
+						$paypal_subscription_id,
+						(int) $subscription->subscription_id,
+						(int) $order_id
+					);
+				}
+			}
 		}
 	}
 
@@ -510,6 +534,16 @@ class Paypal extends \WC_Payment_Gateway {
 			$chk_subscriptions = $chk_order ? Helper::get_subscriptions_from_order( $chk_order->get_id() ) : null;
 			$chk_subscription  = ! empty( $chk_subscriptions ) ? reset( $chk_subscriptions ) : null;
 
+			if ( ! $chk_subscription && $chk_order ) {
+				foreach ( $chk_order->get_items() as $item ) {
+					$tmp = Helper::get_subscription_from_order_item_id( $item->get_id() );
+					if ( ! empty( $tmp ) ) {
+						$chk_subscription = $tmp;
+						break;
+					}
+				}
+			}
+
 			// Update mapping table.
 			if ( ! empty( $chk_subscription ) ) {
 				PaypalDB::upsert_mapping(
@@ -534,21 +568,6 @@ class Paypal extends \WC_Payment_Gateway {
 
 			if ( ! empty( $orders ) ) {
 				$order = reset( $orders );
-			}
-		}
-
-		// Add mapping on first order.
-		if ( ! empty( $order ) && empty( $wp_subscription_id ) && ! empty( $paypal_subscription_id ) ) {
-			$chk_subscriptions = Helper::get_subscriptions_from_order( $order->get_id() );
-			$chk_subscription  = ! empty( $chk_subscriptions ) ? reset( $chk_subscriptions ) : null;
-
-			// Update mapping table.
-			if ( ! empty( $chk_subscription ) ) {
-				PaypalDB::upsert_mapping(
-					$paypal_subscription_id,
-					(int) $chk_subscription->subscription_id,
-					(int) $order->get_id()
-				);
 			}
 		}
 
