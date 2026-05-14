@@ -406,9 +406,6 @@ class Paypal extends \WC_Payment_Gateway {
 			}
 		}
 
-		// Always fetch PayPal order when token is available — used for both approval fallback and transaction ID extraction.
-		$paypal_order_data = ! empty( $paypal_token ) ? $this->get_paypal_order( $paypal_token ) : null;
-
 		// Fallback to check PayPal Order if Subscription is not available.
 		if ( ! $paypal_payment_approved && ! empty( $paypal_token ) ) {
 			$paypal_order_data = $this->get_paypal_order( $paypal_token );
