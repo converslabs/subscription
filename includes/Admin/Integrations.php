@@ -202,7 +202,7 @@ class Integrations {
 	protected function get_integrations(): array {
 		$integrations = [
 			[
-				'title'              => 'PayPal for WP Subscription',
+				'title'              => 'PayPal',
 				'description'        => 'Accept subscription payments via PayPal.',
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/paypal.svg',
 				'is_installed'       => 'on' === get_option( 'wp_subs_paypal_integration_enabled', 'off' ),
