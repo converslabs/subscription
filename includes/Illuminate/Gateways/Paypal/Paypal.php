@@ -1037,6 +1037,11 @@ class Paypal extends \WC_Payment_Gateway {
 						} elseif ( $existing_txn && $existing_txn !== $transaction_id ) {
 							// Order already has a different transaction — this is a renewal payment.
 							$order = Helper::create_renewal_order( $wpsubs_id );
+							if ( $order ) {
+								// translators: %s: transaction id.
+								$order->add_order_note( sprintf( __( 'Renewal order created by PayPal webhook. Transaction ID: %s', 'subscription' ), $transaction_id ) );
+								$order->save();
+							}
 						} else {
 							// No transaction ID yet — initial payment arriving before or after thank-you page.
 							$order = $latest_order;
