@@ -90,6 +90,16 @@ class Menu {
 			array( $this, 'render_stats_page' )
 		);
 
+		// Subscription Health
+		add_submenu_page(
+			$parent_slug,
+			__( 'Health', 'subscription' ),
+			__( 'Health', 'subscription' ),
+			'manage_woocommerce',
+			'wp-subscription-health',
+			array( $this, 'render_health_page' )
+		);
+
 		/*
 		! For god's sake, check existing code before implementing!
 		// Settings
@@ -154,6 +164,11 @@ class Menu {
 				'slug'  => 'wp-subscription-stats',
 				'label' => __( 'Reports', 'subscription' ),
 				'url'   => admin_url( 'admin.php?page=wp-subscription-stats' ),
+			],
+			[
+				'slug'  => 'wp-subscription-health',
+				'label' => __( 'Health', 'subscription' ),
+				'url'   => admin_url( 'admin.php?page=wp-subscription-health' ),
 			],
 			[
 				'slug'  => 'wp-subscription-settings',
@@ -404,33 +419,42 @@ class Menu {
 	public function render_stats_page() {
 		$this->render_admin_header();
 
-		if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) {
-			?>
-			<div class="wp-subscription-admin-content" style="max-width:1240px;margin:32px auto 0 auto">
-				<div class="wp-subscription-hero-upgrade" style="margin-bottom:18px;">
-					<div class="wp-subscription-hero-content">
-						<span class="wp-subscription-hero-icon">✨</span>
-						<span class="wp-subscription-hero-title">
-							Unlock advanced features, priority support,<br>
-							and more subscription control and reporting.
-						</span>
-					</div>
-					<a href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro"
-					target="_blank"
-					class="wp-subscription-hero-btn">
-						UPGRADE TO PRO
-					</a>
-				</div>
-			</div>
-			<?php
+		if ( ! subscrpt_pro_activated() ) {
+			$args            = [
+				'preview_image_url' => SUBSCRPT_ASSETS . '/images/previews/reports-page-preview.png',
+				'cta_title'         => __( 'Unlock Subscription Reports', 'subscription' ),
+				'cta_description'   => __( 'Subscription Reports require WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro.', 'subscription' ),
+			];
+			$preview_content = subscrpt_render_page_preview( $args );
+			echo $preview_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is already escaped. Re-escaping will break the HTML structure.
 		} else {
 			// Allow pro plugin to override the entire stats page content.
 			do_action( 'subscrpt_render_stats_page' );
 		}
 
 		$this->render_admin_footer();
+	}
 
-		return;
+	/**
+	 * Render Health page
+	 */
+	public function render_health_page() {
+		$this->render_admin_header();
+
+		if ( ! subscrpt_pro_activated() ) {
+			$args            = [
+				'preview_image_url' => SUBSCRPT_ASSETS . '/images/previews/subscrpt-health-preview.png',
+				'cta_title'         => __( 'Unlock Subscription Health', 'subscription' ),
+				'cta_description'   => __( 'Subscription Health requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro.', 'subscription' ),
+			];
+			$preview_content = subscrpt_render_page_preview( $args );
+			echo $preview_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is already escaped. Re-escaping will break the HTML structure.
+		} else {
+			// Allow pro plugin to render the full health page content.
+			do_action( 'subscrpt_render_health_page' );
+		}
+
+		$this->render_admin_footer();
 	}
 
 	/**
