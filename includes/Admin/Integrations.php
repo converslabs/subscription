@@ -34,7 +34,7 @@ class Integrations {
 		add_filter( 'subscrpt_admin_header_menu_items', [ $this, 'add_integrations_menu_item' ], 10, 2 );
 
 		// Enqueue integrations scripts.
-		// add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_integrations_scripts' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_integrations_scripts' ] );
 
 		// Integrations AJAX handler.
 		// add_action( 'admin_ajax_integrations_handler', [ $this,'integrations_handler_callback' ] );
@@ -86,14 +86,19 @@ class Integrations {
 	 * Enqueue scripts for integrations page.
 	 */
 	public function enqueue_integrations_scripts() {
-		wp_enqueue_script( 'wp-subs-integrations', SUBSCRPT_ASSETS . '/js/integration_settings.js', [ 'jquery' ], SUBSCRPT_VERSION, true );
+		$screen = get_current_screen();
+		if ( ! $screen || false === strpos( $screen->id, 'wp-subscription-integrations' ) ) {
+			return;
+		}
+
+		wp_enqueue_script( 'subscrpt-integrations', SUBSCRPT_ASSETS . '/js/integration_settings.js', [], SUBSCRPT_VERSION, true );
 
 		wp_localize_script(
-			'wp-subs-integrations',
-			'wpSubsIntegrations',
+			'subscrpt-integrations',
+			'subscrptIntegrations',
 			array(
-				'nonce'    => wp_create_nonce( 'wp_subs_integrations_nonce' ),
-				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'subscrpt_integration_install_nonce' ),
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			)
 		);
 	}
@@ -202,7 +207,7 @@ class Integrations {
 	protected function get_integrations(): array {
 		$integrations = [
 			[
-				'title'              => 'PayPal for WP Subscription',
+				'title'              => 'PayPal',
 				'description'        => 'Accept subscription payments via PayPal.',
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/paypal.svg',
 				'is_installed'       => 'on' === get_option( 'wp_subs_paypal_integration_enabled', 'off' ),
@@ -239,10 +244,10 @@ class Integrations {
 				'supports_recurring' => true,
 				'actions'            => [
 					[
-						'action' => 'install',
-						'label'  => 'Install Now',
-						'type'   => 'link',
-						'url'    => admin_url( 'plugin-install.php?s=WooCommerce%2520Stripe%2520Payment%2520Gateway&tab=search&type=term' ),
+						'action'   => 'install',
+						'label'    => 'Install Now',
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'woocommerce-gateway-stripe')",
 					],
 					[
 						'action' => 'settings',
@@ -262,9 +267,9 @@ class Integrations {
 				'actions'            => [
 					[
 						'action' => 'install',
-						'label'  => 'Install Now',
-						'type'   => 'link',
-						'url'    => admin_url( 'plugin-install.php?s=WooCommerce%2520Stripe%2520Payment%2520Gateway&tab=search&type=term' ),
+						'label'  => 'Get Paddle',
+						'type'   => 'external_link',
+						'url'    => 'https://wpsmartpay.com/paddle-for-woocommerce/',
 					],
 					[
 						'action'     => 'enable',
@@ -352,6 +357,10 @@ class Integrations {
 	 * Render the Integrations admin page.
 	 */
 	public function render_integrations_page() {
+		if ( ! empty( $_GET['subscrpt_installed'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Plugin installed and activated successfully.', 'subscription' ) . '</p></div>';
+		}
+
 		$integrations = $this->integrations;
 		$integrations = $this->filter_integration_actions( $integrations );
 
