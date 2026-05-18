@@ -13,9 +13,8 @@ class Assets {
 	public function __construct() {
 		if ( is_admin() ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'register' ), 5 );
-
-			// Enqueue Tailwind CSS for admin pages of WPSubscription.
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_tailwind_css' ), 5 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_components' ), 6 );
 		} else {
 			add_action( 'wp_enqueue_scripts', array( $this, 'register' ), 5 );
 		}
@@ -115,13 +114,16 @@ class Assets {
 		$plugin_css_assets_path = SUBSCRPT_ASSETS . '/css/';
 
 		$styles = array(
-			'subscrpt_admin_css'  => array(
+			'subscrpt_admin_css'        => array(
 				'src' => $plugin_css_assets_path . 'admin.css',
 			),
-			'subscrpt_status_css' => array(
+			'subscrpt_admin_components' => array(
+				'src' => $plugin_css_assets_path . 'admin-components.css',
+			),
+			'subscrpt_status_css'       => array(
 				'src' => $plugin_css_assets_path . 'status.css',
 			),
-			'sdevs_installer'     => array(
+			'sdevs_installer'           => array(
 				'src' => $plugin_css_assets_path . 'installer.css',
 			),
 		);
@@ -137,5 +139,19 @@ class Assets {
 	public function enqueue_tailwind_css( $hook ) {
 		$is_wpsubs_admin_page = str_starts_with( $hook, 'wp-subscription_page' );
 		$is_wpsubs_admin_page && subscrpt_include_tailwind_css();
+	}
+
+	/**
+	 * Enqueue admin component styles on all WP Subscription admin pages.
+	 *
+	 * @param string $hook The current admin page hook.
+	 */
+	public function enqueue_admin_components( $hook ) {
+		$is_main_page = 'toplevel_page_wp-subscription' === $hook;
+		$is_sub_page  = str_starts_with( $hook, 'wp-subscription_page' );
+
+		if ( $is_main_page || $is_sub_page ) {
+			wp_enqueue_style( 'subscrpt_admin_components' );
+		}
 	}
 }
