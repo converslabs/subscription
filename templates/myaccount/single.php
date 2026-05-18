@@ -301,7 +301,9 @@ do_action( 'before_single_subscrpt_content', $id );
 			<td class="product-total">
 				<span class="woocommerce-Price-amount amount">
 					<?php
-					echo wp_kses_post( Helper::format_price_with_order_item( get_post_meta( $id, '_subscrpt_price', true ), $order_item->get_id() ) );
+					$unit_price    = (float) get_post_meta( $id, '_subscrpt_price', true );
+					$display_price = $unit_price * max( 1, (int) $order_item->get_quantity() );
+					echo wp_kses_post( Helper::format_price_with_order_item( $display_price, $order_item->get_id() ) );
 					?>
 				</span>
 			</td>
