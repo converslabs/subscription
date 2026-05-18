@@ -149,63 +149,41 @@ class Menu {
 		<?php
 	}
 	/**
-	 * Render the admin header
+	 * Render the admin header.
+	 *
+	 * @param string $title    Page title shown on the left.
+	 * @param string $subtitle Optional subtitle shown below the title.
 	 */
-	public function render_admin_header() {
-		// Get current page slug
-		$current    = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-subscription';
-		$menu_items = [
-			[
-				'slug'  => 'wp-subscription',
-				'label' => __( 'Subscriptions', 'subscription' ),
-				'url'   => admin_url( 'admin.php?page=wp-subscription' ),
-			],
-			[
-				'slug'  => 'wp-subscription-stats',
-				'label' => __( 'Reports', 'subscription' ),
-				'url'   => admin_url( 'admin.php?page=wp-subscription-stats' ),
-			],
-			[
-				'slug'  => 'wp-subscription-health',
-				'label' => __( 'Health', 'subscription' ),
-				'url'   => admin_url( 'admin.php?page=wp-subscription-health' ),
-			],
-			[
-				'slug'  => 'wp-subscription-settings',
-				'label' => __( 'Settings', 'subscription' ),
-				'url'   => admin_url( 'admin.php?page=wp-subscription-settings' ),
-			],
-		];
-		// Allow pro plugin to inject menu items
-		$menu_items = apply_filters( 'subscrpt_admin_header_menu_items', $menu_items, $current );
-		$menu_items = array_merge(
-			$menu_items,
-			[
-				[
-					'slug'  => 'wp-subscription-support',
-					'label' => __( 'Support', 'subscription' ),
-					'url'   => admin_url( 'admin.php?page=wp-subscription-support' ),
-				],
-			]
-		);
+	public function render_admin_header( string $title = '', string $subtitle = '' ) {
+		$current = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-subscription';
+
+		// Kept for backward compatibility — extensions may hook here for side-effects.
+		$menu_items = apply_filters( 'subscrpt_admin_header_menu_items', [], $current );
+		unset( $menu_items ); // Nav no longer rendered in header; navigation is in WP sidebar.
 		?>
 		<div class="wp-subscription-admin-header">
-			<div style="width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;">
-				<div class="wp-subscription-admin-header-left" style="display:flex;align-items:center;gap:14px;">
-					<img style="height:30px;" src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/logo-title.svg' ); ?>" alt="WP Subscription" class="wp-subscription-logo">
-					<nav class="wp-subscription-admin-header-menu">
-						<?php foreach ( $menu_items as $item ) : ?>
-							<a href="<?php echo esc_url( $item['url'] ); ?>" class="<?php echo ( $current === $item['slug'] ) ? 'current' : ''; ?>">
-								<?php echo esc_html( $item['label'] ); ?>
-							</a>
-						<?php endforeach; ?>
-					</nav>
-				</div>
-				<div class="wp-subscription-admin-header-right">
-					<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
-					<a target="_blank" href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" class="wp-subscription-upgrade-btn"><?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?></a>
+			<div class="wp-subscription-admin-header-inner">
+			<div class="wp-subscription-admin-header-left">
+				<nav class="wp-subscription-breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'subscription' ); ?>">
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription' ) ); ?>" class="wp-subscription-breadcrumb-home" aria-label="<?php esc_attr_e( 'WPSubscription Home', 'subscription' ); ?>">
+						<span class="dashicons dashicons-admin-home"></span>
+					</a>
+					<?php if ( $title ) : ?>
+						<span class="wp-subscription-breadcrumb-sep" aria-hidden="true">/</span>
+						<span class="wp-subscription-breadcrumb-current"><?php echo esc_html( $title ); ?></span>
 					<?php endif; ?>
-				</div>
+				</nav>
+			</div>
+			<div class="wp-subscription-admin-header-right">
+				<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
+					<a target="_blank" href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" class="wp-subscription-upgrade-btn"><?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?></a>
+				<?php endif; ?>
+				<a href="https://docs.converslabs.com/en" target="_blank" rel="noopener noreferrer" class="wp-subscription-help-btn">
+					<span class="dashicons dashicons-editor-help"></span>
+					<?php esc_html_e( 'Help', 'subscription' ); ?>
+				</a>
+				<img src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/logo-title.svg' ); ?>" alt="WP Subscription" class="wp-subscription-logo">
+			</div>
 			</div>
 		</div>
 		<?php
@@ -215,7 +193,7 @@ class Menu {
 	 * Render Subscriptions page
 	 */
 	public function render_subscriptions_page() {
-		$this->render_admin_header();
+		$this->render_admin_header( __( 'Subscriptions', 'subscription' ), __( 'Manage your subscriptions', 'subscription' ) );
 
 		// Handle filters
 		$status      = isset( $_GET['subscrpt_status'] ) ? sanitize_text_field( wp_unslash( $_GET['subscrpt_status'] ) ) : '';
@@ -417,7 +395,7 @@ class Menu {
 	 * Render Stats page
 	 */
 	public function render_stats_page() {
-		$this->render_admin_header();
+		$this->render_admin_header( __( 'Reports', 'subscription' ), __( 'View your subscription analytics', 'subscription' ) );
 
 		if ( ! subscrpt_pro_activated() ) {
 			$args            = [
@@ -439,7 +417,7 @@ class Menu {
 	 * Render Health page
 	 */
 	public function render_health_page() {
-		$this->render_admin_header();
+		$this->render_admin_header( __( 'Health', 'subscription' ), __( 'Monitor your subscription health', 'subscription' ) );
 
 		if ( ! subscrpt_pro_activated() ) {
 			$args            = [
@@ -461,7 +439,7 @@ class Menu {
 	 * Render Support page
 	 */
 	public function render_support_page() {
-		$this->render_admin_header();
+		$this->render_admin_header( __( 'Support', 'subscription' ), __( 'Get help and resources', 'subscription' ) );
 		?>
 		<div class="wp-subscription-admin-content" style="max-width:1240px;margin:32px auto 0 auto">
 			<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
