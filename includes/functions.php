@@ -12,6 +12,9 @@ use SpringDevs\Subscription\Utils\Product;
  * *
  * * Use "`yarn build:tailwind`" to build the tailwind CSS file.
  * * Use "`yarn watch:tailwind`" to continuously build the tailwind CSS file.
+ *
+ * ? This stylesheet is added to the all admin pages of the plugin.
+ * ? You can use this function to add the stylesheet on other pages if necessary.
  */
 function subscrpt_include_tailwind_css() {
 	wp_enqueue_style( 'wpsubs-tailwind', SUBSCRPT_ASSETS . '/css/tailwind/output.css', [], SUBSCRPT_VERSION );

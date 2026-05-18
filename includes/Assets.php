@@ -13,6 +13,9 @@ class Assets {
 	public function __construct() {
 		if ( is_admin() ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'register' ), 5 );
+
+			// Enqueue Tailwind CSS for admin pages of WPSubscription.
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_tailwind_css' ), 5 );
 		} else {
 			add_action( 'wp_enqueue_scripts', array( $this, 'register' ), 5 );
 		}
@@ -124,5 +127,15 @@ class Assets {
 		);
 
 		return $styles;
+	}
+
+	/**
+	 * Enqueue Tailwind CSS for admin pages of WPSubscription.
+	 *
+	 * @param string $hook The current admin page hook.
+	 */
+	public function enqueue_tailwind_css( $hook ) {
+		$is_wpsubs_admin_page = str_starts_with( $hook, 'wp-subscription_page' );
+		$is_wpsubs_admin_page && subscrpt_include_tailwind_css();
 	}
 }
