@@ -511,7 +511,6 @@ input[type="checkbox"].wpsubs-checkbox:focus {
   background: var(--wpsubs-surface);
   border: 1px solid var(--wpsubs-border);
   border-radius: var(--wpsubs-radius);
-  overflow: hidden;
   box-shadow: var(--wpsubs-shadow);
 }
 
@@ -520,7 +519,8 @@ input[type="checkbox"].wpsubs-checkbox:focus {
    -------------------------------------------------------------------------- */
 .wpsubs-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 13.5px;
   margin: 0;
 }
@@ -528,7 +528,6 @@ input[type="checkbox"].wpsubs-checkbox:focus {
 /* Header */
 .wpsubs-table thead {
   background: var(--wpsubs-surface-muted);
-  border-bottom: 1px solid var(--wpsubs-border);
 }
 
 .wpsubs-table thead th {
@@ -542,8 +541,17 @@ input[type="checkbox"].wpsubs-checkbox:focus {
   white-space: nowrap;
   background: transparent;
   border: none;
+  border-bottom: 1px solid var(--wpsubs-border);
   box-shadow: none;
   vertical-align: middle;
+}
+
+/* Round the thead top corners so they follow the card's border-radius */
+.wpsubs-table thead tr:first-child th:first-child {
+  border-top-left-radius: calc(var(--wpsubs-radius) - 1px);
+}
+.wpsubs-table thead tr:first-child th:last-child {
+  border-top-right-radius: calc(var(--wpsubs-radius) - 1px);
 }
 
 /* Column modifiers */
@@ -561,13 +569,8 @@ input[type="checkbox"].wpsubs-checkbox:focus {
 
 /* Body rows */
 .wpsubs-table tbody tr {
-  border-bottom: 1px solid var(--wpsubs-border);
   transition: background 0.1s;
   background: transparent;
-}
-
-.wpsubs-table tbody tr:last-child {
-  border-bottom: none;
 }
 
 .wpsubs-table tbody tr:hover {
@@ -578,13 +581,18 @@ input[type="checkbox"].wpsubs-checkbox:focus {
   background: var(--wpsubs-brand-light);
 }
 
-/* Cells */
+/* Cells — border on td instead of tr (required for border-collapse: separate) */
 .wpsubs-table td {
   padding: 18px;
   color: var(--wpsubs-text);
   vertical-align: middle;
   border: none;
+  border-bottom: 1px solid var(--wpsubs-border);
   box-shadow: none;
+}
+
+.wpsubs-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .wpsubs-table td.wpsubs-col--check {

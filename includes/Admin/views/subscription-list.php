@@ -167,7 +167,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 				)
 			);
 			?>
-			<button type="submit" name="bulk_action" id="wpsubs-bulk-action-submit" style="display:none;" aria-hidden="true"></button>
+			<button type="submit" name="bulk_action" value="1" id="wpsubs-bulk-action-submit" style="display:none;" aria-hidden="true"></button>
 
 			<?php
 			if ( 'trash' === $status && ! empty( $subscriptions ) ) :
