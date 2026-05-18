@@ -189,7 +189,8 @@ for ( $i = 0; $i < 12; $i++ ) {
 						</th>
 						<th><?php esc_html_e( 'Subscription', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Product', 'subscription' ); ?></th>
-						<th><?php esc_html_e( 'Status', 'subscription' ); ?></th>
+						<th><?php esc_html_e( 'Customer', 'subscription' ); ?></th>
+						<th><?php esc_html_e( 'Amount', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Started', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Next Renewal', 'subscription' ); ?></th>
 						<th class="wpsubs-col--actions"></th>
@@ -212,6 +213,9 @@ for ( $i = 0; $i < 12; $i++ ) {
 						$order_item    = $order ? $order->get_item( $order_item_id ) : null;
 						$product_name  = $order_item ? $order_item->get_name() : '-';
 
+						$product_id  = $subscription_data['product']['variation_id'] ?: ( $subscription_data['product']['product_id'] ?? 0 );
+						$product_url = $product_id ? get_edit_post_link( $product_id ) : '';
+
 						$customer       = $order ? $order->get_formatted_billing_full_name() : '-';
 						$customer_id    = $order ? $order->get_customer_id() : 0;
 						$customer_url   = $customer_id ? admin_url( 'user-edit.php?user_id=' . $customer_id ) : '';
@@ -224,7 +228,18 @@ for ( $i = 0; $i < 12; $i++ ) {
 						$is_grace_period = isset( $subscription_data['grace_period'] );
 						$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
 
-						// Avatar: derive initials + deterministic color slot (0-7)
+						// Amount + timing
+						$price         = $subscription_data['price'] ?? '';
+						$timing_per    = $subscription_data['schedule']['timing_per'] ?? '';
+						$timing_option = $subscription_data['schedule']['timing_option'] ?? '';
+						$timing_label  = '';
+						if ( $timing_per && $timing_option ) {
+							$timing_label = ( (int) $timing_per > 1 )
+								? $timing_per . ' ' . $timing_option . 's'
+								: $timing_option;
+						}
+
+						// Avatar
 						$name_parts = array_values( array_filter( explode( ' ', trim( $customer ) ) ) );
 						$initials   = '?';
 						if ( $name_parts ) {
@@ -244,12 +259,13 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 						// Status badge
 						$badge_mod_map  = array(
-							'active'    => 'active',
-							'pending'   => 'pending',
-							'cancelled' => 'cancelled',
-							'expired'   => 'expired',
-							'draft'     => 'draft',
-							'trash'     => 'trash',
+							'active'       => 'active',
+							'pending'      => 'pending',
+							'pe_cancelled' => 'pending-cancel',
+							'cancelled'    => 'cancelled',
+							'expired'      => 'expired',
+							'draft'        => 'draft',
+							'trash'        => 'trash',
 						);
 						$badge_mod      = $badge_mod_map[ $subscrpt_status ] ?? 'expired';
 						$verbose_status = SpringDevs\Subscription\Illuminate\Helper::get_verbose_status( $subscrpt_status );
@@ -260,10 +276,35 @@ for ( $i = 0; $i < 12; $i++ ) {
 						}
 						?>
 					<tr>
+						<!-- Checkbox -->
 						<td class="wpsubs-col--check">
 							<input type="checkbox" name="subscription_ids[]" value="<?php echo esc_attr( $subscription->ID ); ?>" class="wpsubs-checkbox wpsubs-row-check">
 						</td>
 
+						<!-- Subscription ID + Status badge -->
+						<td>
+							<a href="<?php echo esc_url( $view_url ); ?>" class="wpsubs-cell-title"><?php echo esc_html( get_the_title( $subscription->ID ) ); ?></a>
+							<span class="wpsubs-badge wpsubs-badge--<?php echo esc_attr( $badge_mod ); ?>" style="margin-top:4px;">
+								<?php echo esc_html( $verbose_status ); ?>
+								<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
+									<span class="dashicons dashicons-warning" style="font-size:11px;width:11px;height:11px;color:#d97706;" title="<?php echo esc_attr( sprintf( __( '%d days remaining in grace period', 'subscription' ), $grace_remaining ) ); ?>"></span>
+								<?php endif; ?>
+							</span>
+						</td>
+
+						<!-- Product name + Product ID -->
+						<td>
+							<?php if ( $product_url ) : ?>
+								<a href="<?php echo esc_url( $product_url ); ?>" class="wpsubs-cell-title"><?php echo esc_html( $product_name ); ?></a>
+							<?php else : ?>
+								<span class="wpsubs-cell-title"><?php echo esc_html( $product_name ); ?></span>
+							<?php endif; ?>
+							<?php if ( $product_id ) : ?>
+								<span class="wpsubs-cell-id">#<?php echo (int) $product_id; ?></span>
+							<?php endif; ?>
+						</td>
+
+						<!-- Customer avatar + name + email -->
 						<td>
 							<div class="wpsubs-customer">
 								<div class="wpsubs-avatar" data-color="<?php echo (int) $color_slot; ?>">
@@ -282,29 +323,39 @@ for ( $i = 0; $i < 12; $i++ ) {
 							</div>
 						</td>
 
-						<td>
-							<a href="<?php echo esc_url( $view_url ); ?>" class="wpsubs-cell-title"><?php echo esc_html( $product_name ); ?></a>
-							<span class="wpsubs-cell-id">#<?php echo esc_html( get_the_title( $subscription->ID ) ); ?></span>
-						</td>
-
-						<td>
-							<span class="wpsubs-badge wpsubs-badge--<?php echo esc_attr( $badge_mod ); ?>">
-								<span class="wpsubs-badge__dot"></span>
-								<?php echo esc_html( $verbose_status ); ?>
-								<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
-									<span class="dashicons dashicons-warning" style="font-size:11px;width:11px;height:11px;color:#d97706;" title="<?php echo esc_attr( sprintf( __( '%d days remaining in grace period', 'subscription' ), $grace_remaining ) ); ?>"></span>
+						<!-- Subscription amount + timing -->
+						<td style="white-space:nowrap;">
+							<?php if ( '' !== $price ) : ?>
+								<span class="wpsubs-cell-title" style="font-variant-numeric:tabular-nums;"><?php echo wp_kses_post( wc_price( $price ) ); ?></span>
+								<?php if ( $timing_label ) : ?>
+									<span class="wpsubs-cell-id">/ <?php echo esc_html( $timing_label ); ?></span>
 								<?php endif; ?>
-							</span>
+							<?php else : ?>
+								<span class="wpsubs-cell--muted">&#8212;</span>
+							<?php endif; ?>
 						</td>
 
-						<td class="wpsubs-cell--muted wpsubs-col--nowrap">
-							<?php echo $start_date ? esc_html( wp_date( 'n/j/Y', $start_date ) ) : '&#8212;'; ?>
+						<!-- Start date -->
+						<td class="wpsubs-col--nowrap">
+							<?php if ( $start_date ) : ?>
+								<span class="wpsubs-cell-title" style="font-weight:400;color:var(--wpsubs-text);"><?php echo esc_html( wp_date( 'n/j/Y', $start_date ) ); ?></span>
+								<span class="wpsubs-cell-id"><?php echo esc_html( wp_date( 'g:i a', $start_date ) ); ?></span>
+							<?php else : ?>
+								<span class="wpsubs-cell--muted">&#8212;</span>
+							<?php endif; ?>
 						</td>
 
-						<td class="wpsubs-cell--muted wpsubs-col--nowrap">
-							<?php echo $renewal_date ? esc_html( wp_date( 'n/j/Y', $renewal_date ) ) : '&#8212;'; ?>
+						<!-- Renewal date -->
+						<td class="wpsubs-col--nowrap">
+							<?php if ( $renewal_date ) : ?>
+								<span class="wpsubs-cell-title" style="font-weight:400;color:var(--wpsubs-text);"><?php echo esc_html( wp_date( 'n/j/Y', $renewal_date ) ); ?></span>
+								<span class="wpsubs-cell-id"><?php echo esc_html( wp_date( 'g:i a', $renewal_date ) ); ?></span>
+							<?php else : ?>
+								<span class="wpsubs-cell--muted">&#8212;</span>
+							<?php endif; ?>
 						</td>
 
+						<!-- Actions -->
 						<td class="wpsubs-cell--actions">
 							<div class="wpsubs-row-actions">
 								<button type="button" class="wpsubs-row-actions__trigger" aria-label="<?php esc_attr_e( 'Row actions', 'subscription' ); ?>">···</button>
@@ -325,7 +376,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 				<?php else : ?>
 					<tr>
-						<td colspan="7">
+						<td colspan="8">
 							<div class="wpsubs-empty">
 								<div class="wpsubs-empty__icon">📋</div>
 								<div class="wpsubs-empty__title"><?php esc_html_e( 'No subscriptions found', 'subscription' ); ?></div>

@@ -17,7 +17,7 @@
   --wpsubs-border: #e5e7eb;
   --wpsubs-border-strong: #d1d5db;
 
-  --wpsubs-text: #111827;
+  --wpsubs-text: #374151;
   --wpsubs-text-muted: #6b7280;
   --wpsubs-text-subtle: #9ca3af;
 
@@ -360,7 +360,6 @@ input[type="checkbox"].wpsubs-checkbox {
   box-shadow: none !important;
   outline: none !important;
   cursor: pointer;
-  position: relative;
   flex-shrink: 0;
   vertical-align: middle;
   transition:
@@ -378,7 +377,12 @@ input[type="checkbox"].wpsubs-checkbox:checked {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5L6.5 12L13 5' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
-  background-size: 11px 11px !important;
+}
+
+/* Suppress WP admin's ::before blue checkmark overlay */
+input[type="checkbox"].wpsubs-checkbox:checked::before,
+input[type="checkbox"].wpsubs-checkbox:checked::after {
+  display: none !important;
 }
 
 input[type="checkbox"].wpsubs-checkbox:indeterminate {
@@ -388,6 +392,11 @@ input[type="checkbox"].wpsubs-checkbox:indeterminate {
   background-repeat: no-repeat !important;
   background-position: center !important;
   background-size: 11px 11px !important;
+}
+
+input[type="checkbox"].wpsubs-checkbox:indeterminate::before,
+input[type="checkbox"].wpsubs-checkbox:indeterminate::after {
+  display: none !important;
 }
 
 input[type="checkbox"].wpsubs-checkbox:focus {
@@ -445,7 +454,7 @@ input[type="checkbox"].wpsubs-checkbox:focus {
   padding-right: 4px !important;
 }
 .wpsubs-col--actions {
-  width: 50px;
+  width: 44px;
   text-align: right !important;
 }
 .wpsubs-col--nowrap {
@@ -490,8 +499,9 @@ input[type="checkbox"].wpsubs-checkbox:focus {
 }
 
 .wpsubs-table td.wpsubs-cell--actions {
-  text-align: right;
-  padding-right: 12px;
+  width: 1%;
+  white-space: nowrap;
+  padding: 0 10px 0 4px;
 }
 
 /* --------------------------------------------------------------------------
@@ -645,32 +655,41 @@ a.wpsubs-cell-title:hover {
 }
 
 .wpsubs-badge--pending {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+.wpsubs-badge--pending .wpsubs-badge__dot {
+  background: #3b82f6;
+}
+
+.wpsubs-badge--pending-cancel {
   background: #fefce8;
   color: #854d0e;
   border-color: #fde68a;
 }
-.wpsubs-badge--pending .wpsubs-badge__dot {
+.wpsubs-badge--pending-cancel .wpsubs-badge__dot {
   background: #ca8a04;
 }
 
 .wpsubs-badge--cancelled {
-  background: #fee2e2;
-  color: #991b1b;
-  border-color: #fca5a5;
-}
-.wpsubs-badge--cancelled .wpsubs-badge__dot {
-  background: #dc2626;
-}
-
-.wpsubs-badge--expired,
-.wpsubs-badge--draft {
   background: #f3f4f6;
   color: #4b5563;
   border-color: #e5e7eb;
 }
+.wpsubs-badge--cancelled .wpsubs-badge__dot {
+  background: #9ca3af;
+}
+
+.wpsubs-badge--expired,
+.wpsubs-badge--draft {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
 .wpsubs-badge--expired .wpsubs-badge__dot,
 .wpsubs-badge--draft .wpsubs-badge__dot {
-  background: #9ca3af;
+  background: #dc2626;
 }
 
 .wpsubs-badge--trash {
@@ -687,7 +706,8 @@ a.wpsubs-cell-title:hover {
    -------------------------------------------------------------------------- */
 .wpsubs-row-actions {
   position: relative;
-  display: inline-block;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .wpsubs-row-actions__trigger {
@@ -733,7 +753,8 @@ a.wpsubs-cell-title:hover {
   position: absolute;
   right: 0;
   top: calc(100% + 4px);
-  min-width: 168px;
+  width: max-content;
+  box-sizing: border-box;
   background: var(--wpsubs-surface);
   border: 1px solid var(--wpsubs-border);
   border-radius: var(--wpsubs-radius);
