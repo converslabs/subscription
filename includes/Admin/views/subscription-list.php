@@ -34,22 +34,59 @@ for ( $i = 0; $i < 12; $i++ ) {
 				<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search subscriptions...', 'subscription' ); ?>" class="wpsubs-search__input" />
 			</div>
 
-			<select name="subscrpt_status" class="wpsubs-select">
-				<option value=""><?php esc_html_e( 'All Status', 'subscription' ); ?></option>
-				<option value="active"    <?php selected( $status, 'active' ); ?>><?php esc_html_e( 'Active', 'subscription' ); ?></option>
-				<option value="pending"   <?php selected( $status, 'pending' ); ?>><?php esc_html_e( 'Pending', 'subscription' ); ?></option>
-				<option value="cancelled" <?php selected( $status, 'cancelled' ); ?>><?php esc_html_e( 'Cancelled', 'subscription' ); ?></option>
-				<option value="expired"   <?php selected( $status, 'expired' ); ?>><?php esc_html_e( 'Expired', 'subscription' ); ?></option>
-				<option value="draft"     <?php selected( $status, 'draft' ); ?>><?php esc_html_e( 'Draft', 'subscription' ); ?></option>
-				<option value="trash"     <?php selected( $status, 'trash' ); ?>><?php esc_html_e( 'Trash', 'subscription' ); ?></option>
-			</select>
+			<?php
+			wpsubs_render_adv_select(
+				array(
+					'name'        => 'subscrpt_status',
+					'placeholder' => __( 'All Status', 'subscription' ),
+					'value'       => $status,
+					'options'     => array(
+						array(
+							'value' => 'active',
+							'label' => __( 'Active', 'subscription' ),
+						),
+						array(
+							'value' => 'pending',
+							'label' => __( 'Pending', 'subscription' ),
+						),
+						array(
+							'value' => 'cancelled',
+							'label' => __( 'Cancelled', 'subscription' ),
+						),
+						array(
+							'value' => 'expired',
+							'label' => __( 'Expired', 'subscription' ),
+						),
+						array(
+							'value' => 'draft',
+							'label' => __( 'Draft', 'subscription' ),
+						),
+						array(
+							'value' => 'trash',
+							'label' => __( 'Trash', 'subscription' ),
+						),
+					),
+				)
+			);
+			?>
 
-			<select name="date_filter" class="wpsubs-select">
-				<option value=""><?php esc_html_e( 'All Dates', 'subscription' ); ?></option>
-				<?php foreach ( $months as $val => $label ) : ?>
-					<option value="<?php echo esc_attr( $val ); ?>" <?php selected( $date_filter, $val ); ?>><?php echo esc_html( $label ); ?></option>
-				<?php endforeach; ?>
-			</select>
+			<?php
+			$date_options = array();
+			foreach ( $months as $val => $label ) {
+				$date_options[] = array(
+					'value' => $val,
+					'label' => $label,
+				);
+			}
+			wpsubs_render_adv_select(
+				array(
+					'name'        => 'date_filter',
+					'placeholder' => __( 'All Dates', 'subscription' ),
+					'value'       => $date_filter,
+					'options'     => $date_options,
+				)
+			);
+			?>
 
 			<button type="submit" name="filter_action" value="filter" class="wpsubs-btn wpsubs-btn--outline">
 				<?php esc_html_e( 'Filter', 'subscription' ); ?>
@@ -63,11 +100,35 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 			<div class="wpsubs-toolbar__spacer"></div>
 
-			<select name="per_page" class="wpsubs-select">
-				<?php foreach ( array( 10, 20, 50, 100 ) as $n ) : ?>
-					<option value="<?php echo (int) $n; ?>" <?php selected( isset( $_GET['per_page'] ) ? intval( wp_unslash( $_GET['per_page'] ) ) : 20, $n ); ?>><?php echo (int) $n; ?> / page</option>
-				<?php endforeach; ?>
-			</select>
+			<?php
+			$current_per_page = isset( $_GET['per_page'] ) ? intval( wp_unslash( $_GET['per_page'] ) ) : 20;
+			wpsubs_render_adv_select(
+				array(
+					'name'    => 'per_page',
+					'value'   => (string) $current_per_page,
+					'options' => array(
+						array(
+							'value' => '10',
+							'label' => __( '10 / page', 'subscription' ),
+						),
+						array(
+							'value' => '20',
+							'label' => __( '20 / page', 'subscription' ),
+						),
+						array(
+							'value' => '50',
+							'label' => __( '50 / page', 'subscription' ),
+						),
+						array(
+							'value' => '100',
+							'label' => __( '100 / page', 'subscription' ),
+						),
+					),
+					'align'   => 'right',
+					'id'      => 'wpsubs-per-page-select',
+				)
+			);
+			?>
 
 			<?php
 			// Bulk action advanced-select + hidden submit.
@@ -100,6 +161,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 					'value'       => '-1',
 					'options'     => $bulk_options,
 					'id'          => 'wpsubs-bulk-action-select',
+					'align'       => 'right',
 				)
 			);
 			?>
@@ -278,9 +340,32 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 			<!-- Pagination inside table card -->
 			<?php
-			$start_item = $total > 0 ? ( ( $paged - 1 ) * $per_page ) + 1 : 0;
-			$end_item   = min( $paged * $per_page, $total );
-			$base_url   = remove_query_arg( 'paged' );
+			$start_item  = $total > 0 ? ( ( $paged - 1 ) * $per_page ) + 1 : 0;
+			$end_item    = min( $paged * $per_page, $total );
+			$base_url    = remove_query_arg( 'paged' );
+			$total_pages = max( 1, $max_num_pages );
+
+			// Build page range: first, last, current ± 1 neighbours, ellipsis for gaps.
+			$nearby = array();
+			for ( $i = 1; $i <= $total_pages; $i++ ) {
+				if ( $i === 1 || $i === $total_pages || abs( $i - $paged ) <= 1 ) {
+					$nearby[] = $i;
+				}
+			}
+			$page_range = array();
+			$prev_page  = null;
+			foreach ( $nearby as $p ) {
+				if ( null !== $prev_page ) {
+					$gap = $p - $prev_page;
+					if ( $gap === 2 ) {
+						$page_range[] = $prev_page + 1; // single hidden page — show it directly
+					} elseif ( $gap > 2 ) {
+						$page_range[] = null; // ellipsis
+					}
+				}
+				$page_range[] = $p;
+				$prev_page    = $p;
+			}
 			?>
 			<div class="wpsubs-pagination">
 				<span class="wpsubs-pagination__info">
@@ -288,7 +373,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 					echo esc_html(
 						sprintf(
 							/* translators: 1: first item number, 2: last item number, 3: total count */
-							__( 'Showing %1$s\u{2013}%2$s of %3$s subscriptions', 'subscription' ),
+							__( 'Showing %1$s–%2$s of %3$s subscriptions', 'subscription' ),
 							number_format_i18n( $start_item ),
 							number_format_i18n( $end_item ),
 							number_format_i18n( $total )
@@ -297,6 +382,8 @@ for ( $i = 0; $i < 12; $i++ ) {
 					?>
 				</span>
 				<div class="wpsubs-pagination__nav">
+
+					<?php // Previous button ?>
 					<?php if ( $paged > 1 ) : ?>
 						<a href="
 						<?php
@@ -310,14 +397,36 @@ for ( $i = 0; $i < 12; $i++ ) {
 							)
 						);
 						?>
-									" class="wpsubs-pagination__btn" aria-label="<?php esc_attr_e( 'Previous', 'subscription' ); ?>">&#8249;</a>
+									" class="wpsubs-pagination__btn" aria-label="<?php esc_attr_e( 'Previous page', 'subscription' ); ?>">&#8249;</a>
 					<?php else : ?>
-						<span class="wpsubs-pagination__btn wpsubs-pagination__btn--disabled">&#8249;</span>
+						<span class="wpsubs-pagination__btn wpsubs-pagination__btn--disabled" aria-hidden="true">&#8249;</span>
 					<?php endif; ?>
 
-					<span class="wpsubs-pagination__label"><?php echo (int) $paged; ?> / <?php echo (int) max( 1, $max_num_pages ); ?></span>
+					<?php // Numbered pages + ellipsis ?>
+					<?php foreach ( $page_range as $p ) : ?>
+						<?php if ( null === $p ) : ?>
+							<span class="wpsubs-pagination__ellipsis" aria-hidden="true">…</span>
+						<?php elseif ( $p === $paged ) : ?>
+							<span class="wpsubs-pagination__btn wpsubs-pagination__btn--active" aria-current="page"><?php echo (int) $p; ?></span>
+						<?php else : ?>
+							<a href="
+							<?php
+							echo esc_url(
+								add_query_arg(
+									array(
+										'paged'    => $p,
+										'per_page' => $per_page,
+									),
+									$base_url
+								)
+							);
+							?>
+										" class="wpsubs-pagination__btn"><?php echo (int) $p; ?></a>
+						<?php endif; ?>
+					<?php endforeach; ?>
 
-					<?php if ( $paged < $max_num_pages ) : ?>
+					<?php // Next button ?>
+					<?php if ( $paged < $total_pages ) : ?>
 						<a href="
 						<?php
 						echo esc_url(
@@ -330,10 +439,11 @@ for ( $i = 0; $i < 12; $i++ ) {
 							)
 						);
 						?>
-									" class="wpsubs-pagination__btn" aria-label="<?php esc_attr_e( 'Next', 'subscription' ); ?>">&#8250;</a>
+									" class="wpsubs-pagination__btn" aria-label="<?php esc_attr_e( 'Next page', 'subscription' ); ?>">&#8250;</a>
 					<?php else : ?>
-						<span class="wpsubs-pagination__btn wpsubs-pagination__btn--disabled">&#8250;</span>
+						<span class="wpsubs-pagination__btn wpsubs-pagination__btn--disabled" aria-hidden="true">&#8250;</span>
 					<?php endif; ?>
+
 				</div>
 			</div>
 
@@ -377,11 +487,25 @@ for ( $i = 0; $i < 12; $i++ ) {
 		} );
 	}
 
-	// ── Bulk action: WPSubsAdvSelect fires wpsubs:select → submit form ──
+	// ── Advanced-select event handlers ──────────────────────────
 	var bulkSubmit = document.getElementById( 'wpsubs-bulk-action-submit' );
 	document.addEventListener( 'wpsubs:select', function ( e ) {
-		if ( e.target && e.target.id === 'wpsubs-bulk-action-select' && bulkSubmit ) {
+		var id = e.target && e.target.id;
+
+		// Bulk action: submit via hidden button
+		if ( id === 'wpsubs-bulk-action-select' && bulkSubmit ) {
 			bulkSubmit.click();
+			return;
+		}
+
+		// Per-page: auto-submit as a filter action
+		if ( id === 'wpsubs-per-page-select' && form ) {
+			var fi = document.createElement( 'input' );
+			fi.type  = 'hidden';
+			fi.name  = 'filter_action';
+			fi.value = 'filter';
+			form.appendChild( fi );
+			form.submit();
 		}
 	} );
 

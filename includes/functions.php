@@ -853,6 +853,18 @@ function wpsubs_render_adv_select( array $args ): void {
 		$root_classes .= ' ' . $args['class'];
 	}
 
+	// Resolve trigger label: use matching option's label when a value is already set.
+	$trigger_label = $args['placeholder'];
+	$current_value = (string) $args['value'];
+	if ( '' !== $current_value && '-1' !== $current_value ) {
+		foreach ( $args['options'] as $opt ) {
+			if ( (string) ( $opt['value'] ?? '' ) === $current_value ) {
+				$trigger_label = $opt['label'] ?? $args['placeholder'];
+				break;
+			}
+		}
+	}
+
 	$chevron_svg = '<svg class="wpsubs-adv-select__chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 9l6 6 6-6"/></svg>';
 	?>
 	<div class="<?php echo esc_attr( $root_classes ); ?>"
@@ -864,7 +876,7 @@ function wpsubs_render_adv_select( array $args ): void {
 		data-default-value="<?php echo esc_attr( $args['value'] ); ?>"
 	>
 		<button type="button" class="wpsubs-adv-select__trigger" aria-haspopup="listbox" aria-expanded="false">
-			<span class="wpsubs-adv-select__label"><?php echo esc_html( $args['placeholder'] ); ?></span>
+			<span class="wpsubs-adv-select__label"><?php echo esc_html( $trigger_label ); ?></span>
 			<?php echo $chevron_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</button>
 
