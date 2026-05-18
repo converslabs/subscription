@@ -89,6 +89,11 @@ class Assets {
 				'deps'      => array( 'jquery' ),
 				'in_footer' => true,
 			),
+			'subscrpt_admin_components' => array(
+				'src'       => $plugin_js_assets_path . 'admin-components.js',
+				'deps'      => array(),
+				'in_footer' => true,
+			),
 			'sdevs_installer'           => array(
 				'src'       => $plugin_js_assets_path . 'installer.js',
 				'deps'      => array( 'jquery' ),
@@ -152,6 +157,7 @@ class Assets {
 
 		if ( $is_main_page || $is_sub_page ) {
 			wp_enqueue_style( 'subscrpt_admin_components' );
+			wp_enqueue_script( 'subscrpt_admin_components' );
 		}
 	}
 }

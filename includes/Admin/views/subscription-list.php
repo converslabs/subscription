@@ -69,18 +69,41 @@ for ( $i = 0; $i < 12; $i++ ) {
 				<?php endforeach; ?>
 			</select>
 
-			<?php if ( ! empty( $subscriptions ) ) : ?>
-				<select name="action" class="wpsubs-select">
-					<option value="-1"><?php esc_html_e( 'Select Action', 'subscription' ); ?></option>
-					<?php if ( 'trash' === $status ) : ?>
-						<option value="restore"><?php esc_html_e( 'Restore', 'subscription' ); ?></option>
-						<option value="delete"><?php esc_html_e( 'Delete Permanently', 'subscription' ); ?></option>
-					<?php else : ?>
-						<option value="trash"><?php esc_html_e( 'Move to Trash', 'subscription' ); ?></option>
-					<?php endif; ?>
-				</select>
-				<button type="submit" name="bulk_action" class="wpsubs-btn wpsubs-btn--outline"><?php esc_html_e( 'Apply', 'subscription' ); ?></button>
-			<?php endif; ?>
+			<?php
+			// Bulk action advanced-select + hidden submit.
+			$bulk_options = 'trash' === $status
+				? array(
+					array(
+						'value' => 'restore',
+						'label' => __( 'Restore selected', 'subscription' ),
+					),
+					array(
+						'value'   => 'delete',
+						'label'   => __( 'Delete permanently', 'subscription' ),
+						'danger'  => true,
+						'confirm' => __( 'Delete selected subscriptions permanently? This cannot be undone.', 'subscription' ),
+					),
+				)
+				: array(
+					array(
+						'value'   => 'trash',
+						'label'   => __( 'Move to trash', 'subscription' ),
+						'danger'  => true,
+						'confirm' => __( 'Move selected subscriptions to trash?', 'subscription' ),
+					),
+				);
+
+			wpsubs_render_adv_select(
+				array(
+					'name'        => 'action',
+					'placeholder' => __( 'Select Action', 'subscription' ),
+					'value'       => '-1',
+					'options'     => $bulk_options,
+					'id'          => 'wpsubs-bulk-action-select',
+				)
+			);
+			?>
+			<button type="submit" name="bulk_action" id="wpsubs-bulk-action-submit" style="display:none;" aria-hidden="true"></button>
 
 			<?php
 			if ( 'trash' === $status && ! empty( $subscriptions ) ) :
@@ -354,8 +377,16 @@ for ( $i = 0; $i < 12; $i++ ) {
 		} );
 	}
 
-	// Row action dropdowns
-	function closeAll() {
+	// ── Bulk action: WPSubsAdvSelect fires wpsubs:select → submit form ──
+	var bulkSubmit = document.getElementById( 'wpsubs-bulk-action-submit' );
+	document.addEventListener( 'wpsubs:select', function ( e ) {
+		if ( e.target && e.target.id === 'wpsubs-bulk-action-select' && bulkSubmit ) {
+			bulkSubmit.click();
+		}
+	} );
+
+	// ── Row action dropdowns ─────────────────────────────────────
+	function closeAllRowMenus() {
 		document.querySelectorAll( '.wpsubs-row-actions--open' ).forEach( function ( el ) {
 			el.classList.remove( 'wpsubs-row-actions--open' );
 			var d = el.querySelector( '.wpsubs-dropdown' );
@@ -366,9 +397,8 @@ for ( $i = 0; $i < 12; $i++ ) {
 	document.addEventListener( 'click', function ( e ) {
 		var trigger = e.target.closest( '.wpsubs-row-actions__trigger' );
 
-		// Close all other open menus
 		document.querySelectorAll( '.wpsubs-row-actions--open' ).forEach( function ( el ) {
-			if ( el !== trigger?.closest( '.wpsubs-row-actions' ) ) {
+			if ( el !== ( trigger && trigger.closest( '.wpsubs-row-actions' ) ) ) {
 				el.classList.remove( 'wpsubs-row-actions--open' );
 				var d = el.querySelector( '.wpsubs-dropdown' );
 				if ( d ) d.classList.remove( 'wpsubs-dropdown--open' );
@@ -388,7 +418,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 	} );
 
 	document.addEventListener( 'keydown', function ( e ) {
-		if ( e.key === 'Escape' ) closeAll();
+		if ( e.key === 'Escape' ) closeAllRowMenus();
 	} );
 
 	syncSelectAll();
