@@ -178,11 +178,7 @@ class Menu {
 				<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
 					<a target="_blank" href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" class="wp-subscription-upgrade-btn"><?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?></a>
 				<?php endif; ?>
-				<a href="https://docs.converslabs.com/en" target="_blank" rel="noopener noreferrer" class="wp-subscription-help-btn">
-					<span class="dashicons dashicons-editor-help"></span>
-					<?php esc_html_e( 'Help', 'subscription' ); ?>
-				</a>
-				<img src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/logo-title.svg' ); ?>" alt="WP Subscription" class="wp-subscription-logo">
+<img src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/logo-title.svg' ); ?>" alt="WP Subscription" class="wp-subscription-logo">
 			</div>
 			</div>
 		</div>

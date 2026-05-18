@@ -20,7 +20,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 	$months[ date( 'Y-m', $month ) ] = date( 'F Y', $month );
 }
 ?>
-<div class="wp-subscription-admin-content list-page">
+<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
 
 	<form method="post" id="subscriptions-form">
 		<?php wp_nonce_field( 'subscrpt_list_action' ); ?>
