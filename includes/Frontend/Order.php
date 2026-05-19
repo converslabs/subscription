@@ -51,8 +51,7 @@ class Order {
 			$next_date_string = $subscription_data['next_date'] ?? '';
 			$next_date        = ! empty( $next_date_string ) ? wp_date( 'F d, Y', strtotime( $next_date_string ) ) : '-';
 
-			$quantity       = (int) $order_item->get_quantity();
-			$cost           = (float) ( $subscription_data['price'] ?? 0 ) * max( 1, $quantity );
+			$cost           = $subscription_data['price'] ?? '0.00';
 			$price_excl_tax = (float) $order_item->get_total();
 			$tax_amount     = (float) $order_item->get_total_tax();
 
