@@ -897,7 +897,10 @@ function wpsubs_render_adv_select( array $args ): void {
 				if ( $option['divider'] ) :
 					?>
 					<div class="wpsubs-adv-select__divider"></div>
-				<?php endif; ?>
+					<?php
+					continue;
+				endif;
+				?>
 				<button
 					type="button"
 					class="wpsubs-adv-select__item<?php echo $option['danger'] ? ' wpsubs-adv-select__item--danger' : ''; ?>"
