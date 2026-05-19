@@ -556,7 +556,7 @@ input[type="checkbox"].wpsubs-checkbox:focus {
 
 /* Column modifiers */
 .wpsubs-col--check {
-  width: 42px !important;
+  width: 20px !important;
   padding-right: 4px !important;
 }
 .wpsubs-col--actions {
