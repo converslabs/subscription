@@ -625,7 +625,7 @@ input[type="checkbox"].wpsubs-checkbox:focus {
 }
 
 .wpsubs-customer__name {
-  font-weight: 600;
+  font-weight: 400;
   color: var(--wpsubs-text);
   font-size: 13.5px;
   line-height: 1.3;
@@ -705,7 +705,7 @@ a.wpsubs-customer__name:hover {
    Cell: product title + id below
    -------------------------------------------------------------------------- */
 .wpsubs-cell-title {
-  font-weight: 600;
+  font-weight: 400;
   color: var(--wpsubs-text);
   font-size: 13.5px;
   line-height: 1.3;
