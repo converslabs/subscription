@@ -80,11 +80,12 @@ jQuery(document).ready(() => {
     // Prevent default form submission for bulk actions
     e.preventDefault();
 
-    var action = jQuery('select[name="action"]').val();
-    var action2 = jQuery('select[name="action2"]').val();
-    var selectedAction = action !== "-1" ? action : action2;
+    // Support both native <select> and hidden <input> (adv-select component)
+    var action = jQuery('[name="action"]').val();
+    var action2 = jQuery('[name="action2"]').val();
+    var selectedAction = action && action !== "-1" ? action : action2;
 
-    if (selectedAction === "-1") {
+    if (!selectedAction || selectedAction === "-1") {
       alert("Please select a bulk action.");
       return false;
     }
@@ -95,22 +96,7 @@ jQuery(document).ready(() => {
       return false;
     }
 
-    // Confirm destructive actions
-    if (selectedAction === "delete") {
-      if (
-        !confirm(
-          "Are you sure you want to permanently delete the selected subscriptions? This action cannot be undone.",
-        )
-      ) {
-        return false;
-      }
-    } else if (selectedAction === "trash") {
-      if (!confirm("Are you sure you want to move the selected subscriptions to trash?")) {
-        return false;
-      }
-    }
-
-    // Handle bulk action via AJAX
+    // Handle bulk action via AJAX (confirm already handled by adv-select data-confirm)
     handleBulkAction(selectedAction, checkedBoxes);
   });
 

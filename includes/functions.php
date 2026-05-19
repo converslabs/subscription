@@ -12,6 +12,9 @@ use SpringDevs\Subscription\Utils\Product;
  * *
  * * Use "`yarn build:tailwind`" to build the tailwind CSS file.
  * * Use "`yarn watch:tailwind`" to continuously build the tailwind CSS file.
+ *
+ * ? This stylesheet is added to the all admin pages of the plugin.
+ * ? You can use this function to add the stylesheet on other pages if necessary.
  */
 function subscrpt_include_tailwind_css() {
 	wp_enqueue_style( 'wpsubs-tailwind', SUBSCRPT_ASSETS . '/css/tailwind/output.css', [], SUBSCRPT_VERSION );
@@ -805,4 +808,121 @@ function subscrpt_render_page_preview( array $args = [] ) {
 		</div>
 	<?php
 	return ob_get_clean();
+}
+
+/**
+ * Render an Advanced Select component.
+ *
+ * Outputs a styled trigger-button + dropdown that replaces a native <select>.
+ * A hidden <input> carries the selected value for form submission.
+ * JS (admin-components.js WPSubsAdvSelect) handles open/close and selection.
+ *
+ * @param array $args {
+ *   @type string   $name          Hidden input name attribute.  Required.
+ *   @type string   $placeholder   Trigger label when nothing is selected.
+ *   @type string   $value         Initial hidden-input value (default: '').
+ *   @type array    $options       Each item: {
+ *                                   string  value      Value submitted on selection.
+ *                                   string  label      Display text.
+ *                                   bool    danger     Red destructive style.
+ *                                   string  confirm    JS confirm() message before selecting.
+ *                                   bool    divider    Render a divider BEFORE this item.
+ *                                   bool    disabled   Non-selectable item.
+ *                                 }
+ *   @type string   $align         Menu alignment: 'left' (default) or 'right'.
+ *   @type string   $id            Optional id on the root element.
+ *   @type string   $class         Extra classes on the root element.
+ * }
+ */
+function wpsubs_render_adv_select( array $args ): void {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'name'        => '',
+			'placeholder' => __( 'Select', 'subscription' ),
+			'value'       => '',
+			'options'     => array(),
+			'align'       => 'left',
+			'id'          => '',
+			'class'       => '',
+		)
+	);
+
+	$root_classes = 'wpsubs-adv-select wpsubs-adv-select--' . ( 'right' === $args['align'] ? 'right' : 'left' );
+	if ( $args['class'] ) {
+		$root_classes .= ' ' . $args['class'];
+	}
+
+	// Resolve trigger label: use matching option's label when a value is already set.
+	$trigger_label = $args['placeholder'];
+	$current_value = (string) $args['value'];
+	if ( '' !== $current_value && '-1' !== $current_value ) {
+		foreach ( $args['options'] as $opt ) {
+			if ( (string) ( $opt['value'] ?? '' ) === $current_value ) {
+				$trigger_label = $opt['label'] ?? $args['placeholder'];
+				break;
+			}
+		}
+	}
+
+	$chevron_svg = '<svg class="wpsubs-adv-select__chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 9l6 6 6-6"/></svg>';
+	?>
+	<div class="<?php echo esc_attr( $root_classes ); ?>"
+		<?php
+		if ( $args['id'] ) :
+			?>
+			id="<?php echo esc_attr( $args['id'] ); ?>"<?php endif; ?>
+		data-placeholder="<?php echo esc_attr( $args['placeholder'] ); ?>"
+		data-default-value="<?php echo esc_attr( $args['value'] ); ?>"
+	>
+		<button type="button" class="wpsubs-adv-select__trigger" aria-haspopup="listbox" aria-expanded="false">
+			<span class="wpsubs-adv-select__label"><?php echo esc_html( $trigger_label ); ?></span>
+			<?php echo $chevron_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		</button>
+
+		<div class="wpsubs-adv-select__menu" role="listbox">
+			<?php
+			foreach ( $args['options'] as $option ) :
+				$option = wp_parse_args(
+					$option,
+					array(
+						'value'    => '',
+						'label'    => '',
+						'danger'   => false,
+						'confirm'  => '',
+						'divider'  => false,
+						'disabled' => false,
+					)
+				);
+				if ( $option['divider'] ) :
+					?>
+					<div class="wpsubs-adv-select__divider"></div>
+					<?php
+					continue;
+				endif;
+				?>
+				<button
+					type="button"
+					class="wpsubs-adv-select__item<?php echo $option['danger'] ? ' wpsubs-adv-select__item--danger' : ''; ?>"
+					data-value="<?php echo esc_attr( $option['value'] ); ?>"
+					<?php
+					if ( $option['confirm'] ) :
+						?>
+						data-confirm="<?php echo esc_attr( $option['confirm'] ); ?>"<?php endif; ?>
+					<?php
+					if ( $option['disabled'] ) :
+						?>
+						data-disabled<?php endif; ?>
+					role="option"
+				>
+					<span class="wpsubs-adv-select__item-label"><?php echo esc_html( $option['label'] ); ?></span>
+				</button>
+			<?php endforeach; ?>
+		</div>
+
+		<?php if ( $args['name'] ) : ?>
+			<input type="hidden" name="<?php echo esc_attr( $args['name'] ); ?>" value="<?php echo esc_attr( $args['value'] ); ?>">
+		<?php endif; ?>
+	</div>
+	<?php
 }

@@ -368,7 +368,7 @@ class Integrations {
 		// wp_enqueue_style( 'wp-subs-integration-settings', SUBSCRPT_ASSETS . '/css/integration_settings.css', [], SUBSCRPT_VERSION, 'all' );
 
 		$menu = new \SpringDevs\Subscription\Admin\Menu();
-		$menu->render_admin_header();
+		$menu->render_admin_header( __( 'Integrations', 'subscription' ) );
 		include 'views/integrations.php';
 		$menu->render_admin_footer();
 	}

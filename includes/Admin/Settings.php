@@ -225,7 +225,7 @@ class Settings {
 
 		// Header.
 		$menu = new Menu();
-		$menu->render_admin_header();
+		$menu->render_admin_header( __( 'Settings', 'subscription' ) );
 
 		include 'views/settings.php';
 

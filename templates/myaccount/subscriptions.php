@@ -34,6 +34,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$subscription_id   = get_the_ID();
 				$subscription_data = SpringDevs\Subscription\Illuminate\Helper::get_subscription_data( $subscription_id );
 
+				if ( ! $subscription_data ) {
+					continue;
+				}
+
 				$subscrpt_status = $subscription_data['status'] ?? '';
 				$verbose_status  = SpringDevs\Subscription\Illuminate\Helper::get_verbose_status( $subscrpt_status );
 
@@ -41,7 +45,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$order_item_id = $subscription_data['order']['order_item_id'] ?? 0;
 
 				$order      = wc_get_order( $order_id );
-				$order_item = $order->get_item( $order_item_id );
+				$order_item = $order ? $order->get_item( $order_item_id ) : null;
+
+				if ( ! $order || ! $order_item ) {
+					subscrpt_write_log( sprintf( 'Order or order item not found for subscription #%d', $subscription_id ) );
+					continue;
+				}
 
 				$product_id   = $subscription_data['product']['product_id'] ?? 0;
 				$product_name = $order_item->get_name();
@@ -56,7 +65,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$trial_mode = get_post_meta( get_the_ID(), '_subscrpt_trial_mode', true );
 				$trial_mode = empty( $trial_mode ) ? 'off' : $trial_mode;
 
-				$price          = $subscription_data['price'] ?? 0;
+				$quantity       = (int) $order_item->get_quantity();
+				$price          = (float) ( $subscription_data['price'] ?? 0 ) * max( 1, $quantity );
 				$price_excl_tax = (float) $order_item->get_total();
 				$tax_amount     = (float) $order_item->get_total_tax();
 

@@ -116,7 +116,8 @@ class MyAccount {
 		$trial      = get_post_meta( $id, '_subscrpt_trial', true );
 		$trial_mode = get_post_meta( $id, '_subscrpt_trial_mode', true );
 
-		$price          = $subscription_data['price'] ?? 0;
+		$quantity       = (int) $order_item->get_quantity();
+		$price          = (float) ( $subscription_data['price'] ?? 0 ) * max( 1, $quantity );
 		$price_excl_tax = (float) $order_item->get_total();
 		$tax_amount     = (float) $order_item->get_total_tax();
 
