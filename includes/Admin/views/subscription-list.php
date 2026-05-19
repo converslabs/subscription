@@ -231,7 +231,10 @@ for ( $i = 0; $i < 12; $i++ ) {
 						$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
 
 						// Amount + timing
-						$price         = $subscription_data['price'] ?? '';
+						$quantity      = $order_item ? (int) $order_item->get_quantity() : 1;
+						$price         = '' !== ( $subscription_data['price'] ?? '' )
+							? (float) $subscription_data['price'] * max( 1, $quantity )
+							: '';
 						$timing_per    = $subscription_data['schedule']['timing_per'] ?? '';
 						$timing_option = $subscription_data['schedule']['timing_option'] ?? '';
 						$timing_label  = '';
@@ -329,6 +332,9 @@ for ( $i = 0; $i < 12; $i++ ) {
 						<td style="white-space:nowrap;">
 							<?php if ( '' !== $price ) : ?>
 								<span class="wpsubs-cell-title" style="font-variant-numeric:tabular-nums;"><?php echo wp_kses_post( wc_price( $price ) ); ?></span>
+								<?php if ( $quantity > 1 ) : ?>
+									<span class="wpsubs-cell-id"><?php echo wp_kses_post( wc_price( (float) $subscription_data['price'] ) ); ?> &times; <?php echo (int) $quantity; ?></span>
+								<?php endif; ?>
 								<?php if ( $timing_label ) : ?>
 									<span class="wpsubs-cell-id">/ <?php echo esc_html( $timing_label ); ?></span>
 								<?php endif; ?>
