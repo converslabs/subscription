@@ -36,13 +36,6 @@ for ( $i = 0; $i < 12; $i++ ) {
 		<!-- Toolbar -->
 		<div class="wpsubs-toolbar">
 
-			<div class="wpsubs-search">
-				<div class="wpsubs-input-wrap wpsubs-input-wrap--icon-l">
-					<svg class="wpsubs-input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
-					<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search subscriptions...', 'subscription' ); ?>" class="wpsubs-input" />
-				</div>
-			</div>
-
 			<?php
 			wpsubs_render_adv_select(
 				array(
@@ -96,6 +89,13 @@ for ( $i = 0; $i < 12; $i++ ) {
 				)
 			);
 			?>
+
+			<div class="wpsubs-search">
+				<div class="wpsubs-input-wrap wpsubs-input-wrap--icon-l">
+					<svg class="wpsubs-input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+					<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search subscriptions...', 'subscription' ); ?>" class="wpsubs-input" />
+				</div>
+			</div>
 
 			<button type="submit" name="filter_action" value="filter" class="wpsubs-btn wpsubs-btn--outline">
 				<?php esc_html_e( 'Filter', 'subscription' ); ?>
@@ -196,8 +196,8 @@ for ( $i = 0; $i < 12; $i++ ) {
 						<th class="wpsubs-col--check">
 							<input type="checkbox" id="cb-select-all" class="wpsubs-checkbox">
 						</th>
+						<th style="width:1%;white-space:nowrap;"><?php esc_html_e( 'Status', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Subscription', 'subscription' ); ?></th>
-						<th><?php esc_html_e( 'Product', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Customer', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Amount', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Started', 'subscription' ); ?></th>
@@ -293,10 +293,9 @@ for ( $i = 0; $i < 12; $i++ ) {
 							<input type="checkbox" name="subscription_ids[]" value="<?php echo esc_attr( $subscription->ID ); ?>" class="wpsubs-checkbox wpsubs-row-check">
 						</td>
 
-						<!-- Subscription ID + Status badge -->
-						<td>
-							<a href="<?php echo esc_url( $view_url ); ?>" class="wpsubs-cell-title"><?php echo esc_html( get_the_title( $subscription->ID ) ); ?></a>
-							<span class="wpsubs-badge wpsubs-badge--<?php echo esc_attr( $badge_mod ); ?>" style="margin-top:4px;">
+						<!-- Status badge -->
+						<td style="white-space:nowrap;">
+							<span class="wpsubs-badge wpsubs-badge--<?php echo esc_attr( $badge_mod ); ?>">
 								<?php echo esc_html( $verbose_status ); ?>
 								<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
 									<span class="dashicons dashicons-warning" style="font-size:11px;width:11px;height:11px;color:#d97706;" title="<?php echo esc_attr( sprintf( __( '%d days remaining in grace period', 'subscription' ), $grace_remaining ) ); ?>"></span>
@@ -304,16 +303,10 @@ for ( $i = 0; $i < 12; $i++ ) {
 							</span>
 						</td>
 
-						<!-- Product name + Product ID -->
+						<!-- Subscription: product name + subscription ID -->
 						<td>
-							<?php if ( $product_url ) : ?>
-								<a href="<?php echo esc_url( $product_url ); ?>" class="wpsubs-cell-title"><?php echo esc_html( $product_name ); ?></a>
-							<?php else : ?>
-								<span class="wpsubs-cell-title"><?php echo esc_html( $product_name ); ?></span>
-							<?php endif; ?>
-							<?php if ( $product_id ) : ?>
-								<span class="wpsubs-cell-id">#<?php echo (int) $product_id; ?></span>
-							<?php endif; ?>
+							<a href="<?php echo esc_url( $view_url ); ?>" class="wpsubs-cell-title"><?php echo esc_html( $product_name ); ?></a>
+							<span class="wpsubs-cell-id">#<?php echo (int) $subscription->ID; ?></span>
 						</td>
 
 						<!-- Customer avatar + name + email -->
