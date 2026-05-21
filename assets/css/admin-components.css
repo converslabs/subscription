@@ -205,7 +205,7 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  height: 36px;
+  height: 40px;
   padding: 0 14px;
   border-radius: var(--wpsubs-radius-sm);
   font-size: 13px;
@@ -285,7 +285,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 36px;
+  height: 40px;
   padding: 0 14px;
   border-radius: var(--wpsubs-radius-sm);
   font-size: 13px;
@@ -421,7 +421,7 @@
    Select control
    -------------------------------------------------------------------------- */
 .wpsubs-select {
-  height: 36px;
+  height: 40px;
   padding: 0 28px 0 10px;
   border: 1px solid var(--wpsubs-border) !important;
   border-radius: var(--wpsubs-radius-sm) !important;
