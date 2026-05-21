@@ -845,6 +845,7 @@ function wpsubs_render_adv_select( array $args ): void {
 			'align'       => 'left',
 			'id'          => '',
 			'class'       => '',
+			'attrs'       => array(),
 		)
 	);
 
@@ -874,6 +875,11 @@ function wpsubs_render_adv_select( array $args ): void {
 			id="<?php echo esc_attr( $args['id'] ); ?>"<?php endif; ?>
 		data-placeholder="<?php echo esc_attr( $args['placeholder'] ); ?>"
 		data-default-value="<?php echo esc_attr( $args['value'] ); ?>"
+		<?php
+		foreach ( $args['attrs'] as $attr_name => $attr_value ) :
+			echo esc_attr( $attr_name ) . '="' . esc_attr( $attr_value ) . '" '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Both parts escaped.
+		endforeach;
+		?>
 	>
 		<button type="button" class="wpsubs-adv-select__trigger" aria-haspopup="listbox" aria-expanded="false">
 			<span class="wpsubs-adv-select__label"><?php echo esc_html( $trigger_label ); ?></span>
