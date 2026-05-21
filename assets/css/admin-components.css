@@ -224,6 +224,14 @@
   box-shadow: none;
 }
 
+.wpsubs-btn:focus,
+.wpsubs-btn:focus-visible,
+.wpsubs-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: var(--wpsubs-radius-sm) !important;
+}
+
 .wpsubs-btn--outline {
   background: var(--wpsubs-surface);
   border-color: var(--wpsubs-border);
