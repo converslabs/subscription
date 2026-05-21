@@ -10,9 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Add Tailwind CSS for styling.
-subscrpt_include_tailwind_css();
-
 // Add admin settings styles.
 wp_enqueue_style( 'wp-subscription-admin-settings', SUBSCRPT_ASSETS . '/css/admin-settings.css', [], SUBSCRPT_VERSION );
 
@@ -20,40 +17,38 @@ wp_enqueue_style( 'wp-subscription-admin-settings', SUBSCRPT_ASSETS . '/css/admi
 wp_enqueue_script( 'wp-subscription-admin-settings', SUBSCRPT_ASSETS . '/js/admin-settings.js', [ 'jquery' ], SUBSCRPT_VERSION, true );
 
 ?>
-<div class="wp-subscription-admin-content" style="max-width:1240px;margin:32px auto 0 auto">
-	<div class="wp-subscription-admin-box wpsubs-tw-root">
-		<h1 class="wp-heading-inline"><?php esc_html_e( 'Subscription Settings', 'subscription' ); ?></h1>
-		<hr class="wp-header-end"><br/>
+<div class="wp-subscription-admin-content list-page wpsubs-tw-root">
+	<h1 class="wp-heading-inline" style="margin-top: 0;"><?php esc_html_e( 'Subscription Settings', 'subscription' ); ?></h1>
+	<hr class="wp-header-end"><br/>
 
-		<form method="post" action="options.php" class="border border-gray-200 rounded-lg p-5">
-			<!-- Settings nonce and other requirements -->
-			<?php settings_fields( 'wp_subscription_settings' ); ?>
-			<?php do_settings_sections( 'wp_subscription_settings' ); ?>
+	<form method="post" action="options.php" class="border border-gray-200 rounded-lg p-5">
+		<!-- Settings nonce and other requirements -->
+		<?php settings_fields( 'wp_subscription_settings' ); ?>
+		<?php do_settings_sections( 'wp_subscription_settings' ); ?>
 
-			<!-- Settings Fields -->
-			<?php
-			foreach ( $settings_fields as $group_id => $group ) {
-				foreach ( ( $group['fields'] ?? [] ) as $field ) {
-					$field_type = $field['type'] ?? 'input';
-					$field_data = $field['field_data'] ?? [];
+		<!-- Settings Fields -->
+		<?php
+		foreach ( $settings_fields as $group_id => $group ) {
+			foreach ( ( $group['fields'] ?? [] ) as $field ) {
+				$field_type = $field['type'] ?? 'input';
+				$field_data = $field['field_data'] ?? [];
 
-					SpringDevs\Subscription\Admin\SettingsHelper::render_settings_field( $field_type, $field_data );
+				SpringDevs\Subscription\Admin\SettingsHelper::render_settings_field( $field_type, $field_data );
 
-					echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
-				}
+				echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
 			}
-			?>
+		}
+		?>
 
-			<!-- Submit Button -->
-			<div>
-				<input 
-					type="submit" 
-					value="<?php esc_attr_e( 'Save changes', 'subscription' ); ?>" 
-					class="button button-primary px-3! py-1! rounded-md!"
-				/>
-			</div>
-		</form>
-	</div>
+		<!-- Submit Button -->
+		<div>
+			<input 
+				type="submit" 
+				value="<?php esc_attr_e( 'Save changes', 'subscription' ); ?>" 
+				class="button button-primary px-3! py-1! rounded-md!"
+			/>
+		</div>
+	</form>
 </div>
 
 <?php return; ?>

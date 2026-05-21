@@ -629,6 +629,7 @@ class Helper {
 	 * Create renewal order when subscription expired. [wip]
 	 *
 	 * @param  int $subscription_id Subscription ID.
+	 * @return false|\WC_Order Renewal order object or false on failure.
 	 * @throws \WC_Data_Exception Exception.
 	 * @throws \Exception Exception.
 	 */
@@ -660,7 +661,7 @@ class Helper {
 
 		if ( ! $old_order ) {
 			subscrpt_write_log( "Old order not found for renewal. Skipping creating renewal order. [ Subscription ID: {$subscription_id} ]" );
-			return;
+			return false;
 		}
 
 		$order_item         = $old_order->get_item( $order_item_id );
@@ -687,7 +688,7 @@ class Helper {
 		$new_order_data = self::create_new_order_for_renewal( $old_order, $order_item, $product_args );
 		if ( ! $new_order_data ) {
 			subscrpt_write_log( "Failed to create renewal order. [ Subscription ID: {$subscription_id} ]" );
-			return;
+			return false;
 		}
 		$new_order         = $new_order_data['order'];
 		$new_order_item_id = $new_order_data['order_item_id'];
@@ -983,7 +984,7 @@ class Helper {
 		}
 
 		$subs_post = get_post( $subscription_id );
-		$user_id   = (int) $subs_post->post_author ?? 0;
+		$user_id   = ! empty( $subs_post ) ? (int) $subs_post->post_author : 0;
 
 		$product_id = get_post_meta( $subscription_id, '_subscrpt_product_id', true );
 		$product_id = ! empty( $product_id ) ? (int) $product_id : 0;
