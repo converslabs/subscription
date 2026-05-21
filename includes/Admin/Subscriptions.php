@@ -473,8 +473,9 @@ class Subscriptions {
 
 		$signup_fee = $subscription_data['signup_fee'] ?? '';
 
-		$cost = $subscription_data['price'] ?? 0;
-		$cost = empty( $cost ) ? $order_item->get_total() : $cost;
+		$quantity = (int) $order_item->get_quantity();
+		$cost     = (float) ( $subscription_data['price'] ?? 0 ) * max( 1, $quantity );
+		$cost     = empty( $cost ) ? (float) $order_item->get_total() : $cost;
 
 		$price_excl_tax = (float) $order_item->get_total();
 		$tax_amount     = (float) $order_item->get_total_tax();
