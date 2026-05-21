@@ -66,18 +66,16 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 
 		$has_stripe_meta = ! empty( $old_order->get_meta( '_stripe_customer_id' ) ) || ! empty( $old_order->get_meta( '_stripe_source_id' ) );
 
-		$stripe_enabled = ( ( $is_stripe_pm || $has_stripe_meta ) && $is_auto_renew && $is_global_auto_renew && subscrpt_is_auto_renew_enabled() );
+		// Old order is not a stripe order, skip auto renewal processing.
+		if ( ! $is_stripe_pm && ! $has_stripe_meta ) {
+			return;
+		}
+
+		$stripe_enabled = $is_auto_renew && $is_global_auto_renew && subscrpt_is_auto_renew_enabled();
 
 		if ( ! $stripe_enabled ) {
 			$log_message = "Stripe auto renewal not enabled. [ Subscription: {$subscription_id}, Order #{$new_order->get_id()} ]";
 			subscrpt_write_log( $log_message );
-
-			// Log details for debugging.
-			subscrpt_write_debug_log( $log_message );
-			subscrpt_write_debug_log( 'is_auto_renew: ' . ( $is_auto_renew ? 'true' : 'false' ) );
-			subscrpt_write_debug_log( 'is_global_auto_renew: ' . ( $is_global_auto_renew ? 'true' : 'false' ) );
-			subscrpt_write_debug_log( 'is_stripe_payment_method: ' . ( $is_stripe_pm ? 'true' : 'false' ) . ' (old method: ' . $old_method . ')' );
-			subscrpt_write_debug_log( 'has_stripe_meta: ' . ( $has_stripe_meta ? 'true' : 'false' ) );
 			return;
 		}
 

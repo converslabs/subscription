@@ -171,7 +171,11 @@ trait Email {
 		} catch ( Exception $e ) {
 			return;
 		}
-		$order      = wc_get_order( $order_id );
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
+
 		$order_item = $order->get_item( $order_item_id );
 
 		$this->product_name = $order_item->get_name();
