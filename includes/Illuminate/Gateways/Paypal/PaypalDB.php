@@ -65,7 +65,7 @@ class PaypalDB {
 	 * Insert or replace a mapping row.
 	 *
 	 * @param string $paypal_id       PayPal billing agreement / subscription ID.
-	 * @param int    $subscription_id WP Subscription post ID.
+	 * @param int    $subscription_id WPSubscription post ID.
 	 * @param int    $order_id        WooCommerce order ID.
 	 * @return void
 	 */

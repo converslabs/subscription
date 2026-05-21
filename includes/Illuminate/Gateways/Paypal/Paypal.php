@@ -68,7 +68,7 @@ class Paypal extends \WC_Payment_Gateway {
 		$this->id                 = 'wp_subscription_paypal';
 		$this->has_fields         = false;
 		$this->method_title       = __( 'PayPal for WPSubscription', 'subscription' );
-		$this->method_description = __( 'Accept wp subscription recurring payments through PayPal. Only WP Subscription is supported.', 'subscription' );
+		$this->method_description = __( 'Accept wp subscription recurring payments through PayPal. Only WPSubscription is supported.', 'subscription' );
 		$this->supports           = [ 'products', 'subscriptions', 'refunds' ];
 		$this->icon               = apply_filters( 'wp_subscription_paypal_icon', SUBSCRPT_URL . '/assets/images/paypal.svg' );
 

@@ -250,7 +250,7 @@ class Subscriptions {
 					<div style="flex:1;">
 						<div style="display:flex;align-items:center;gap:14px;">
 							<span style="font-size:2.2em;line-height:1;">🚀</span>
-							<span style="font-family:Georgia,serif;font-size:1.25em;font-weight:bold;">Upgrade to WP Subscription Pro</span>
+							<span style="font-family:Georgia,serif;font-size:1.25em;font-weight:bold;">Upgrade to WPSubscription Pro</span>
 						</div>
 						<div style="margin-top:8px;font-size:1.08em;max-width:500px;opacity:0.95;">
 							Unlock advanced features, automation, and priority support. Take your subscription business to the next level!
@@ -864,9 +864,9 @@ class Subscriptions {
 			<div class="wpsubscription-overview-card" style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);padding:40px 32px 32px 32px;">
 				<div class="wpsubscription-overview-top" style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-bottom:40px;">
 					<div class="wpsubscription-overview-info" style="display:flex;flex-direction:column;gap:18px;">
-						<h1 style="margin-bottom:0.2em;"><?php esc_html_e( 'WP Subscription Overview', 'subscription' ); ?></h1>
+						<h1 style="margin-bottom:0.2em;"><?php esc_html_e( 'WPSubscription Overview', 'subscription' ); ?></h1>
 						<p class="product-desc" style="font-size:1.15em;line-height:1.6;max-width:500px;">
-							<?php esc_html_e( 'WP Subscription is the most seamless and reliable WooCommerce subscription solution for store owners looking to grow recurring revenue. Easily manage recurring payments, automate renewals, and delight your customers with flexible plans.', 'subscription' ); ?>
+							<?php esc_html_e( 'WPSubscription is the most seamless and reliable WooCommerce subscription solution for store owners looking to grow recurring revenue. Easily manage recurring payments, automate renewals, and delight your customers with flexible plans.', 'subscription' ); ?>
 						</p>
 						<div class="wpsubscription-links" style="display:flex;gap:12px;flex-wrap:wrap;">
 							<a href="https://docs.converslabs.com/en" target="_blank" class="button button-secondary"><?php esc_html_e( 'Documentation', 'subscription' ); ?></a>
@@ -874,14 +874,14 @@ class Subscriptions {
 						</div>
 					</div>
 					<div class="promo-video" style="text-align:center;">
-						<iframe width="420" height="236" src="https://www.youtube.com/embed/2e6o5p0M7L4" title="WP Subscription Promo" frameborder="0" allowfullscreen style="max-width:100%;border-radius:8px;"></iframe>
+						<iframe width="420" height="236" src="https://www.youtube.com/embed/2e6o5p0M7L4" title="WPSubscription Promo" frameborder="0" allowfullscreen style="max-width:100%;border-radius:8px;"></iframe>
 					</div>
 				</div>
 
 				<div class="wpsubscription-what-section" style="margin-bottom:40px;">
 					<h2><?php esc_html_e( 'What does Subscriptions for WooCommerce do?', 'subscription' ); ?></h2>
 					<p style="font-size:1.08em;max-width:900px;line-height:1.7;">
-						<?php esc_html_e( 'Subscriptions for WooCommerce enables you to create and manage recurring payment products and services with ease. Automate renewals, offer flexible billing schedules, and provide your customers with a seamless subscription experience. Whether you sell digital content, physical goods, or memberships, WP Subscription gives you the tools to grow your recurring revenue.', 'subscription' ); ?>
+						<?php esc_html_e( 'Subscriptions for WooCommerce enables you to create and manage recurring payment products and services with ease. Automate renewals, offer flexible billing schedules, and provide your customers with a seamless subscription experience. Whether you sell digital content, physical goods, or memberships, WPSubscription gives you the tools to grow your recurring revenue.', 'subscription' ); ?>
 					</p>
 				</div>
 
@@ -942,7 +942,7 @@ class Subscriptions {
 		?>
 		<div class="wrap wpsubscription-go-pro" style="max-width:900px;margin:40px auto 0 auto;">
 			<div class="wpsubscription-go-pro-card" style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);padding:40px 32px 32px 32px;">
-				<h1 style="margin-bottom:0.5em;"><?php esc_html_e( 'Upgrade to WP Subscription Pro', 'subscription' ); ?></h1>
+				<h1 style="margin-bottom:0.5em;"><?php esc_html_e( 'Upgrade to WPSubscription Pro', 'subscription' ); ?></h1>
 				<p style="font-size:1.12em;max-width:600px;line-height:1.6;">
 					<?php esc_html_e( 'Unlock the full power of subscriptions for WooCommerce. Get advanced features, priority support, and more ways to grow your recurring revenue.', 'subscription' ); ?>
 				</p>

@@ -1,5 +1,5 @@
 /**
- * WP Subscription admin UI components.
+ * WPSubscription admin UI components.
  *
  * WPSubsAdvSelect — styled dropdown replacing native <select>.
  *

@@ -336,7 +336,7 @@
   }
 }
 
-/* Remove left padding on WP Subscription admin pages only */
+/* Remove left padding on WPSubscription admin pages only */
 body.toplevel_page_wp-subscription #wpcontent,
 body[class*="wp-subscription_page_wp-subscription"] #wpcontent {
   padding-left: 0 !important;

@@ -30,7 +30,7 @@ class Integrations {
 		// Admin menu (sidebar).
 		add_action( 'admin_menu', array( $this, 'register_admin_menu' ), 20 );
 
-		// WP Subscription navbar.
+		// WPSubscription navbar.
 		add_filter( 'subscrpt_admin_header_menu_items', [ $this, 'add_integrations_menu_item' ], 10, 2 );
 
 		// Enqueue integrations scripts.
@@ -68,7 +68,7 @@ class Integrations {
 	}
 
 	/**
-	 * Add Integrations link to the WP Subscription admin header menu.
+	 * Add Integrations link to the WPSubscription admin header menu.
 	 *
 	 * @param array  $menu_items Array of menu items.
 	 * @param string $current Current active menu item slug.

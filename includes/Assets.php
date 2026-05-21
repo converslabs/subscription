@@ -147,7 +147,7 @@ class Assets {
 	}
 
 	/**
-	 * Enqueue admin component styles on all WP Subscription admin pages.
+	 * Enqueue admin component styles on all WPSubscription admin pages.
 	 *
 	 * @param string $hook The current admin page hook.
 	 */
