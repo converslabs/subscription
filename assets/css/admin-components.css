@@ -908,6 +908,11 @@ a.wpsubs-cell-title:hover {
   text-decoration: none;
 }
 
+.wpsubs-dropdown__item:disabled {
+  color: var(--wpsubs-text-subtle);
+  cursor: not-allowed;
+}
+
 .wpsubs-dropdown__item--danger {
   color: #dc2626;
 }

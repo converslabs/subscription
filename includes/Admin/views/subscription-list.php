@@ -202,7 +202,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 						<th><?php esc_html_e( 'Amount', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Started', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Next Renewal', 'subscription' ); ?></th>
-						<th class="wpsubs-col--actions"></th>
+						<th class="wpsubs-col--actions"><?php esc_html_e( 'Actions', 'subscription' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
