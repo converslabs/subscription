@@ -305,7 +305,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 						<!-- Subscription: product name + subscription ID -->
 						<td>
-							<a href="<?php echo esc_url( $view_url ); ?>" class="wpsubs-cell-title"><?php echo esc_html( $product_name ); ?></a>
+							<a href="<?php echo esc_url( $view_url ); ?>" class="wpsubs-cell-title" style="font-weight:600;"><?php echo esc_html( $product_name ); ?></a>
 							<span class="wpsubs-cell-id">#<?php echo (int) $subscription->ID; ?></span>
 						</td>
 
