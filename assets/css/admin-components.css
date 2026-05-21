@@ -511,7 +511,6 @@ input[type="checkbox"].wpsubs-checkbox:focus {
   background: var(--wpsubs-surface);
   border: 1px solid var(--wpsubs-border);
   border-radius: var(--wpsubs-radius);
-  box-shadow: var(--wpsubs-shadow);
 }
 
 /* --------------------------------------------------------------------------
