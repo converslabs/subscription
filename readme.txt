@@ -2,7 +2,7 @@
 Contributors: converswp, shamsbd71, aushamim
 Tags: woocommerce subscriptions, subscriptions, recurring, billing, stripe
 Requires at least: 6.0
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 1.10.0
 Requires PHP: 7.4
 WC requires at least: 6.0
@@ -285,6 +285,7 @@ Learn more: [WPSubscription](https://wpsubscription.co/)
 -   new: Integrations one click install.
 -   fix: Same subscription quality.
 -   fix: PayPal webhook.
+-   improve: Tested up to WordPress v7.
 
 = 1.9.6 - May 11, 2026 =
 -   fix: Renewal order creation error when the previous renewal order is unavailable.

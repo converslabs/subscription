@@ -6,6 +6,7 @@
 * new: Integrations one click install.
 * fix: Same subscription quality.
 * fix: PayPal webhook.
+* improve: Tested up to WordPress v7.
 
 2026-05-11 - version 1.9.6
 * fix: Renewal order creation error when the previous renewal order is unavailable.
