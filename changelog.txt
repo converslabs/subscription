@@ -1,5 +1,12 @@
 *** WPSubscription Changelog ***
 
+2026-05-21 - version 1.10.0
+* new: Subscription list UI.
+* new: Health and report page preview.
+* new: Integrations one click install.
+* fix: Same subscription quality.
+* fix: PayPal webhook.
+
 2026-05-11 - version 1.9.6
 * fix: Renewal order creation error when the previous renewal order is unavailable.
 
