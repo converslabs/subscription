@@ -153,7 +153,7 @@ class Assets {
 	 */
 	public function enqueue_admin_components( $hook ) {
 		$is_main_page = 'toplevel_page_wp-subscription' === $hook;
-		$is_sub_page  = str_starts_with( $hook, 'wp-subscription_page' );
+		$is_sub_page  = 0 === strpos( $hook, 'wpsubscription_page' );
 
 		if ( $is_main_page || $is_sub_page ) {
 			wp_enqueue_style( 'subscrpt_admin_components' );
