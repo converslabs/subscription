@@ -192,88 +192,53 @@ class SettingsHelper {
 	 * @param bool  $join_item Whether to return element for 'join' container or not.
 	 */
 	public static function select_element( $args = [], $join_item = false ) {
-		$id    = $args['id'];
-		$value = $args['value'] ?? '';
+		$id = $args['id'];
 
-		$wc_enhanced_class = isset( $args['enhanced'] ) && $args['enhanced'];
-
-		$basic_classes = 'wpsubs-select';
-
-		// WC Select2 style (multiselect).
-		if ( $wc_enhanced_class ) {
-			// Enqueue WooCommerce enhanced select script & styles.
-			wp_enqueue_style( 'woocommerce_admin_styles' );
-			wp_enqueue_script( 'wc-enhanced-select' );
-
-			// Update basic classes for wc-enhanced-select.
-			$basic_classes = 'wc-enhanced-select';
-		}
-
-		// Need to prefix name with [] for multiple select.
-		$name_prefix = '';
-		if ( isset( $args['attributes']['multiple'] ) && $args['attributes']['multiple'] ) {
-			$name_prefix = '[]';
-		}
-
-		$style_attr = '';
-		if ( isset( $args['style'] ) ) {
-			$style_attr = $args['style'];
-		}
-
-		$other_attrs_html = '';
-		foreach ( ( $args['attributes'] ?? [] ) as $attr_key => $attr_value ) {
-			$other_attrs_html .= sprintf( ' %s="%s" ', esc_attr( $attr_key ), esc_attr( $attr_value ) );
-		}
-
-		$options_html = '';
-		foreach ( ( $args['options'] ?? [] ) as $value => $label ) {
-			$selected = false;
-			if ( isset( $args['selected'] ) ) {
-				if ( is_array( $args['selected'] ) ) {
-					$selected = in_array( $value, $args['selected'], true );
-				} else {
-					$selected = $args['selected'] === $value;
-				}
+		// Enhanced / multiselect → wpsubs-tag-select (pill input with filter).
+		if ( isset( $args['enhanced'] ) && $args['enhanced'] ) {
+			$multiple    = isset( $args['attributes']['multiple'] ) && $args['attributes']['multiple'];
+			$adv_options = array();
+			foreach ( ( $args['options'] ?? [] ) as $opt_value => $opt_label ) {
+				$adv_options[] = array(
+					'value' => (string) $opt_value,
+					'label' => $opt_label,
+				);
 			}
 
-			$disabled = false;
-			if ( isset( $args['disabled'] ) ) {
-				if ( is_array( $args['disabled'] ) ) {
-					$disabled = in_array( $value, $args['disabled'], true );
-				} else {
-					$disabled = $args['disabled'] === $value;
-				}
-			}
-
-			$options_tmp_html = sprintf(
-				'<option value="%s" %s %s>%s</option>',
-				esc_attr( $value ),
-				$selected ? 'selected' : '',
-				$disabled ? 'disabled' : '',
-				esc_html( $label ),
+			ob_start();
+			wpsubs_render_tag_select(
+				array(
+					'name'     => $id,
+					'value'    => $args['selected'] ?? ( $multiple ? array() : '' ),
+					'options'  => $adv_options,
+					'multiple' => $multiple,
+				)
 			);
-			$options_html    .= $options_tmp_html;
+			return ob_get_clean();
+		}
+
+		// Regular select → wpsubs-adv-select (button-based custom dropdown).
+		$selected    = (string) ( $args['selected'] ?? '' );
+		$adv_options = array();
+		foreach ( ( $args['options'] ?? [] ) as $opt_value => $opt_label ) {
+			$adv_options[] = array(
+				'value'    => (string) $opt_value,
+				'label'    => $opt_label,
+				'disabled' => isset( $args['disabled'] ) && ( is_array( $args['disabled'] )
+					? in_array( $opt_value, $args['disabled'], true )
+					: $args['disabled'] === $opt_value ),
+			);
 		}
 
 		ob_start();
-		?>
-			<select
-				id="<?php echo esc_attr( $id ); ?>"
-				name="<?php echo esc_attr( $id . $name_prefix ); ?>"
-				class="<?php echo esc_attr( $basic_classes ); ?>"
-				<?php
-				if ( $style_attr ) :
-					?>
-					style="<?php echo esc_attr( $style_attr ); ?>"<?php endif; ?>
-				<?php echo wp_kses_post( $other_attrs_html ); ?>
-			>
-				<?php
-					// Output intentionally not escaped as options are already escaped during generation & re-escaping breaks the HTML structure.
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $options_html;
-				?>
-			</select>
-		<?php
+		wpsubs_render_adv_select(
+			array(
+				'name'    => $id,
+				'value'   => $selected,
+				'options' => $adv_options,
+				'align'   => 'left',
+			)
+		);
 		return ob_get_clean();
 	}
 
