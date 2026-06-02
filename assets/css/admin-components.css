@@ -1038,3 +1038,148 @@ a.wpsubs-cell-title:hover {
   margin: 0;
   line-height: 1.6;
 }
+
+/* --------------------------------------------------------------------------
+   Toggle switch  (wpsubs-toggle + wpsubs-toggle-ui)
+
+   Usage:
+     <input type="checkbox" class="wpsubs-toggle" id="my-toggle">
+     <span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+   -------------------------------------------------------------------------- */
+.wpsubs-toggle {
+  position: absolute !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  pointer-events: none;
+}
+
+.wpsubs-toggle + .wpsubs-toggle-ui {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  transition: all 0.2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.wpsubs-toggle + .wpsubs-toggle-ui::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
+}
+
+.wpsubs-toggle:checked + .wpsubs-toggle-ui {
+  background: var(--wpsubs-brand);
+}
+
+.wpsubs-toggle:checked + .wpsubs-toggle-ui::after {
+  transform: translateX(20px);
+}
+
+.wpsubs-toggle:focus + .wpsubs-toggle-ui {
+  outline: none;
+}
+
+.wpsubs-toggle:disabled + .wpsubs-toggle-ui {
+  background: #e5e7eb;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Settings layout  (wpsubs-settings-*)
+
+   Heading — full-width section label at the top of a card group.
+   Field   — two-column row: fixed-width label on left, control on right.
+   -------------------------------------------------------------------------- */
+
+/* Heading */
+.wpsubs-settings-heading {
+  margin-bottom: 4px;
+}
+
+.wpsubs-settings-heading__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wpsubs-text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.wpsubs-settings-heading__desc {
+  font-size: 13px;
+  color: var(--wpsubs-text-muted);
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+
+/* Field row */
+.wpsubs-settings-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.wpsubs-settings-field__label {
+  flex: 0 0 220px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--wpsubs-text);
+  line-height: 1.4;
+  padding-top: 8px; /* visually align with single-line input height */
+}
+
+.wpsubs-settings-field__control {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Constrain inputs/selects to a reasonable width */
+.wpsubs-settings-field__control .wpsubs-input,
+.wpsubs-settings-field__control .wpsubs-select {
+  max-width: 400px;
+}
+
+/* Input group (joined fields) — constrain width as a whole */
+.wpsubs-settings-field__control .wpsubs-input-group {
+  max-width: 420px;
+}
+
+/* Hint / description below the control */
+.wpsubs-settings-field__hint {
+  font-size: 12.5px;
+  color: var(--wpsubs-text-muted);
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
+/* Toggle label — wraps the switch + inline label text */
+.wpsubs-settings-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  line-height: 1;
+  padding-top: 0;
+  position: relative;
+}
+
+.wpsubs-settings-toggle-label__text {
+  font-size: 13.5px;
+  color: var(--wpsubs-text);
+}
