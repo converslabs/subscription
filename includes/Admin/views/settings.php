@@ -40,9 +40,7 @@ wp_enqueue_script( 'wp-subscription-admin-settings', SUBSCRPT_ASSETS . '/js/admi
 					$field_data = $field['field_data'] ?? array();
 					SpringDevs\Subscription\Admin\SettingsHelper::render_settings_field( $field_type, $field_data );
 					?>
-					<?php if ( 'heading' === $field_type && $idx + 1 < $field_count ) : ?>
-						<div style="border-top:1px solid var(--wpsubs-border);margin:8px 0 16px;"></div>
-					<?php elseif ( 'heading' !== $field_type && $idx + 1 < $field_count ) : ?>
+					<?php if ( 'heading' !== $field_type && $idx + 1 < $field_count ) : ?>
 						<div style="border-top:1px solid #f1f5f9;margin:16px 0;"></div>
 					<?php endif; ?>
 				<?php endforeach; ?>
