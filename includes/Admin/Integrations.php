@@ -63,7 +63,6 @@ class Integrations {
 			'manage_options',
 			'wp-subscription-integrations',
 			[ $this, 'render_integrations_page' ],
-			40
 		);
 	}
 

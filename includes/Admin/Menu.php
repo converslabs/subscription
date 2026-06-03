@@ -14,6 +14,7 @@ class Menu {
 	 */
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'create_admin_menu' ) );
+		add_action( 'admin_menu', array( $this, 'reorder_submenu' ), 999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_action( 'wp_ajax_subscrpt_bulk_action', array( $this, 'handle_bulk_action_ajax' ) );
 	}
@@ -63,7 +64,7 @@ class Menu {
 		add_menu_page(
 			__( 'WPSubscription', 'subscription' ),
 			__( 'WPSubscription', 'subscription' ),
-			'manage_woocommerce',
+			'manage_options',
 			$parent_slug,
 			array( $this, 'render_subscriptions_page' ),
 			$icon_url,
@@ -75,7 +76,7 @@ class Menu {
 			$parent_slug,
 			__( 'Subscriptions', 'subscription' ),
 			__( 'Subscriptions', 'subscription' ),
-			'manage_woocommerce',
+			'manage_options',
 			$parent_slug,
 			array( $this, 'render_subscriptions_page' )
 		);
@@ -85,7 +86,7 @@ class Menu {
 			$parent_slug,
 			__( 'Reports', 'subscription' ),
 			__( 'Reports', 'subscription' ),
-			'manage_woocommerce',
+			'manage_options',
 			'wp-subscription-stats',
 			array( $this, 'render_stats_page' )
 		);
@@ -95,30 +96,17 @@ class Menu {
 			$parent_slug,
 			__( 'Health', 'subscription' ),
 			__( 'Health', 'subscription' ),
-			'manage_woocommerce',
+			'manage_options',
 			'wp-subscription-health',
 			array( $this, 'render_health_page' )
 		);
 
-		/*
-		! For god's sake, check existing code before implementing!
-		// Settings
+		// Help & Resources
 		add_submenu_page(
 			$parent_slug,
-			__( 'Settings', 'subscription' ),
-			__( 'Settings', 'subscription' ),
-			'manage_woocommerce',
-			'wp-subscription-settings',
-			array( $this, 'render_settings_page' )
-		);
-		*/
-
-		// Support
-		add_submenu_page(
-			$parent_slug,
-			__( 'Support', 'subscription' ),
-			__( 'Support', 'subscription' ),
-			'manage_woocommerce',
+			__( 'Help & Resources', 'subscription' ),
+			__( 'Help & Resources', 'subscription' ),
+			'manage_options',
 			'wp-subscription-support',
 			array( $this, 'render_support_page' )
 		);
@@ -128,11 +116,85 @@ class Menu {
 			'woocommerce',
 			__( 'WPSubscription', 'subscription' ),
 			__( 'WPSubscription', 'subscription' ),
-			'manage_woocommerce',
+			'manage_options',
 			'wp-subscription',
 			array( $this, 'render_subscriptions_page' )
 		);
 	}
+
+	/**
+	 * Reorder the WPSubscription submenu after all items are registered.
+	 *
+	 * Runs at admin_menu priority 999 so every plugin has already inserted
+	 * its items. A filter lets the Pro plugin (or any extension) adjust the
+	 * slug order before sorting is applied.
+	 *
+	 * @do_action subscrpt_submenu_order {string[]} $order Ordered list of submenu page slugs.
+	 */
+	public function reorder_submenu() {
+		$parent = 'wp-subscription';
+
+		global $submenu;
+
+		if ( empty( $submenu[ $parent ] ) ) {
+			return;
+		}
+
+		// slug => position. Use gaps of 10 so extensions can insert between items.
+		$default_order = [
+			'wp-subscription'              => 10, // Subscriptions
+			'wp-subscription-stats'        => 20, // Reports
+			'wp-subscription-delivery'     => 30, // Delivery (pro)
+			'wp-subscription-settings'     => 40, // Settings
+			'wp-subscription-health'       => 50, // Health
+			'wp-subscription-integrations' => 60, // Integrations
+			'wp-subscription-support'      => 70, // Help & Resources
+			'wp-subscription-license'      => 80, // License (pro)
+		];
+
+		/**
+		 * Filter the WPSubscription submenu slug order.
+		 *
+		 * Each entry is a slug => integer position pair. Lower positions appear
+		 * first. Use gaps of 10 between built-in positions so extensions can
+		 * insert their own slugs between existing items without renumbering.
+		 *
+		 * Example (pro plugin adding Delivery at position 35):
+		 *   add_filter( 'subscrpt_submenu_order', function( $order ) {
+		 *       $order['wp-subscription-delivery'] = 35;
+		 *       return $order;
+		 *   } );
+		 *
+		 * @param array<string,int> $order Map of slug => position.
+		 */
+		$order = apply_filters( 'subscrpt_submenu_order', $default_order );
+
+		// Sort by position value, preserving slug keys.
+		asort( $order );
+
+		// Index current items by slug for fast lookup.
+		$indexed = [];
+		foreach ( $submenu[ $parent ] as $item ) {
+			$indexed[ $item[2] ] = $item;
+		}
+
+		// Build sorted list from the ordered slugs.
+		$sorted = [];
+		foreach ( array_keys( $order ) as $slug ) {
+			if ( isset( $indexed[ $slug ] ) ) {
+				$sorted[] = $indexed[ $slug ];
+				unset( $indexed[ $slug ] );
+			}
+		}
+
+		// Append any remaining items not covered by the order list.
+		foreach ( $indexed as $item ) {
+			$sorted[] = $item;
+		}
+
+		$submenu[ $parent ] = $sorted; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Intentional reorder of submenu items.
+	}
+
 	/**
 	 * Render the admin header
 	 */
@@ -435,125 +497,9 @@ class Menu {
 	 * Render Support page
 	 */
 	public function render_support_page() {
-		$this->render_admin_header( __( 'Support', 'subscription' ), __( 'Get help and resources', 'subscription' ) );
-		?>
-		<div class="wp-subscription-admin-content" style="max-width:1240px;margin:32px auto 0 auto">
-			<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
-			<!-- HERO VARIANT 1: Emoji -->
-			<div class="wp-subscription-hero-upgrade" style="margin-bottom:18px;">
-				<div class="wp-subscription-hero-content">
-					<span class="wp-subscription-hero-icon">✨</span>
-					<span class="wp-subscription-hero-title">
-						Unlock advanced features, priority support,<br>
-						and more subscription control and reporting.
-					</span>
-				</div>
-				<a href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro"
-					target="_blank"
-					class="wp-subscription-hero-btn">
-					UPGRADE TO PRO
-				</a>
-			</div>
-			<?php endif; ?>
-			
-			<!-- Product Overview & Video -->
-			<div class="wp-subscription-admin-box" style="margin-bottom:24px;display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;">
-				<div style="flex:1;">
-					<h3>Product Overview</h3>
-					<p style="font-size:14px;line-height:1.7;margin:0 0 10px 0;">
-						WPSubscription helps you to sell products and services on a recurring basis using your existing WooCommerce store. Whether you're offering digital licenses, physical product boxes, or ongoing service plans, this plugin provides the tools to build and manage subscription models.
-					</p>
-					<ul style="font-size:14px;line-height:1.6;margin:0 0 0 18px;padding:0;list-style:disc;">
-						<li>Create simple or variable subscription products</li>
-						<li>Set billing intervals (daily, weekly, monthly, yearly)</li>
-						<li>Offer free trials and sign-up fees</li>
-						<li>Allow customers to cancel or renew subscriptions manually</li>
-						<li>View and manage subscriptions from the admin dashboard</li>
-						<li>Customize subscription behavior and role assignment</li>
-						<li>Integrate with payment gateways that support recurring billing (Stripe, PayPal)</li>
-					</ul>
-				</div>
-				<div style="flex:1;">
-					<div style="background:#f4f7fa;border-radius:8px;padding:10px 10px 6px 10px;box-shadow:0 2px 8px #e0e7ef;">
-						<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:6px;text-align: center;">
-							<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/o8usgcZp1nY?si=iPb5z7bvcy0rIyOQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-ß                        </div>
-						<!-- <div style="text-align:center;font-size:13px;color:#888;margin-top:4px;">Watch: Quick Product Tour</div> -->
-					</div>
-				</div>
-			</div>
-
-			<!-- PRO Features List -->
-			<div class="wp-subscription-admin-box wp-subscription-pro-features" style="margin-bottom:32px;">
-				<div style="font-size:1.3em;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-					<svg width="28" height="28" fill="none" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#2196f3"/><path d="M9 14.5l3 3 7-7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-					<span>WPSubscription PRO Features</span>
-				</div>
-				<ul class="wp-subscription-pro-feature-list" style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;">
-					<li style="background:#f4f7fa;border-radius:8px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px #e0e7ef;">
-						<span style="font-size:1.5em;color:#2196f3;">🔀</span>
-						<span><b>Variable Product</b><br><span style="color:#555;font-size:0.98em;">Offer flexible subscription options for variable products.</span></span>
-					</li>
-					<li style="background:#f4f7fa;border-radius:8px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px #e0e7ef;">
-						<span style="font-size:1.5em;color:#2196f3;">🚚</span>
-						<span><b>Delivery Schedule</b><br><span style="color:#555;font-size:0.98em;">Set custom delivery intervals for each subscription.</span></span>
-					</li>
-					<li style="background:#f4f7fa;border-radius:8px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px #e0e7ef;">
-						<span style="font-size:1.5em;color:#2196f3;">📜</span>
-						<span><b>Subscription History</b><br><span style="color:#555;font-size:0.98em;">Track all changes and events for every subscription.</span></span>
-					</li>
-					<li style="background:#f4f7fa;border-radius:8px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px #e0e7ef;">
-						<span style="font-size:1.5em;color:#2196f3;">⏳</span>
-						<span><b>More Subscription Durations</b><br><span style="color:#555;font-size:0.98em;">Offer more flexible and custom subscription periods.</span></span>
-					</li>
-					<li style="background:#f4f7fa;border-radius:8px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px #e0e7ef;">
-						<span style="font-size:1.5em;color:#2196f3;">💶</span>
-						<span><b>Sign Up Fee</b><br><span style="color:#555;font-size:0.98em;">Charge a one-time sign up fee for new subscribers.</span></span>
-					</li>
-					<li style="background:#f4f7fa;border-radius:8px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px #e0e7ef;">
-						<span style="font-size:1.5em;color:#2196f3;">⏩</span>
-						<span><b>Early Renewal</b><br><span style="color:#555;font-size:0.98em;">Allow customers to renew their subscription before expiry.</span></span>
-					</li>
-					<li style="background:#f4f7fa;border-radius:8px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px #e0e7ef;">
-						<span style="font-size:1.5em;color:#2196f3;">💳</span>
-						<span><b>Renewal Price</b><br><span style="color:#555;font-size:0.98em;">Set a different price for subscription renewals.</span></span>
-					</li>
-				</ul>
-			</div>
-
-			<!-- Support Resources: 2 rows, 2 columns, each in its own box -->
-			<div class="wp-subscription-support-resources" style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-bottom:24px;">
-				<div class="wp-subscription-admin-box">
-					<h3>Documentation</h3>
-					<p style="font-size:14px;margin:0 0 8px 0;">Read our <a href="https://docs.converslabs.com/en\" target=\"_blank\" style=\"color:#2271b1;\">comprehensive docs</a> for setup, migration, and advanced usage.</p>
-					<a href="https://docs.converslabs.com/en" target="_blank" class="button button-small" style="font-size:13px;padding:5px 14px;">View Docs</a>
-				</div>
-				<div class="wp-subscription-admin-box">
-					<h3>Facing An Issue?</h3>
-					<p style="font-size:14px;margin:0 0 8px 0;">If you have a problem, <a href="https://wpsubscription.co/contact\" target=\"_blank\" style=\"color:#d93025;\">open a support ticket</a> or check our FAQ.</p>
-					<a href="https://wpsubscription.co/contact" target="_blank" class="button button-small" style="font-size:13px;padding:5px 14px;">Get Support</a>
-				</div>
-				<div class="wp-subscription-admin-box">
-					<h3>Request a Feature</h3>
-					<p style="font-size:14px;margin:0 0 8px 0;">Have an idea? <a href="https://wpsubscription.co/contact\" target=\"_blank\" style=\"color:#2271b1;\">Request a feature</a> or vote on others.</p>
-					<a href="https://wpsubscription.co/contact" target="_blank" class="button button-small" style="font-size:13px;padding:5px 14px;">Request Feature</a>
-				</div>
-				<div class="wp-subscription-admin-box">
-					<h3>Show Your Love</h3>
-					<p style="font-size:14px;margin:0 0 8px 0;">Enjoying WPSubscription? <a href="https://wordpress.org/support/plugin/subscription/reviews/\" target=\"_blank\" style=\"color:#f59e42;\">Leave us a review</a> or share your experience!</p>
-					<a href="https://wordpress.org/support/plugin/subscription/reviews/" target="_blank" class="button button-small" style="font-size:13px;padding:5px 14px;">Leave a Review</a>
-				</div>
-			</div>
-		</div>
-		<div style="text-align:center;margin:38px 0 0 0;font-size:14px;color:#888;">
-			Made with <span style="color:#e25555;font-size:1.1em;">♥</span> by the WPSubscription Team
-			<div style="margin-top:6px;">
-				<a href="https://wpsubscription.co/contact" target="_blank" style="color:#2563eb;text-decoration:none;">Support</a>
-				&nbsp;/&nbsp;
-				<a href="https://docs.converslabs.com/en" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
-			</div>
-		</div>
-		<?php
+		$this->render_admin_header( __( 'Help & Resources', 'subscription' ), __( 'Documentation, community links, and ways to get help with WPSubscription.', 'subscription' ) );
+		include 'views/support.php';
+		$this->render_admin_footer();
 	}
 
 	/**
