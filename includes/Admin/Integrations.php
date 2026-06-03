@@ -206,7 +206,7 @@ class Integrations {
 	 */
 	protected function get_integrations(): array {
 		$integrations = [
-			[
+			'paypal'   => [
 				'title'              => 'PayPal',
 				'description'        => 'Accept subscription payments via PayPal.',
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/paypal.svg',
@@ -236,7 +236,7 @@ class Integrations {
 					// ],
 				],
 			],
-			[
+			'stripe'   => [
 				'title'              => 'Stripe',
 				'description'        => 'Process subscription payments securely with Stripe.',
 				'icon_url'           => 'https://ps.w.org/woocommerce-gateway-stripe/assets/icon-256x256.png',
@@ -259,7 +259,7 @@ class Integrations {
 					],
 				],
 			],
-			[
+			'paddle'   => [
 				'title'              => 'Paddle',
 				'description'        => 'Process subscription payments securely with Paddle.',
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/paddle.svg',
@@ -294,7 +294,314 @@ class Integrations {
 					],
 				],
 			],
+			'mollie'   => [
+				'title'              => 'Mollie',
+				'description'        => 'Pay for subscriptions with Mollie Payments for WooCommerce.',
+				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/mollie.png',
+				'type'               => 'payment_gateway',
+				'is_pro'             => true,
+				'is_beta'            => true,
+				'is_installed'       => class_exists( 'Mollie\WooCommerce\Activation\ActivationModule' ),
+				'is_active'          => self::is_gateway_enabled( 'mollie_wc_gateway', true ),
+				'supports_recurring' => true,
+				'actions'            => [
+					[
+						'action'   => 'install',
+						'label'    => 'Install Now',
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'mollie-payments-for-woocommerce')",
+					],
+					[
+						'action' => 'settings',
+						'label'  => 'Settings',
+						'type'   => 'link',
+						'url'    => admin_url( 'admin.php?page=wc-settings&tab=mollie_settings' ),
+					],
+					[
+						'label' => 'More Details',
+						'type'  => 'external_link',
+						'url'   => 'https://docs.converslabs.com/en/wpsubscription-payment-with-mollie',
+					],
+				],
+			],
+			'razorpay' => [
+				'title'              => 'Razorpay',
+				'description'        => 'Pay for subscriptions securely with Razorpay for WooCommerce.',
+				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/razorpay.png',
+				'type'               => 'payment_gateway',
+				'is_pro'             => true,
+				'is_beta'            => true,
+				'is_installed'       => class_exists( 'WC_Razorpay' ),
+				'is_active'          => self::is_gateway_enabled( 'razorpay' ),
+				'supports_recurring' => true,
+				'actions'            => [
+					[
+						'action'   => 'install',
+						'label'    => 'Install Now',
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'woo-razorpay')",
+					],
+					[
+						'action' => 'settings',
+						'label'  => 'Settings',
+						'type'   => 'link',
+						'url'    => admin_url( 'admin.php?page=wc-settings&tab=checkout&section=razorpay' ),
+					],
+					[
+						'label' => 'More Details',
+						'type'  => 'external_link',
+						'url'   => 'https://docs.converslabs.com/en/wpsubscription-payment-with-razorpay',
+					],
+				],
+			],
+			'xendit'   => [
+				'title'              => 'Xendit',
+				'description'        => 'Pay for subscriptions securely with Xendit for WooCommerce.',
+				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/xendit.png',
+				'type'               => 'payment_gateway',
+				'is_pro'             => true,
+				'is_beta'            => true,
+				'is_installed'       => class_exists( 'WC_Xendit_CC' ),
+				'is_active'          => self::is_gateway_enabled( 'xendit' ),
+				'supports_recurring' => true,
+				'actions'            => [
+					[
+						'action'   => 'install',
+						'label'    => 'Install Now',
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'woo-xendit-virtual-accounts')",
+					],
+					[
+						'action' => 'settings',
+						'label'  => 'Settings',
+						'type'   => 'link',
+						'url'    => admin_url( 'admin.php?page=wc-settings&tab=checkout&section=xendit_gateway' ),
+					],
+					[
+						'label' => 'More Details',
+						'type'  => 'external_link',
+						'url'   => 'https://docs.converslabs.com/en/wpsubscription-payment-with-xendit',
+					],
+				],
+			],
 		];
+
+		// Third-party integrations (requires Pro plugin to function).
+		$third_party = [
+			// LMS.
+			'tutor_lms'   => [
+				'title'        => 'Tutor LMS',
+				'description'  => 'Restrict course access based on subscription status. Enroll and unenroll students automatically.',
+				'icon_url'     => 'https://ps.w.org/tutor/assets/icon-256x256.gif',
+				'type'         => 'third_party',
+				'is_pro'       => true,
+				'category'     => 'lms',
+				'is_installed' => is_plugin_active( 'tutor/tutor.php' ) && class_exists( 'TUTOR\Tutor' ),
+				'is_active'    => is_plugin_active( 'tutor/tutor.php' ) && class_exists( 'TUTOR\Tutor' ),
+				'actions'      => [
+					[
+						'action'   => 'install',
+						'label'    => __( 'Install Now', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'tutor')",
+					],
+					[
+						'label' => __( 'Learn More', 'subscription' ),
+						'type'  => 'external_link',
+						'url'   => 'https://docs.converslabs.com/en/wpsubscription-tutor-lms',
+					],
+				],
+			],
+			'learnpress'  => [
+				'title'        => 'LearnPress',
+				'description'  => 'Connect subscriptions with LearnPress courses. Enroll users automatically when subscriptions are active.',
+				'icon_url'     => 'https://ps.w.org/learnpress/assets/icon-256x256.gif',
+				'type'         => 'third_party',
+				'is_pro'       => true,
+				'category'     => 'lms',
+				'is_installed' => is_plugin_active( 'learnpress/learnpress.php' ) && class_exists( 'LearnPress' ),
+				'is_active'    => is_plugin_active( 'learnpress/learnpress.php' ) && class_exists( 'LearnPress' ),
+				'actions'      => [
+					[
+						'action'   => 'install',
+						'label'    => __( 'Install Now', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'learnpress')",
+					],
+					[
+						'label' => __( 'Learn More', 'subscription' ),
+						'type'  => 'external_link',
+						'url'   => 'https://docs.converslabs.com/en/wpsubscription-learnpress-lms',
+					],
+				],
+			],
+			'learndash'   => [
+				'title'        => 'LearnDash',
+				'description'  => 'Sync subscription status with LearnDash group enrollment and course access.',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/learndash.jpeg',
+				'type'         => 'third_party',
+				'is_pro'       => true,
+				'category'     => 'lms',
+				'is_installed' => is_plugin_active( 'sfwd-lms/sfwd_lms.php' ) && class_exists( 'LearnDash\Core\App' ),
+				'is_active'    => is_plugin_active( 'sfwd-lms/sfwd_lms.php' ) && class_exists( 'LearnDash\Core\App' ),
+				'actions'      => [
+					[
+						'action' => 'install',
+						'label'  => __( 'Get LearnDash', 'subscription' ),
+						'type'   => 'external_link',
+						'url'    => 'https://www.learndash.com/',
+					],
+					[
+						'label' => __( 'Learn More', 'subscription' ),
+						'type'  => 'external_link',
+						'url'   => 'https://docs.converslabs.com/en/wpsubscription-learndash-lms',
+					],
+				],
+			],
+			// CRM.
+			'fluentcrm'   => [
+				'title'        => 'FluentCRM',
+				'description'  => 'Trigger email sequences and manage contacts based on subscription events and status changes.',
+				'icon_url'     => 'https://ps.w.org/fluent-crm/assets/icon-256x256.png',
+				'type'         => 'third_party',
+				'is_pro'       => true,
+				'category'     => 'crm',
+				'is_installed' => class_exists( 'FluentCrm\App\Services\Funnel\BaseTrigger' ),
+				'is_active'    => class_exists( 'FluentCrm\App\Services\Funnel\BaseTrigger' ),
+				'actions'      => [
+					[
+						'action'   => 'install',
+						'label'    => __( 'Install Now', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'fluent-crm')",
+					],
+					[
+						'label' => __( 'Learn More', 'subscription' ),
+						'type'  => 'external_link',
+						'url'   => 'https://docs.converslabs.com/en/wpsubscription-fluent-crm',
+					],
+				],
+			],
+			// Automation.
+			'automatorwp' => [
+				'title'        => 'AutomatorWP',
+				'description'  => 'Build powerful automations triggered by subscription events without writing any code.',
+				'icon_url'     => 'https://ps.w.org/automatorwp/assets/icon-256x256.png',
+				'type'         => 'third_party',
+				'is_pro'       => true,
+				'category'     => 'automation',
+				'is_installed' => is_plugin_active( 'automatorwp/automatorwp.php' ) && class_exists( 'AutomatorWP' ),
+				'is_active'    => is_plugin_active( 'automatorwp/automatorwp.php' ) && class_exists( 'AutomatorWP' ),
+				'actions'      => [
+					[
+						'action'   => 'install',
+						'label'    => __( 'Install Now', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'automatorwp')",
+					],
+					// [
+					// 'label' => __( 'Learn More', 'subscription' ),
+					// 'type'  => 'external_link',
+					// 'url'   => 'https://docs.converslabs.com/en/',
+					// ],
+				],
+			],
+			'wpfusion'    => [
+				'title'        => 'WP Fusion',
+				'description'  => 'Sync subscription data with your CRM and marketing platforms through WP Fusion.',
+				'icon_url'     => 'https://ps.w.org/wp-fusion-lite/assets/icon-256x256.png',
+				'type'         => 'third_party',
+				'is_pro'       => true,
+				'category'     => 'automation',
+				'is_installed' => class_exists( 'WPF_Integrations_Base' ),
+				'is_active'    => class_exists( 'WPF_Integrations_Base' ),
+				'actions'      => [
+					[
+						'action' => 'install',
+						'label'  => __( 'Get WP Fusion', 'subscription' ),
+						'type'   => 'external_link',
+						'url'    => 'https://wpfusion.com/',
+					],
+					// [
+					// 'label' => __( 'Learn More', 'subscription' ),
+					// 'type'  => 'external_link',
+					// 'url'   => 'https://docs.converslabs.com/en/',
+					// ],
+				],
+			],
+			// Email Marketing.
+			'mailpoet'    => [
+				'title'        => 'MailPoet',
+				'description'  => 'Add subscribers to MailPoet lists and trigger email automations based on subscription lifecycle events.',
+				'icon_url'     => 'https://ps.w.org/mailpoet/assets/icon-256x256.png',
+				'type'         => 'third_party',
+				'is_pro'       => true,
+				'category'     => 'email',
+				'is_installed' => is_plugin_active( 'mailpoet/mailpoet.php' ) || is_plugin_active( 'mailpoet-premium/mailpoet-premium.php' ),
+				'is_active'    => is_plugin_active( 'mailpoet/mailpoet.php' ) || is_plugin_active( 'mailpoet-premium/mailpoet-premium.php' ),
+				'actions'      => [
+					[
+						'action'   => 'install',
+						'label'    => __( 'Install Now', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'mailpoet')",
+					],
+					[
+						'label' => __( 'Learn More', 'subscription' ),
+						'type'  => 'external_link',
+						'url'   => 'https://docs.converslabs.com/en/wpsubscription-mailpoet',
+					],
+				],
+			],
+			// License Management.
+			'license_mgr' => [
+				'title'        => 'License Manager for WooCommerce',
+				'description'  => 'Generate and manage software license keys that are automatically tied to active subscriptions.',
+				'icon_url'     => 'https://ps.w.org/license-manager-for-woocommerce/assets/icon-256x256.gif',
+				'type'         => 'third_party',
+				'is_pro'       => true,
+				'category'     => 'license',
+				'is_installed' => is_plugin_active( 'license-manager-for-woocommerce/license-manager-for-woocommerce.php' ) && class_exists( 'LicenseManagerForWooCommerce\Models\Resources\License' ),
+				'is_active'    => is_plugin_active( 'license-manager-for-woocommerce/license-manager-for-woocommerce.php' ) && class_exists( 'LicenseManagerForWooCommerce\Models\Resources\License' ),
+				'actions'      => [
+					[
+						'action'   => 'install',
+						'label'    => __( 'Install Now', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'license-manager-for-woocommerce')",
+					],
+					// [
+					// 'label' => __( 'Learn More', 'subscription' ),
+					// 'type'  => 'external_link',
+					// 'url'   => 'https://docs.converslabs.com/en/',
+					// ],
+				],
+			],
+			'wp_soft_lic' => [
+				'title'        => 'WP Software License',
+				'description'  => 'Issue and validate software licenses for subscription-based digital products.',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/wp-software-license.png',
+				'type'         => 'third_party',
+				'is_pro'       => true,
+				'category'     => 'license',
+				'is_installed' => is_plugin_active( 'software-license/software-license.php' ) && class_exists( 'WOO_SL' ),
+				'is_active'    => is_plugin_active( 'software-license/software-license.php' ) && class_exists( 'WOO_SL' ),
+				'actions'      => [
+					[
+						'action' => 'install',
+						'label'  => __( 'Get Plugin', 'subscription' ),
+						'type'   => 'external_link',
+						'url'    => 'https://wpsoftwarelicense.com/',
+					],
+					// [
+					// 'label' => __( 'Learn More', 'subscription' ),
+					// 'type'  => 'external_link',
+					// 'url'   => 'https://docs.converslabs.com/en/',
+					// ],
+				],
+			],
+		];
+		$integrations = array_merge( $integrations, $third_party );
 
 		// Add more integrations as needed.
 		$integrations = apply_filters( 'wpsubs_integrations', $integrations );
