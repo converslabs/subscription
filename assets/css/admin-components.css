@@ -276,6 +276,12 @@
   flex-shrink: 0;
 }
 
+.wpsubs-btn--sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
 /* --------------------------------------------------------------------------
    Tooltip  (wpsubs-tooltip)
    CSS-only. Wrap any element with .wpsubs-tooltip and set data-tip="text".

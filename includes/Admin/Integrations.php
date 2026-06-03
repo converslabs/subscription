@@ -210,6 +210,7 @@ class Integrations {
 				'title'              => 'PayPal',
 				'description'        => 'Accept subscription payments via PayPal.',
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/paypal.svg',
+				'type'               => 'payment_gateway',
 				'is_installed'       => 'on' === get_option( 'wp_subs_paypal_integration_enabled', 'off' ),
 				'is_active'          => self::is_gateway_enabled( 'wp_subscription_paypal' ),
 				'supports_recurring' => true,
@@ -239,6 +240,7 @@ class Integrations {
 				'title'              => 'Stripe',
 				'description'        => 'Process subscription payments securely with Stripe.',
 				'icon_url'           => 'https://ps.w.org/woocommerce-gateway-stripe/assets/icon-256x256.png',
+				'type'               => 'payment_gateway',
 				'is_installed'       => class_exists( 'WC_Stripe' ),
 				'is_active'          => self::is_gateway_enabled( 'stripe' ),
 				'supports_recurring' => true,
@@ -261,6 +263,7 @@ class Integrations {
 				'title'              => 'Paddle',
 				'description'        => 'Process subscription payments securely with Paddle.',
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/paddle.svg',
+				'type'               => 'payment_gateway',
 				'is_installed'       => class_exists( 'SmartPayWoo\Gateways\Paddle\SmartPay_Paddle' ),
 				'is_active'          => self::is_gateway_enabled( 'smartpay_paddle' ),
 				'supports_recurring' => true,
@@ -357,10 +360,6 @@ class Integrations {
 	 * Render the Integrations admin page.
 	 */
 	public function render_integrations_page() {
-		if ( ! empty( $_GET['subscrpt_installed'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Plugin installed and activated successfully.', 'subscription' ) . '</p></div>';
-		}
-
 		$integrations = $this->integrations;
 		$integrations = $this->filter_integration_actions( $integrations );
 
