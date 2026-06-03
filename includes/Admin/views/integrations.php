@@ -140,24 +140,34 @@ $category_config = [
 					<!-- Description -->
 					<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.5;"><?php echo esc_html( $integration['description'] ?? '' ); ?></p>
 
+					<!-- Separator -->
+					<div style="border-top:1px solid var(--wpsubs-border);margin:auto -16px 0;"></div>
+
 					<!-- Actions -->
-					<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;">
-						<?php
-						foreach ( $integration['actions'] as $action ) :
-							$is_primary = ( 'function' === $action['type'] );
-							$btn_class  = $is_primary ? 'wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm' : 'wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm';
-							?>
-							<?php if ( 'link' === $action['type'] ) : ?>
-								<a href="<?php echo esc_url( $action['url'] ); ?>" class="<?php echo esc_attr( $btn_class ); ?>"><?php echo esc_html( $action['label'] ); ?></a>
-							<?php elseif ( 'external_link' === $action['type'] ) : ?>
-								<a href="<?php echo esc_url( $action['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="<?php echo esc_attr( $btn_class ); ?>">
-									<?php echo esc_html( $action['label'] ); ?>
-									<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-								</a>
-							<?php elseif ( 'function' === $action['type'] ) : ?>
-								<button class="<?php echo esc_attr( $btn_class ); ?>" onclick="<?php echo esc_attr( $action['function'] ); ?>"><?php echo esc_html( $action['label'] ); ?></button>
-							<?php endif; ?>
-						<?php endforeach; ?>
+					<div style="display:flex;gap:6px;flex-wrap:wrap;">
+						<?php if ( $is_pro && ! defined( 'SUBSCRIPT_PRO_VERSION' ) ) : ?>
+							<div style="width:100%;display:flex;align-items:center;gap:6px;background:#f5f3ff;border-radius:6px;padding:7px 10px;font-size:12px;font-weight:500;color:#7c3aed;line-height:1.4;">
+								<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+								<?php esc_html_e( 'WPSubscription Pro required', 'subscription' ); ?>
+							</div>
+						<?php else : ?>
+							<?php
+							foreach ( $integration['actions'] as $action ) :
+								$is_primary = ( 'function' === $action['type'] );
+								$btn_class  = $is_primary ? 'wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm' : 'wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm';
+								?>
+								<?php if ( 'link' === $action['type'] ) : ?>
+									<a href="<?php echo esc_url( $action['url'] ); ?>" class="<?php echo esc_attr( $btn_class ); ?>"><?php echo esc_html( $action['label'] ); ?></a>
+								<?php elseif ( 'external_link' === $action['type'] ) : ?>
+									<a href="<?php echo esc_url( $action['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="<?php echo esc_attr( $btn_class ); ?>">
+										<?php echo esc_html( $action['label'] ); ?>
+										<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+									</a>
+								<?php elseif ( 'function' === $action['type'] ) : ?>
+									<button class="<?php echo esc_attr( $btn_class ); ?>" onclick="<?php echo esc_attr( $action['function'] ); ?>"><?php echo esc_html( $action['label'] ); ?></button>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						<?php endif; ?>
 					</div>
 
 				</div>
@@ -225,24 +235,34 @@ $category_config = [
 					<!-- Description -->
 					<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.5;"><?php echo esc_html( $integration['description'] ?? '' ); ?></p>
 
+					<!-- Separator -->
+					<div style="border-top:1px solid var(--wpsubs-border);margin:auto -16px 0;"></div>
+
 					<!-- Actions -->
-					<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;">
-						<?php
-						foreach ( $integration['actions'] as $action ) :
-							$is_primary = ( 'function' === $action['type'] );
-							$btn_class  = $is_primary ? 'wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm' : 'wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm';
-							?>
-							<?php if ( 'link' === $action['type'] ) : ?>
-								<a href="<?php echo esc_url( $action['url'] ); ?>" class="<?php echo esc_attr( $btn_class ); ?>"><?php echo esc_html( $action['label'] ); ?></a>
-							<?php elseif ( 'external_link' === $action['type'] ) : ?>
-								<a href="<?php echo esc_url( $action['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="<?php echo esc_attr( $btn_class ); ?>">
-									<?php echo esc_html( $action['label'] ); ?>
-									<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-								</a>
-							<?php elseif ( 'function' === $action['type'] ) : ?>
-								<button class="<?php echo esc_attr( $btn_class ); ?>" onclick="<?php echo esc_attr( $action['function'] ); ?>"><?php echo esc_html( $action['label'] ); ?></button>
-							<?php endif; ?>
-						<?php endforeach; ?>
+					<div style="display:flex;gap:6px;flex-wrap:wrap;">
+						<?php if ( $is_pro && ! defined( 'SUBSCRIPT_PRO_VERSION' ) ) : ?>
+							<div style="width:100%;display:flex;align-items:center;gap:6px;background:#f5f3ff;border-radius:6px;padding:7px 10px;font-size:12px;font-weight:500;color:#7c3aed;line-height:1.4;">
+								<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+								<?php esc_html_e( 'WPSubscription Pro required', 'subscription' ); ?>
+							</div>
+						<?php else : ?>
+							<?php
+							foreach ( $integration['actions'] as $action ) :
+								$is_primary = ( 'function' === $action['type'] );
+								$btn_class  = $is_primary ? 'wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm' : 'wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm';
+								?>
+								<?php if ( 'link' === $action['type'] ) : ?>
+									<a href="<?php echo esc_url( $action['url'] ); ?>" class="<?php echo esc_attr( $btn_class ); ?>"><?php echo esc_html( $action['label'] ); ?></a>
+								<?php elseif ( 'external_link' === $action['type'] ) : ?>
+									<a href="<?php echo esc_url( $action['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="<?php echo esc_attr( $btn_class ); ?>">
+										<?php echo esc_html( $action['label'] ); ?>
+										<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+									</a>
+								<?php elseif ( 'function' === $action['type'] ) : ?>
+									<button class="<?php echo esc_attr( $btn_class ); ?>" onclick="<?php echo esc_attr( $action['function'] ); ?>"><?php echo esc_html( $action['label'] ); ?></button>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						<?php endif; ?>
 					</div>
 
 				</div>

@@ -208,7 +208,7 @@ class Integrations {
 		$integrations = [
 			'paypal'   => [
 				'title'              => 'PayPal',
-				'description'        => 'Accept subscription payments via PayPal.',
+				'description'        => 'Accept recurring subscription payments directly through PayPal.',
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/paypal.svg',
 				'type'               => 'payment_gateway',
 				'is_installed'       => 'on' === get_option( 'wp_subs_paypal_integration_enabled', 'off' ),
@@ -554,29 +554,6 @@ class Integrations {
 				],
 			],
 			// License Management.
-			'license_mgr' => [
-				'title'        => 'License Manager for WooCommerce',
-				'description'  => 'Generate and manage software license keys that are automatically tied to active subscriptions.',
-				'icon_url'     => 'https://ps.w.org/license-manager-for-woocommerce/assets/icon-256x256.gif',
-				'type'         => 'third_party',
-				'is_pro'       => true,
-				'category'     => 'license',
-				'is_installed' => is_plugin_active( 'license-manager-for-woocommerce/license-manager-for-woocommerce.php' ) && class_exists( 'LicenseManagerForWooCommerce\Models\Resources\License' ),
-				'is_active'    => is_plugin_active( 'license-manager-for-woocommerce/license-manager-for-woocommerce.php' ) && class_exists( 'LicenseManagerForWooCommerce\Models\Resources\License' ),
-				'actions'      => [
-					[
-						'action'   => 'install',
-						'label'    => __( 'Install Now', 'subscription' ),
-						'type'     => 'function',
-						'function' => "subscrptInstallPlugin(this, 'license-manager-for-woocommerce')",
-					],
-					// [
-					// 'label' => __( 'Learn More', 'subscription' ),
-					// 'type'  => 'external_link',
-					// 'url'   => 'https://docs.converslabs.com/en/',
-					// ],
-				],
-			],
 			'wp_soft_lic' => [
 				'title'        => 'WP Software License',
 				'description'  => 'Issue and validate software licenses for subscription-based digital products.',
@@ -592,6 +569,29 @@ class Integrations {
 						'label'  => __( 'Get Plugin', 'subscription' ),
 						'type'   => 'external_link',
 						'url'    => 'https://wpsoftwarelicense.com/',
+					],
+					// [
+					// 'label' => __( 'Learn More', 'subscription' ),
+					// 'type'  => 'external_link',
+					// 'url'   => 'https://docs.converslabs.com/en/',
+					// ],
+				],
+			],
+			'license_mgr' => [
+				'title'        => 'License Manager for WooCommerce',
+				'description'  => 'Generate and manage software license keys that are automatically tied to active subscriptions.',
+				'icon_url'     => 'https://ps.w.org/license-manager-for-woocommerce/assets/icon-256x256.gif',
+				'type'         => 'third_party',
+				'is_pro'       => true,
+				'category'     => 'license',
+				'is_installed' => is_plugin_active( 'license-manager-for-woocommerce/license-manager-for-woocommerce.php' ) && class_exists( 'LicenseManagerForWooCommerce\Models\Resources\License' ),
+				'is_active'    => is_plugin_active( 'license-manager-for-woocommerce/license-manager-for-woocommerce.php' ) && class_exists( 'LicenseManagerForWooCommerce\Models\Resources\License' ),
+				'actions'      => [
+					[
+						'action'   => 'install',
+						'label'    => __( 'Install Now', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'license-manager-for-woocommerce')",
 					],
 					// [
 					// 'label' => __( 'Learn More', 'subscription' ),
