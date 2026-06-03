@@ -209,7 +209,7 @@ class Integrations {
 			[
 				'title'              => 'PayPal',
 				'description'        => 'Accept subscription payments via PayPal.',
-				'icon_url'           => SUBSCRPT_ASSETS . '/images/paypal.svg',
+				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/paypal.svg',
 				'type'               => 'payment_gateway',
 				'is_installed'       => 'on' === get_option( 'wp_subs_paypal_integration_enabled', 'off' ),
 				'is_active'          => self::is_gateway_enabled( 'wp_subscription_paypal' ),
@@ -262,7 +262,7 @@ class Integrations {
 			[
 				'title'              => 'Paddle',
 				'description'        => 'Process subscription payments securely with Paddle.',
-				'icon_url'           => SUBSCRPT_ASSETS . '/images/paddle.svg',
+				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/paddle.svg',
 				'type'               => 'payment_gateway',
 				'is_installed'       => class_exists( 'SmartPayWoo\Gateways\Paddle\SmartPay_Paddle' ),
 				'is_active'          => self::is_gateway_enabled( 'smartpay_paddle' ),
