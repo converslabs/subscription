@@ -83,6 +83,7 @@ $category_config = [
 				$is_installed = ! empty( $integration['is_installed'] );
 				$is_active    = ! empty( $integration['is_active'] );
 				$is_beta      = ! empty( $integration['is_beta'] );
+				$is_pro       = ! empty( $integration['is_pro'] );
 				$icon_url     = $integration['icon_url'] ?? '';
 				$icon_initial = $integration['icon_initial'] ?? strtoupper( substr( $integration['title'], 0, 2 ) );
 				$icon_color   = $integration['icon_color'] ?? '#64748b';
@@ -118,6 +119,9 @@ $category_config = [
 								</span>
 							</div>
 							<div style="display:flex;flex-wrap:wrap;gap:4px;">
+								<?php if ( $is_pro ) : ?>
+									<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:#f5f3ff;color:#7c3aed;line-height:1.6;"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
+								<?php endif; ?>
 								<?php if ( $is_beta ) : ?>
 									<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;background:#fff7ed;color:#c2410c;line-height:1.6;"><?php esc_html_e( 'Beta', 'subscription' ); ?></span>
 								<?php endif; ?>
@@ -172,6 +176,7 @@ $category_config = [
 			<?php foreach ( $third_party as $integration ) : ?>
 				<?php
 				$is_active    = ! empty( $integration['is_active'] );
+				$is_pro       = ! empty( $integration['is_pro'] );
 				$icon_url     = $integration['icon_url'] ?? '';
 				$icon_initial = $integration['icon_initial'] ?? strtoupper( substr( $integration['title'], 0, 2 ) );
 				$icon_color   = $integration['icon_color'] ?? '#64748b';
@@ -204,9 +209,14 @@ $category_config = [
 									<?php echo esc_html( $status_text ); ?>
 								</span>
 							</div>
-							<?php if ( $cat['label'] ) : ?>
+							<?php if ( $cat['label'] || $is_pro ) : ?>
 								<div style="display:flex;flex-wrap:wrap;gap:4px;">
-									<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;background:<?php echo esc_attr( $cat['bg'] ); ?>;color:<?php echo esc_attr( $cat['color'] ); ?>;line-height:1.6;"><?php echo esc_html( $cat['label'] ); ?></span>
+									<?php if ( $is_pro ) : ?>
+										<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:#f5f3ff;color:#7c3aed;line-height:1.6;"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
+									<?php endif; ?>
+									<?php if ( $cat['label'] ) : ?>
+										<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;background:<?php echo esc_attr( $cat['bg'] ); ?>;color:<?php echo esc_attr( $cat['color'] ); ?>;line-height:1.6;"><?php echo esc_html( $cat['label'] ); ?></span>
+									<?php endif; ?>
 								</div>
 							<?php endif; ?>
 						</div>
