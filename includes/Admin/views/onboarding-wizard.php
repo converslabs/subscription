@@ -390,6 +390,106 @@ if ( $product_id > 0 ) {
 .p2-nav-back:hover {
 	color: var(--wpsubs-text);
 }
+/* Product search */
+.p2-product-search {
+	position: relative;
+}
+.p2-product-search__input-wrap {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius);
+	padding: 0 12px;
+	background: var(--wpsubs-surface);
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+.p2-product-search__input-wrap:focus-within {
+	border-color: var(--wpsubs-brand);
+	box-shadow: 0 0 0 3px var(--wpsubs-brand-ring);
+}
+.p2-product-search__icon {
+	color: var(--wpsubs-text-muted);
+	flex-shrink: 0;
+}
+.p2-product-search__input,
+.p2-product-search__input:focus {
+	flex: 1;
+	border: none !important;
+	outline: none !important;
+	box-shadow: none !important;
+	padding: 9px 0 !important;
+	font-size: 13px;
+	background: transparent !important;
+}
+.p2-product-search__dropdown {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 0;
+	right: 0;
+	background: var(--wpsubs-surface);
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius);
+	box-shadow: var(--wpsubs-shadow-md);
+	z-index: 999;
+	max-height: 300px;
+	overflow-y: auto;
+	padding: 4px;
+}
+.p2-product-search__item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 9px 10px;
+	border-radius: var(--wpsubs-radius-sm);
+	cursor: pointer;
+	transition: background 0.1s;
+}
+.p2-product-search__item:hover {
+	background: var(--wpsubs-surface-muted);
+}
+.p2-product-search__avatar {
+	width: 36px;
+	height: 36px;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	font-weight: 700;
+	flex-shrink: 0;
+}
+.p2-product-search__info {
+	flex: 1;
+	min-width: 0;
+}
+.p2-product-search__name {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wpsubs-text);
+	margin: 0 0 2px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.p2-product-search__meta {
+	font-size: 12px;
+	color: var(--wpsubs-text-muted);
+	margin: 0;
+}
+.p2-product-search__price {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wpsubs-text);
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+.p2-product-search__empty {
+	padding: 12px 10px;
+	font-size: 13px;
+	color: var(--wpsubs-text-muted);
+	text-align: center;
+}
 /* Billing every group — number input + standalone adv-select */
 .p2-billing-group {
 	width: 100%;
@@ -814,25 +914,87 @@ if ( $product_id > 0 ) {
 				<!-- Existing product selector -->
 				<?php if ( ! empty( $products ) ) : ?>
 				<div id="subscrpt-existing-product-fields" style="<?php echo 'existing' !== ( isset( $session_data['product_mode'] ) ? $session_data['product_mode'] : '' ) ? 'display:none;' : ''; ?>">
-					<div id="subscrpt-product-select-wrap" style="display:block;">
-						<select id="subscrpt_existing_product" name="subscrpt_existing_product" class="wpsubs-select" style="width:100%;display:block;">
-							<option value=""><?php esc_html_e( '— Select a product —', 'subscription' ); ?></option>
-							<?php
-							foreach ( $products as $p ) :
-								$wc_p  = wc_get_product( $p->ID );
-								$price = $wc_p ? $wc_p->get_price() : '';
-								$type  = $wc_p ? ucfirst( $wc_p->get_type() ) . ' ' . __( 'product', 'subscription' ) : '';
-								$sku   = $wc_p ? $wc_p->get_sku() : '';
-								?>
-								<option value="<?php echo esc_attr( $p->ID ); ?>"
+					<div id="subscrpt-product-select-wrap">
+						<?php
+						$avatar_palette = array(
+							array(
+								'bg' => '#fde8d8',
+								'fg' => '#b85c20',
+							),
+							array(
+								'bg' => '#dbeafe',
+								'fg' => '#1d4ed8',
+							),
+							array(
+								'bg' => '#ede9fe',
+								'fg' => '#6d28d9',
+							),
+							array(
+								'bg' => '#d1fae5',
+								'fg' => '#065f46',
+							),
+							array(
+								'bg' => '#fce7f3',
+								'fg' => '#9d174d',
+							),
+							array(
+								'bg' => '#fef9c3',
+								'fg' => '#854d0e',
+							),
+						);
+						?>
+						<div class="p2-product-search">
+							<div class="p2-product-search__input-wrap">
+								<svg class="p2-product-search__icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+								<input type="text" class="p2-product-search__input wpsubs-input" id="subscrpt-product-search-input"
+									placeholder="<?php esc_attr_e( 'Search WooCommerce products by name or SKU...', 'subscription' ); ?>"
+									autocomplete="off">
+							</div>
+							<div class="p2-product-search__dropdown" id="subscrpt-product-search-dropdown" style="display:none;">
+								<?php
+								foreach ( $products as $i => $p ) :
+									$wc_p     = wc_get_product( $p->ID );
+									$price    = $wc_p ? $wc_p->get_price() : '';
+									$type     = $wc_p ? ucfirst( $wc_p->get_type() ) . ' ' . __( 'product', 'subscription' ) : '';
+									$sku      = $wc_p ? $wc_p->get_sku() : '';
+									$words    = array_filter( explode( ' ', $p->post_title ) );
+									$initials = implode(
+										'',
+										array_slice(
+											array_map(
+												function ( $w ) {
+													return mb_strtoupper( mb_substr( $w, 0, 1 ) );
+												},
+												$words
+											),
+											0,
+											2
+										)
+									);
+									$color    = $avatar_palette[ $i % count( $avatar_palette ) ];
+									?>
+								<div class="p2-product-search__item"
+									data-id="<?php echo esc_attr( $p->ID ); ?>"
 									data-price="<?php echo esc_attr( $price ); ?>"
 									data-type="<?php echo esc_attr( $type ); ?>"
 									data-sku="<?php echo esc_attr( $sku ); ?>"
-									<?php echo $product_id === $p->ID ? 'selected' : ''; ?>>
-									<?php echo esc_html( $p->post_title ); ?>
-								</option>
-							<?php endforeach; ?>
-						</select>
+									data-name="<?php echo esc_attr( $p->post_title ); ?>">
+									<div class="p2-product-search__avatar" style="background:<?php echo esc_attr( $color['bg'] ); ?>;color:<?php echo esc_attr( $color['fg'] ); ?>">
+										<?php echo esc_html( $initials ?: '?' ); ?>
+									</div>
+									<div class="p2-product-search__info">
+										<p class="p2-product-search__name"><?php echo esc_html( $p->post_title ); ?></p>
+										<p class="p2-product-search__meta"><?php echo esc_html( ( $sku ? 'SKU ' . $sku . ' · ' : '' ) . $type ); ?></p>
+									</div>
+									<?php if ( '' !== $price ) : ?>
+									<span class="p2-product-search__price"><?php echo esc_html( get_woocommerce_currency_symbol() . number_format( (float) $price, 2 ) ); ?></span>
+									<?php endif; ?>
+								</div>
+								<?php endforeach; ?>
+								<div class="p2-product-search__empty" style="display:none;"><?php esc_html_e( 'No products found.', 'subscription' ); ?></div>
+							</div>
+						</div>
+						<input type="hidden" name="subscrpt_existing_product" id="subscrpt-existing-product-hidden" value="<?php echo $product_id > 0 ? esc_attr( $product_id ) : ''; ?>">
 					</div>
 					<div id="subscrpt-selected-product-chip" class="p2-selected-product" style="display:none;">
 						<div class="p2-selected-product__avatar" id="p2-chip-avatar"></div>

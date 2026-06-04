@@ -33,8 +33,15 @@
       $(document).on("click", "#subscrpt-btn-create-new", $.proxy(this.showNewProduct, this));
       $(document).on("click", "#subscrpt-btn-use-existing", $.proxy(this.showExistingProduct, this));
 
-      // Page 2: existing product selection → chip
-      $(document).on("change", "#subscrpt_existing_product", $.proxy(this.onProductSelected, this));
+      // Page 2: product search
+      $(document).on("focus", "#subscrpt-product-search-input", $.proxy(this.openProductSearch, this));
+      $(document).on("input", "#subscrpt-product-search-input", $.proxy(this.filterProducts, this));
+      $(document).on("click", ".p2-product-search__item", $.proxy(this.onProductItemClick, this));
+      $(document).on("click", function (e) {
+        if (!$(e.target).closest(".p2-product-search").length) {
+          $("#subscrpt-product-search-dropdown").hide();
+        }
+      });
       $(document).on("click", "#subscrpt-btn-clear-product", $.proxy(this.clearProductSelection, this));
 
       // Page 2: navigation
@@ -111,23 +118,46 @@
       }
     },
 
-    onProductSelected: function () {
-      var selected = $("#subscrpt_existing_product option:selected");
-      if (!selected.val()) return;
-      this.showProductChip(selected);
-      // Pre-fill fields
-      var name = selected.text();
-      var price = selected.data("price") || "";
+    openProductSearch: function () {
+      $(".p2-product-search__item").show();
+      $(".p2-product-search__empty").hide();
+      $("#subscrpt-product-search-dropdown").show();
+    },
+
+    filterProducts: function (e) {
+      var q = $(e.target).val().toLowerCase().trim();
+      $("#subscrpt-product-search-dropdown").show();
+      var visible = 0;
+      $(".p2-product-search__item").each(function () {
+        var name = $(this).data("name") ? $(this).data("name").toLowerCase() : "";
+        var sku = $(this).data("sku") ? String($(this).data("sku")).toLowerCase() : "";
+        if (!q || name.indexOf(q) >= 0 || sku.indexOf(q) >= 0) {
+          $(this).show();
+          visible++;
+        } else {
+          $(this).hide();
+        }
+      });
+      $(".p2-product-search__empty").toggle(visible === 0);
+    },
+
+    onProductItemClick: function (e) {
+      var item = $(e.currentTarget);
+      var id = String(item.data("id"));
+      var name = item.data("name") || "";
+      var price = item.data("price") != null ? String(item.data("price")) : "";
+      var type = item.data("type") || "";
+      var sku = item.data("sku") ? String(item.data("sku")) : "";
+
+      $("#subscrpt-existing-product-hidden").val(id);
+      $("#subscrpt-product-search-dropdown").hide();
+      this.showProductChip(name, price, type, sku);
       $("#subscrpt_product_name").val(name);
       $("#subscrpt_product_price").val(price);
       this.updatePreview();
     },
 
-    showProductChip: function (option) {
-      var name = option.text();
-      var price = option.data("price") || "";
-      var type = option.data("type") || "";
-      var sku = option.data("sku") || "";
+    showProductChip: function (name, price, type, sku) {
       var initials = name
         .split(" ")
         .filter(Boolean)
@@ -144,13 +174,16 @@
       $("#p2-chip-avatar").text(initials);
       $("#p2-chip-name").text(name);
       $("#p2-chip-meta").text(meta);
-
       $("#subscrpt-product-select-wrap").hide();
       $("#subscrpt-selected-product-chip").show();
     },
 
     clearProductSelection: function () {
-      $("#subscrpt_existing_product").val("");
+      $("#subscrpt-existing-product-hidden").val("");
+      $("#subscrpt-product-search-input").val("");
+      $(".p2-product-search__item").show();
+      $(".p2-product-search__empty").hide();
+      $("#subscrpt-product-search-dropdown").hide();
       $("#subscrpt-selected-product-chip").hide();
       $("#subscrpt-product-select-wrap").show();
       $("#subscrpt_product_name").val("");
@@ -164,10 +197,16 @@
 
       if (mode === "existing") {
         $("#subscrpt-existing-product-fields").show();
-        // Show chip if product already selected
-        var selectedVal = $("#subscrpt_existing_product").val();
-        if (selectedVal) {
-          this.showProductChip($("#subscrpt_existing_product option:selected"));
+        var selectedId = $("#subscrpt-existing-product-hidden").val();
+        if (selectedId) {
+          var item = $(".p2-product-search__item[data-id='" + selectedId + "']");
+          if (item.length) {
+            var name = item.data("name") || "";
+            var price = item.data("price") != null ? String(item.data("price")) : "";
+            var type = item.data("type") || "";
+            var sku = item.data("sku") ? String(item.data("sku")) : "";
+            this.showProductChip(name, price, type, sku);
+          }
         }
       } else {
         $("#subscrpt-existing-product-fields").hide();
@@ -214,7 +253,7 @@
         product_mode: $(".product-toggle-btn.active").data("mode") || "new",
         product_name: $("#subscrpt_product_name").val(),
         product_price: $("#subscrpt_product_price").val(),
-        existing_product_id: $("#subscrpt_existing_product").val(),
+        existing_product_id: $("#subscrpt-existing-product-hidden").val(),
         timing_option: $("#subscrpt_timing_option").val(),
         billing_per: $("#subscrpt_billing_per").val(),
         billing_period: $("input[name='subscrpt_billing_period']").val(),
