@@ -390,6 +390,16 @@ if ( $product_id > 0 ) {
 .p2-nav-back:hover {
 	color: var(--wpsubs-text);
 }
+/* Billing every group — number input + standalone adv-select */
+.p2-billing-group {
+	width: 100%;
+}
+.p2-billing-group .p2-billing-per-input {
+	flex-grow: 1;
+}
+#subscrpt-billing-period-select {
+	width: 100%;
+}
 /* Pro badge + locked fields */
 .p2-pro-badge {
 	display: inline-flex;
@@ -853,36 +863,59 @@ if ( $product_id > 0 ) {
 							</div>
 						</div>
 
-						<!-- Price -->
-						<div class="form-row">
-							<label for="subscrpt_product_price"><?php esc_html_e( 'Price', 'subscription' ); ?></label>
-							<div class="p2-input-wrap" style="max-width:220px;">
-								<span class="p2-input-prefix"><?php echo esc_html( get_woocommerce_currency_symbol() ); ?></span>
-								<input type="text" id="subscrpt_product_price" name="subscrpt_product_price" class="wpsubs-input" style="padding-left:24px!important;" placeholder="0.00" value="<?php echo $product ? esc_attr( $product->get_price() ) : ( isset( $session_data['product_price'] ) ? esc_attr( $session_data['product_price'] ) : '' ); ?>">
-							</div>
-						</div>
-						<!-- Hidden timing compat field -->
+						<?php
+						$is_pro         = subscrpt_pro_activated();
+						$billing_period = isset( $session_data['billing_period'] ) ? $session_data['billing_period'] : 'month';
+						$period_options = array(
+							array(
+								'value' => 'day',
+								'label' => __( 'Day', 'subscription' ),
+							),
+							array(
+								'value' => 'week',
+								'label' => __( 'Week', 'subscription' ),
+							),
+							array(
+								'value' => 'month',
+								'label' => __( 'Month', 'subscription' ),
+							),
+							array(
+								'value' => 'year',
+								'label' => __( 'Year', 'subscription' ),
+							),
+						);
+						?>
 						<input type="hidden" id="subscrpt_timing_option" name="subscrpt_timing_option" value="never">
+						<input type="hidden" id="subscrpt_billing_per" name="subscrpt_billing_per" value="<?php echo $is_pro && isset( $session_data['billing_per'] ) ? esc_attr( $session_data['billing_per'] ) : '1'; ?>">
 
-						<!-- Billing every (Pro) + Period -->
-						<?php $is_pro = subscrpt_pro_activated(); ?>
+						<!-- Row: Price | Billing every (group component) -->
 						<div class="p2-form-grid">
-							<?php if ( $is_pro ) : ?>
 							<div class="form-row">
-								<label for="subscrpt_billing_per"><?php esc_html_e( 'Billing every', 'subscription' ); ?></label>
-								<input type="number" id="subscrpt_billing_per" name="subscrpt_billing_per" class="wpsubs-input" min="1" value="<?php echo isset( $session_data['billing_per'] ) ? esc_attr( $session_data['billing_per'] ) : '1'; ?>">
+								<label for="subscrpt_product_price"><?php esc_html_e( 'Price', 'subscription' ); ?></label>
+								<div class="p2-input-wrap">
+									<span class="p2-input-prefix"><?php echo esc_html( get_woocommerce_currency_symbol() ); ?></span>
+									<input type="text" id="subscrpt_product_price" name="subscrpt_product_price" class="wpsubs-input" style="padding-left:24px!important;" placeholder="0.00" value="<?php echo $product ? esc_attr( $product->get_price() ) : ( isset( $session_data['product_price'] ) ? esc_attr( $session_data['product_price'] ) : '' ); ?>">
+								</div>
 							</div>
-							<?php else : ?>
-							<input type="hidden" id="subscrpt_billing_per" name="subscrpt_billing_per" value="1">
-							<?php endif; ?>
 							<div class="form-row">
-								<label for="subscrpt_billing_period"><?php esc_html_e( 'Period', 'subscription' ); ?></label>
-								<select id="subscrpt_billing_period" name="subscrpt_billing_period" class="wpsubs-select">
-									<option value="day" <?php echo isset( $session_data['billing_period'] ) && 'day' === $session_data['billing_period'] ? 'selected' : ''; ?>><?php esc_html_e( 'Day', 'subscription' ); ?></option>
-									<option value="week" <?php echo isset( $session_data['billing_period'] ) && 'week' === $session_data['billing_period'] ? 'selected' : ''; ?>><?php esc_html_e( 'Week', 'subscription' ); ?></option>
-									<option value="month" <?php echo ! isset( $session_data['billing_period'] ) || 'month' === $session_data['billing_period'] ? 'selected' : ''; ?>><?php esc_html_e( 'Month', 'subscription' ); ?></option>
-									<option value="year" <?php echo isset( $session_data['billing_period'] ) && 'year' === $session_data['billing_period'] ? 'selected' : ''; ?>><?php esc_html_e( 'Year', 'subscription' ); ?></option>
-								</select>
+								<label><?php esc_html_e( 'Billing every', 'subscription' ); ?></label>
+								<div class="wpsubs-input-group p2-billing-group">
+									<?php if ( $is_pro ) : ?>
+									<input type="number" id="subscrpt_billing_per_visible" class="wpsubs-input p2-billing-per-input" min="1"
+										value="<?php echo isset( $session_data['billing_per'] ) ? esc_attr( $session_data['billing_per'] ) : '1'; ?>"
+										oninput="document.getElementById('subscrpt_billing_per').value=this.value">
+									<?php endif; ?>
+									<?php
+									wpsubs_render_adv_select(
+										array(
+											'name'    => 'subscrpt_billing_period',
+											'id'      => 'subscrpt-billing-period-select',
+											'value'   => $billing_period,
+											'options' => $period_options,
+										)
+									);
+									?>
+								</div>
 							</div>
 						</div>
 

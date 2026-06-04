@@ -184,7 +184,7 @@
       $(document).on("input", "#subscrpt_product_price", function () {
         self.updatePreview();
       });
-      $(document).on("change", "#subscrpt_billing_period", function () {
+      $(document).on("wpsubs:select", "#subscrpt-billing-period-select", function () {
         self.updatePreview();
       });
     },
@@ -192,7 +192,7 @@
     updatePreview: function () {
       var name = $("#subscrpt_product_name").val() || "Your product";
       var price = $("#subscrpt_product_price").val() || "0.00";
-      var period = $("#subscrpt_billing_period").val() || "month";
+      var period = $("input[name='subscrpt_billing_period']").val() || "month";
 
       $("#p2-preview-name").text(name);
       $("#p2-preview-price").text(parseFloat(price).toFixed(2));
@@ -217,7 +217,7 @@
         existing_product_id: $("#subscrpt_existing_product").val(),
         timing_option: $("#subscrpt_timing_option").val(),
         billing_per: $("#subscrpt_billing_per").val(),
-        billing_period: $("#subscrpt_billing_period").val(),
+        billing_period: $("input[name='subscrpt_billing_period']").val(),
         trial_timing_per: $("#subscrpt_trial_timing_per").val(),
         signup_fee: $("#subscrpt_signup_fee").val(),
         // hidden compat fields
@@ -248,7 +248,7 @@
       var productName = $("#subscrpt_product_name").val().trim();
       var price = $("#subscrpt_product_price").val().trim();
       var existing = $("#subscrpt_existing_product").val();
-      var billing = $("#subscrpt_billing_period").val();
+      var billing = $("input[name='subscrpt_billing_period']").val();
 
       if (productMode === "new") {
         if (!productName) {
@@ -297,7 +297,7 @@
           $("#subscrpt_product_price").val("");
           $("#subscrpt_timing_option").val("never");
           $("#subscrpt_billing_per").val("1");
-          $("#subscrpt_billing_period").val("month");
+          $("input[name='subscrpt_billing_period']").val("month");
           $("#subscrpt_trial_timing_per").val("0");
           $("#subscrpt_signup_fee").val("");
           // Reset chip
