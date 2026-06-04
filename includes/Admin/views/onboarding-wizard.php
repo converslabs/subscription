@@ -36,6 +36,10 @@ if ( $product_id > 0 ) {
 #subscrpt-onboarding-wizard {
 	max-width: 680px;
 }
+#subscrpt-onboarding-wizard:has(#subscrpt-section-1.active),
+#subscrpt-onboarding-wizard:has(#subscrpt-section-2.active) {
+	max-width: 900px;
+}
 /* Page sections — all rendered, JS toggles visibility */
 .wizard-section {
 	display: none;
@@ -47,9 +51,9 @@ if ( $product_id > 0 ) {
 .wpsubs-wizard-stepper {
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	width: fit-content;
+	margin: 0 auto 32px;
 	gap: 0;
-	margin-bottom: 32px;
 }
 .wpsubs-wizard-stepper__step {
 	display: flex;
@@ -74,12 +78,26 @@ if ( $product_id > 0 ) {
 .wpsubs-wizard-stepper__step.active .wpsubs-wizard-stepper__num {
 	background: var(--wpsubs-brand);
 	border-color: var(--wpsubs-brand);
-	color: #fff;
+	color: var(--wpsubs-surface);
 }
 .wpsubs-wizard-stepper__step.done .wpsubs-wizard-stepper__num {
-	background: #dcfce7;
-	border-color: #16a34a;
-	color: #15803d;
+	background: var(--wpsubs-brand);
+	border-color: var(--wpsubs-brand);
+	color: transparent;
+	position: relative;
+}
+.wpsubs-wizard-stepper__step.done .wpsubs-wizard-stepper__num::after {
+	content: "✓";
+	position: absolute;
+	color: var(--wpsubs-surface);
+	font-size: 11px;
+	font-weight: 700;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+.wpsubs-wizard-stepper__step.done + .wpsubs-wizard-stepper__line {
+	background: var(--wpsubs-brand);
 }
 .wpsubs-wizard-stepper__label {
 	font-size: 13px;
@@ -92,64 +110,21 @@ if ( $product_id > 0 ) {
 	color: var(--wpsubs-brand);
 }
 .wpsubs-wizard-stepper__line {
-	flex: 1;
-	min-width: 32px;
+	width: 48px;
+	flex-shrink: 0;
 	height: 1px;
 	background: var(--wpsubs-border);
 	margin: 0 8px;
 }
 /* Card */
 .wizard-card {
+	background: var(--wpsubs-surface);
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius);
 	padding: 28px 32px;
 	margin-bottom: 16px;
 }
-/* Page 2 */
-.section-heading {
-	font-size: 13px !important;
-	font-weight: 600 !important;
-	color: var(--wpsubs-text-muted) !important;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	margin-bottom: 16px;
-	padding-bottom: 12px;
-	border-bottom: 1px solid var(--wpsubs-border);
-}
-.product-toggle {
-	display: flex;
-	gap: 8px;
-	margin-bottom: 20px;
-}
-.product-toggle-btn {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 8px;
-	padding: 16px 12px;
-	border: 1px solid var(--wpsubs-border);
-	border-radius: var(--wpsubs-radius);
-	background: var(--wpsubs-surface);
-	cursor: pointer;
-	font-size: 13px;
-	font-weight: 500;
-	color: var(--wpsubs-text);
-	text-align: center;
-	transition: all 0.15s;
-}
-.product-toggle-btn:hover {
-	border-color: var(--wpsubs-brand);
-	background: var(--wpsubs-brand-light);
-}
-.product-toggle-btn.active {
-	background: var(--wpsubs-brand);
-	border-color: var(--wpsubs-brand);
-	color: #fff;
-}
-.product-toggle-btn__icon {
-	font-size: 20px;
-	line-height: 1;
-}
-/* Form rows */
+/* Form rows (shared) */
 .form-row {
 	margin-bottom: 16px;
 }
@@ -160,21 +135,279 @@ if ( $product_id > 0 ) {
 	color: var(--wpsubs-text);
 	margin-bottom: 6px;
 }
-/* Toggle subfields */
-.subfields {
-	margin-left: 28px;
-	margin-top: 8px;
-	display: none;
+/* Page 2 */
+.p2-page-title {
+	font-size: 22px;
+	font-weight: 800;
+	color: var(--wpsubs-text);
+	margin: 0 0 8px;
+	line-height: 1.25;
 }
-.subfields.visible {
-	display: block;
+.p2-page-subtitle {
+	font-size: 13.5px;
+	color: var(--wpsubs-text-muted);
+	line-height: 1.6;
+	margin: 0 0 28px;
 }
-.wizard-nav {
+.p2-section-block {
+	margin-bottom: 28px;
+}
+.p2-section-label {
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--wpsubs-text);
+	margin: 0 0 4px;
+}
+.p2-section-desc {
+	font-size: 13px;
+	color: var(--wpsubs-text-muted);
+	margin: 0 0 14px;
+}
+/* Option cards */
+.p2-option-cards {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+.p2-option-card {
+	position: relative;
 	display: flex;
-	gap: 8px;
-	padding-top: 20px;
-	border-top: 1px solid var(--wpsubs-border);
-	margin-top: 4px;
+	flex-direction: column;
+	gap: 6px;
+	padding: 16px;
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius);
+	background: var(--wpsubs-surface);
+	cursor: pointer;
+	text-align: left;
+	transition: border-color 0.15s, background 0.15s;
+}
+.p2-option-card:hover {
+	border-color: var(--wpsubs-brand);
+}
+.p2-option-card.active {
+	border-color: var(--wpsubs-brand);
+	background: var(--wpsubs-brand-light);
+}
+.p2-option-card__check {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var(--wpsubs-brand);
+	display: none;
+	align-items: center;
+	justify-content: center;
+	color: var(--wpsubs-surface);
+	font-size: 11px;
+	font-weight: 700;
+}
+.p2-option-card.active .p2-option-card__check {
+	display: flex;
+}
+.p2-option-card__icon {
+	width: 32px;
+	height: 32px;
+	border-radius: 6px;
+	border: 1px solid var(--wpsubs-border);
+	background: var(--wpsubs-surface);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--wpsubs-text-muted);
+	margin-bottom: 4px;
+}
+.p2-option-card.active .p2-option-card__icon {
+	border-color: var(--wpsubs-brand);
+	color: var(--wpsubs-brand);
+}
+.p2-option-card__title {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--wpsubs-text);
+	margin: 0;
+}
+.p2-option-card__desc {
+	font-size: 12px;
+	color: var(--wpsubs-text-muted);
+	margin: 0;
+	line-height: 1.5;
+}
+/* Selected product chip */
+.p2-selected-product {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 14px;
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius);
+	background: var(--wpsubs-surface);
+	margin-bottom: 4px;
+}
+.p2-selected-product__avatar {
+	width: 36px;
+	height: 36px;
+	border-radius: 6px;
+	background: var(--wpsubs-surface-muted);
+	border: 1px solid var(--wpsubs-border);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--wpsubs-text-muted);
+	flex-shrink: 0;
+}
+.p2-selected-product__info {
+	flex: 1;
+	min-width: 0;
+}
+.p2-selected-product__name {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wpsubs-text);
+	margin: 0 0 2px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.p2-selected-product__meta {
+	font-size: 12px;
+	color: var(--wpsubs-text-muted);
+	margin: 0;
+}
+.p2-selected-product__clear {
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--wpsubs-text-muted);
+	font-size: 18px;
+	line-height: 1;
+	padding: 0 4px;
+	flex-shrink: 0;
+	transition: color 0.15s;
+}
+.p2-selected-product__clear:hover {
+	color: var(--wpsubs-text);
+}
+/* Section 2 body */
+.p2-body {
+	display: grid;
+	grid-template-columns: 1fr 260px;
+	gap: 32px;
+	align-items: start;
+}
+.p2-form-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+.p2-form-grid .form-row {
+	margin-bottom: 0;
+}
+.p2-input-wrap {
+	position: relative;
+}
+.p2-input-prefix {
+	position: absolute;
+	left: 11px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 13px;
+	color: var(--wpsubs-text-muted);
+	pointer-events: none;
+	z-index: 1;
+}
+.p2-input-prefix + .wpsubs-input {
+	padding-left: 24px !important;
+}
+.p2-input-suffix {
+	position: absolute;
+	right: 11px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 13px;
+	color: var(--wpsubs-text-muted);
+	pointer-events: none;
+}
+.p2-input-suffix-input {
+	padding-right: 44px !important;
+}
+.p2-field-hint {
+	font-size: 12px;
+	color: var(--wpsubs-text-muted);
+	margin-top: 5px;
+	line-height: 1.4;
+}
+.p2-label-optional {
+	font-weight: 400;
+	color: var(--wpsubs-text-subtle);
+	font-size: 12px;
+	margin-left: 4px;
+}
+/* Page 2 right preview */
+.p2-preview-col {
+	position: sticky;
+	top: 80px;
+}
+.p2-preview-col-label {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--wpsubs-text-muted);
+	margin: 0 0 10px;
+}
+.p2-preview-col-desc {
+	font-size: 12px;
+	color: var(--wpsubs-text-muted);
+	line-height: 1.5;
+	margin-top: 10px;
+}
+/* Page 2 nav (outside card) */
+.p2-nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 16px;
+}
+.p2-nav-back {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 13px;
+	color: var(--wpsubs-text-muted);
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 0;
+	transition: color 0.15s;
+}
+.p2-nav-back:hover {
+	color: var(--wpsubs-text);
+}
+/* Pro badge + locked fields */
+.p2-pro-badge {
+	display: inline-flex;
+	align-items: center;
+	background: var(--wpsubs-brand);
+	color: var(--wpsubs-surface);
+	font-size: 10px;
+	font-weight: 700;
+	padding: 2px 6px;
+	border-radius: 3px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-left: 6px;
+	vertical-align: middle;
+}
+.p2-field-pro-locked {
+	opacity: 0.6;
+	pointer-events: none;
 }
 /* Page 3 */
 .product-summary {
@@ -220,38 +453,223 @@ if ( $product_id > 0 ) {
 	padding: 9px 18px;
 	font-size: 13px;
 }
-/* Page 1 specific — full-width centered */
-.wizard-section[data-page="1"] .wizard-card {
+/* Page 1 specific — two-column hero layout */
+#subscrpt-section-1 {
+	max-width: 860px;
+}
+#subscrpt-section-1 .wizard-card {
+	padding: 56px 48px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 64px;
+	align-items: center;
+}
+.p1-left {
 	display: flex;
 	flex-direction: column;
+	gap: 0;
+}
+.p1-badge {
+	display: inline-flex;
 	align-items: center;
-	text-align: center;
-	padding: 56px 48px;
+	gap: 6px;
+	background: var(--wpsubs-brand-light);
+	color: var(--wpsubs-brand);
+	font-size: 12px;
+	font-weight: 600;
+	padding: 4px 10px;
+	border-radius: 20px;
+	border: 1px solid var(--wpsubs-border);
+	margin-bottom: 20px;
+	width: fit-content;
 }
-.wizard-section[data-page="1"] .wizard-card__icon {
-	font-size: 52px;
-	margin-bottom: 16px;
-	line-height: 1;
+.p1-badge__dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--wpsubs-brand);
+	flex-shrink: 0;
 }
-.wizard-section[data-page="1"] .wizard-card__title {
-	font-size: 20px;
-	font-weight: 700;
+.p1-heading {
+	font-size: 26px;
+	font-weight: 800;
 	color: var(--wpsubs-text);
-	margin: 0 0 8px;
+	line-height: 1.25;
+	margin: 0 0 20px;
 }
-.wizard-section[data-page="1"] .wizard-card__desc {
+.p1-heading__accent {
+	color: var(--wpsubs-brand);
+}
+.p1-desc {
 	font-size: 13.5px;
 	color: var(--wpsubs-text-muted);
-	margin: 0 0 28px;
-	max-width: 420px;
 	line-height: 1.6;
+	margin: 0 0 24px;
 }
-.wizard-section[data-page="1"] .wizard-card__actions {
+.p1-bullets {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 36px;
 	display: flex;
 	flex-direction: column;
+	gap: 12px;
+}
+.p1-bullets li {
+	display: flex;
+	align-items: center;
 	gap: 8px;
+	font-size: 13px;
+	color: var(--wpsubs-text);
+}
+.p1-bullet-dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--wpsubs-brand);
+	flex-shrink: 0;
+}
+.p1-actions {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+.p1-skip {
+	font-size: 13px;
+	color: var(--wpsubs-text-muted);
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	text-decoration: none;
+}
+.p1-skip:hover {
+	color: var(--wpsubs-text);
+}
+/* Right — product preview mockup */
+.p1-right {
+	background: var(--wpsubs-surface-muted);
+	border-radius: var(--wpsubs-radius);
+	padding: 20px 20px 14px;
+	border: 1px solid var(--wpsubs-border);
+	transform: rotate(-3deg);
+	transform-origin: center center;
+}
+.p1-preview-label {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wpsubs-text);
+	margin: 0 0 2px;
+}
+.p1-preview-sublabel {
+	font-size: 12px;
+	color: var(--wpsubs-text-muted);
+	margin: 0 0 16px;
+}
+.p1-preview-card {
+	background: var(--wpsubs-surface);
+	border-radius: var(--wpsubs-radius);
+	border: 1px solid var(--wpsubs-border);
+	overflow: hidden;
+	box-shadow: var(--wpsubs-shadow-md);
+}
+.p1-preview-img {
 	width: 100%;
-	max-width: 300px;
+	height: 100px;
+	background: linear-gradient(135deg, var(--wpsubs-brand-light) 0%, var(--wpsubs-surface-muted) 100%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	gap: 6px;
+	border-bottom: 1px solid var(--wpsubs-border);
+}
+.p1-preview-img svg {
+	width: 36px;
+	height: 36px;
+	color: var(--wpsubs-brand);
+	opacity: 0.8;
+}
+.p1-preview-img__dots {
+	display: flex;
+	gap: 4px;
+}
+.p1-preview-img__dots span {
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: var(--wpsubs-brand);
+	opacity: 0.3;
+}
+.p1-preview-body {
+	padding: 14px;
+}
+.p1-preview-name {
+	font-size: 13px;
+	font-weight: 700;
+	text-align: center;
+	color: var(--wpsubs-text);
+	margin: 0 0 4px;
+}
+.p1-preview-price {
+	font-size: 13px;
+	text-align: center;
+	color: var(--wpsubs-text);
+	margin: 0 0 12px;
+}
+.p1-preview-price span {
+	color: var(--wpsubs-text-muted);
+	font-size: 12px;
+}
+.p1-preview-btn {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	background: var(--wpsubs-brand);
+	color: var(--wpsubs-surface);
+	text-align: center;
+	padding: 9px 12px;
+	border-radius: var(--wpsubs-radius-sm);
+	font-size: 13px;
+	font-weight: 600;
+	border: none;
+	cursor: default;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.p1-preview-skeletons {
+	margin-top: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.p1-preview-skeleton {
+	height: 10px;
+	border-radius: 4px;
+	background: var(--wpsubs-border);
+}
+.p1-preview-skeleton:last-child {
+	width: 65%;
+}
+.p1-starts-here {
+	text-align: right;
+	font-size: 11px;
+	color: var(--wpsubs-brand);
+	margin-top: 12px;
+	font-style: italic;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 4px;
+}
+@media (max-width: 680px) {
+	#subscrpt-section-1 .wizard-card {
+		grid-template-columns: 1fr;
+	}
+	.p1-right {
+		display: none;
+	}
 }
 </style>
 
@@ -270,7 +688,7 @@ if ( $product_id > 0 ) {
 		<div class="wpsubs-wizard-stepper__line"></div>
 		<div class="wpsubs-wizard-stepper__step" data-step="3">
 			<div class="wpsubs-wizard-stepper__num">3</div>
-			<div class="wpsubs-wizard-stepper__label">Review</div>
+			<div class="wpsubs-wizard-stepper__label"><?php esc_html_e( 'Done', 'subscription' ); ?></div>
 		</div>
 	</div>
 
@@ -286,16 +704,60 @@ if ( $product_id > 0 ) {
 	<!-- =========================================== -->
 	<div class="wizard-section <?php echo 1 === $wizard_page ? 'active' : ''; ?>" data-page="1" id="subscrpt-section-1">
 		<div class="wizard-card">
-			<div class="wizard-card__icon">🚀</div>
-			<h1 class="wizard-card__title">Welcome to WooCommerce Subscriptions</h1>
-			<p class="wizard-card__desc">Get started in minutes. We'll help you set up your first subscription product so you can start earning recurring revenue from your store.</p>
-			<div class="wizard-card__actions">
-				<button type="button" id="subscrpt-btn-start" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn">
-					Create your first subscription
-				</button>
-				<button type="button" id="subscrpt-btn-skip" class="wpsubs-btn wpsubs-btn--outline">
-					Skip, I'll do this later
-				</button>
+			<!-- Left: content -->
+			<div class="p1-left">
+				<div class="p1-badge">
+					<span class="p1-badge__dot"></span>
+					<?php esc_html_e( 'Getting started', 'subscription' ); ?>
+				</div>
+				<h1 class="p1-heading">
+					<?php esc_html_e( 'Sell anything', 'subscription' ); ?>
+					<span class="p1-heading__accent"><?php esc_html_e( 'on repeat.', 'subscription' ); ?></span>
+				</h1>
+				<p class="p1-desc"><?php esc_html_e( "You haven't created a subscription product yet. Let's set one up together — you can start from a blank product or convert one you already sell.", 'subscription' ); ?></p>
+				<ul class="p1-bullets">
+					<li><span class="p1-bullet-dot"></span><?php esc_html_e( 'Daily, weekly, monthly, or annual billing', 'subscription' ); ?></li>
+					<li><span class="p1-bullet-dot"></span><?php esc_html_e( 'Free trials and one-time sign-up fees', 'subscription' ); ?></li>
+					<li><span class="p1-bullet-dot"></span><?php esc_html_e( 'Works with every WooCommerce product type', 'subscription' ); ?></li>
+				</ul>
+				<div class="p1-actions">
+					<button type="button" id="subscrpt-btn-start" class="wpsubs-btn wpsubs-btn--primary">
+						<?php esc_html_e( 'Create my first subscription', 'subscription' ); ?> &rsaquo;
+					</button>
+					<button type="button" id="subscrpt-btn-skip" class="p1-skip">
+						<?php esc_html_e( 'Skip the intro', 'subscription' ); ?>
+					</button>
+				</div>
+			</div>
+			<!-- Right: product preview mockup -->
+			<div class="p1-right" aria-hidden="true">
+				<p class="p1-preview-label"><?php esc_html_e( 'Your shop', 'subscription' ); ?></p>
+				<p class="p1-preview-sublabel"><?php esc_html_e( 'How customers see the product', 'subscription' ); ?></p>
+				<div class="p1-preview-card">
+						<div class="p1-preview-img">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+								<line x1="3" y1="6" x2="21" y2="6"></line>
+								<path d="M16 10a4 4 0 0 1-8 0"></path>
+							</svg>
+							<div class="p1-preview-img__dots">
+								<span></span><span></span><span></span>
+							</div>
+						</div>
+						<div class="p1-preview-body">
+							<p class="p1-preview-name"><?php esc_html_e( 'Monthly Subscription Box', 'subscription' ); ?></p>
+							<p class="p1-preview-price">24.00$ <span>/ <?php esc_html_e( 'month', 'subscription' ); ?></span></p>
+							<div class="p1-preview-btn"><?php esc_html_e( 'Sign up', 'subscription' ); ?></div>
+							<div class="p1-preview-skeletons">
+								<div class="p1-preview-skeleton"></div>
+								<div class="p1-preview-skeleton"></div>
+							</div>
+						</div>
+				</div>
+				<div class="p1-starts-here">
+					<svg width="18" height="12" viewBox="0 0 18 12" fill="none" style="color:var(--wpsubs-brand);"><path d="M1 1 C5 1, 14 11, 17 11" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/><polyline points="14,8 17,11 14,14" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					<?php esc_html_e( 'Starts here', 'subscription' ); ?>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -305,126 +767,198 @@ if ( $product_id > 0 ) {
 	<!-- =========================================== -->
 	<div class="wizard-section <?php echo 2 === $wizard_page ? 'active' : ''; ?>" id="subscrpt-section-2">
 		<div class="wizard-card">
-			<div class="section-heading">Product Setup</div>
+			<h1 class="p2-page-title"><?php esc_html_e( 'Create your subscription product', 'subscription' ); ?></h1>
+			<p class="p2-page-subtitle"><?php esc_html_e( 'Set the basics now — once published, customers can subscribe to it from your shop. You can fine-tune everything later in the product editor.', 'subscription' ); ?></p>
 
-			<?php if ( ! empty( $products ) ) : ?>
-				<div class="product-toggle">
-					<button type="button" class="product-toggle-btn <?php echo 'existing' !== ( isset( $session_data['product_mode'] ) ? $session_data['product_mode'] : 'new' ) ? 'active' : ''; ?>" data-mode="new" id="subscrpt-btn-create-new">
-						<div class="product-toggle-btn__icon">📦</div>
-						Create a new product
+			<!-- 1. Pick a starting point -->
+			<div class="p2-section-block">
+				<p class="p2-section-label"><?php esc_html_e( '1. Pick a starting point', 'subscription' ); ?></p>
+				<p class="p2-section-desc"><?php esc_html_e( 'Build a fresh subscription product, or convert one you already sell.', 'subscription' ); ?></p>
+
+				<div class="p2-option-cards">
+					<button type="button"
+						class="p2-option-card product-toggle-btn <?php echo 'existing' !== ( isset( $session_data['product_mode'] ) ? $session_data['product_mode'] : 'new' ) ? 'active' : ''; ?>"
+						id="subscrpt-btn-create-new" data-mode="new">
+						<div class="p2-option-card__check">✓</div>
+						<div class="p2-option-card__icon">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+						</div>
+						<p class="p2-option-card__title"><?php esc_html_e( 'Create a new product', 'subscription' ); ?></p>
+						<p class="p2-option-card__desc"><?php esc_html_e( 'Start with a blank subscription product.', 'subscription' ); ?></p>
 					</button>
-					<button type="button" class="product-toggle-btn <?php echo 'existing' === ( isset( $session_data['product_mode'] ) ? $session_data['product_mode'] : '' ) ? 'active' : ''; ?>" data-mode="existing" id="subscrpt-btn-use-existing">
-						<div class="product-toggle-btn__icon">🔗</div>
-						Use an existing product
+
+					<?php if ( ! empty( $products ) ) : ?>
+					<button type="button"
+						class="p2-option-card product-toggle-btn <?php echo 'existing' === ( isset( $session_data['product_mode'] ) ? $session_data['product_mode'] : '' ) ? 'active' : ''; ?>"
+						id="subscrpt-btn-use-existing" data-mode="existing">
+						<div class="p2-option-card__check">✓</div>
+						<div class="p2-option-card__icon">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+						</div>
+						<p class="p2-option-card__title"><?php esc_html_e( 'Use an existing product', 'subscription' ); ?></p>
+						<p class="p2-option-card__desc"><?php esc_html_e( 'Convert a WooCommerce product into a subscription.', 'subscription' ); ?></p>
 					</button>
+					<?php endif; ?>
 				</div>
-			<?php else : ?>
-				<p style="color:var(--wpsubs-text-muted);margin-bottom:20px;">No existing products found. Create a new product below.</p>
-			<?php endif; ?>
 
-			<!-- New product fields -->
-			<div id="subscrpt-new-product-fields">
-				<div class="form-row">
-					<label for="subscrpt_product_name">Product Name</label>
-					<input type="text" id="subscrpt_product_name" name="subscrpt_product_name" class="wpsubs-input" style="max-width:380px;" placeholder="e.g. Monthly Subscription Box" value="<?php echo $product ? esc_attr( $product->get_name() ) : ( isset( $session_data['product_name'] ) ? esc_attr( $session_data['product_name'] ) : '' ); ?>">
-				</div>
-				<div class="form-row">
-					<label for="subscrpt_product_price">Price</label>
-					<input type="text" id="subscrpt_product_price" name="subscrpt_product_price" class="wpsubs-input" style="max-width:180px;" placeholder="0.00" value="<?php echo $product ? esc_attr( $product->get_price() ) : ( isset( $session_data['product_price'] ) ? esc_attr( $session_data['product_price'] ) : '' ); ?>">
-				</div>
-			</div>
-
-			<!-- Existing product dropdown -->
-			<?php if ( ! empty( $products ) ) : ?>
+				<!-- Existing product selector -->
+				<?php if ( ! empty( $products ) ) : ?>
 				<div id="subscrpt-existing-product-fields" style="<?php echo 'existing' !== ( isset( $session_data['product_mode'] ) ? $session_data['product_mode'] : '' ) ? 'display:none;' : ''; ?>">
-					<div class="form-row">
-						<label for="subscrpt_existing_product">Select Product</label>
-						<select id="subscrpt_existing_product" name="subscrpt_existing_product" class="wpsubs-select" style="max-width:380px;">
-							<option value="">-- Select a product --</option>
-							<?php foreach ( $products as $p ) : ?>
-								<option value="<?php echo esc_attr( $p->ID ); ?>" <?php echo $product_id === $p->ID ? 'selected' : ''; ?>>
+					<div id="subscrpt-product-select-wrap" style="display:block;">
+						<select id="subscrpt_existing_product" name="subscrpt_existing_product" class="wpsubs-select" style="width:100%;display:block;">
+							<option value=""><?php esc_html_e( '— Select a product —', 'subscription' ); ?></option>
+							<?php
+							foreach ( $products as $p ) :
+								$wc_p  = wc_get_product( $p->ID );
+								$price = $wc_p ? $wc_p->get_price() : '';
+								$type  = $wc_p ? ucfirst( $wc_p->get_type() ) . ' ' . __( 'product', 'subscription' ) : '';
+								$sku   = $wc_p ? $wc_p->get_sku() : '';
+								?>
+								<option value="<?php echo esc_attr( $p->ID ); ?>"
+									data-price="<?php echo esc_attr( $price ); ?>"
+									data-type="<?php echo esc_attr( $type ); ?>"
+									data-sku="<?php echo esc_attr( $sku ); ?>"
+									<?php echo $product_id === $p->ID ? 'selected' : ''; ?>>
 									<?php echo esc_html( $p->post_title ); ?>
 								</option>
 							<?php endforeach; ?>
 						</select>
 					</div>
+					<div id="subscrpt-selected-product-chip" class="p2-selected-product" style="display:none;">
+						<div class="p2-selected-product__avatar" id="p2-chip-avatar"></div>
+						<div class="p2-selected-product__info">
+							<p class="p2-selected-product__name" id="p2-chip-name"></p>
+							<p class="p2-selected-product__meta" id="p2-chip-meta"></p>
+						</div>
+						<button type="button" class="p2-selected-product__clear" id="subscrpt-btn-clear-product" aria-label="<?php esc_attr_e( 'Clear selection', 'subscription' ); ?>">×</button>
+					</div>
 				</div>
-			<?php endif; ?>
+				<?php endif; ?>
+			</div>
+
+			<!-- 2. Subscription details -->
+			<div class="p2-section-block" style="margin-bottom:0;">
+				<p class="p2-section-label"><?php esc_html_e( '2. Subscription details', 'subscription' ); ?></p>
+				<p class="p2-section-desc"><?php esc_html_e( 'How and how often customers are billed once they subscribe.', 'subscription' ); ?></p>
+
+				<div class="p2-body">
+					<!-- Left: form -->
+					<div>
+						<!-- Product name -->
+						<div id="subscrpt-new-product-fields">
+							<div class="form-row">
+								<label for="subscrpt_product_name"><?php esc_html_e( 'Product name', 'subscription' ); ?></label>
+								<input type="text" id="subscrpt_product_name" name="subscrpt_product_name" class="wpsubs-input" placeholder="<?php esc_attr_e( 'e.g. Monthly Subscription Box', 'subscription' ); ?>" value="<?php echo $product ? esc_attr( $product->get_name() ) : ( isset( $session_data['product_name'] ) ? esc_attr( $session_data['product_name'] ) : '' ); ?>">
+								<p class="p2-field-hint"><?php esc_html_e( 'Shown on your store page and in subscription emails.', 'subscription' ); ?></p>
+							</div>
+						</div>
+
+						<!-- Price -->
+						<div class="form-row">
+							<label for="subscrpt_product_price"><?php esc_html_e( 'Price', 'subscription' ); ?></label>
+							<div class="p2-input-wrap" style="max-width:220px;">
+								<span class="p2-input-prefix"><?php echo esc_html( get_woocommerce_currency_symbol() ); ?></span>
+								<input type="text" id="subscrpt_product_price" name="subscrpt_product_price" class="wpsubs-input" style="padding-left:24px!important;" placeholder="0.00" value="<?php echo $product ? esc_attr( $product->get_price() ) : ( isset( $session_data['product_price'] ) ? esc_attr( $session_data['product_price'] ) : '' ); ?>">
+							</div>
+						</div>
+						<!-- Hidden timing compat field -->
+						<input type="hidden" id="subscrpt_timing_option" name="subscrpt_timing_option" value="never">
+
+						<!-- Billing every (Pro) + Period -->
+						<?php $is_pro = subscrpt_pro_activated(); ?>
+						<div class="p2-form-grid">
+							<?php if ( $is_pro ) : ?>
+							<div class="form-row">
+								<label for="subscrpt_billing_per"><?php esc_html_e( 'Billing every', 'subscription' ); ?></label>
+								<input type="number" id="subscrpt_billing_per" name="subscrpt_billing_per" class="wpsubs-input" min="1" value="<?php echo isset( $session_data['billing_per'] ) ? esc_attr( $session_data['billing_per'] ) : '1'; ?>">
+							</div>
+							<?php else : ?>
+							<input type="hidden" id="subscrpt_billing_per" name="subscrpt_billing_per" value="1">
+							<?php endif; ?>
+							<div class="form-row">
+								<label for="subscrpt_billing_period"><?php esc_html_e( 'Period', 'subscription' ); ?></label>
+								<select id="subscrpt_billing_period" name="subscrpt_billing_period" class="wpsubs-select">
+									<option value="day" <?php echo isset( $session_data['billing_period'] ) && 'day' === $session_data['billing_period'] ? 'selected' : ''; ?>><?php esc_html_e( 'Day', 'subscription' ); ?></option>
+									<option value="week" <?php echo isset( $session_data['billing_period'] ) && 'week' === $session_data['billing_period'] ? 'selected' : ''; ?>><?php esc_html_e( 'Week', 'subscription' ); ?></option>
+									<option value="month" <?php echo ! isset( $session_data['billing_period'] ) || 'month' === $session_data['billing_period'] ? 'selected' : ''; ?>><?php esc_html_e( 'Month', 'subscription' ); ?></option>
+									<option value="year" <?php echo isset( $session_data['billing_period'] ) && 'year' === $session_data['billing_period'] ? 'selected' : ''; ?>><?php esc_html_e( 'Year', 'subscription' ); ?></option>
+								</select>
+							</div>
+						</div>
+
+						<!-- Free trial (free) + Sign-up fee (Pro only) -->
+						<div class="p2-form-grid">
+							<div class="form-row">
+								<label for="subscrpt_trial_timing_per"><?php esc_html_e( 'Free trial', 'subscription' ); ?> <span class="p2-label-optional"><?php esc_html_e( 'Optional', 'subscription' ); ?></span></label>
+								<div class="p2-input-wrap">
+									<input type="number" id="subscrpt_trial_timing_per" name="subscrpt_trial_timing_per" class="wpsubs-input p2-input-suffix-input" min="0" value="<?php echo isset( $session_data['trial_timing_per'] ) ? esc_attr( $session_data['trial_timing_per'] ) : '0'; ?>">
+									<span class="p2-input-suffix"><?php esc_html_e( 'days', 'subscription' ); ?></span>
+								</div>
+								<p class="p2-field-hint"><?php esc_html_e( 'Days before the first charge. Leave blank for none.', 'subscription' ); ?></p>
+							</div>
+							<div class="form-row <?php echo $is_pro ? '' : 'p2-field-pro-locked'; ?>">
+								<label for="subscrpt_signup_fee">
+									<?php esc_html_e( 'Sign-up fee', 'subscription' ); ?>
+									<?php if ( ! $is_pro ) : ?>
+										<span class="p2-pro-badge"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
+									<?php else : ?>
+										<span class="p2-label-optional"><?php esc_html_e( 'Optional', 'subscription' ); ?></span>
+									<?php endif; ?>
+								</label>
+								<div class="p2-input-wrap">
+									<span class="p2-input-prefix"><?php echo esc_html( get_woocommerce_currency_symbol() ); ?></span>
+									<input type="text" id="subscrpt_signup_fee" name="subscrpt_signup_fee" class="wpsubs-input" style="padding-left:24px!important;" placeholder="0.00"
+										value="<?php echo $is_pro && isset( $session_data['signup_fee'] ) ? esc_attr( $session_data['signup_fee'] ) : ''; ?>"
+										<?php echo $is_pro ? '' : 'disabled'; ?>>
+								</div>
+								<?php if ( ! $is_pro ) : ?>
+								<p class="p2-field-hint"><?php esc_html_e( 'One-time charge at checkout. Upgrade to Pro to enable.', 'subscription' ); ?></p>
+								<?php else : ?>
+								<p class="p2-field-hint"><?php esc_html_e( 'One-time charge at checkout.', 'subscription' ); ?></p>
+								<?php endif; ?>
+							</div>
+						</div>
+
+						<!-- Hidden compat fields -->
+						<input type="hidden" id="subscrpt_trial_enabled" name="subscrpt_trial_enabled" value="0">
+						<input type="hidden" id="subscrpt_trial_timing_option" name="subscrpt_trial_timing_option" value="days">
+						<input type="hidden" id="subscrpt_length_enabled" name="subscrpt_length_enabled" value="0">
+						<input type="hidden" id="subscrpt_length_per" name="subscrpt_length_per" value="">
+						<input type="hidden" id="subscrpt_length_option" name="subscrpt_length_option" value="months">
+					</div>
+
+					<!-- Right: shop preview -->
+					<div class="p2-preview-col">
+						<p class="p2-preview-col-label"><?php esc_html_e( 'Shop Preview', 'subscription' ); ?></p>
+						<div class="p1-preview-card">
+							<div class="p1-preview-img">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+									<line x1="3" y1="6" x2="21" y2="6"></line>
+									<path d="M16 10a4 4 0 0 1-8 0"></path>
+								</svg>
+								<div class="p1-preview-img__dots"><span></span><span></span><span></span></div>
+							</div>
+							<div class="p1-preview-body">
+								<p class="p1-preview-name" id="p2-preview-name"><?php echo $product ? esc_html( $product->get_name() ) : esc_html__( 'Your product', 'subscription' ); ?></p>
+								<p class="p1-preview-price"><span id="p2-preview-price"><?php echo $product ? esc_html( $product->get_price() ) : '0.00'; ?></span>$ <span>/ <span id="p2-preview-period"><?php echo isset( $session_data['billing_period'] ) ? esc_html( $session_data['billing_period'] ) : esc_html__( 'month', 'subscription' ); ?></span></span></p>
+								<div class="p1-preview-btn"><?php esc_html_e( 'Sign up', 'subscription' ); ?></div>
+							</div>
+						</div>
+						<p class="p2-preview-col-desc"><?php esc_html_e( 'This is how the product will appear on your shop page. Each purchase creates a subscription you\'ll manage from the Subscriptions list.', 'subscription' ); ?></p>
+					</div>
+				</div>
+			</div>
 		</div>
 
-		<div class="wizard-card">
-			<div class="section-heading">Subscription Information</div>
-
-			<div class="form-row">
-				<label for="subscrpt_timing_option">Subscription Timing</label>
-				<select id="subscrpt_timing_option" name="subscrpt_timing_option" class="wpsubs-select" style="max-width:280px;">
-					<option value="">-- Select timing --</option>
-					<option value="1_day" <?php echo isset( $session_data['timing_option'] ) && '1_day' === $session_data['timing_option'] ? 'selected' : ''; ?>>First payment after 1 day</option>
-					<option value="3_days" <?php echo isset( $session_data['timing_option'] ) && '3_days' === $session_data['timing_option'] ? 'selected' : ''; ?>>First payment after 3 days</option>
-					<option value="7_days" <?php echo isset( $session_data['timing_option'] ) && '7_days' === $session_data['timing_option'] ? 'selected' : ''; ?>>First payment after 7 days</option>
-					<option value="14_days" <?php echo isset( $session_data['timing_option'] ) && '14_days' === $session_data['timing_option'] ? 'selected' : ''; ?>>First payment after 14 days</option>
-					<option value="30_days" <?php echo isset( $session_data['timing_option'] ) && '30_days' === $session_data['timing_option'] ? 'selected' : ''; ?>>First payment after 30 days</option>
-				</select>
-			</div>
-
-			<div class="form-row">
-				<label for="subscrpt_billing_period">Billing Period</label>
-				<select id="subscrpt_billing_period" name="subscrpt_billing_period" class="wpsubs-select" style="max-width:200px;">
-					<option value="">-- Select billing period --</option>
-					<option value="week" <?php echo isset( $session_data['billing_period'] ) && 'week' === $session_data['billing_period'] ? 'selected' : ''; ?>>Weekly</option>
-					<option value="month" <?php echo isset( $session_data['billing_period'] ) && 'month' === $session_data['billing_period'] ? 'selected' : ''; ?>>Monthly</option>
-					<option value="year" <?php echo isset( $session_data['billing_period'] ) && 'year' === $session_data['billing_period'] ? 'selected' : ''; ?>>Yearly</option>
-				</select>
-			</div>
-
-			<div class="form-row">
-				<div class="wpsubs-settings-toggle-label">
-					<input type="checkbox" class="wpsubs-toggle" id="subscrpt_trial_enabled" name="subscrpt_trial_enabled" value="1" <?php echo isset( $session_data['trial_enabled'] ) && $session_data['trial_enabled'] ? 'checked' : ''; ?>>
-					<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
-					<span class="wpsubs-settings-toggle-label__text">Enable trial period</span>
-				</div>
-				<div id="subscrpt-trial-fields" class="subfields <?php echo isset( $session_data['trial_enabled'] ) && $session_data['trial_enabled'] ? 'visible' : ''; ?>">
-					<div class="form-row" style="margin-top:12px;">
-						<label for="subscrpt_trial_timing_per">Trial Period Length</label>
-						<input type="number" id="subscrpt_trial_timing_per" name="subscrpt_trial_timing_per" class="wpsubs-input" style="max-width:120px;" min="1" value="<?php echo isset( $session_data['trial_timing_per'] ) ? esc_attr( $session_data['trial_timing_per'] ) : '7'; ?>">
-					</div>
-					<div class="form-row">
-						<label for="subscrpt_trial_timing_option">Trial Period Unit</label>
-						<select id="subscrpt_trial_timing_option" name="subscrpt_trial_timing_option" class="wpsubs-select" style="max-width:160px;">
-							<option value="days" <?php echo isset( $session_data['trial_timing_option'] ) && 'days' === $session_data['trial_timing_option'] ? 'selected' : ''; ?>>Days</option>
-							<option value="weeks" <?php echo isset( $session_data['trial_timing_option'] ) && 'weeks' === $session_data['trial_timing_option'] ? 'selected' : ''; ?>>Weeks</option>
-							<option value="months" <?php echo isset( $session_data['trial_timing_option'] ) && 'months' === $session_data['trial_timing_option'] ? 'selected' : ''; ?>>Months</option>
-						</select>
-					</div>
-				</div>
-			</div>
-
-			<div class="form-row">
-				<div class="wpsubs-settings-toggle-label">
-					<input type="checkbox" class="wpsubs-toggle" id="subscrpt_length_enabled" name="subscrpt_length_enabled" value="1" <?php echo isset( $session_data['length_enabled'] ) && $session_data['length_enabled'] ? 'checked' : ''; ?>>
-					<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
-					<span class="wpsubs-settings-toggle-label__text">Limit subscription length</span>
-				</div>
-				<div id="subscrpt-length-fields" class="subfields <?php echo isset( $session_data['length_enabled'] ) && $session_data['length_enabled'] ? 'visible' : ''; ?>">
-					<div class="form-row" style="margin-top:12px;">
-						<label for="subscrpt_length_per">Subscription Length</label>
-						<input type="number" id="subscrpt_length_per" name="subscrpt_length_per" class="wpsubs-input" style="max-width:120px;" min="1" value="<?php echo isset( $session_data['length_per'] ) ? esc_attr( $session_data['length_per'] ) : '12'; ?>">
-					</div>
-					<div class="form-row">
-						<label for="subscrpt_length_option">Length Unit</label>
-						<select id="subscrpt_length_option" name="subscrpt_length_option" class="wpsubs-select" style="max-width:160px;">
-							<option value="weeks" <?php echo isset( $session_data['length_option'] ) && 'weeks' === $session_data['length_option'] ? 'selected' : ''; ?>>Weeks</option>
-							<option value="months" <?php echo isset( $session_data['length_option'] ) && 'months' === $session_data['length_option'] ? 'selected' : ''; ?>>Months</option>
-							<option value="years" <?php echo isset( $session_data['length_option'] ) && 'years' === $session_data['length_option'] ? 'selected' : ''; ?>>Years</option>
-						</select>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="wizard-nav">
-			<button type="button" id="subscrpt-btn-back" class="wpsubs-btn wpsubs-btn--outline">← Back</button>
-			<button type="button" id="subscrpt-btn-save" class="wpsubs-btn wpsubs-btn--primary">Save & Continue →</button>
+		<!-- Nav outside card -->
+		<div class="p2-nav">
+			<button type="button" id="subscrpt-btn-back" class="p2-nav-back">
+				&#8249; <?php esc_html_e( 'Back', 'subscription' ); ?>
+			</button>
+			<button type="button" id="subscrpt-btn-save" class="wpsubs-btn wpsubs-btn--primary">
+				<?php esc_html_e( 'Create product', 'subscription' ); ?> &rsaquo;
+			</button>
 		</div>
 	</div>
 
