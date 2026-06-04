@@ -342,6 +342,11 @@ body[class*="wpsubscription_page_wp-subscription"] #wpcontent {
   padding-left: 0 !important;
 }
 
+/* Remove onboarding page menu item */
+.wp-submenu a[href*="page=wp-subscription-onboarding"] {
+  display: none !important;
+}
+
 /* Table & List Styles */
 .wp-subscription-list-table {
   border: none !important;

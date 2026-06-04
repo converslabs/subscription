@@ -17,6 +17,8 @@ class Ajax {
 		add_action( 'wp_ajax_subscrpt_install_woocommerce_plugin', array( $this, 'install_woocommerce_plugin' ) );
 		add_action( 'wp_ajax_subscrpt_activate_woocommerce_plugin', array( $this, 'wps_subscription_activate_woocommerce_plugin' ) );
 		add_action( 'wp_ajax_subscrpt_install_integration_plugin', array( $this, 'install_integration_plugin' ) );
+		add_action( 'wp_ajax_subscrpt_save_wizard_page2', array( $this, 'save_wizard_page2' ) );
+		add_action( 'wp_ajax_subscrpt_reset_wizard', array( $this, 'reset_wizard' ) );
 	}
 
 	/**
@@ -179,6 +181,76 @@ class Ajax {
 		if ( is_wp_error( $activate ) ) {
 			wp_send_json_success( array( 'warning' => __( 'Plugin installed but could not be activated automatically.', 'subscription' ) ) );
 		}
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Save wizard Page 2 data to session and create/update product.
+	 * Used for SPA-style navigation (no page reload).
+	 */
+	public function save_wizard_page2() {
+		check_ajax_referer( 'subscrpt_onboarding_wizard', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'subscription' ) ), 403 );
+		}
+
+		// Start session if not started
+		if ( ! session_id() ) {
+			session_start();
+		}
+
+		$product_mode     = isset( $_POST['product_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['product_mode'] ) ) : 'new';
+		$product_name     = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
+		$product_price    = isset( $_POST['product_price'] ) ? sanitize_text_field( wp_unslash( $_POST['product_price'] ) ) : '';
+		$existing_product = isset( $_POST['existing_product_id'] ) ? absint( $_POST['existing_product_id'] ) : 0;
+		$timing_option    = isset( $_POST['timing_option'] ) ? sanitize_text_field( wp_unslash( $_POST['timing_option'] ) ) : '';
+		$billing_period   = isset( $_POST['billing_period'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_period'] ) ) : '';
+		$trial_enabled    = isset( $_POST['trial_enabled'] ) ? (int) $_POST['trial_enabled'] : 0;
+		$trial_timing_per = isset( $_POST['trial_timing_per'] ) ? absint( $_POST['trial_timing_per'] ) : 0;
+		$trial_timing_opt = isset( $_POST['trial_timing_option'] ) ? sanitize_text_field( wp_unslash( $_POST['trial_timing_option'] ) ) : 'days';
+		$length_enabled   = isset( $_POST['length_enabled'] ) ? (int) $_POST['length_enabled'] : 0;
+		$length_per       = isset( $_POST['length_per'] ) ? absint( $_POST['length_per'] ) : 0;
+		$length_option    = isset( $_POST['length_option'] ) ? sanitize_text_field( wp_unslash( $_POST['length_option'] ) ) : 'months';
+
+		// For now, just store in session and return a fake product ID for UI testing
+		// Full product creation will be added later
+		$_SESSION['subscrpt_onboarding_wizard'] = array(
+			'page'                => 3,
+			'product_id'          => 0, // Will be set when actual product creation is implemented
+			'product_mode'        => $product_mode,
+			'product_name'        => $product_name,
+			'product_price'       => $product_price,
+			'existing_product'    => $existing_product,
+			'timing_option'       => $timing_option,
+			'billing_period'      => $billing_period,
+			'trial_enabled'       => $trial_enabled,
+			'trial_timing_per'    => $trial_timing_per,
+			'trial_timing_option' => $trial_timing_opt,
+			'length_enabled'      => $length_enabled,
+			'length_per'          => $length_per,
+			'length_option'       => $length_option,
+		);
+
+		wp_send_json_success( array( 'product_id' => 0 ) );
+	}
+
+	/**
+	 * Reset wizard session (for "Add another" action).
+	 */
+	public function reset_wizard() {
+		check_ajax_referer( 'subscrpt_onboarding_wizard', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'subscription' ) ), 403 );
+		}
+
+		if ( ! session_id() ) {
+			session_start();
+		}
+
+		unset( $_SESSION['subscrpt_onboarding_wizard'] );
 
 		wp_send_json_success();
 	}

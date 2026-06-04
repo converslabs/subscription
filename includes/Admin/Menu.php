@@ -39,6 +39,23 @@ class Menu {
 			true
 		);
 
+		// Enqueue onboarding wizard JS (loaded on wizard page)
+		wp_enqueue_script(
+			'subscrpt-onboarding-wizard',
+			SUBSCRPT_ASSETS . '/js/admin/onboarding-wizard.js',
+			array( 'jquery' ),
+			SUBSCRPT_VERSION,
+			true
+		);
+		wp_localize_script(
+			'subscrpt-onboarding-wizard',
+			'subscrpt_wizard',
+			array(
+				'ajax_url'          => admin_url( 'admin-ajax.php' ),
+				'subscriptions_url' => admin_url( 'admin.php?page=wp-subscription' ),
+			)
+		);
+
 		// Localize script for AJAX
 		wp_localize_script(
 			'sdevs_subscription_admin',
@@ -69,6 +86,16 @@ class Menu {
 			array( $this, 'render_subscriptions_page' ),
 			$icon_url,
 			40
+		);
+
+		// Onboarding Wizard (hidden from menu with CSS. can be accessed via direct URL: admin.php?page=wp-subscription-onboarding)
+		add_submenu_page(
+			$parent_slug,
+			__( 'Setup Wizard', 'subscription' ),
+			__( 'Setup Wizard', 'subscription' ),
+			'manage_options',
+			'wp-subscription-onboarding',
+			array( $this, 'render_onboarding_wizard' )
 		);
 
 		// Subscriptions List
@@ -180,7 +207,7 @@ class Menu {
 
 		// Build sorted list from the ordered slugs.
 		$sorted = [];
-		foreach ( array_keys( $order ) as $slug ) {
+		foreach ( $order as $slug => $position ) {
 			if ( isset( $indexed[ $slug ] ) ) {
 				$sorted[] = $indexed[ $slug ];
 				unset( $indexed[ $slug ] );
@@ -499,6 +526,25 @@ class Menu {
 	public function render_support_page() {
 		$this->render_admin_header( __( 'Help & Resources', 'subscription' ), __( 'Documentation, community links, and ways to get help with WPSubscription.', 'subscription' ) );
 		include 'views/support.php';
+		$this->render_admin_footer();
+	}
+
+	/**
+	 * Render Onboarding Wizard page
+	 * SPA-style: all sections rendered at once, JS controls visibility
+	 * Initial load always shows page 1 (JS handles transitions from there)
+	 */
+	public function render_onboarding_wizard() {
+		// Start session if not already started
+		if ( ! session_id() && ! headers_sent() ) {
+			session_start();
+		}
+
+		// Always start at page 1 on direct load (SPA behavior — JS drives page transitions)
+		$GLOBALS['wizard_page'] = 1;
+
+		$this->render_admin_header( __( 'Setup Wizard', 'subscription' ), __( 'Create your first subscription product', 'subscription' ) );
+		include __DIR__ . '/views/onboarding-wizard.php';
 		$this->render_admin_footer();
 	}
 
