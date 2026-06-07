@@ -60,6 +60,10 @@ class Menu {
 		$icon_url  = $is_active
 			? SUBSCRPT_ASSETS . '/images/icons/subscription-20.png'
 			: SUBSCRPT_ASSETS . '/images/icons/subscription-20-gray.png';
+
+		$pro_text  = __( 'WPSubscription Pro required', 'subscription' );
+		$pro_badge = subscrpt_pro_activated() ? '' : ' <span title="' . $pro_text . '"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ff6a34" style="vertical-align:middle;margin-bottom:2.2px;flex-shrink:0;" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 19h-14c-.5 0 -.9 -.3 -1 -.8l-2 -10c0 -.4 .1 -.8 .5 -1.1c.4 -.2 .8 -.2 1.1 0l4.1 3.3l3.4 -5.1c.4 -.6 1.3 -.6 1.7 0l3.4 5.1l4.1 -3.3c.3 -.3 .8 -.3 1.1 0c.4 .2 .5 .6 .5 1.1l-2 10c0 .5 -.5 .8 -1 .8z"/></svg></span>';
+
 		// Main menu
 		add_menu_page(
 			__( 'WPSubscription', 'subscription' ),
@@ -85,7 +89,7 @@ class Menu {
 		add_submenu_page(
 			$parent_slug,
 			__( 'Reports', 'subscription' ),
-			__( 'Reports', 'subscription' ),
+			__( 'Reports', 'subscription' ) . $pro_badge,
 			'manage_options',
 			'wp-subscription-stats',
 			array( $this, 'render_stats_page' )
@@ -95,10 +99,20 @@ class Menu {
 		add_submenu_page(
 			$parent_slug,
 			__( 'Health', 'subscription' ),
-			__( 'Health', 'subscription' ),
+			__( 'Health', 'subscription' ) . $pro_badge,
 			'manage_options',
 			'wp-subscription-health',
 			array( $this, 'render_health_page' )
+		);
+
+		// Delivery Schedules
+		add_submenu_page(
+			$parent_slug,
+			__( 'Delivery Schedules', 'subscription' ),
+			__( 'Delivery Schedules', 'subscription' ) . $pro_badge,
+			'manage_options',
+			'wp-subscription-delivery',
+			array( $this, 'render_delivery_page' )
 		);
 
 		// Help & Resources
@@ -141,16 +155,31 @@ class Menu {
 		}
 
 		// slug => position. Use gaps of 10 so extensions can insert between items.
-		$default_order = [
-			'wp-subscription'              => 10, // Subscriptions
-			'wp-subscription-stats'        => 20, // Reports
-			'wp-subscription-delivery'     => 30, // Delivery (pro)
-			'wp-subscription-settings'     => 40, // Settings
-			'wp-subscription-health'       => 50, // Health
-			'wp-subscription-integrations' => 60, // Integrations
-			'wp-subscription-support'      => 70, // Help & Resources
-			'wp-subscription-license'      => 80, // License (pro)
-		];
+		// When pro is not active, pro-only pages (Reports, Delivery, Health) move
+		// to the bottom so free pages stay prominent.
+		if ( subscrpt_pro_activated() ) {
+			$default_order = [
+				'wp-subscription'              => 10, // Subscriptions
+				'wp-subscription-stats'        => 20, // Reports
+				'wp-subscription-delivery'     => 30, // Delivery (pro)
+				'wp-subscription-settings'     => 40, // Settings
+				'wp-subscription-health'       => 50, // Health
+				'wp-subscription-integrations' => 60, // Integrations
+				'wp-subscription-support'      => 70, // Help & Resources
+				'wp-subscription-license'      => 80, // License (pro)
+			];
+		} else {
+			$default_order = [
+				'wp-subscription'              => 10, // Subscriptions
+				'wp-subscription-settings'     => 20, // Settings
+				'wp-subscription-integrations' => 30, // Integrations
+				'wp-subscription-support'      => 40, // Help & Resources
+				'wp-subscription-stats'        => 50, // Reports (pro preview)
+				'wp-subscription-delivery'     => 60, // Delivery (pro preview)
+				'wp-subscription-health'       => 70, // Health (pro preview)
+				'wp-subscription-license'      => 80, // License (pro)
+			];
+		}
 
 		/**
 		 * Filter the WPSubscription submenu slug order.
@@ -456,13 +485,7 @@ class Menu {
 		$this->render_admin_header( __( 'Reports', 'subscription' ), __( 'View your subscription analytics', 'subscription' ) );
 
 		if ( ! subscrpt_pro_activated() ) {
-			$args            = [
-				'preview_image_url' => SUBSCRPT_ASSETS . '/images/previews/reports-page-preview.png',
-				'cta_title'         => __( 'Unlock Subscription Reports', 'subscription' ),
-				'cta_description'   => __( 'Subscription Reports require WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro.', 'subscription' ),
-			];
-			$preview_content = subscrpt_render_page_preview( $args );
-			echo $preview_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is already escaped. Re-escaping will break the HTML structure.
+			include 'views/reports-preview.php';
 		} else {
 			// Allow pro plugin to override the entire stats page content.
 			do_action( 'subscrpt_render_stats_page' );
@@ -478,16 +501,27 @@ class Menu {
 		$this->render_admin_header( __( 'Health', 'subscription' ), __( 'Monitor your subscription health', 'subscription' ) );
 
 		if ( ! subscrpt_pro_activated() ) {
-			$args            = [
-				'preview_image_url' => SUBSCRPT_ASSETS . '/images/previews/subscrpt-health-preview.png',
-				'cta_title'         => __( 'Unlock Subscription Health', 'subscription' ),
-				'cta_description'   => __( 'Subscription Health requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro.', 'subscription' ),
-			];
-			$preview_content = subscrpt_render_page_preview( $args );
-			echo $preview_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is already escaped. Re-escaping will break the HTML structure.
+			include 'views/health-preview.php';
 		} else {
 			// Allow pro plugin to render the full health page content.
 			do_action( 'subscrpt_render_health_page' );
+		}
+
+		$this->render_admin_footer();
+	}
+
+	/**
+	 * Render Delivery Schedules page.
+	 * When pro is active, fires subscrpt_render_delivery_page for pro to handle.
+	 */
+	public function render_delivery_page() {
+		$this->render_admin_header( __( 'Delivery Schedules', 'subscription' ), __( 'Track and manage subscription delivery schedules.', 'subscription' ) );
+
+		if ( ! subscrpt_pro_activated() ) {
+			include 'views/delivery-preview.php';
+		} else {
+			// Allow pro plugin to render the full delivery page content.
+			do_action( 'subscrpt_render_delivery_page' );
 		}
 
 		$this->render_admin_footer();
