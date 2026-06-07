@@ -60,6 +60,7 @@
   display: block;
   width: 100%;
   height: 36px;
+  min-height: 36px !important;
   padding: 0 12px;
   border: 1px solid var(--wpsubs-border) !important;
   border-radius: var(--wpsubs-radius-sm) !important;
@@ -152,9 +153,16 @@
 
 .wpsubs-input-group > .wpsubs-input,
 .wpsubs-input-group > .wpsubs-btn,
+.wpsubs-input-group > .wpsubs-tooltip > .wpsubs-btn,
 .wpsubs-input-group > .wpsubs-select,
 .wpsubs-input-group > .wpsubs-adv-select > .wpsubs-adv-select__trigger {
   border-radius: 0 !important;
+}
+
+/* Normalise button height to match input height inside a group */
+.wpsubs-input-group > .wpsubs-btn,
+.wpsubs-input-group > .wpsubs-tooltip > .wpsubs-btn {
+  height: 36px;
 }
 
 /* Restore radius on first and last direct children */
@@ -165,7 +173,8 @@
 }
 
 .wpsubs-input-group > :last-child,
-.wpsubs-input-group > :last-child > .wpsubs-adv-select__trigger {
+.wpsubs-input-group > :last-child > .wpsubs-adv-select__trigger,
+.wpsubs-input-group > :last-child > .wpsubs-btn {
   border-top-right-radius: var(--wpsubs-radius-sm) !important;
   border-bottom-right-radius: var(--wpsubs-radius-sm) !important;
 }
@@ -179,6 +188,7 @@
 /* Bring focused item to front so its border ring shows fully */
 .wpsubs-input-group > .wpsubs-input:focus,
 .wpsubs-input-group > .wpsubs-btn:focus,
+.wpsubs-input-group > .wpsubs-tooltip > .wpsubs-btn:focus,
 .wpsubs-input-group > .wpsubs-select:focus,
 .wpsubs-input-group > .wpsubs-adv-select--open > .wpsubs-adv-select__trigger {
   position: relative;
@@ -258,6 +268,83 @@
   text-decoration: none;
 }
 
+/* Icon-only square button */
+.wpsubs-btn--icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.wpsubs-btn--sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Tooltip  (wpsubs-tooltip)
+   CSS-only. Wrap any element with .wpsubs-tooltip and set data-tip="text".
+   -------------------------------------------------------------------------- */
+.wpsubs-tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.wpsubs-tooltip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  font-family: inherit;
+  line-height: 1.4;
+  padding: 5px 9px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 9999;
+}
+
+/* Arrow — base sits 4px inside the element so tip meets bubble bottom edge exactly */
+.wpsubs-tooltip::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% - 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1f2937;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 9999;
+}
+
+.wpsubs-tooltip:hover::after,
+.wpsubs-tooltip:hover::before {
+  opacity: 1;
+}
+
+/* Placement variants */
+.wpsubs-tooltip--bottom::after {
+  bottom: auto;
+  top: calc(100% + 6px);
+}
+
+.wpsubs-tooltip--bottom::before {
+  bottom: auto;
+  top: calc(100% - 4px);
+  border-top-color: transparent;
+  border-bottom-color: #1f2937;
+}
+
 .wpsubs-btn--danger {
   background: var(--wpsubs-surface);
   border-color: #fca5a5;
@@ -293,6 +380,7 @@
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
+  text-align: left;
   background: var(--wpsubs-surface);
   border: 1px solid var(--wpsubs-border);
   color: var(--wpsubs-text);
@@ -1037,4 +1125,362 @@ a.wpsubs-cell-title:hover {
   color: var(--wpsubs-text-muted);
   margin: 0;
   line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   Toggle switch  (wpsubs-toggle + wpsubs-toggle-ui)
+
+   Usage:
+     <input type="checkbox" class="wpsubs-toggle" id="my-toggle">
+     <span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+   -------------------------------------------------------------------------- */
+.wpsubs-toggle {
+  position: absolute !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  pointer-events: none;
+}
+
+.wpsubs-toggle + .wpsubs-toggle-ui {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  transition: all 0.2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.wpsubs-toggle + .wpsubs-toggle-ui::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
+}
+
+.wpsubs-toggle:checked + .wpsubs-toggle-ui {
+  background: var(--wpsubs-brand);
+}
+
+.wpsubs-toggle:checked + .wpsubs-toggle-ui::after {
+  transform: translateX(20px);
+}
+
+.wpsubs-toggle:focus + .wpsubs-toggle-ui {
+  outline: none;
+}
+
+.wpsubs-toggle:disabled + .wpsubs-toggle-ui {
+  background: #e5e7eb;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Settings layout  (wpsubs-settings-*)
+
+   Heading — full-width section label at the top of a card group.
+   Field   — two-column row: fixed-width label on left, control on right.
+   -------------------------------------------------------------------------- */
+
+/* Heading: spans full width of the card by pulling out of card padding (20px 24px) */
+.wpsubs-settings-heading {
+  background: var(--wpsubs-surface-muted);
+  border-bottom: 1px solid var(--wpsubs-border);
+  border-radius: calc(var(--wpsubs-radius) - 1px) calc(var(--wpsubs-radius) - 1px) 0 0;
+  margin: -20px -24px 20px;
+  padding: 13px 24px;
+}
+
+.wpsubs-settings-heading__title {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--wpsubs-text-muted) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.wpsubs-settings-heading__desc {
+  font-size: 12px !important;
+  color: var(--wpsubs-text-muted);
+  margin: 3px 0 0;
+  line-height: 1.5;
+}
+
+/* Field row */
+.wpsubs-settings-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.wpsubs-settings-field__label {
+  flex: 0 0 220px;
+  font-size: 13px !important;
+  font-weight: 500;
+  color: var(--wpsubs-text);
+  line-height: 1.4;
+  padding-top: 8px; /* visually align with single-line input height */
+}
+
+.wpsubs-settings-field__control {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Constrain and normalise control widths */
+.wpsubs-settings-field__control .wpsubs-input,
+.wpsubs-settings-field__control .wpsubs-select {
+  min-width: 260px;
+  max-width: 400px;
+}
+
+.wpsubs-settings-field__control .wpsubs-adv-select__trigger {
+  min-width: 260px;
+}
+
+.wpsubs-settings-field__control .wpsubs-tag-select {
+  min-width: 260px;
+  max-width: 400px;
+}
+
+/* Input group (joined fields) — constrain width as a whole */
+.wpsubs-settings-field__control .wpsubs-input-group {
+  max-width: 420px;
+}
+
+/* Hint / description below the control */
+.wpsubs-settings-field__hint {
+  font-size: 12px !important;
+  color: var(--wpsubs-text-muted);
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
+/* Toggle label — wraps the switch + inline label text */
+.wpsubs-settings-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  line-height: 1;
+  padding-top: 0;
+  position: relative;
+}
+
+.wpsubs-settings-toggle-label__text {
+  font-size: 13px !important;
+  color: var(--wpsubs-text);
+}
+
+/* --------------------------------------------------------------------------
+   Tag Select  (wpsubs-tag-select)
+   Pill/tag input with an inline filter and a filterable dropdown.
+   Supports single and multi-select. Use wpsubs_render_tag_select() PHP helper.
+   -------------------------------------------------------------------------- */
+.wpsubs-tag-select {
+  position: relative;
+  display: block;
+}
+
+/* The visible "input" area: pills + text input + chevron */
+.wpsubs-tag-select__field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 36px 4px 6px;
+  min-height: 36px;
+  border: 1px solid var(--wpsubs-border);
+  border-radius: var(--wpsubs-radius-sm);
+  background: var(--wpsubs-surface);
+  cursor: text;
+  position: relative;
+  box-sizing: border-box;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+
+.wpsubs-tag-select--open .wpsubs-tag-select__field,
+.wpsubs-tag-select__field:focus-within {
+  border-color: var(--wpsubs-brand);
+  box-shadow: 0 0 0 3px var(--wpsubs-brand-ring);
+  outline: none;
+}
+
+/* Pill (selected item badge) */
+.wpsubs-tag-select__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 3px 2px 8px;
+  background: var(--wpsubs-brand-light);
+  border: 1px solid var(--wpsubs-brand-ring);
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--wpsubs-text);
+  max-width: 200px;
+  flex-shrink: 0;
+}
+
+.wpsubs-tag-select__pill-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.wpsubs-tag-select__pill-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--wpsubs-text-muted);
+  border-radius: 3px;
+  font-size: 15px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition:
+    background 0.1s,
+    color 0.1s;
+}
+
+.wpsubs-tag-select__pill-remove:hover {
+  background: rgba(34, 113, 177, 0.15);
+  color: var(--wpsubs-brand-dark);
+}
+
+/* Inline filter input */
+.wpsubs-tag-select__input {
+  flex: 1;
+  min-width: 80px;
+  height: 28px !important;
+  min-height: 28px !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+  color: var(--wpsubs-text) !important;
+  padding: 0 2px !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+.wpsubs-tag-select__input::placeholder {
+  color: var(--wpsubs-text-subtle);
+}
+
+/* Chevron icon — absolutely positioned on the right */
+.wpsubs-tag-select__chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.12s;
+}
+
+.wpsubs-tag-select--open .wpsubs-tag-select__chevron {
+  opacity: 0.8;
+}
+
+.wpsubs-tag-select--open .wpsubs-tag-select__chevron svg {
+  transform: rotate(180deg);
+}
+
+/* Dropdown panel */
+.wpsubs-tag-select__dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--wpsubs-surface);
+  border: 1px solid var(--wpsubs-border);
+  border-radius: var(--wpsubs-radius);
+  box-shadow: var(--wpsubs-shadow-md);
+  z-index: 9999;
+  animation: wpsubs-dropdown-in 0.1s ease;
+}
+
+.wpsubs-tag-select--open .wpsubs-tag-select__dropdown {
+  display: block;
+}
+
+.wpsubs-tag-select__list {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.wpsubs-tag-select__item {
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: var(--wpsubs-radius-sm);
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--wpsubs-text);
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.1s;
+  box-sizing: border-box;
+  line-height: 1.4;
+}
+
+.wpsubs-tag-select__item:hover {
+  background: var(--wpsubs-surface-muted);
+  color: var(--wpsubs-text);
+  text-decoration: none;
+}
+
+.wpsubs-tag-select__item[data-disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.wpsubs-tag-select__empty {
+  display: none;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--wpsubs-text-muted);
+  text-align: center;
+}
+
+/* Settings context */
+.wpsubs-settings-field__control .wpsubs-tag-select {
+  max-width: 400px;
 }

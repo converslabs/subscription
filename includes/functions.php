@@ -932,3 +932,161 @@ function wpsubs_render_adv_select( array $args ): void {
 	</div>
 	<?php
 }
+
+/**
+ * Render a tag/pill select input with an inline filter and filterable dropdown.
+ * Supports single and multiple selection. No external dependencies.
+ *
+ * JS: WPSubsTagSelect (admin-components.js) auto-inits elements.
+ * Event fired on root: `wpsubs:select` — detail: { value, label, selected }
+ *
+ * @param array $args {
+ *   string       $name        Form field name (base name, without [] suffix).
+ *   string       $placeholder Input placeholder shown when nothing is selected.
+ *   string|array $value       Current value(s). Array for multiple, string for single.
+ *   array        $options     Options: array of { value, label, disabled? }.
+ *   bool         $multiple    Enable multi-select mode.
+ *   string       $id          Optional root element id.
+ *   string       $class       Extra CSS classes for the root element.
+ *   array        $attrs       Extra HTML attributes for the root element.
+ * }
+ */
+function wpsubs_render_tag_select( array $args ): void {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'name'        => '',
+			'placeholder' => __( 'Select...', 'subscription' ),
+			'value'       => '',
+			'options'     => array(),
+			'multiple'    => false,
+			'id'          => '',
+			'class'       => '',
+			'attrs'       => array(),
+		)
+	);
+
+	$multiple      = (bool) $args['multiple'];
+	$current_value = $multiple ? (array) $args['value'] : (string) $args['value'];
+
+	if ( $multiple ) {
+		$selected_values = array_filter( array_map( 'strval', $current_value ), fn( $v ) => '' !== $v );
+	} else {
+		$selected_values = ( '' !== $current_value ) ? array( $current_value ) : array();
+	}
+
+	// Map selected values to their labels for pill rendering.
+	$selected_labels = array();
+	foreach ( $args['options'] as $opt ) {
+		$opt_val = (string) ( $opt['value'] ?? '' );
+		if ( in_array( $opt_val, $selected_values, true ) ) {
+			$selected_labels[ $opt_val ] = $opt['label'] ?? $opt_val;
+		}
+	}
+
+	$root_classes = 'wpsubs-tag-select';
+	if ( $multiple ) {
+		$root_classes .= ' wpsubs-tag-select--multi';
+	}
+	if ( $args['class'] ) {
+		$root_classes .= ' ' . $args['class'];
+	}
+
+	$has_pills   = ! empty( $selected_values );
+	$placeholder = $has_pills ? '' : esc_attr( $args['placeholder'] );
+
+	$chevron_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 9l6 6 6-6"/></svg>';
+	?>
+	<div
+		class="<?php echo esc_attr( $root_classes ); ?>"
+		<?php
+		if ( $args['id'] ) :
+			?>
+			id="<?php echo esc_attr( $args['id'] ); ?>"<?php endif; ?>
+		data-placeholder="<?php echo esc_attr( $args['placeholder'] ); ?>"
+		data-name="<?php echo esc_attr( $args['name'] ); ?>"
+		<?php
+		if ( $multiple ) :
+			?>
+			data-multiple="1"<?php endif; ?>
+		<?php
+		foreach ( $args['attrs'] as $attr_name => $attr_value ) :
+			echo esc_attr( $attr_name ) . '="' . esc_attr( $attr_value ) . '" '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Both parts escaped.
+		endforeach;
+		?>
+	>
+		<div class="wpsubs-tag-select__field">
+			<?php foreach ( $selected_labels as $val => $lbl ) : ?>
+				<span class="wpsubs-tag-select__pill" data-value="<?php echo esc_attr( $val ); ?>">
+					<span class="wpsubs-tag-select__pill-label"><?php echo esc_html( $lbl ); ?></span>
+					<button type="button" class="wpsubs-tag-select__pill-remove" aria-label="<?php esc_attr_e( 'Remove', 'subscription' ); ?>">&#x2715;</button>
+				</span>
+			<?php endforeach; ?>
+			<input
+				type="text"
+				class="wpsubs-tag-select__input"
+				placeholder="<?php echo $placeholder; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already esc_attr'd above. ?>"
+				autocomplete="off"
+				aria-label="<?php esc_attr_e( 'Filter options', 'subscription' ); ?>"
+			/>
+			<span class="wpsubs-tag-select__chevron" aria-hidden="true">
+				<?php echo $chevron_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</span>
+		</div>
+
+		<div class="wpsubs-tag-select__dropdown">
+			<div class="wpsubs-tag-select__list" role="listbox"
+				<?php
+				if ( $multiple ) :
+					?>
+					aria-multiselectable="true"<?php endif; ?>>
+				<?php
+				foreach ( $args['options'] as $option ) :
+					$option      = wp_parse_args(
+						$option,
+						array(
+							'value'    => '',
+							'label'    => '',
+							'disabled' => false,
+						)
+					);
+					$opt_value   = (string) $option['value'];
+					$is_selected = in_array( $opt_value, $selected_values, true );
+					?>
+					<button
+						type="button"
+						class="wpsubs-tag-select__item"
+						data-value="<?php echo esc_attr( $opt_value ); ?>"
+						role="option"
+						aria-selected="<?php echo $is_selected ? 'true' : 'false'; ?>"
+						<?php
+						if ( $is_selected ) :
+							?>
+							data-selected<?php endif; ?>
+						<?php
+						if ( $option['disabled'] ) :
+							?>
+							data-disabled<?php endif; ?>
+						style="<?php echo $is_selected ? 'display:none;' : ''; ?>"
+					><?php echo esc_html( $option['label'] ); ?></button>
+				<?php endforeach; ?>
+			</div>
+			<div class="wpsubs-tag-select__empty"><?php esc_html_e( 'No results found.', 'subscription' ); ?></div>
+		</div>
+
+		<?php if ( $args['name'] ) : ?>
+			<?php if ( $multiple ) : ?>
+				<?php if ( empty( $selected_values ) ) : ?>
+					<input type="hidden" name="<?php echo esc_attr( $args['name'] ); ?>[]" value="" data-ts-val />
+				<?php else : ?>
+					<?php foreach ( $selected_values as $val ) : ?>
+						<input type="hidden" name="<?php echo esc_attr( $args['name'] ); ?>[]" value="<?php echo esc_attr( $val ); ?>" data-ts-val />
+					<?php endforeach; ?>
+				<?php endif; ?>
+			<?php else : ?>
+				<input type="hidden" name="<?php echo esc_attr( $args['name'] ); ?>" value="<?php echo esc_attr( $current_value ); ?>" data-ts-val />
+			<?php endif; ?>
+		<?php endif; ?>
+	</div>
+	<?php
+}

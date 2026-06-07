@@ -3,6 +3,8 @@
  * Subscription settings admin view.
  *
  * @package SpringDevs\Subscription\Admin
+ *
+ * @var array $settings_fields Grouped and sorted settings fields.
  */
 
 // Exit if accessed directly.
@@ -10,121 +12,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Add admin settings styles.
 wp_enqueue_style( 'wp-subscription-admin-settings', SUBSCRPT_ASSETS . '/css/admin-settings.css', [], SUBSCRPT_VERSION );
-
-// Add admin settings scripts.
 wp_enqueue_script( 'wp-subscription-admin-settings', SUBSCRPT_ASSETS . '/js/admin-settings.js', [ 'jquery' ], SUBSCRPT_VERSION, true );
-
 ?>
-<div class="wp-subscription-admin-content list-page wpsubs-tw-root">
-	<h1 class="wp-heading-inline" style="margin-top: 0;"><?php esc_html_e( 'Subscription Settings', 'subscription' ); ?></h1>
-	<hr class="wp-header-end"><br/>
+<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
 
-	<form method="post" action="options.php" class="border border-gray-200 rounded-lg p-5">
-		<!-- Settings nonce and other requirements -->
+	<!-- Page header -->
+	<div style="margin-bottom:20px;">
+		<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Settings', 'subscription' ); ?></h1>
+		<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0 0 12px;line-height:1.5;"><?php esc_html_e( 'Configure subscription plugin behavior and features.', 'subscription' ); ?></p>
+		<div style="border-top:1px dashed #d0d3d7;"></div>
+	</div>
+
+	<form method="post" action="options.php">
 		<?php settings_fields( 'wp_subscription_settings' ); ?>
 		<?php do_settings_sections( 'wp_subscription_settings' ); ?>
 
-		<!-- Settings Fields -->
-		<?php
-		foreach ( $settings_fields as $group_id => $group ) {
-			foreach ( ( $group['fields'] ?? [] ) as $field ) {
-				$field_type = $field['type'] ?? 'input';
-				$field_data = $field['field_data'] ?? [];
+		<?php foreach ( $settings_fields as $group_id => $group ) : ?>
+			<?php
+			$fields      = array_values( $group['fields'] ?? array() );
+			$field_count = count( $fields );
+			?>
+			<div class="wpsubs-table-card" style="margin-bottom:16px;padding:20px 24px;">
+				<?php foreach ( $fields as $idx => $field ) : ?>
+					<?php
+					$field_type = $field['type'] ?? 'input';
+					$field_data = $field['field_data'] ?? array();
+					SpringDevs\Subscription\Admin\SettingsHelper::render_settings_field( $field_type, $field_data );
+					?>
+					<?php if ( 'heading' !== $field_type && $idx + 1 < $field_count ) : ?>
+						<div style="border-top:1px solid #f1f5f9;margin:16px 0;"></div>
+					<?php endif; ?>
+				<?php endforeach; ?>
+			</div>
+		<?php endforeach; ?>
 
-				SpringDevs\Subscription\Admin\SettingsHelper::render_settings_field( $field_type, $field_data );
-
-				echo wp_kses_post( '<div class="my-5 border-t border-gray-100"></div>' );
-			}
-		}
-		?>
-
-		<!-- Submit Button -->
-		<div>
-			<input 
-				type="submit" 
-				value="<?php esc_attr_e( 'Save changes', 'subscription' ); ?>" 
-				class="button button-primary px-3! py-1! rounded-md!"
-			/>
+		<div style="margin-top:8px;">
+			<button type="submit" class="wpsubs-btn wpsubs-btn--primary">
+				<?php esc_html_e( 'Save changes', 'subscription' ); ?>
+			</button>
 		</div>
 	</form>
+
 </div>
-
-<?php return; ?>
-
-<?php
-/**
- * TODO: Refactor this section later
- *
- * phpcs:disable
- */
-?>
-<!-- Pro Gimmicks -->
-<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
-	<!-- PRO Features (subtle, grayed out) -->
-	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
-		<th scope="row">
-			<label><?php esc_html_e( 'Variable Product Options', 'subscription' ); ?></label>
-		</th>
-		<td>
-			<input type="text" disabled placeholder="Available in PRO" style="width:220px;" />
-			<p class="description">Set flexible options for variable subscription products <span style="color:#2196f3;font-weight:600;">PRO</span></p>
-		</td>
-	</tr>
-	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
-		<th scope="row">
-			<label><?php esc_html_e( 'Delivery Schedule', 'subscription' ); ?></label>
-		</th>
-		<td>
-			<select disabled><option><?php esc_html_e( 'Available in PRO', 'subscription' ); ?></option></select>
-			<p class="description">Custom delivery intervals for subscriptions <span style="color:#2196f3;font-weight:600;">PRO</span></p>
-		</td>
-	</tr>
-	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
-		<th scope="row">
-			<label><?php esc_html_e( 'Subscription History', 'subscription' ); ?></label>
-		</th>
-		<td>
-			<input type="text" disabled placeholder="Available in PRO" style="width:220px;" />
-			<p class="description">View detailed subscription change history <span style="color:#2196f3;font-weight:600;">PRO</span></p>
-		</td>
-	</tr>
-	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
-		<th scope="row">
-			<label><?php esc_html_e( 'More Subscription Durations', 'subscription' ); ?></label>
-		</th>
-		<td>
-			<input type="text" disabled placeholder="Available in PRO" style="width:220px;" />
-			<p class="description">Offer more flexible/custom subscription periods <span style="color:#2196f3;font-weight:600;">PRO</span></p>
-		</td>
-	</tr>
-	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
-		<th scope="row">
-			<label><?php esc_html_e( 'Sign Up Fee', 'subscription' ); ?></label>
-		</th>
-		<td>
-			<input type="number" disabled placeholder="Available in PRO" style="width:120px;" />
-			<p class="description">Charge a one-time sign up fee <span style="color:#2196f3;font-weight:600;">PRO</span></p>
-		</td>
-	</tr>
-	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
-		<th scope="row">
-			<label><?php esc_html_e( 'Early Renewal', 'subscription' ); ?></label>
-		</th>
-		<td>
-			<input class="wp-subscription-toggle" type="checkbox" disabled />
-			<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
-			<p class="description">Allow early renewal for subscriptions <span style="color:#2196f3;font-weight:600;">PRO</span></p>
-		</td>
-	</tr>
-	<tr class="wp-subscription-pro-setting-row" style="opacity:0.55;pointer-events:none;">
-		<th scope="row">
-			<label><?php esc_html_e( 'Renewal Price', 'subscription' ); ?></label>
-		</th>
-		<td>
-			<input type="number" disabled placeholder="Available in PRO" style="width:120px;" />
-			<p class="description">Set a different price for renewals <span style="color:#2196f3;font-weight:600;">PRO</span></p>
-		</td>
-	</tr>
-<?php endif; ?>
