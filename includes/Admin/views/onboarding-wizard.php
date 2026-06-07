@@ -490,6 +490,10 @@ if ( $product_id > 0 ) {
 	color: var(--wpsubs-text-muted);
 	text-align: center;
 }
+.p2-product-search__item--locked {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
 /* Billing every group — number input + standalone adv-select */
 .p2-billing-group {
 	width: 100%;
@@ -517,7 +521,90 @@ if ( $product_id > 0 ) {
 }
 .p2-field-pro-locked {
 	opacity: 0.6;
-	pointer-events: none;
+}
+/* Variation picker */
+.p2-variation-picker {
+	margin-top: 12px;
+}
+.p2-variation-picker__label {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--wpsubs-text-muted);
+	margin: 0 0 8px;
+}
+.p2-variation-picker__loading {
+	font-size: 13px;
+	color: var(--wpsubs-text-muted);
+	padding: 10px 0;
+}
+.p2-variation-picker__list {
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius);
+	overflow: hidden;
+}
+.p2-variation-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 12px;
+	cursor: pointer;
+	transition: background 0.1s;
+	border-bottom: 1px solid var(--wpsubs-border);
+}
+.p2-variation-item:last-child {
+	border-bottom: none;
+}
+.p2-variation-item:hover {
+	background: var(--wpsubs-surface-muted);
+}
+.p2-variation-item.selected {
+	background: var(--wpsubs-brand-light);
+}
+.p2-variation-item__check {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	border: 1.5px solid var(--wpsubs-border);
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 10px;
+	font-weight: 700;
+	color: transparent;
+	transition: all 0.15s;
+}
+.p2-variation-item.selected .p2-variation-item__check {
+	background: var(--wpsubs-brand);
+	border-color: var(--wpsubs-brand);
+	color: var(--wpsubs-surface);
+}
+.p2-variation-item__info {
+	flex: 1;
+	min-width: 0;
+}
+.p2-variation-item__name {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--wpsubs-text);
+	margin: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.p2-variation-item__meta {
+	font-size: 12px;
+	color: var(--wpsubs-text-muted);
+	margin: 0;
+}
+.p2-variation-item__price {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wpsubs-text);
+	white-space: nowrap;
+	flex-shrink: 0;
 }
 /* Page 3 */
 .product-summary {
@@ -953,12 +1040,16 @@ if ( $product_id > 0 ) {
 							<div class="p2-product-search__dropdown" id="subscrpt-product-search-dropdown" style="display:none;">
 								<?php
 								foreach ( $products as $i => $p ) :
-									$wc_p     = wc_get_product( $p->ID );
-									$price    = $wc_p ? $wc_p->get_price() : '';
-									$type     = $wc_p ? ucfirst( $wc_p->get_type() ) . ' ' . __( 'product', 'subscription' ) : '';
-									$sku      = $wc_p ? $wc_p->get_sku() : '';
-									$words    = array_filter( explode( ' ', $p->post_title ) );
-									$initials = implode(
+									$wc_p                = wc_get_product( $p->ID );
+									$price               = $wc_p ? $wc_p->get_price() : '';
+									$type                = $wc_p ? ucfirst( $wc_p->get_type() ) . ' ' . __( 'product', 'subscription' ) : '';
+									$sku                 = $wc_p ? $wc_p->get_sku() : '';
+									$billing_period_meta = $wc_p ? $wc_p->get_meta( '_subscrpt_timing_option' ) : '';
+									$billing_per_meta    = $wc_p ? $wc_p->get_meta( '_subscrpt_timing_per' ) : '';
+									$trial_per_meta      = $wc_p ? $wc_p->get_meta( '_subscrpt_trial_timing_per' ) : '';
+									$signup_fee_meta     = $wc_p ? $wc_p->get_meta( '_subscrpt_signup_fee' ) : '';
+									$words               = array_filter( explode( ' ', $p->post_title ) );
+									$initials            = implode(
 										'',
 										array_slice(
 											array_map(
@@ -971,19 +1062,30 @@ if ( $product_id > 0 ) {
 											2
 										)
 									);
-									$color    = $avatar_palette[ $i % count( $avatar_palette ) ];
+									$color               = $avatar_palette[ $i % count( $avatar_palette ) ];
 									?>
-								<div class="p2-product-search__item"
+									<?php $is_variable_locked = ( $wc_p && 'variable' === $wc_p->get_type() && ! $is_pro ); ?>
+								<div class="p2-product-search__item<?php echo $is_variable_locked ? ' p2-product-search__item--locked' : ''; ?>"
 									data-id="<?php echo esc_attr( $p->ID ); ?>"
 									data-price="<?php echo esc_attr( $price ); ?>"
 									data-type="<?php echo esc_attr( $type ); ?>"
+									data-product-type="<?php echo esc_attr( $wc_p ? $wc_p->get_type() : '' ); ?>"
 									data-sku="<?php echo esc_attr( $sku ); ?>"
-									data-name="<?php echo esc_attr( $p->post_title ); ?>">
+									data-name="<?php echo esc_attr( $p->post_title ); ?>"
+									data-billing-period="<?php echo esc_attr( $billing_period_meta ); ?>"
+									data-billing-per="<?php echo esc_attr( $billing_per_meta ?: '1' ); ?>"
+									data-trial-per="<?php echo esc_attr( $trial_per_meta ); ?>"
+									data-signup-fee="<?php echo esc_attr( $signup_fee_meta ); ?>">
 									<div class="p2-product-search__avatar" style="background:<?php echo esc_attr( $color['bg'] ); ?>;color:<?php echo esc_attr( $color['fg'] ); ?>">
 										<?php echo esc_html( $initials ?: '?' ); ?>
 									</div>
 									<div class="p2-product-search__info">
-										<p class="p2-product-search__name"><?php echo esc_html( $p->post_title ); ?></p>
+										<p class="p2-product-search__name">
+											<?php echo esc_html( $p->post_title ); ?>
+											<?php if ( $is_variable_locked ) : ?>
+												<span class="p2-pro-badge" title="<?php esc_attr_e( 'WPSubscription Pro required', 'subscription' ); ?>"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
+											<?php endif; ?>
+										</p>
 										<p class="p2-product-search__meta"><?php echo esc_html( ( $sku ? 'SKU ' . $sku . ' · ' : '' ) . $type ); ?></p>
 									</div>
 									<?php if ( '' !== $price ) : ?>
@@ -1004,6 +1106,11 @@ if ( $product_id > 0 ) {
 						</div>
 						<button type="button" class="p2-selected-product__clear" id="subscrpt-btn-clear-product" aria-label="<?php esc_attr_e( 'Clear selection', 'subscription' ); ?>">×</button>
 					</div>
+					<!-- Variation picker (shown when a variable product is selected) -->
+					<div id="subscrpt-variation-picker-wrap" class="p2-variation-picker" style="display:none;">
+						<div id="subscrpt-variation-picker-list"></div>
+					</div>
+					<input type="hidden" name="subscrpt_variation_id" id="subscrpt-variation-id-hidden" value="">
 				</div>
 				<?php endif; ?>
 			</div>
@@ -1095,7 +1202,7 @@ if ( $product_id > 0 ) {
 								<label for="subscrpt_signup_fee">
 									<?php esc_html_e( 'Sign-up fee', 'subscription' ); ?>
 									<?php if ( ! $is_pro ) : ?>
-										<span class="p2-pro-badge"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
+										<span class="p2-pro-badge" title="<?php esc_attr_e( 'WPSubscription Pro required', 'subscription' ); ?>"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
 									<?php else : ?>
 										<span class="p2-label-optional"><?php esc_html_e( 'Optional', 'subscription' ); ?></span>
 									<?php endif; ?>

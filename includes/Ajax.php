@@ -19,6 +19,7 @@ class Ajax {
 		add_action( 'wp_ajax_subscrpt_install_integration_plugin', array( $this, 'install_integration_plugin' ) );
 		add_action( 'wp_ajax_subscrpt_save_wizard_page2', array( $this, 'save_wizard_page2' ) );
 		add_action( 'wp_ajax_subscrpt_reset_wizard', array( $this, 'reset_wizard' ) );
+		add_action( 'wp_ajax_subscrpt_get_product_variations', array( $this, 'get_product_variations' ) );
 	}
 
 	/**
@@ -205,6 +206,7 @@ class Ajax {
 		$product_name     = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
 		$product_price    = isset( $_POST['product_price'] ) ? sanitize_text_field( wp_unslash( $_POST['product_price'] ) ) : '';
 		$existing_product = isset( $_POST['existing_product_id'] ) ? absint( $_POST['existing_product_id'] ) : 0;
+		$variation_id     = isset( $_POST['variation_id'] ) ? absint( $_POST['variation_id'] ) : 0;
 		$timing_option    = isset( $_POST['timing_option'] ) ? sanitize_text_field( wp_unslash( $_POST['timing_option'] ) ) : 'never';
 		$billing_per      = isset( $_POST['billing_per'] ) ? absint( $_POST['billing_per'] ) : 1;
 		$billing_period   = isset( $_POST['billing_period'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_period'] ) ) : 'month';
@@ -224,6 +226,7 @@ class Ajax {
 			'product_name'        => $product_name,
 			'product_price'       => $product_price,
 			'existing_product'    => $existing_product,
+			'variation_id'        => $variation_id,
 			'timing_option'       => $timing_option,
 			'billing_per'         => $billing_per,
 			'billing_period'      => $billing_period,
@@ -237,6 +240,70 @@ class Ajax {
 		);
 
 		wp_send_json_success( array( 'product_id' => 0 ) );
+	}
+
+	/**
+	 * Return available variations for a variable product (wizard use).
+	 *
+	 * @return void Sends JSON.
+	 */
+	public function get_product_variations() {
+		check_ajax_referer( 'subscrpt_onboarding_wizard', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'subscription' ) ), 403 );
+		}
+
+		$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+		if ( ! $product_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'subscription' ) ) );
+		}
+
+		$product = wc_get_product( $product_id );
+		if ( ! $product || 'variable' !== $product->get_type() ) {
+			wp_send_json_error( array( 'message' => __( 'Not a variable product.', 'subscription' ) ) );
+		}
+
+		$available = $product->get_available_variations();
+		$result    = array();
+
+		foreach ( $available as $variation ) {
+			$v_id = $variation['variation_id'];
+
+			// Build human-readable attribute label.
+			$attr_labels = array();
+			foreach ( $variation['attributes'] as $attr_key => $attr_value ) {
+				if ( '' === $attr_value ) {
+					$attr_labels[] = __( 'Any', 'subscription' );
+					continue;
+				}
+				$taxonomy = str_replace( 'attribute_', '', $attr_key );
+				if ( taxonomy_exists( $taxonomy ) ) {
+					$term          = get_term_by( 'slug', $attr_value, $taxonomy );
+					$attr_labels[] = $term ? $term->name : ucfirst( str_replace( '-', ' ', $attr_value ) );
+				} else {
+					$attr_labels[] = ucfirst( str_replace( '-', ' ', $attr_value ) );
+				}
+			}
+			$label = implode( ' / ', $attr_labels );
+			if ( ! $label ) {
+				/* translators: %d: variation ID */
+				$label = sprintf( __( 'Variation #%d', 'subscription' ), $v_id );
+			}
+
+			$result[] = array(
+				'id'             => $v_id,
+				'label'          => $label,
+				'price'          => $variation['display_price'],
+				'sku'            => $variation['sku'],
+				'billing_period' => get_post_meta( $v_id, '_subscrpt_timing_option', true ),
+				'billing_per'    => get_post_meta( $v_id, '_subscrpt_timing_per', true ) ?: 1,
+				'trial_per'      => get_post_meta( $v_id, '_subscrpt_trial_timing_per', true ),
+				'signup_fee'     => get_post_meta( $v_id, '_subscrpt_signup_fee', true ),
+			);
+		}
+
+		wp_send_json_success( $result );
 	}
 
 	/**

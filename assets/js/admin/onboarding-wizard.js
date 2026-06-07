@@ -43,6 +43,7 @@
         }
       });
       $(document).on("click", "#subscrpt-btn-clear-product", $.proxy(this.clearProductSelection, this));
+      $(document).on("click", ".p2-variation-item", $.proxy(this.onVariationSelect, this));
 
       // Page 2: navigation
       $(document).on("click", "#subscrpt-btn-back", $.proxy(this.goToPage1, this));
@@ -143,18 +144,193 @@
 
     onProductItemClick: function (e) {
       var item = $(e.currentTarget);
+      if (item.hasClass("p2-product-search__item--locked")) {
+        return;
+      }
       var id = String(item.data("id"));
       var name = item.data("name") || "";
       var price = item.data("price") != null ? String(item.data("price")) : "";
       var type = item.data("type") || "";
       var sku = item.data("sku") ? String(item.data("sku")) : "";
+      var productType = item.data("product-type") || "";
 
       $("#subscrpt-existing-product-hidden").val(id);
       $("#subscrpt-product-search-dropdown").hide();
       this.showProductChip(name, price, type, sku);
       $("#subscrpt_product_name").val(name);
       $("#subscrpt_product_price").val(price);
+
+      // Reset variation picker state
+      $("#subscrpt-variation-id-hidden").val("");
+
+      if (productType === "variable") {
+        // Variation picker handles subscription field autofill
+        this.fetchAndShowVariations(id);
+      } else {
+        $("#subscrpt-variation-picker-wrap").hide();
+
+        // Autofill subscription fields from product meta
+        var billingPeriod = item.data("billing-period");
+        var billingPer = item.data("billing-per");
+        var trialPer = item.data("trial-per");
+        var signupFee = item.data("signup-fee");
+
+        if (billingPeriod) {
+          this.setAdvSelectValue("#subscrpt-billing-period-select", String(billingPeriod));
+        }
+        if (billingPer) {
+          $("#subscrpt_billing_per").val(billingPer);
+          $("#subscrpt_billing_per_visible").val(billingPer);
+        }
+        if (trialPer !== undefined && trialPer !== "") {
+          $("#subscrpt_trial_timing_per").val(trialPer);
+        }
+        if (signupFee !== undefined && signupFee !== "") {
+          $("#subscrpt_signup_fee").val(signupFee);
+        }
+      }
+
       this.updatePreview();
+    },
+
+    fetchAndShowVariations: function (productId) {
+      var self = this;
+      var wrap = $("#subscrpt-variation-picker-wrap");
+      var list = $("#subscrpt-variation-picker-list");
+
+      wrap.show();
+      list.html(
+        '<p class="p2-variation-picker__loading">' +
+          (window.subscrpt_wizard_i18n ? subscrpt_wizard_i18n.loading : "Loading variations…") +
+          "</p>",
+      );
+
+      $.post(
+        this.ajaxUrl,
+        {
+          action: "subscrpt_get_product_variations",
+          nonce: $("#subscrpt_wizard_nonce").val(),
+          product_id: productId,
+        },
+        function (response) {
+          if (response.success && response.data && response.data.length) {
+            self.renderVariationPicker(response.data);
+          } else {
+            wrap.hide();
+          }
+        },
+      ).fail(function () {
+        wrap.hide();
+      });
+    },
+
+    renderVariationPicker: function (variations) {
+      var self = this;
+      var symbol = (window.subscrpt_wizard && subscrpt_wizard.currency_symbol) || "$";
+      var html = '<p class="p2-variation-picker__label">Select a variation</p>';
+      html += '<div class="p2-variation-picker__list">';
+
+      variations.forEach(function (v) {
+        var meta = v.sku ? "SKU " + v.sku : "";
+        var priceDisplay =
+          v.price !== "" && v.price !== null && v.price !== undefined ? symbol + parseFloat(v.price).toFixed(2) : "";
+
+        html +=
+          '<div class="p2-variation-item"' +
+          ' data-id="' +
+          self.escAttr(String(v.id)) +
+          '"' +
+          ' data-label="' +
+          self.escAttr(v.label) +
+          '"' +
+          ' data-price="' +
+          self.escAttr(String(v.price !== null && v.price !== undefined ? v.price : "")) +
+          '"' +
+          ' data-sku="' +
+          self.escAttr(v.sku || "") +
+          '"' +
+          ' data-billing-period="' +
+          self.escAttr(v.billing_period || "") +
+          '"' +
+          ' data-billing-per="' +
+          self.escAttr(String(v.billing_per || "1")) +
+          '"' +
+          ' data-trial-per="' +
+          self.escAttr(String(v.trial_per !== null && v.trial_per !== undefined ? v.trial_per : "")) +
+          '"' +
+          ' data-signup-fee="' +
+          self.escAttr(String(v.signup_fee || "")) +
+          '">' +
+          '<div class="p2-variation-item__check">&#10003;</div>' +
+          '<div class="p2-variation-item__info">' +
+          '<p class="p2-variation-item__name">' +
+          self.escHtml(v.label) +
+          "</p>" +
+          (meta ? '<p class="p2-variation-item__meta">' + self.escHtml(meta) + "</p>" : "") +
+          "</div>" +
+          (priceDisplay ? '<span class="p2-variation-item__price">' + self.escHtml(priceDisplay) + "</span>" : "") +
+          "</div>";
+      });
+
+      html += "</div>";
+      $("#subscrpt-variation-picker-list").html(html);
+      $("#subscrpt-variation-picker-wrap").show();
+    },
+
+    onVariationSelect: function (e) {
+      var item = $(e.currentTarget);
+      $(".p2-variation-item").removeClass("selected");
+      item.addClass("selected");
+
+      $("#subscrpt-variation-id-hidden").val(String(item.data("id")));
+
+      // Autofill subscription fields and price from variation meta
+      var price = item.data("price");
+      var billingPeriod = item.data("billing-period");
+      var billingPer = item.data("billing-per");
+      var trialPer = item.data("trial-per");
+      var signupFee = item.data("signup-fee");
+
+      if (price !== undefined && price !== "") {
+        $("#subscrpt_product_price").val(price);
+      }
+      if (billingPeriod) {
+        this.setAdvSelectValue("#subscrpt-billing-period-select", String(billingPeriod));
+      }
+      if (billingPer) {
+        $("#subscrpt_billing_per").val(billingPer);
+        $("#subscrpt_billing_per_visible").val(billingPer);
+      }
+      if (trialPer !== undefined && trialPer !== "") {
+        $("#subscrpt_trial_timing_per").val(trialPer);
+      }
+      if (signupFee !== undefined && signupFee !== "") {
+        $("#subscrpt_signup_fee").val(signupFee);
+      }
+
+      this.updatePreview();
+    },
+
+    escHtml: function (str) {
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    },
+
+    escAttr: function (str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    },
+
+    setAdvSelectValue: function (selector, value) {
+      var el = $(selector);
+      if (!el.length) return;
+      var menuItem = el.find('.wpsubs-adv-select__item[data-value="' + value + '"]');
+      var label = menuItem.length ? menuItem.find(".wpsubs-adv-select__item-label").text().trim() : value;
+      el.find('input[type="hidden"]').val(value);
+      el.find(".wpsubs-adv-select__label").text(label);
     },
 
     showProductChip: function (name, price, type, sku) {
@@ -188,6 +364,10 @@
       $("#subscrpt-product-select-wrap").show();
       $("#subscrpt_product_name").val("");
       $("#subscrpt_product_price").val("");
+      // Reset variation picker
+      $("#subscrpt-variation-picker-wrap").hide();
+      $("#subscrpt-variation-picker-list").empty();
+      $("#subscrpt-variation-id-hidden").val("");
       this.updatePreview();
     },
 
@@ -254,6 +434,7 @@
         product_name: $("#subscrpt_product_name").val(),
         product_price: $("#subscrpt_product_price").val(),
         existing_product_id: $("#subscrpt-existing-product-hidden").val(),
+        variation_id: $("#subscrpt-variation-id-hidden").val(),
         timing_option: $("#subscrpt_timing_option").val(),
         billing_per: $("#subscrpt_billing_per").val(),
         billing_period: $("input[name='subscrpt_billing_period']").val(),
@@ -286,7 +467,7 @@
       var productMode = $(".product-toggle-btn.active").data("mode") || "new";
       var productName = $("#subscrpt_product_name").val().trim();
       var price = $("#subscrpt_product_price").val().trim();
-      var existing = $("#subscrpt_existing_product").val();
+      var existing = $("#subscrpt-existing-product-hidden").val();
       var billing = $("input[name='subscrpt_billing_period']").val();
 
       if (productMode === "new") {
@@ -297,6 +478,14 @@
       } else {
         if (!existing) {
           messages.push("Please select an existing product.");
+          isValid = false;
+        }
+        if (
+          existing &&
+          $("#subscrpt-variation-picker-wrap").is(":visible") &&
+          !$("#subscrpt-variation-id-hidden").val()
+        ) {
+          messages.push("Please select a variation.");
           isValid = false;
         }
       }

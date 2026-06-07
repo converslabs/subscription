@@ -53,6 +53,7 @@ class Menu {
 			array(
 				'ajax_url'          => admin_url( 'admin-ajax.php' ),
 				'subscriptions_url' => admin_url( 'admin.php?page=wp-subscription' ),
+				'currency_symbol'   => get_woocommerce_currency_symbol(),
 			)
 		);
 
