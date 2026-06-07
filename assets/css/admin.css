@@ -165,29 +165,6 @@
   margin-top: 1px;
 }
 
-.wp-subscription-upgrade-btn {
-  background: #2271b1;
-  color: #fff;
-  padding: 6px 14px;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 13px;
-  transition:
-    background 0.2s,
-    box-shadow 0.2s;
-  box-shadow: 0 1px 3px rgba(34, 113, 177, 0.08);
-  border: none;
-  outline: none;
-  display: inline-block;
-}
-
-.wp-subscription-upgrade-btn:hover {
-  background: #135e96;
-  color: #fff;
-  box-shadow: 0 3px 12px rgba(34, 113, 177, 0.13);
-}
-
 /* Admin Content */
 
 .wp-subscription-admin-box {
@@ -329,10 +306,6 @@
   }
   .wp-subscription-logo {
     height: 24px;
-  }
-  .wp-subscription-upgrade-btn {
-    font-size: 12px;
-    padding: 5px 10px;
   }
 }
 

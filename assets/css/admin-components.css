@@ -7,10 +7,10 @@
    Design tokens
    -------------------------------------------------------------------------- */
 :root {
-  --wpsubs-brand: #ff6a34;
-  --wpsubs-brand-dark: #e0511d;
-  --wpsubs-brand-light: #fff2ee;
-  --wpsubs-brand-ring: rgba(255, 106, 52, 0.2);
+  --wpsubs-brand: #ff4d00;
+  --wpsubs-brand-dark: #d93f00;
+  --wpsubs-brand-light: #fff1eb;
+  --wpsubs-brand-ring: rgba(255, 77, 0, 0.2);
 
   --wpsubs-surface: #ffffff;
   --wpsubs-surface-muted: #f9fafb;
@@ -215,7 +215,7 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  height: 40px;
+  height: 36px;
   padding: 0 14px;
   border-radius: var(--wpsubs-radius-sm);
   font-size: 13px;
