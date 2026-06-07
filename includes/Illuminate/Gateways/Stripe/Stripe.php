@@ -106,7 +106,51 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			$new_order->update_meta_data( '_stripe_subscription_id', $stripe_subscription_id );
 		}
 
+		// Bancontact is single-use. After the first charge, Stripe creates a sepa_debit
+		// PaymentMethod on the customer. Swap the source so renewals use that SEPA PM.
+		if ( 'stripe_bancontact' === $old_method ) {
+			$customer_id = $old_order->get_meta( '_stripe_customer_id' );
+			if ( $customer_id ) {
+				$sepa_pm_id = $this->resolve_sepa_pm_for_bancontact( $customer_id );
+				if ( $sepa_pm_id ) {
+					$new_order->update_meta_data( '_stripe_source_id', $sepa_pm_id );
+					$new_order->set_payment_method( 'stripe_sepa' );
+					$new_order->set_payment_method_title( __( 'SEPA Direct Debit', 'subscription' ) );
+					subscrpt_write_log( "Stripe: Bancontact → SEPA resolved PM {$sepa_pm_id} for renewal order #{$new_order->get_id()} (Subscription: #{$subscription_id})" );
+				} else {
+					subscrpt_write_log( "Stripe: Could not find SEPA PM for Bancontact customer {$customer_id} — renewal order #{$new_order->get_id()} (Subscription: #{$subscription_id}) may fail" );
+				}
+			}
+		}
+
 		return $new_order;
+	}
+
+	/**
+	 * Resolve a SEPA Direct Debit PaymentMethod for a customer that originally paid with Bancontact.
+	 *
+	 * Bancontact is single-use. After the initial charge Stripe automatically creates a sepa_debit
+	 * PaymentMethod on the same customer for future off-session use.
+	 *
+	 * @param string $customer_id Stripe customer ID.
+	 * @return string|null sepa_debit PaymentMethod ID, or null if none found.
+	 */
+	private function resolve_sepa_pm_for_bancontact( $customer_id ) {
+		$response = \WC_Stripe_API::retrieve(
+			'customers/' . rawurlencode( $customer_id ) . '/payment_methods?type=sepa_debit&limit=10'
+		);
+
+		if ( ! empty( $response->error ) || empty( $response->data ) ) {
+			return null;
+		}
+
+		foreach ( $response->data as $pm ) {
+			if ( 'sepa_debit' === $pm->type ) {
+				return $pm->id;
+			}
+		}
+
+		return null;
 	}
 
 	/**
