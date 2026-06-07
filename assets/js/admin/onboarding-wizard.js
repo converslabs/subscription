@@ -18,10 +18,27 @@
       this.showRelevantProductSection();
       this.initPageIndicator();
       this.initLivePreview();
+      this.initStepperState();
     },
 
     initPageIndicator: function () {
       this.currentPage = parseInt($("#subscrpt-current-page").text(), 10) || 1;
+    },
+
+    initStepperState: function () {
+      var page = parseInt($("#subscrpt-wizard-page").val(), 10) || 1;
+      if (page > 1) {
+        $("#subscrpt-stepper").show();
+        $(".wpsubs-wizard-stepper__step").removeClass("active done");
+        $(".wpsubs-wizard-stepper__step").each(function () {
+          var step = parseInt($(this).data("step"), 10);
+          if (step < page) {
+            $(this).addClass("done");
+          } else if (step === page) {
+            $(this).addClass("active");
+          }
+        });
+      }
     },
 
     bindEvents: function () {
@@ -51,7 +68,7 @@
 
       // Page 3
       $(document).on("click", "#subscrpt-btn-add-another", $.proxy(this.restart, this));
-      $(document).on("click", "#subscrpt-btn-go-subscriptions", $.proxy(this.goToSubscriptions, this));
+      $(document).on("click", "#subscrpt-btn-start-over", $.proxy(this.restart, this));
     },
 
     // ----- Page transitions -----
@@ -79,7 +96,12 @@
       } else {
         $("#subscrpt-stepper").show();
         $(".wpsubs-wizard-stepper__step").removeClass("active done");
-        $('.wpsubs-wizard-stepper__step[data-step="1"]').addClass("done");
+        $(".wpsubs-wizard-stepper__step").each(function () {
+          var step = parseInt($(this).data("step"), 10);
+          if (step < pageNum) {
+            $(this).addClass("done");
+          }
+        });
         $('.wpsubs-wizard-stepper__step[data-step="' + pageNum + '"]').addClass("active");
       }
 
@@ -104,6 +126,7 @@
       // Restore name field editability
       $("#subscrpt_product_name").prop("readonly", false).val("");
       $("#subscrpt_product_price").val("");
+      $("#subscrpt-btn-save").html("Create product &rsaquo;");
       this.updatePreview();
     },
 
@@ -112,6 +135,7 @@
       $(".p2-option-card, .product-toggle-btn").removeClass("active");
       $(e.currentTarget).addClass("active");
       $("#subscrpt-existing-product-fields").show();
+      $("#subscrpt-btn-save").html("Update product &rsaquo;");
       // If already has a selection, re-show chip
       var selectedVal = $("#subscrpt_existing_product").val();
       if (selectedVal) {
@@ -411,7 +435,7 @@
     updatePreview: function () {
       var name = $("#subscrpt_product_name").val() || "Your product";
       var price = $("#subscrpt_product_price").val() || "0.00";
-      var period = $("input[name='subscrpt_billing_period']").val() || "month";
+      var period = $("input[name='subscrpt_billing_period']").val() || "months";
 
       $("#p2-preview-name").text(name);
       $("#p2-preview-price").text(parseFloat(price).toFixed(2));
@@ -424,6 +448,16 @@
       e.preventDefault();
 
       if (!this.validatePage2()) {
+        return;
+      }
+
+      var productMode = $(".product-toggle-btn.active").data("mode") || "new";
+      var confirmMsg =
+        productMode === "new"
+          ? "Create this subscription product?"
+          : "Apply these subscription settings to the selected product?";
+
+      if (!confirm(confirmMsg)) {
         return;
       }
 
@@ -442,7 +476,7 @@
         signup_fee: $("#subscrpt_signup_fee").val(),
         // hidden compat fields
         trial_enabled: 0,
-        trial_timing_option: "days",
+        trial_timing_option: $("input[name='subscrpt_trial_timing_option']").val() || "days",
         length_enabled: 0,
         length_per: "",
         length_option: "months",
@@ -452,7 +486,7 @@
 
       $.post(this.ajaxUrl, data, function (response) {
         if (response.success) {
-          self.goToPage3(response.data.product_id || 0);
+          window.location.reload();
         } else {
           alert(response.data.message || "Something went wrong. Please try again.");
         }
@@ -525,7 +559,7 @@
           $("#subscrpt_product_price").val("");
           $("#subscrpt_timing_option").val("never");
           $("#subscrpt_billing_per").val("1");
-          $("input[name='subscrpt_billing_period']").val("month");
+          $("input[name='subscrpt_billing_period']").val("months");
           $("#subscrpt_trial_timing_per").val("0");
           $("#subscrpt_signup_fee").val("");
           // Reset chip
@@ -534,10 +568,6 @@
           $("#subscrpt_existing_product").val("");
         },
       );
-    },
-
-    goToSubscriptions: function () {
-      window.location.href = this.subscriptionsUrl;
     },
   };
 

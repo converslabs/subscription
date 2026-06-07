@@ -15,6 +15,7 @@ $session_data      = isset( $_SESSION['subscrpt_onboarding_wizard'] ) ? $_SESSIO
 $wizard_page       = isset( $session_data['page'] ) ? (int) $session_data['page'] : 1;
 $product_id        = isset( $session_data['product_id'] ) ? (int) $session_data['product_id'] : 0;
 $subscriptions_url = admin_url( 'admin.php?page=wp-subscription' );
+$is_pro            = subscrpt_pro_activated();
 
 // Get existing products for dropdown
 $args     = array(
@@ -607,48 +608,226 @@ if ( $product_id > 0 ) {
 	flex-shrink: 0;
 }
 /* Page 3 */
-.product-summary {
-	background: var(--wpsubs-surface-muted);
+.p3-card {
+	text-align: center;
+	padding: 40px 40px 32px;
 }
-.summary-grid {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 10px;
+.p3-success-icon {
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+	background: var(--wpsubs-brand);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 20px;
 }
-.summary-item {
-	font-size: 13px;
+.p3-heading {
+	font-size: 24px;
+	font-weight: 700;
+	color: var(--wpsubs-text);
+	margin-bottom: 10px;
+	font-family: Georgia, serif;
 }
-.summary-item .label {
+.p3-subtext {
+	font-size: 13.5px;
 	color: var(--wpsubs-text-muted);
-	display: block;
-	margin-bottom: 2px;
+	line-height: 1.6;
+	max-width: 440px;
+	margin: 0 auto 28px;
 }
-.summary-item .value {
+/* Product card */
+.p3-product-card {
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius);
+	overflow: hidden;
+	margin-bottom: 24px;
+	text-align: left;
+}
+.p3-product-card__header {
+	display: grid;
+	grid-template-columns: 1fr 160px 110px;
+	padding: 8px 16px;
+	border-bottom: 1px solid var(--wpsubs-border);
+}
+.p3-product-card__header span {
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	color: var(--wpsubs-text-muted);
+	text-transform: uppercase;
+}
+.p3-product-card__row {
+	display: grid;
+	grid-template-columns: 1fr 160px 110px;
+	align-items: center;
+	padding: 14px 16px;
+}
+.p3-product-card__product {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+.p3-product-avatar {
+	width: 36px;
+	height: 36px;
+	border-radius: 6px;
+	background: #fde8d8;
+	color: #c2440f;
+	font-size: 12px;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+.p3-product-name {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wpsubs-text);
+	margin: 0 0 2px;
+}
+.p3-product-meta {
+	font-size: 11.5px;
+	color: var(--wpsubs-text-muted);
+	margin: 0;
+}
+.p3-product-card__status {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.p3-status-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	background: #ecfdf5;
+	color: #065f46;
+	font-size: 12px;
 	font-weight: 500;
+	padding: 3px 8px 3px 6px;
+	border-radius: 12px;
+	width: fit-content;
+}
+.p3-status-badge__dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: #10b981;
+	flex-shrink: 0;
+}
+.p3-status-sub {
+	font-size: 11.5px;
+	color: var(--wpsubs-text-muted);
+	margin: 0;
+}
+.p3-product-card__price {
+	text-align: right;
+}
+.p3-price-amount {
+	display: block;
+	font-size: 15px;
+	font-weight: 700;
 	color: var(--wpsubs-text);
 }
-.congrats-heading {
-	font-size: 22px;
-	font-weight: 700;
-	text-align: center;
-	margin-bottom: 6px;
-}
-.congrats-sub {
-	text-align: center;
+.p3-price-period {
+	font-size: 11.5px;
 	color: var(--wpsubs-text-muted);
-	margin-bottom: 28px;
-	font-size: 13.5px;
 }
-.action-buttons {
+/* What now section */
+.p3-what-now-label {
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	color: var(--wpsubs-text-muted);
+	text-transform: uppercase;
+	text-align: left;
+	margin-bottom: 8px;
+}
+.p3-action-rows {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	justify-content: center;
-	margin-top: 8px;
+	flex-direction: column;
+	gap: 0;
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius);
+	overflow: hidden;
+	margin-bottom: 20px;
 }
-.action-btn {
-	padding: 9px 18px;
+.p3-action-row {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 14px 16px;
+	background: var(--wpsubs-surface);
+	text-decoration: none;
+	text-align: left;
+	border: none;
+	cursor: pointer;
+	width: 100%;
+	box-sizing: border-box;
+	transition: background 0.12s;
+	font-family: inherit;
+}
+.p3-action-row + .p3-action-row {
+	border-top: 1px solid var(--wpsubs-border);
+}
+.p3-action-row:hover {
+	background: var(--wpsubs-surface-muted);
+}
+.p3-action-row__icon {
+	width: 34px;
+	height: 34px;
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius-sm);
+	background: var(--wpsubs-surface-muted);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	color: var(--wpsubs-text-muted);
+}
+.p3-action-row__content {
+	flex: 1;
+	min-width: 0;
+}
+.p3-action-row__title {
 	font-size: 13px;
+	font-weight: 600;
+	color: var(--wpsubs-text);
+	margin: 0 0 2px;
+}
+.p3-action-row__desc {
+	font-size: 12px;
+	color: var(--wpsubs-text-muted);
+	margin: 0;
+}
+.p3-action-row__chevron {
+	color: var(--wpsubs-text-subtle);
+	flex-shrink: 0;
+}
+/* Help footer */
+.p3-help-text {
+	font-size: 12.5px;
+	color: var(--wpsubs-text-muted);
+	text-align: center;
+}
+.p3-help-link {
+	color: var(--wpsubs-brand);
+	text-decoration: none;
+}
+.p3-help-link:hover {
+	text-decoration: underline;
+}
+/* Page 3 nav */
+.p3-nav {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 16px;
+}
+.p3-nav .wpsubs-btn {
+	min-width: 140px;
 }
 /* Page 1 specific — two-column hero layout */
 #subscrpt-section-1 {
@@ -1127,29 +1306,47 @@ if ( $product_id > 0 ) {
 						<div id="subscrpt-new-product-fields">
 							<div class="form-row">
 								<label for="subscrpt_product_name"><?php esc_html_e( 'Product name', 'subscription' ); ?></label>
-								<input type="text" id="subscrpt_product_name" name="subscrpt_product_name" class="wpsubs-input" placeholder="<?php esc_attr_e( 'e.g. Monthly Subscription Box', 'subscription' ); ?>" value="<?php echo $product ? esc_attr( $product->get_name() ) : ( isset( $session_data['product_name'] ) ? esc_attr( $session_data['product_name'] ) : '' ); ?>">
+								<input type="text" id="subscrpt_product_name" name="subscrpt_product_name" class="wpsubs-input" autocomplete="off" placeholder="<?php esc_attr_e( 'e.g. Monthly Subscription Box', 'subscription' ); ?>" value="<?php echo $product ? esc_attr( $product->get_name() ) : ( isset( $session_data['product_name'] ) ? esc_attr( $session_data['product_name'] ) : '' ); ?>">
 								<p class="p2-field-hint"><?php esc_html_e( 'Shown on your store page and in subscription emails.', 'subscription' ); ?></p>
 							</div>
 						</div>
 
 						<?php
-						$is_pro         = subscrpt_pro_activated();
-						$billing_period = isset( $session_data['billing_period'] ) ? $session_data['billing_period'] : 'month';
-						$period_options = array(
+						$billing_period       = isset( $session_data['billing_period'] ) ? $session_data['billing_period'] : 'months';
+						$trial_period         = isset( $session_data['trial_timing_option'] ) ? $session_data['trial_timing_option'] : 'days';
+						$trial_period_options = array(
 							array(
-								'value' => 'day',
+								'value' => 'days',
 								'label' => __( 'Day', 'subscription' ),
 							),
 							array(
-								'value' => 'week',
+								'value' => 'weeks',
 								'label' => __( 'Week', 'subscription' ),
 							),
 							array(
-								'value' => 'month',
+								'value' => 'months',
 								'label' => __( 'Month', 'subscription' ),
 							),
 							array(
-								'value' => 'year',
+								'value' => 'years',
+								'label' => __( 'Year', 'subscription' ),
+							),
+						);
+						$period_options       = array(
+							array(
+								'value' => 'days',
+								'label' => __( 'Day', 'subscription' ),
+							),
+							array(
+								'value' => 'weeks',
+								'label' => __( 'Week', 'subscription' ),
+							),
+							array(
+								'value' => 'months',
+								'label' => __( 'Month', 'subscription' ),
+							),
+							array(
+								'value' => 'years',
 								'label' => __( 'Year', 'subscription' ),
 							),
 						);
@@ -1163,14 +1360,14 @@ if ( $product_id > 0 ) {
 								<label for="subscrpt_product_price"><?php esc_html_e( 'Price', 'subscription' ); ?></label>
 								<div class="p2-input-wrap">
 									<span class="p2-input-prefix"><?php echo esc_html( get_woocommerce_currency_symbol() ); ?></span>
-									<input type="text" id="subscrpt_product_price" name="subscrpt_product_price" class="wpsubs-input" style="padding-left:24px!important;" placeholder="0.00" value="<?php echo $product ? esc_attr( $product->get_price() ) : ( isset( $session_data['product_price'] ) ? esc_attr( $session_data['product_price'] ) : '' ); ?>">
+									<input type="text" id="subscrpt_product_price" name="subscrpt_product_price" class="wpsubs-input" autocomplete="off" style="padding-left:24px!important;" placeholder="0.00" value="<?php echo $product ? esc_attr( $product->get_price() ) : ( isset( $session_data['product_price'] ) ? esc_attr( $session_data['product_price'] ) : '' ); ?>">
 								</div>
 							</div>
 							<div class="form-row">
 								<label><?php esc_html_e( 'Billing every', 'subscription' ); ?></label>
 								<div class="wpsubs-input-group p2-billing-group">
 									<?php if ( $is_pro ) : ?>
-									<input type="number" id="subscrpt_billing_per_visible" class="wpsubs-input p2-billing-per-input" min="1"
+									<input type="number" id="subscrpt_billing_per_visible" class="wpsubs-input p2-billing-per-input" autocomplete="off" min="1"
 										value="<?php echo isset( $session_data['billing_per'] ) ? esc_attr( $session_data['billing_per'] ) : '1'; ?>"
 										oninput="document.getElementById('subscrpt_billing_per').value=this.value">
 									<?php endif; ?>
@@ -1192,11 +1389,20 @@ if ( $product_id > 0 ) {
 						<div class="p2-form-grid">
 							<div class="form-row">
 								<label for="subscrpt_trial_timing_per"><?php esc_html_e( 'Free trial', 'subscription' ); ?> <span class="p2-label-optional"><?php esc_html_e( 'Optional', 'subscription' ); ?></span></label>
-								<div class="p2-input-wrap">
-									<input type="number" id="subscrpt_trial_timing_per" name="subscrpt_trial_timing_per" class="wpsubs-input p2-input-suffix-input" min="0" value="<?php echo isset( $session_data['trial_timing_per'] ) ? esc_attr( $session_data['trial_timing_per'] ) : '0'; ?>">
-									<span class="p2-input-suffix"><?php esc_html_e( 'days', 'subscription' ); ?></span>
+								<div class="wpsubs-input-group p2-billing-group">
+									<input type="number" id="subscrpt_trial_timing_per" name="subscrpt_trial_timing_per" class="wpsubs-input p2-billing-per-input" autocomplete="off" min="0" value="<?php echo isset( $session_data['trial_timing_per'] ) ? esc_attr( $session_data['trial_timing_per'] ) : '0'; ?>">
+									<?php
+									wpsubs_render_adv_select(
+										array(
+											'name'    => 'subscrpt_trial_timing_option',
+											'id'      => 'subscrpt-trial-period-select',
+											'value'   => $trial_period,
+											'options' => $trial_period_options,
+										)
+									);
+									?>
 								</div>
-								<p class="p2-field-hint"><?php esc_html_e( 'Days before the first charge. Leave blank for none.', 'subscription' ); ?></p>
+								<p class="p2-field-hint"><?php esc_html_e( 'Free period before the first charge. Leave 0 for none.', 'subscription' ); ?></p>
 							</div>
 							<div class="form-row <?php echo $is_pro ? '' : 'p2-field-pro-locked'; ?>">
 								<label for="subscrpt_signup_fee">
@@ -1209,7 +1415,7 @@ if ( $product_id > 0 ) {
 								</label>
 								<div class="p2-input-wrap">
 									<span class="p2-input-prefix"><?php echo esc_html( get_woocommerce_currency_symbol() ); ?></span>
-									<input type="text" id="subscrpt_signup_fee" name="subscrpt_signup_fee" class="wpsubs-input" style="padding-left:24px!important;" placeholder="0.00"
+									<input type="text" id="subscrpt_signup_fee" name="subscrpt_signup_fee" class="wpsubs-input" autocomplete="off" style="padding-left:24px!important;" placeholder="0.00"
 										value="<?php echo $is_pro && isset( $session_data['signup_fee'] ) ? esc_attr( $session_data['signup_fee'] ) : ''; ?>"
 										<?php echo $is_pro ? '' : 'disabled'; ?>>
 								</div>
@@ -1223,7 +1429,6 @@ if ( $product_id > 0 ) {
 
 						<!-- Hidden compat fields -->
 						<input type="hidden" id="subscrpt_trial_enabled" name="subscrpt_trial_enabled" value="0">
-						<input type="hidden" id="subscrpt_trial_timing_option" name="subscrpt_trial_timing_option" value="days">
 						<input type="hidden" id="subscrpt_length_enabled" name="subscrpt_length_enabled" value="0">
 						<input type="hidden" id="subscrpt_length_per" name="subscrpt_length_per" value="">
 						<input type="hidden" id="subscrpt_length_option" name="subscrpt_length_option" value="months">
@@ -1268,50 +1473,119 @@ if ( $product_id > 0 ) {
 	<!-- SECTION 3: Completion -->
 	<!-- =========================================== -->
 	<div class="wizard-section <?php echo 3 === $wizard_page ? 'active' : ''; ?>" id="subscrpt-section-3">
-		<div class="wizard-card">
-			<h1 class="congrats-heading">🎉 Congratulations!</h1>
-			<p class="congrats-sub">Your subscription product is ready.</p>
+		<div class="wizard-card p3-card">
 
-			<?php if ( $product ) : ?>
-				<div class="product-summary">
-					<h3><?php echo esc_html( $product->get_name() ); ?></h3>
-					<div class="summary-grid">
-						<div class="summary-item">
-							<span class="label">Price</span>
-							<span class="value"><?php echo wp_kses_post( wc_price( $product->get_price() ) ); ?></span>
-						</div>
-						<div class="summary-item">
-							<span class="label">Billing</span>
-							<span class="value"><?php echo esc_html( isset( $session_data['billing_period'] ) ? ucfirst( $session_data['billing_period'] ) : '—' ); ?></span>
-						</div>
-						<div class="summary-item">
-							<span class="label">First Payment</span>
-							<span class="value"><?php echo esc_html( isset( $session_data['timing_option'] ) ? str_replace( '_', ' ', ucfirst( $session_data['timing_option'] ) ) : '—' ); ?></span>
-						</div>
-						<div class="summary-item">
-							<span class="label">Trial</span>
-							<span class="value">
+			<!-- Success icon -->
+			<div class="p3-success-icon">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<polyline points="20 6 9 17 4 12"></polyline>
+				</svg>
+			</div>
+
+			<h1 class="p3-heading"><?php esc_html_e( 'Your product is live.', 'subscription' ); ?></h1>
+			<p class="p3-subtext"><?php esc_html_e( "It's published to your shop now. When a customer buys it, a subscription is created for them automatically — you'll see those in the Subscriptions list.", 'subscription' ); ?></p>
+
+			<?php
+			if ( $product ) :
+				$p3_price        = $product->get_price();
+				$p3_period_raw   = isset( $session_data['billing_period'] ) ? $session_data['billing_period'] : 'months';
+				$p3_billing_per  = isset( $session_data['billing_per'] ) ? (int) $session_data['billing_per'] : 1;
+				$p3_period_label = $p3_billing_per > 1
+					? $p3_billing_per . ' ' . strtolower( $p3_period_raw )
+					: strtolower( subscrpt_get_typos( 1, $p3_period_raw ) );
+				$p3_words        = array_filter( explode( ' ', $product->get_name() ) );
+				$p3_initials     = implode(
+					'',
+					array_map(
+						function ( $w ) {
+							return strtoupper( mb_substr( $w, 0, 1 ) );
+						},
+						array_slice( $p3_words, 0, 2 )
+					)
+				);
+				?>
+			<!-- Product card -->
+			<div class="p3-product-card">
+				<div class="p3-product-card__header">
+					<span><?php esc_html_e( 'PRODUCT', 'subscription' ); ?></span>
+					<span><?php esc_html_e( 'STATUS', 'subscription' ); ?></span>
+					<span><?php esc_html_e( 'PRICE', 'subscription' ); ?></span>
+				</div>
+				<div class="p3-product-card__row">
+					<div class="p3-product-card__product">
+						<div class="p3-product-avatar"><?php echo esc_html( $p3_initials ); ?></div>
+						<div>
+							<p class="p3-product-name"><?php echo esc_html( $product->get_name() ); ?></p>
+							<p class="p3-product-meta">
 								<?php
-								if ( isset( $session_data['trial_enabled'] ) && $session_data['trial_enabled'] ) {
-									echo esc_html( $session_data['trial_timing_per'] . ' ' . $session_data['trial_timing_option'] );
-								} else {
-									echo 'None';
-								}
+								/* translators: %d: product ID */
+								echo esc_html( sprintf( __( 'Product #%d', 'subscription' ), $product->get_id() ) );
 								?>
-							</span>
+								&middot; <?php esc_html_e( 'Subscription', 'subscription' ); ?>
+							</p>
 						</div>
 					</div>
+					<div class="p3-product-card__status">
+						<span class="p3-status-badge">
+							<span class="p3-status-badge__dot"></span>
+							<?php esc_html_e( 'Published', 'subscription' ); ?>
+						</span>
+						<p class="p3-status-sub"><?php esc_html_e( 'Live in your shop', 'subscription' ); ?></p>
+					</div>
+					<div class="p3-product-card__price">
+						<span class="p3-price-amount"><?php echo wp_kses_post( wc_price( $p3_price ) ); ?></span>
+						<span class="p3-price-period">/ <?php echo esc_html( $p3_period_label ); ?></span>
+					</div>
 				</div>
+			</div>
 			<?php endif; ?>
 
-			<div class="action-buttons">
+			<!-- What now -->
+			<p class="p3-what-now-label"><?php esc_html_e( 'WHAT NOW?', 'subscription' ); ?></p>
+
+			<div class="p3-action-rows">
 				<?php if ( $product ) : ?>
-					<a href="<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>" target="_blank" class="action-btn action-btn-secondary">View in shop</a>
-					<a href="<?php echo esc_url( get_edit_post_link( $product->get_id() ) ); ?>" class="action-btn action-btn-secondary">Edit in admin</a>
+				<a href="<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>" target="_blank" rel="noopener" class="p3-action-row">
+					<div class="p3-action-row__icon">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+					</div>
+					<div class="p3-action-row__content">
+						<p class="p3-action-row__title"><?php esc_html_e( 'View product in shop', 'subscription' ); ?></p>
+						<p class="p3-action-row__desc"><?php esc_html_e( 'See how customers will subscribe to it.', 'subscription' ); ?></p>
+					</div>
+					<svg class="p3-action-row__chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+				</a>
 				<?php endif; ?>
-				<button type="button" id="subscrpt-btn-add-another" class="action-btn action-btn-secondary">Add another product</button>
-				<button type="button" id="subscrpt-btn-go-subscriptions" class="action-btn action-btn-primary">Go to Subscriptions</button>
+
+				<button type="button" id="subscrpt-btn-add-another" class="p3-action-row">
+					<div class="p3-action-row__icon">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+					</div>
+					<div class="p3-action-row__content">
+						<p class="p3-action-row__title"><?php esc_html_e( 'Add another product', 'subscription' ); ?></p>
+						<p class="p3-action-row__desc"><?php esc_html_e( 'Create another subscription product now.', 'subscription' ); ?></p>
+					</div>
+					<svg class="p3-action-row__chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+				</button>
+
 			</div>
+
+			<p class="p3-help-text">
+				<?php esc_html_e( 'Need help? Check the', 'subscription' ); ?>
+				<a href="https://wpsubscription.co/docs/" target="_blank" rel="noopener" class="p3-help-link"><?php esc_html_e( 'setup guide', 'subscription' ); ?></a>
+				<?php esc_html_e( 'or', 'subscription' ); ?>
+				<a href="https://wpsubscription.co/support/" target="_blank" rel="noopener" class="p3-help-link"><?php esc_html_e( 'contact support', 'subscription' ); ?></a>.
+			</p>
+		</div>
+
+		<!-- Bottom nav -->
+		<div class="p3-nav">
+			<button type="button" id="subscrpt-btn-start-over" class="wpsubs-btn wpsubs-btn--outline">
+				<?php esc_html_e( 'Start over', 'subscription' ); ?>
+			</button>
+			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=product' ) ); ?>" class="wpsubs-btn wpsubs-btn--primary">
+				<?php esc_html_e( 'Go to products', 'subscription' ); ?>
+			</a>
 		</div>
 	</div>
 </div>
