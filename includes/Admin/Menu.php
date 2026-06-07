@@ -183,30 +183,22 @@ class Menu {
 		}
 
 		// slug => position. Use gaps of 10 so extensions can insert between items.
-		// When pro is not active, pro-only pages (Reports, Delivery, Health) move
-		// to the bottom so free pages stay prominent.
-		if ( subscrpt_pro_activated() ) {
-			$default_order = [
-				'wp-subscription'              => 10, // Subscriptions
-				'wp-subscription-stats'        => 20, // Reports
-				'wp-subscription-delivery'     => 30, // Delivery (pro)
-				'wp-subscription-settings'     => 40, // Settings
-				'wp-subscription-health'       => 50, // Health
-				'wp-subscription-integrations' => 60, // Integrations
-				'wp-subscription-support'      => 70, // Help & Resources
-				'wp-subscription-license'      => 80, // License (pro)
-			];
-		} else {
-			$default_order = [
-				'wp-subscription'              => 10, // Subscriptions
-				'wp-subscription-settings'     => 20, // Settings
-				'wp-subscription-integrations' => 30, // Integrations
-				'wp-subscription-support'      => 40, // Help & Resources
-				'wp-subscription-stats'        => 50, // Reports (pro preview)
-				'wp-subscription-delivery'     => 60, // Delivery (pro preview)
-				'wp-subscription-health'       => 70, // Health (pro preview)
-				'wp-subscription-license'      => 80, // License (pro)
-			];
+		$default_order = [
+			'wp-subscription'              => 10, // Subscriptions
+			'wp-subscription-stats'        => 20, // Reports
+			'wp-subscription-delivery'     => 30, // Delivery (pro)
+			'wp-subscription-settings'     => 40, // Settings
+			'wp-subscription-health'       => 50, // Health
+			'wp-subscription-integrations' => 60, // Integrations
+			'wp-subscription-support'      => 70, // Help & Resources
+			'wp-subscription-license'      => 80, // License (pro)
+		];
+
+		// Place pro pages at the bottom if pro is not active.
+		if ( ! subscrpt_pro_activated() ) {
+			$default_order['wp-subscription-stats']    = 200;
+			$default_order['wp-subscription-delivery'] = 210;
+			$default_order['wp-subscription-health']   = 220;
 		}
 
 		/**
