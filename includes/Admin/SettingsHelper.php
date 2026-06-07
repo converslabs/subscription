@@ -153,13 +153,11 @@ class SettingsHelper {
 		$placeholder = $args['placeholder'] ?? '';
 		$type        = $args['type'] ?? 'text';
 
-		$join_class = $join_item ? 'join-item mx-0!' : '';
-
 		$disabled_attr = isset( $args['disabled'] ) && $args['disabled'] ? 'disabled' : '';
 
-		$style_attr = 'outline-offset: 0.5px !important; outline-color: #e5e7eb !important;';
+		$style_attr = '';
 		if ( isset( $args['style'] ) ) {
-			$style_attr .= ' ' . $args['style'];
+			$style_attr = $args['style'];
 		}
 
 		$other_attrs_html = '';
@@ -169,11 +167,14 @@ class SettingsHelper {
 
 		ob_start();
 		?>
-			<input 
+			<input
 				id="<?php echo esc_attr( $id ); ?>"
 				name="<?php echo esc_attr( $id ); ?>"
-				class="input! min-w-80! max-w-full! <?php echo esc_attr( $join_class ); ?>"
-				style="<?php echo esc_attr( $style_attr ); ?>"
+				class="wpsubs-input"
+				<?php
+				if ( $style_attr ) :
+					?>
+					style="<?php echo esc_attr( $style_attr ); ?>"<?php endif; ?>
 				type="<?php echo esc_attr( $type ); ?>"
 				placeholder="<?php echo esc_attr( $placeholder ); ?>"
 				value="<?php echo esc_attr( $value ); ?>"
@@ -191,86 +192,53 @@ class SettingsHelper {
 	 * @param bool  $join_item Whether to return element for 'join' container or not.
 	 */
 	public static function select_element( $args = [], $join_item = false ) {
-		$id    = $args['id'];
-		$value = $args['value'] ?? '';
+		$id = $args['id'];
 
-		$join_class        = $join_item ? 'join-item mx-0!' : '';
-		$wc_enhanced_class = isset( $args['enhanced'] ) && $args['enhanced'];
-
-		$basic_classes = 'select! min-w-80! max-w-full!';
-
-		// WC Select2 style (multiselect).
-		if ( $wc_enhanced_class ) {
-			// Enqueue WooCommerce enhanced select script & styles.
-			wp_enqueue_style( 'woocommerce_admin_styles' );
-			wp_enqueue_script( 'wc-enhanced-select' );
-
-			// Update basic classes for wc-enhanced-select.
-			$basic_classes = 'min-w-80! max-w-full! wc-enhanced-select';
-		}
-
-		// Need to prefix name with [] for multiple select.
-		$name_prefix = '';
-		if ( isset( $args['attributes']['multiple'] ) && $args['attributes']['multiple'] ) {
-			$name_prefix = '[]';
-		}
-
-		$style_attr = 'outline-offset: 0.5px !important; outline-color: #e5e7eb !important;';
-		if ( isset( $args['style'] ) ) {
-			$style_attr .= ' ' . $args['style'];
-		}
-
-		$other_attrs_html = '';
-		foreach ( ( $args['attributes'] ?? [] ) as $attr_key => $attr_value ) {
-			$other_attrs_html .= sprintf( ' %s="%s" ', esc_attr( $attr_key ), esc_attr( $attr_value ) );
-		}
-
-		$options_html = '';
-		foreach ( ( $args['options'] ?? [] ) as $value => $label ) {
-			$selected = false;
-			if ( isset( $args['selected'] ) ) {
-				if ( is_array( $args['selected'] ) ) {
-					$selected = in_array( $value, $args['selected'], true );
-				} else {
-					$selected = $args['selected'] === $value;
-				}
+		// Enhanced / multiselect → wpsubs-tag-select (pill input with filter).
+		if ( isset( $args['enhanced'] ) && $args['enhanced'] ) {
+			$multiple    = isset( $args['attributes']['multiple'] ) && $args['attributes']['multiple'];
+			$adv_options = array();
+			foreach ( ( $args['options'] ?? [] ) as $opt_value => $opt_label ) {
+				$adv_options[] = array(
+					'value' => (string) $opt_value,
+					'label' => $opt_label,
+				);
 			}
 
-			$disabled = false;
-			if ( isset( $args['disabled'] ) ) {
-				if ( is_array( $args['disabled'] ) ) {
-					$disabled = in_array( $value, $args['disabled'], true );
-				} else {
-					$disabled = $args['disabled'] === $value;
-				}
-			}
-
-			$options_tmp_html = sprintf(
-				'<option value="%s" %s %s>%s</option>',
-				esc_attr( $value ),
-				$selected ? 'selected' : '',
-				$disabled ? 'disabled' : '',
-				esc_html( $label ),
+			ob_start();
+			wpsubs_render_tag_select(
+				array(
+					'name'     => $id,
+					'value'    => $args['selected'] ?? ( $multiple ? array() : '' ),
+					'options'  => $adv_options,
+					'multiple' => $multiple,
+				)
 			);
-			$options_html    .= $options_tmp_html;
+			return ob_get_clean();
+		}
+
+		// Regular select → wpsubs-adv-select (button-based custom dropdown).
+		$selected    = (string) ( $args['selected'] ?? '' );
+		$adv_options = array();
+		foreach ( ( $args['options'] ?? [] ) as $opt_value => $opt_label ) {
+			$adv_options[] = array(
+				'value'    => (string) $opt_value,
+				'label'    => $opt_label,
+				'disabled' => isset( $args['disabled'] ) && ( is_array( $args['disabled'] )
+					? in_array( $opt_value, $args['disabled'], true )
+					: $args['disabled'] === $opt_value ),
+			);
 		}
 
 		ob_start();
-		?>
-			<select
-				id="<?php echo esc_attr( $id ); ?>"
-				name="<?php echo esc_attr( $id . $name_prefix ); ?>"
-				class="<?php echo esc_attr( $basic_classes . ' ' . $join_class ); ?>"
-				style="<?php echo esc_attr( $style_attr ); ?>"
-				<?php echo wp_kses_post( $other_attrs_html ); ?>
-			>
-				<?php
-					// Output intentionally not escaped as options are already escaped during generation & re-escaping breaks the HTML structure.
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $options_html;
-				?>
-			</select>
-		<?php
+		wpsubs_render_adv_select(
+			array(
+				'name'    => $id,
+				'value'   => $selected,
+				'options' => $adv_options,
+				'align'   => 'left',
+			)
+		);
 		return ob_get_clean();
 	}
 
@@ -290,15 +258,12 @@ class SettingsHelper {
 
 		ob_start();
 		?>
-			<div class="my-4 first-of-type:mt-0">
-				<h2 class="m-0!"><?php echo esc_html( $title ); ?></h2>
-
-				<?php if ( ! empty( $description ) ) : ?>
-					<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">
-						<?php echo wp_kses_post( $description ); ?>
-					</p>
-				<?php endif; ?>
-			</div>
+		<div class="wpsubs-settings-heading">
+			<h3 class="wpsubs-settings-heading__title"><?php echo esc_html( $title ); ?></h3>
+			<?php if ( ! empty( $description ) ) : ?>
+				<p class="wpsubs-settings-heading__desc"><?php echo wp_kses_post( $description ); ?></p>
+			<?php endif; ?>
+		</div>
 		<?php
 		$html_content = ob_get_clean();
 
@@ -338,23 +303,19 @@ class SettingsHelper {
 
 		ob_start();
 		?>
-			<div class="grid grid-cols-6 gap-4">
-				<span class="font-semibold text-sm mt-0.5"><?php echo esc_html( $title ); ?></span>
-
-				<div class="col-span-5">
-					<?php
-						// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						echo $text_el_html;
-					?>
-					<br/>
-					<?php if ( ! empty( $description ) ) : ?>
-						<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">
-							<?php echo wp_kses_post( $description ); ?>
-						</p>
-					<?php endif; ?>
-				</div>
+		<div class="wpsubs-settings-field">
+			<div class="wpsubs-settings-field__label"><?php echo esc_html( $title ); ?></div>
+			<div class="wpsubs-settings-field__control">
+				<?php
+					// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo $text_el_html;
+				?>
+				<?php if ( ! empty( $description ) ) : ?>
+					<p class="wpsubs-settings-field__hint"><?php echo wp_kses_post( $description ); ?></p>
+				<?php endif; ?>
 			</div>
+		</div>
 		<?php
 		$html_content = ob_get_clean();
 
@@ -396,7 +357,7 @@ class SettingsHelper {
 		$description_html = '';
 		if ( ! empty( $description ) ) {
 			$description_html = sprintf(
-				'<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">%s</p>',
+				'<p class="wpsubs-settings-field__hint">%s</p>',
 				wp_kses_post( $description )
 			);
 		}
@@ -416,35 +377,32 @@ class SettingsHelper {
 
 		ob_start();
 		?>
-			<div class="grid grid-cols-6 gap-4">
-				<span class="font-semibold text-sm mt-0.5"><?php echo esc_html( $title ); ?></span>
-
-				<div class="col-span-5">
-					<label for="<?php echo esc_attr( $id ); ?>">
-						<input 
-							id="<?php echo esc_attr( $id ); ?>"
-							name="<?php echo esc_attr( $id ); ?>"
-							class="wp-subscription-toggle"
-							style="<?php echo esc_attr( $style_attr ); ?>"
-							type="checkbox" 
-							value="<?php echo esc_attr( $value ); ?>"
-							<?php echo esc_attr( $checked_attr ); ?>
-							<?php echo esc_attr( $disabled_attr ); ?>
-							<?php
-								// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
-								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-								echo $other_attrs_html;
-							?>
-						/>
-						<span class="wp-subscription-toggle-ui" aria-hidden="true"></span>
-
-						<span class="ml-2 text-sm align-middle"><?php echo esc_html( $label ); ?></span>
-					</label>
-
-					<br/>
-					<?php echo wp_kses_post( $description_html ); ?>
-				</div>
+		<div class="wpsubs-settings-field">
+			<div class="wpsubs-settings-field__label"><?php echo esc_html( $title ); ?></div>
+			<div class="wpsubs-settings-field__control">
+				<label class="wpsubs-settings-toggle-label" for="<?php echo esc_attr( $id ); ?>">
+					<input
+						id="<?php echo esc_attr( $id ); ?>"
+						name="<?php echo esc_attr( $id ); ?>"
+						class="wpsubs-toggle"
+						type="checkbox"
+						value="<?php echo esc_attr( $value ); ?>"
+						<?php echo esc_attr( $checked_attr ); ?>
+						<?php echo esc_attr( $disabled_attr ); ?>
+						<?php
+							// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo $other_attrs_html;
+						?>
+					/>
+					<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+					<?php if ( ! empty( $label ) ) : ?>
+						<span class="wpsubs-settings-toggle-label__text"><?php echo esc_html( $label ); ?></span>
+					<?php endif; ?>
+				</label>
+				<?php echo wp_kses_post( $description_html ); ?>
 			</div>
+		</div>
 		<?php
 		$html_content = ob_get_clean();
 
@@ -484,23 +442,19 @@ class SettingsHelper {
 
 		ob_start();
 		?>
-			<div class="grid grid-cols-6 gap-4">
-				<span class="font-semibold text-sm mt-0.5"><?php echo esc_html( $title ); ?></span>
-
-				<div class="col-span-5">
-					<?php
-						// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						echo $select_el_html;
-					?>
-					<br/>
-					<?php if ( ! empty( $description ) ) : ?>
-						<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">
-							<?php echo wp_kses_post( $description ); ?>
-						</p>
-					<?php endif; ?>
-				</div>
+		<div class="wpsubs-settings-field">
+			<div class="wpsubs-settings-field__label"><?php echo esc_html( $title ); ?></div>
+			<div class="wpsubs-settings-field__control">
+				<?php
+					// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo $select_el_html;
+				?>
+				<?php if ( ! empty( $description ) ) : ?>
+					<p class="wpsubs-settings-field__hint"><?php echo wp_kses_post( $description ); ?></p>
+				<?php endif; ?>
 			</div>
+		</div>
 		<?php
 		$html_content = ob_get_clean();
 
@@ -546,31 +500,31 @@ class SettingsHelper {
 		$title       = $args['title'] ?? '';
 		$description = $args['description'] ?? '';
 
-		$vertical_class = ( $args['vertical'] ?? false ) ? 'join-vertical' : '';
+		$vertical_style = ( $args['vertical'] ?? false ) ? 'flex-direction:column;' : '';
 
 		ob_start();
 		?>
-			<div class="grid grid-cols-6 gap-4">
-				<span class="font-semibold text-sm mt-0.5"><?php echo esc_html( $title ); ?></span>
-
-				<div class="col-span-5">
-					<div class="join <?php echo esc_attr( $vertical_class ); ?>">
-						<?php
-						foreach ( ( $args['elements'] ?? [] ) as $element_html ) {
-							// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo $element_html;
-						}
-						?>
-					</div>
-					<br/>
-					<?php if ( ! empty( $description ) ) : ?>
-						<p class="mb-0! mt-2! ml-0.5! text-[13px]! text-gray-500!">
-							<?php echo wp_kses_post( $description ); ?>
-						</p>
-					<?php endif; ?>
+		<div class="wpsubs-settings-field">
+			<div class="wpsubs-settings-field__label"><?php echo esc_html( $title ); ?></div>
+			<div class="wpsubs-settings-field__control">
+				<div class="wpsubs-input-group"
+				<?php
+				if ( $vertical_style ) :
+					?>
+					style="<?php echo esc_attr( $vertical_style ); ?>"<?php endif; ?>>
+					<?php
+					foreach ( ( $args['elements'] ?? [] ) as $element_html ) {
+						// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo $element_html;
+					}
+					?>
 				</div>
+				<?php if ( ! empty( $description ) ) : ?>
+					<p class="wpsubs-settings-field__hint"><?php echo wp_kses_post( $description ); ?></p>
+				<?php endif; ?>
 			</div>
+		</div>
 		<?php
 		$html_content = ob_get_clean();
 

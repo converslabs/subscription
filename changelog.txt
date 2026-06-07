@@ -1,5 +1,10 @@
 *** WPSubscription Changelog ***
 
+2026-06-07 - version 1.10.1
+* new: Subscription settings UI.
+* new: Pro features preview.
+* fix: Stripe Bancontact renewal error.
+
 2026-05-21 - version 1.10.0
 * new: Subscription list UI.
 * new: Health and report page preview.
