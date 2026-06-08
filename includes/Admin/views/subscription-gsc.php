@@ -42,7 +42,6 @@ if ( 'none' !== $has_subscrpt_product && ! empty( $has_subscrpt_product ) ) {
 	background: #fff;
 	border: 1px solid var(--wpsubs-border);
 	border-radius: 12px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 	padding: 24px 28px 22px;
 	margin-bottom: 24px;
 }
