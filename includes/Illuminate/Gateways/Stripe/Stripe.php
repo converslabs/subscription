@@ -163,8 +163,10 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		subscrpt_write_log( "Processing renewal order #{$renewal_order->get_id()} for payment." );
 		subscrpt_write_debug_log( "Processing renewal order #{$renewal_order->get_id()} for payment." );
 
+		$stripe_order_helper = new \WC_Stripe_Order_Helper();
+		$order_locked        = false;
+
 		try {
-			$stripe_order_helper = new \WC_Stripe_Order_Helper();
 			$stripe_order_helper->validate_minimum_order_amount( $renewal_order );
 
 			$amount   = $renewal_order->get_total();
@@ -174,34 +176,44 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			$prepared_source = $this->prepare_order_source( $renewal_order );
 			if ( ! $prepared_source->customer ) {
 				subscrpt_write_log( "Customer not found for renewal order #{$renewal_order->get_id()}. Skipping payment." );
+				$this->trigger_renewal_payment_failed( $renewal_order );
 				return new \WP_Error( 'stripe_error', __( 'Customer not found', 'subscription' ) );
 			}
 
 			\WC_Stripe_Logger::info( "Begin processing subscription payment for order {$order_id} for the amount of {$amount}" );
 
-			$intent = $this->create_intent( $renewal_order, $prepared_source );
+			// Create AND confirm the PaymentIntent off-session in a single request so Stripe
+			// actually charges the saved payment method (using the stored mandate / MIT
+			// exemption). The previous flow created an unconfirmed intent and only confirmed
+			// when status was requires_confirmation — cards needing authentication were left
+			// at requires_action with no charge, producing a null charge that then crashed
+			// process_response() (Attempt to read property "id" on null) and silently aborted
+			// the renewal without flagging it as failed.
+			$stripe_order_helper->lock_order_payment( $renewal_order );
+			$order_locked = true;
 
-			if ( empty( $intent->error ) ) {
-				$stripe_order_helper->lock_order_payment( $renewal_order, $intent );
-				// Only confirm if Stripe still requires confirmation.
-				if ( \WC_Stripe_Intent_Status::REQUIRES_CONFIRMATION === $intent->status ) {
-					$intent = $this->confirm_intent( $intent, $renewal_order, $prepared_source );
-				}
-			}
+			$intent = $this->create_and_confirm_intent_for_off_session( $renewal_order, $prepared_source, $amount );
 
 			if ( ! empty( $intent->error ) ) {
 				$this->maybe_remove_non_existent_customer( $intent->error, $renewal_order );
-
-				$stripe_order_helper->unlock_order_payment( $renewal_order );
 				$this->throw_localized_message( $intent, $renewal_order );
 			}
 
-			if ( ! empty( $intent ) ) {
-				// Use the last charge within the intent to proceed.
-				$response = $this->get_latest_charge_from_intent( $intent );
-				$this->process_response( $response, $renewal_order );
+			// An off-session intent that did not succeed (e.g. requires_action) yields no
+			// charge. Treat that as a failed renewal instead of dereferencing a null charge.
+			$response = $this->get_latest_charge_from_intent( $intent );
+			if ( empty( $response ) ) {
+				$status = isset( $intent->status ) ? $intent->status : 'unknown';
+				throw new \WC_Stripe_Exception(
+					"No charge on renewal intent for order #{$renewal_order->get_id()} (status: {$status})",
+					__( 'The subscription renewal payment could not be completed automatically. Customer authentication may be required.', 'subscription' )
+				);
 			}
+
+			$this->process_response( $response, $renewal_order );
+
 			$stripe_order_helper->unlock_order_payment( $renewal_order );
+			$order_locked = false;
 
 		} catch ( \WC_Stripe_Exception $e ) {
 			\WC_Stripe_Logger::error( 'Error: ' . $e->getMessage() );
@@ -210,16 +222,29 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			subscrpt_write_log( $log_message );
 			subscrpt_write_debug_log( $log_message );
 
+			if ( $order_locked ) {
+				$stripe_order_helper->unlock_order_payment( $renewal_order );
+			}
+
 			do_action( 'wc_gateway_stripe_process_payment_error', $e, $renewal_order );
 
-			// Get subscription ID.
-			$subscription    = Helper::get_subscriptions_from_order( $renewal_order->get_id() ?? 0 );
-			$subscription    = reset( $subscription );
-			$subscription_id = $subscription->subscription_id ?? 0;
-
 			// Trigger failed actions.
-			do_action( 'subscrpt_subscription_payment_failed', $subscription_id );
+			$this->trigger_renewal_payment_failed( $renewal_order );
 		}
+	}
+
+	/**
+	 * Fire the subscription payment failure action for a renewal order.
+	 *
+	 * @param \WC_Order $renewal_order Renewal order whose subscription should be flagged.
+	 * @return void
+	 */
+	private function trigger_renewal_payment_failed( $renewal_order ) {
+		$subscription    = Helper::get_subscriptions_from_order( $renewal_order->get_id() ?? 0 );
+		$subscription    = reset( $subscription );
+		$subscription_id = $subscription->subscription_id ?? 0;
+
+		do_action( 'subscrpt_subscription_payment_failed', $subscription_id );
 	}
 
 	/**
