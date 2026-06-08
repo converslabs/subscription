@@ -187,11 +187,11 @@ class Menu {
 			'wp-subscription'              => 10, // Subscriptions
 			'wp-subscription-stats'        => 20, // Reports
 			'wp-subscription-delivery'     => 30, // Delivery (pro)
-			'wp-subscription-settings'     => 40, // Settings
 			'wp-subscription-health'       => 50, // Health
 			'wp-subscription-integrations' => 60, // Integrations
 			'wp-subscription-support'      => 70, // Help & Resources
-			'wp-subscription-license'      => 80, // License (pro)
+			'wp-subscription-settings'     => 998, // Settings
+			'wp-subscription-license'      => 999, // License (pro)
 		];
 
 		// Place pro pages at the bottom if pro is not active.
