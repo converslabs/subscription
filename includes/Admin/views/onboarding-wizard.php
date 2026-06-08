@@ -627,7 +627,6 @@ if ( $product_id > 0 ) {
 	font-weight: 700;
 	color: var(--wpsubs-text);
 	margin-bottom: 10px;
-	font-family: Georgia, serif;
 }
 .p3-subtext {
 	font-size: 13.5px;
@@ -828,6 +827,8 @@ if ( $product_id > 0 ) {
 }
 .p3-nav .wpsubs-btn {
 	min-width: 140px;
+	height: 36px;
+	box-sizing: border-box;
 }
 /* Page 1 specific — two-column hero layout */
 #subscrpt-section-1 {
@@ -1572,9 +1573,9 @@ if ( $product_id > 0 ) {
 
 			<p class="p3-help-text">
 				<?php esc_html_e( 'Need help? Check the', 'subscription' ); ?>
-				<a href="https://wpsubscription.co/docs/" target="_blank" rel="noopener" class="p3-help-link"><?php esc_html_e( 'setup guide', 'subscription' ); ?></a>
+				<a href="https://docs.converslabs.com/en" target="_blank" rel="noopener" class="p3-help-link"><?php esc_html_e( 'setup guide', 'subscription' ); ?></a>
 				<?php esc_html_e( 'or', 'subscription' ); ?>
-				<a href="https://wpsubscription.co/support/" target="_blank" rel="noopener" class="p3-help-link"><?php esc_html_e( 'contact support', 'subscription' ); ?></a>.
+				<a href="https://wordpress.org/support/plugin/subscription/" target="_blank" rel="noopener" class="p3-help-link"><?php esc_html_e( 'contact support', 'subscription' ); ?></a>.
 			</p>
 		</div>
 
