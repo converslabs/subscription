@@ -1088,15 +1088,14 @@ if ( $product_id > 0 ) {
 					<?php esc_html_e( 'Getting started', 'subscription' ); ?>
 				</div>
 				<h1 class="p1-heading">
-					<?php esc_html_e( 'Sell anything', 'subscription' ); ?>
-					<span class="p1-heading__accent"><?php esc_html_e( 'on repeat.', 'subscription' ); ?></span>
+					<?php esc_html_e( 'Your first subscription', 'subscription' ); ?>
+					<span class="p1-heading__accent"><?php esc_html_e( 'starts here', 'subscription' ); ?></span>
 				</h1>
-				<p class="p1-desc"><?php esc_html_e( "You haven't created a subscription product yet. Let's set one up together — you can start from a blank product or convert one you already sell.", 'subscription' ); ?></p>
+				<p class="p1-desc"><?php esc_html_e( 'Set up your first subscription product in minutes. Start from scratch or convert a product you already sell.', 'subscription' ); ?></p>
 				<ul class="p1-bullets">
 					<li><span class="p1-bullet-dot"></span><?php esc_html_e( 'Daily, weekly, monthly, or annual billing', 'subscription' ); ?></li>
 					<li><span class="p1-bullet-dot"></span><?php esc_html_e( 'Free trials and one-time sign-up fees', 'subscription' ); ?></li>
-					<li><span class="p1-bullet-dot"></span><?php esc_html_e( 'Works with every WooCommerce product type', 'subscription' ); ?></li>
-				</ul>
+					</ul>
 				<div class="p1-actions">
 					<button type="button" id="subscrpt-btn-start" class="wpsubs-btn wpsubs-btn--primary">
 						<?php esc_html_e( 'Create my first subscription', 'subscription' ); ?> &rsaquo;
@@ -1131,11 +1130,7 @@ if ( $product_id > 0 ) {
 							</div>
 						</div>
 				</div>
-				<div class="p1-starts-here">
-					<svg width="18" height="12" viewBox="0 0 18 12" fill="none" style="color:var(--wpsubs-brand);"><path d="M1 1 C5 1, 14 11, 17 11" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/><polyline points="14,8 17,11 14,14" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-					<?php esc_html_e( 'Starts here', 'subscription' ); ?>
 				</div>
-			</div>
 		</div>
 	</div>
 
@@ -1145,7 +1140,7 @@ if ( $product_id > 0 ) {
 	<div class="wizard-section <?php echo 2 === $wizard_page ? 'active' : ''; ?>" id="subscrpt-section-2">
 		<div class="wizard-card">
 			<h1 class="p2-page-title"><?php esc_html_e( 'Create your subscription product', 'subscription' ); ?></h1>
-			<p class="p2-page-subtitle"><?php esc_html_e( 'Set the basics now — once published, customers can subscribe to it from your shop. You can fine-tune everything later in the product editor.', 'subscription' ); ?></p>
+			<p class="p2-page-subtitle"><?php esc_html_e( 'Set the basics now. Once published, customers can subscribe from your shop and you can fine-tune everything later in the product editor.', 'subscription' ); ?></p>
 
 			<!-- 1. Pick a starting point -->
 			<div class="p2-section-block">
@@ -1484,7 +1479,7 @@ if ( $product_id > 0 ) {
 			</div>
 
 			<h1 class="p3-heading"><?php esc_html_e( 'Your product is live.', 'subscription' ); ?></h1>
-			<p class="p3-subtext"><?php esc_html_e( "It's published to your shop now. When a customer buys it, a subscription is created for them automatically — you'll see those in the Subscriptions list.", 'subscription' ); ?></p>
+			<p class="p3-subtext"><?php esc_html_e( "It's published to your shop now. When a customer buys it, a subscription is created automatically. You'll see those in the Subscriptions list.", 'subscription' ); ?></p>
 
 			<?php
 			if ( $product ) :
