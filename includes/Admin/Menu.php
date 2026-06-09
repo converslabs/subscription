@@ -136,8 +136,8 @@ class Menu {
 		// Delivery Schedules
 		add_submenu_page(
 			$parent_slug,
-			__( 'Delivery Schedules', 'subscription' ),
-			__( 'Delivery Schedules', 'subscription' ) . $pro_badge,
+			__( 'Delivery', 'subscription' ),
+			__( 'Delivery', 'subscription' ) . $pro_badge,
 			'manage_options',
 			'wp-subscription-delivery',
 			array( $this, 'render_delivery_page' )
@@ -146,8 +146,8 @@ class Menu {
 		// Help & Resources
 		add_submenu_page(
 			$parent_slug,
-			__( 'Help & Resources', 'subscription' ),
-			__( 'Help & Resources', 'subscription' ),
+			__( 'Help', 'subscription' ),
+			__( 'Help', 'subscription' ),
 			'manage_options',
 			'wp-subscription-support',
 			array( $this, 'render_support_page' )
