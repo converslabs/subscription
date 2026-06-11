@@ -10,6 +10,7 @@ WC tested up to: 10.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
+[Subscription & Recurring Payment for WooCommerce](#)
 WPSubscription maximizes recurring revenue on WooCommerce. Set flexible subscriptions and automated billing with support for Stripe, PayPal, and more, all with zero technical hassle.
 
 == Description ==
