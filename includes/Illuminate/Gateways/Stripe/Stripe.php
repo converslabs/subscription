@@ -293,9 +293,9 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		// Save a note about the status of the intent.
 		$order_id = $order->get_id();
 		if ( \WC_Stripe_Intent_Status::SUCCEEDED === $confirmed_intent->status ) {
-			\WC_Stripe_Logger::log( "Stripe PaymentIntent $intent->id succeeded for order $order_id" );
+			\WC_Stripe_Logger::info( "Stripe PaymentIntent $intent->id succeeded for order $order_id" );
 		} elseif ( \WC_Stripe_Intent_Status::REQUIRES_ACTION === $confirmed_intent->status ) {
-			\WC_Stripe_Logger::log( "Stripe PaymentIntent $intent->id requires authentication for order $order_id" );
+			\WC_Stripe_Logger::info( "Stripe PaymentIntent $intent->id requires authentication for order $order_id" );
 		}
 
 		return $confirmed_intent;
