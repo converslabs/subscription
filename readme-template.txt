@@ -39,7 +39,8 @@ Need help? [Read our full documentation and setup guide here.](https://docs.conv
 ### Start Earning with Subscriptions for WooCommerce - Recurring Payment Plugin
 
 **[Download the Plugin Now!](https://downloads.wordpress.org/plugin/subscription.zip)**
-You can also find it on the official [WordPress.org Subscriptions for WooCommerce page](https://wordpress.org/plugins/subscription).
+
+Explore all features and get started at [**WooCommerce Subscriptions & Recurring Payment Plugin**](https://wpsubscription.co).
 
 ### WITH SUBSCRIPTIONS FOR WOOCOMMERCE, YOU CAN:
 
