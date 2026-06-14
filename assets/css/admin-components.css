@@ -7,10 +7,10 @@
    Design tokens
    -------------------------------------------------------------------------- */
 :root {
-  --wpsubs-brand: #2271b1;
-  --wpsubs-brand-dark: #135e96;
-  --wpsubs-brand-light: #eef4fb;
-  --wpsubs-brand-ring: rgba(34, 113, 177, 0.2);
+  --wpsubs-brand: #ff4d00;
+  --wpsubs-brand-dark: #d93f00;
+  --wpsubs-brand-light: #fff1eb;
+  --wpsubs-brand-ring: rgba(255, 77, 0, 0.2);
 
   --wpsubs-surface: #ffffff;
   --wpsubs-surface-muted: #f9fafb;
@@ -215,7 +215,7 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  height: 40px;
+  height: 36px;
   padding: 0 14px;
   border-radius: var(--wpsubs-radius-sm);
   font-size: 13px;
@@ -372,7 +372,9 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 40px;
+  height: 36px;
+  width: 100%;
+  min-width: max-content;
   padding: 0 14px;
   border-radius: var(--wpsubs-radius-sm);
   font-size: 13px;
@@ -509,7 +511,7 @@
    Select control
    -------------------------------------------------------------------------- */
 .wpsubs-select {
-  height: 40px;
+  height: 36px;
   padding: 0 28px 0 10px;
   border: 1px solid var(--wpsubs-border) !important;
   border-radius: var(--wpsubs-radius-sm) !important;

@@ -780,9 +780,9 @@ function subscrpt_render_page_preview( array $args = [] ) {
 
 					<!-- Lock icon with radial glow -->
 					<div style="position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
-						<div style="position:absolute;width:100px;height:100px;background:radial-gradient(circle,rgba(255,106,52,0.22) 0%,transparent 70%);border-radius:50%;"></div>
-						<div style="position:relative;width:56px;height:56px;border:1.5px solid #ff6a34;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#fff;">
-							<svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#ff6a34" stroke-width="2" aria-hidden="true">
+						<div style="position:absolute;width:100px;height:100px;background:radial-gradient(circle,var(--wpsubs-brand-ring) 0%,transparent 70%);border-radius:50%;"></div>
+						<div style="position:relative;width:56px;height:56px;border:1.5px solid var(--wpsubs-brand);border-radius:14px;display:flex;align-items:center;justify-content:center;background:#fff;">
+							<svg width="24" height="24" fill="none" viewBox="0 0 24 24" style="stroke:var(--wpsubs-brand);" stroke-width="2" aria-hidden="true">
 								<rect x="5" y="11" width="14" height="10" rx="2"/>
 								<path stroke-linecap="round" d="M8 11V7a4 4 0 018 0v4"/>
 							</svg>
@@ -800,7 +800,7 @@ function subscrpt_render_page_preview( array $args = [] ) {
 					</div>
 
 					<!-- CTA button -->
-					<a href="<?php echo esc_url( $args['cta_button_url'] ); ?>" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#ff6a34;color:#fff;font-size:15px;font-weight:600;padding:14px 28px;border-radius:8px;text-decoration:none;">
+					<a href="<?php echo esc_url( $args['cta_button_url'] ); ?>" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--wpsubs-brand);color:#fff;font-size:15px;font-weight:600;padding:14px 28px;border-radius:8px;text-decoration:none;">
 						<?php echo esc_html( $args['cta_button_text'] ); ?>
 					</a>
 				</div>

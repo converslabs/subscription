@@ -22,6 +22,11 @@ for ( $i = 0; $i < 12; $i++ ) {
 ?>
 <div class="wp-subscription-admin-content list-page subscrpt-subs-list">
 
+	<?php
+		// Getting started card — hidden once a subscription product exists.
+		require __DIR__ . '/subscription-gsc.php';
+	?>
+
 	<!-- Page header -->
 	<div style="margin-bottom:20px;">
 		<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Subscriptions', 'subscription' ); ?></h1>
