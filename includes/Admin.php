@@ -54,5 +54,15 @@ class Admin {
 	 * @return void
 	 */
 	public function dispatch_actions() {
+		add_action( 'save_post_product', array( $this, 'flush_gsc_cache' ) );
+	}
+
+	/**
+	 * Bust the GSC product-exists cache when any product is saved.
+	 *
+	 * @return void
+	 */
+	public function flush_gsc_cache() {
+		delete_transient( 'subscrpt_has_enabled_product' );
 	}
 }

@@ -22,6 +22,11 @@ for ( $i = 0; $i < 12; $i++ ) {
 ?>
 <div class="wp-subscription-admin-content list-page subscrpt-subs-list">
 
+	<?php
+		// Getting started card — hidden once a subscription product exists.
+		require __DIR__ . '/subscription-gsc.php';
+	?>
+
 	<!-- Page header -->
 	<div style="margin-bottom:20px;">
 		<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Subscriptions', 'subscription' ); ?></h1>
@@ -346,8 +351,8 @@ for ( $i = 0; $i < 12; $i++ ) {
 						<!-- Start date -->
 						<td class="wpsubs-col--nowrap">
 							<?php if ( $start_date ) : ?>
-								<span class="wpsubs-cell-title"><?php echo esc_html( wp_date( 'n/j/Y', $start_date ) ); ?></span>
-								<span class="wpsubs-cell-id"><?php echo esc_html( wp_date( 'g:i a', $start_date ) ); ?></span>
+								<span class="wpsubs-cell-title"><?php echo esc_html( wp_date( get_option( 'date_format' ), $start_date ) ); ?></span>
+								<span class="wpsubs-cell-id"><?php echo esc_html( wp_date( get_option( 'time_format' ), $start_date ) ); ?></span>
 							<?php else : ?>
 								<span class="wpsubs-cell--muted">&#8212;</span>
 							<?php endif; ?>
@@ -356,8 +361,8 @@ for ( $i = 0; $i < 12; $i++ ) {
 						<!-- Renewal date -->
 						<td class="wpsubs-col--nowrap">
 							<?php if ( $renewal_date ) : ?>
-								<span class="wpsubs-cell-title"><?php echo esc_html( wp_date( 'n/j/Y', $renewal_date ) ); ?></span>
-								<span class="wpsubs-cell-id"><?php echo esc_html( wp_date( 'g:i a', $renewal_date ) ); ?></span>
+								<span class="wpsubs-cell-title"><?php echo esc_html( wp_date( get_option( 'date_format' ), $renewal_date ) ); ?></span>
+								<span class="wpsubs-cell-id"><?php echo esc_html( wp_date( get_option( 'time_format' ), $renewal_date ) ); ?></span>
 							<?php else : ?>
 								<span class="wpsubs-cell--muted">&#8212;</span>
 							<?php endif; ?>

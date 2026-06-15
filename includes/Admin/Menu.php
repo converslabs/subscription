@@ -39,6 +39,24 @@ class Menu {
 			true
 		);
 
+		// Enqueue onboarding wizard JS (loaded on wizard page)
+		wp_enqueue_script(
+			'subscrpt-onboarding-wizard',
+			SUBSCRPT_ASSETS . '/js/admin/onboarding-wizard.js',
+			array( 'jquery' ),
+			SUBSCRPT_VERSION,
+			true
+		);
+		wp_localize_script(
+			'subscrpt-onboarding-wizard',
+			'subscrpt_wizard',
+			array(
+				'ajax_url'          => admin_url( 'admin-ajax.php' ),
+				'subscriptions_url' => admin_url( 'admin.php?page=wp-subscription' ),
+				'currency_symbol'   => get_woocommerce_currency_symbol(),
+			)
+		);
+
 		// Localize script for AJAX
 		wp_localize_script(
 			'sdevs_subscription_admin',
@@ -62,7 +80,7 @@ class Menu {
 			: SUBSCRPT_ASSETS . '/images/icons/subscription-20-gray.png';
 
 		$pro_text  = __( 'WPSubscription Pro required', 'subscription' );
-		$pro_badge = subscrpt_pro_activated() ? '' : ' <span title="' . $pro_text . '"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ff6a34" style="vertical-align:middle;margin-bottom:2.2px;flex-shrink:0;" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 19h-14c-.5 0 -.9 -.3 -1 -.8l-2 -10c0 -.4 .1 -.8 .5 -1.1c.4 -.2 .8 -.2 1.1 0l4.1 3.3l3.4 -5.1c.4 -.6 1.3 -.6 1.7 0l3.4 5.1l4.1 -3.3c.3 -.3 .8 -.3 1.1 0c.4 .2 .5 .6 .5 1.1l-2 10c0 .5 -.5 .8 -1 .8z"/></svg></span>';
+		$pro_badge = subscrpt_pro_activated() ? '' : ' <span title="' . $pro_text . '"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" style="fill:var(--wpsubs-brand);vertical-align:middle;margin-bottom:2.2px;flex-shrink:0;" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 19h-14c-.5 0 -.9 -.3 -1 -.8l-2 -10c0 -.4 .1 -.8 .5 -1.1c.4 -.2 .8 -.2 1.1 0l4.1 3.3l3.4 -5.1c.4 -.6 1.3 -.6 1.7 0l3.4 5.1l4.1 -3.3c.3 -.3 .8 -.3 1.1 0c.4 .2 .5 .6 .5 1.1l-2 10c0 .5 -.5 .8 -1 .8z"/></svg></span>';
 
 		// Main menu
 		add_menu_page(
@@ -73,6 +91,16 @@ class Menu {
 			array( $this, 'render_subscriptions_page' ),
 			$icon_url,
 			40
+		);
+
+		// Onboarding Wizard (hidden from menu with CSS. can be accessed via direct URL: admin.php?page=wp-subscription-onboarding)
+		add_submenu_page(
+			$parent_slug,
+			__( 'Setup Wizard', 'subscription' ),
+			__( 'Setup Wizard', 'subscription' ),
+			'manage_options',
+			'wp-subscription-onboarding',
+			array( $this, 'render_onboarding_wizard' )
 		);
 
 		// Subscriptions List
@@ -108,8 +136,8 @@ class Menu {
 		// Delivery Schedules
 		add_submenu_page(
 			$parent_slug,
-			__( 'Delivery Schedules', 'subscription' ),
-			__( 'Delivery Schedules', 'subscription' ) . $pro_badge,
+			__( 'Delivery', 'subscription' ),
+			__( 'Delivery', 'subscription' ) . $pro_badge,
 			'manage_options',
 			'wp-subscription-delivery',
 			array( $this, 'render_delivery_page' )
@@ -118,8 +146,8 @@ class Menu {
 		// Help & Resources
 		add_submenu_page(
 			$parent_slug,
-			__( 'Help & Resources', 'subscription' ),
-			__( 'Help & Resources', 'subscription' ),
+			__( 'Help', 'subscription' ),
+			__( 'Help', 'subscription' ),
 			'manage_options',
 			'wp-subscription-support',
 			array( $this, 'render_support_page' )
@@ -155,30 +183,22 @@ class Menu {
 		}
 
 		// slug => position. Use gaps of 10 so extensions can insert between items.
-		// When pro is not active, pro-only pages (Reports, Delivery, Health) move
-		// to the bottom so free pages stay prominent.
-		if ( subscrpt_pro_activated() ) {
-			$default_order = [
-				'wp-subscription'              => 10, // Subscriptions
-				'wp-subscription-stats'        => 20, // Reports
-				'wp-subscription-delivery'     => 30, // Delivery (pro)
-				'wp-subscription-settings'     => 40, // Settings
-				'wp-subscription-health'       => 50, // Health
-				'wp-subscription-integrations' => 60, // Integrations
-				'wp-subscription-support'      => 70, // Help & Resources
-				'wp-subscription-license'      => 80, // License (pro)
-			];
-		} else {
-			$default_order = [
-				'wp-subscription'              => 10, // Subscriptions
-				'wp-subscription-settings'     => 20, // Settings
-				'wp-subscription-integrations' => 30, // Integrations
-				'wp-subscription-support'      => 40, // Help & Resources
-				'wp-subscription-stats'        => 50, // Reports (pro preview)
-				'wp-subscription-delivery'     => 60, // Delivery (pro preview)
-				'wp-subscription-health'       => 70, // Health (pro preview)
-				'wp-subscription-license'      => 80, // License (pro)
-			];
+		$default_order = [
+			'wp-subscription'              => 10, // Subscriptions
+			'wp-subscription-stats'        => 20, // Reports
+			'wp-subscription-delivery'     => 30, // Delivery (pro)
+			'wp-subscription-health'       => 50, // Health
+			'wp-subscription-integrations' => 60, // Integrations
+			'wp-subscription-support'      => 70, // Help & Resources
+			'wp-subscription-settings'     => 998, // Settings
+			'wp-subscription-license'      => 999, // License (pro)
+		];
+
+		// Place pro pages at the bottom if pro is not active.
+		if ( ! subscrpt_pro_activated() ) {
+			$default_order['wp-subscription-stats']    = 200;
+			$default_order['wp-subscription-delivery'] = 210;
+			$default_order['wp-subscription-health']   = 220;
 		}
 
 		/**
@@ -209,7 +229,7 @@ class Menu {
 
 		// Build sorted list from the ordered slugs.
 		$sorted = [];
-		foreach ( array_keys( $order ) as $slug ) {
+		foreach ( $order as $slug => $position ) {
 			if ( isset( $indexed[ $slug ] ) ) {
 				$sorted[] = $indexed[ $slug ];
 				unset( $indexed[ $slug ] );
@@ -267,7 +287,10 @@ class Menu {
 			</div>
 			<div class="wp-subscription-admin-header-right">
 				<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
-					<a target="_blank" href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" class="wp-subscription-upgrade-btn"><?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?></a>
+					<a target="_blank" href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" rel="noreferrer noopener">
+						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0;"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 19h-14c-.5 0 -.9 -.3 -1 -.8l-2 -10c0 -.4 .1 -.8 .5 -1.1c.4 -.2 .8 -.2 1.1 0l4.1 3.3l3.4 -5.1c.4 -.6 1.3 -.6 1.7 0l3.4 5.1l4.1 -3.3c.3 -.3 .8 -.3 1.1 0c.4 .2 .5 .6 .5 1.1l-2 10c0 .5 -.5 .8 -1 .8z"/></svg>
+						<?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?>
+					</a>
 				<?php endif; ?>
 <img src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/logo-title.svg' ); ?>" alt="WPSubscription" class="wp-subscription-logo">
 			</div>
@@ -533,6 +556,25 @@ class Menu {
 	public function render_support_page() {
 		$this->render_admin_header( __( 'Help & Resources', 'subscription' ), __( 'Documentation, community links, and ways to get help with WPSubscription.', 'subscription' ) );
 		include 'views/support.php';
+		$this->render_admin_footer();
+	}
+
+	/**
+	 * Render Onboarding Wizard page
+	 * SPA-style: all sections rendered at once, JS controls visibility
+	 * Initial load always shows page 1 (JS handles transitions from there)
+	 */
+	public function render_onboarding_wizard() {
+		// Start session if not already started
+		if ( ! session_id() && ! headers_sent() ) {
+			session_start();
+		}
+
+		// Always start at page 1 on direct load (SPA behavior — JS drives page transitions)
+		$GLOBALS['wizard_page'] = 1;
+
+		$this->render_admin_header( __( 'Setup Wizard', 'subscription' ), __( 'Create your first subscription product', 'subscription' ) );
+		include __DIR__ . '/views/onboarding-wizard.php';
 		$this->render_admin_footer();
 	}
 
