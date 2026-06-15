@@ -298,8 +298,8 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/)
 2. Subscriptions Settings
 3. Subscriptions integrations
 4. Subscriptions API
-5. WooCommerce Cart Page with Subscription Item
-6. WooCommerce Cart Page, Block-Based Layout
+5. WooCommerce Cart Page with Subscription Item (Block-Based Layout)
+6. WooCommerce Cart Page with Subscription Item
 7. Mini Cart View for Subscription Products [Block]
 8. WooCommerce Checkout Page with Subscription
 9. Checkout Page Using WooCommerce Blocks
