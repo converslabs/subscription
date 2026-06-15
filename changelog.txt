@@ -1,5 +1,12 @@
 *** WPSubscription Changelog ***
 
+2026-06-15 - version 1.10.2
+* new: Subscription Onboarding.
+* fix: Subscription admin list datetime format.
+* fix: Stripe error due to deprecated log method.
+* update: WP.Org banner & screenshots.
+* update: WP.Org plugin description.
+
 2026-06-07 - version 1.10.1
 * new: Subscription settings UI.
 * new: Pro features preview.
