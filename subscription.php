@@ -247,7 +247,8 @@ final class Sdevs_Subscription {
 	 */
 	public function init_classes() {
 		if ( $this->is_request( 'ajax' ) ) {
-			$this->container['ajax'] = new SpringDevs\Subscription\Ajax();
+			$this->container['ajax']            = new SpringDevs\Subscription\Ajax();
+			$this->container['onboarding_ajax'] = new SpringDevs\Subscription\Admin\OnboardingAjax();
 		}
 
 		$this->container['api']    = new SpringDevs\Subscription\API();
