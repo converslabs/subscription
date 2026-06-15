@@ -1,0 +1,201 @@
+/**
+ * WPSubscription Products List Admin Styles
+ *
+ * @package WPSubscription
+ * @since 1.6.0
+ */
+
+/* Modal Overlay */
+.subscrpt-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100000;
+}
+
+.subscrpt-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 100001;
+}
+
+.subscrpt-modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 100002;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Large modal for iframe */
+.subscrpt-modal-content.subscrpt-modal-large {
+  max-width: 95%;
+  width: 95%;
+  max-height: 95vh;
+  height: 95vh;
+}
+
+/* Modal Header */
+.subscrpt-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #dcdcde;
+}
+
+.subscrpt-modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.subscrpt-modal-close {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #50575e;
+  transition: color 0.2s;
+}
+
+.subscrpt-modal-close:hover {
+  color: #d63638;
+}
+
+.subscrpt-modal-close .dashicons {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+}
+
+/* Modal Body */
+.subscrpt-modal-body {
+  padding: 20px;
+  max-height: calc(90vh - 140px);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Iframe Container */
+.subscrpt-modal-iframe-container {
+  padding: 0;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.subscrpt-modal-iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  border: none;
+}
+
+.subscrpt-modal-body .form-table {
+  margin: 0;
+}
+
+.subscrpt-modal-body .form-table th {
+  width: 200px;
+  padding: 15px 10px 15px 0;
+}
+
+.subscrpt-modal-body .form-table td {
+  padding: 15px 10px;
+}
+
+/* Modal Footer */
+.subscrpt-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid #dcdcde;
+  background: #f6f7f7;
+}
+
+/* Modal Loading */
+.subscrpt-modal-loading {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.subscrpt-modal-loading .spinner {
+  float: none;
+  margin: 0 auto 20px;
+}
+
+.subscrpt-modal-loading p {
+  color: #646970;
+  margin: 0;
+}
+
+/* Body Class */
+body.subscrpt-modal-open {
+  overflow: hidden;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+  .subscrpt-modal-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .subscrpt-modal-header {
+    padding: 15px;
+  }
+
+  .subscrpt-modal-body {
+    padding: 15px;
+  }
+
+  .subscrpt-modal-body .form-table th {
+    width: 100%;
+    display: block;
+    padding: 10px 0 5px;
+  }
+
+  .subscrpt-modal-body .form-table td {
+    display: block;
+    padding: 0 0 15px;
+  }
+
+  .subscrpt-modal-footer {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .subscrpt-modal-footer .button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Additional Product List Styles */
+.edit-in-woocommerce {
+  color: #2271b1;
+}
+
+.edit-in-woocommerce:hover {
+  color: #135e96;
+}
