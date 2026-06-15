@@ -294,25 +294,19 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/)
 
 == Screenshots ==
 
-1. Subscriptions list page
+1. Subscriptions list page (admin)
 2. Subscriptions Settings
 3. Subscriptions integrations
 4. Subscriptions API
-5. WooCommerce Cart Page with Subscription Item (Block-Based Layout)
-6. WooCommerce Cart Page with Subscription Item
-7. Mini Cart View for Subscription Products [Block]
-8. WooCommerce Checkout Page with Subscription
-9. Checkout Page Using WooCommerce Blocks
-10. Subscription Order Confirmation, Thank You Page
-11. Manage WooCommerce Orders from User Account
-12. My Account, List of Active Subscriptions
-13. Manage Subscriptions from User Dashboard
-14. Admin Panel, Subscription List View
-15. Admin Dashboard, Manage User Subscriptions
-16. Subscription Plugin Settings in WooCommerce
-17. Manage WooCommerce Orders from Admin Panel
-18. View Subscription Product Details on Product Page
-19. Create WooCommerce Product with Subscription Option
+5. WooCommerce Cart Page with Subscription
+6. WooCommerce Checkout Page with Subscription
+7. WooCommerce Order Details Page with Subscription
+8. My Account, List of Subscriptions (user)
+9. My Account, Subscription Details Page (user)
+10. WooCommerce Product - Subscription Settings
+11. WooCommerce Discount - Subscription Settings
+12. Delivery Schedules for Physical Products (Pro)
+13. Subscription Health (Pro)
 
 == Changelog ==
 [autofill_changelogs___DO_NOT_TOUCH_THIS_LINE]
