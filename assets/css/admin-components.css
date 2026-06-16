@@ -884,15 +884,31 @@ a.wpsubs-cell-title:hover {
   background: #9ca3af;
 }
 
-.wpsubs-badge--expired,
-.wpsubs-badge--draft {
+.wpsubs-badge--expired {
   background: #fee2e2;
   color: #991b1b;
   border-color: #fca5a5;
 }
-.wpsubs-badge--expired .wpsubs-badge__dot,
-.wpsubs-badge--draft .wpsubs-badge__dot {
+.wpsubs-badge--expired .wpsubs-badge__dot {
   background: #dc2626;
+}
+
+.wpsubs-badge--completed {
+  background: #eff6ff;
+  color: #1e40af;
+  border-color: #bfdbfe;
+}
+.wpsubs-badge--completed .wpsubs-badge__dot {
+  background: #2563eb;
+}
+
+.wpsubs-badge--draft {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+.wpsubs-badge--draft .wpsubs-badge__dot {
+  background: #94a3b8;
 }
 
 .wpsubs-badge--trash {
