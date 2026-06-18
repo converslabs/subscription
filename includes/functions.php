@@ -559,7 +559,7 @@ function subscrpt_write_log( $message, bool $should_print = false ): void {
 	$logger = wc_get_logger();
 
 	$message = is_array( $message ) || is_object( $message ) ? wp_json_encode( $message ) : $message;
-	$logger->add( 'wp_subcription', $message );
+	$logger->add( 'wp_subscription', $message );
 
 	echo esc_html( $should_print ? $message : '' );
 }
@@ -574,7 +574,7 @@ function subscrpt_write_debug_log( $log ): void {
 		if ( is_array( $log ) || is_object( $log ) ) {
 			error_log( print_r( $log, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
 		} else {
-			error_log( 'wp_subcription: ' . $log ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
+			error_log( 'wp_subscription: ' . $log ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
 		}
 	}
 }
