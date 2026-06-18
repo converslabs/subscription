@@ -28,34 +28,52 @@ $third_party      = array_filter(
 	}
 );
 
-// Category config.
+// Category config. The `section` key is the full sub-section heading; `label` is the short card badge.
 $category_config = [
 	'lms'        => [
-		'label' => __( 'LMS', 'subscription' ),
-		'bg'    => '#ede9fe',
-		'color' => '#6d28d9',
+		'label'   => __( 'LMS', 'subscription' ),
+		'section' => __( 'Learning Management System', 'subscription' ),
+		'bg'      => '#ede9fe',
+		'color'   => '#6d28d9',
 	],
 	'crm'        => [
-		'label' => __( 'CRM', 'subscription' ),
-		'bg'    => '#fce7f3',
-		'color' => '#9d174d',
+		'label'   => __( 'CRM', 'subscription' ),
+		'section' => __( 'Customer Relationship Management', 'subscription' ),
+		'bg'      => '#fce7f3',
+		'color'   => '#9d174d',
 	],
 	'automation' => [
-		'label' => __( 'Automation', 'subscription' ),
-		'bg'    => '#e0f2fe',
-		'color' => '#0369a1',
+		'label'   => __( 'Automation', 'subscription' ),
+		'section' => __( 'Automation', 'subscription' ),
+		'bg'      => '#e0f2fe',
+		'color'   => '#0369a1',
 	],
 	'email'      => [
-		'label' => __( 'Email', 'subscription' ),
-		'bg'    => '#dcfce7',
-		'color' => '#166534',
+		'label'   => __( 'Email', 'subscription' ),
+		'section' => __( 'Email Marketing', 'subscription' ),
+		'bg'      => '#dcfce7',
+		'color'   => '#166534',
 	],
 	'license'    => [
-		'label' => __( 'License', 'subscription' ),
-		'bg'    => '#fef3c7',
-		'color' => '#92400e',
+		'label'   => __( 'License', 'subscription' ),
+		'section' => __( 'License Management', 'subscription' ),
+		'bg'      => '#fef3c7',
+		'color'   => '#92400e',
 	],
 ];
+
+// Group third-party integrations by category, preserving the config order above
+// and appending any uncategorised ones under "Other".
+$third_party_grouped = [];
+foreach ( array_keys( $category_config ) as $cat_key ) {
+	$third_party_grouped[ $cat_key ] = [];
+}
+foreach ( $third_party as $integration ) {
+	$cat_key                           = $integration['category'] ?? '';
+	$cat_key                           = isset( $category_config[ $cat_key ] ) ? $cat_key : 'other';
+	$third_party_grouped[ $cat_key ][] = $integration;
+}
+$third_party_grouped = array_filter( $third_party_grouped );
 ?>
 
 <div class="wp-subscription-admin-content list-page subscrpt-subs-list">
@@ -74,8 +92,7 @@ $category_config = [
 	<!-- Payment Gateways -->
 	<div style="margin-bottom:32px;">
 		<div style="margin-bottom:12px;">
-			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 3px;line-height:1.4;margin-left:1px;"><?php esc_html_e( 'Payment Gateways', 'subscription' ); ?></h2>
-			<p style="font-size:12px;color:var(--wpsubs-text-muted);margin:0;line-height:1.5;margin-left:1px;"><?php esc_html_e( 'Enable and configure payment methods that support recurring billing for subscription products.', 'subscription' ); ?></p>
+			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0;line-height:1.4;margin-left:1px;"><?php esc_html_e( 'Payment Gateways', 'subscription' ); ?></h2>
 		</div>
 		<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
 			<?php foreach ( $payment_gateways as $integration ) : ?>
@@ -176,14 +193,13 @@ $category_config = [
 	</div>
 
 	<!-- 3rd Party Integrations -->
-	<?php if ( ! empty( $third_party ) ) : ?>
+	<?php foreach ( $third_party_grouped as $cat_key => $cat_integrations ) : ?>
 	<div style="margin-bottom:32px;">
 		<div style="margin-bottom:12px;">
-			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 3px;line-height:1.4;margin-left:1px;"><?php esc_html_e( '3rd Party Integrations', 'subscription' ); ?></h2>
-			<p style="font-size:12px;color:var(--wpsubs-text-muted);margin:0;line-height:1.5;margin-left:1px;"><?php esc_html_e( 'Connect subscription events with your LMS, CRM, automation, email, and license management tools.', 'subscription' ); ?></p>
+			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0;line-height:1.4;margin-left:1px;"><?php echo esc_html( $category_config[ $cat_key ]['section'] ?? __( 'Other', 'subscription' ) ); ?></h2>
 		</div>
 		<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
-			<?php foreach ( $third_party as $integration ) : ?>
+			<?php foreach ( $cat_integrations as $integration ) : ?>
 				<?php
 				$is_active    = ! empty( $integration['is_active'] );
 				$is_pro       = ! empty( $integration['is_pro'] );
@@ -269,6 +285,6 @@ $category_config = [
 			<?php endforeach; ?>
 		</div>
 	</div>
-	<?php endif; ?>
+	<?php endforeach; ?>
 
 </div>

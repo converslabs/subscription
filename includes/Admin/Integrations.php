@@ -299,7 +299,6 @@ class Integrations {
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/mollie.png',
 				'type'               => 'payment_gateway',
 				'is_pro'             => true,
-				'is_beta'            => true,
 				'is_installed'       => class_exists( 'Mollie\WooCommerce\Activation\ActivationModule' ),
 				'is_active'          => self::is_gateway_enabled( 'mollie_wc_gateway', true ),
 				'supports_recurring' => true,
