@@ -281,3 +281,8 @@ $month_options = array(
 	</div>
 
 </div>
+
+<?php
+$modal_title = __( 'Unlock Delivery Schedules', 'subscription' );
+$modal_desc  = __( 'Delivery Schedules requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro.', 'subscription' );
+require __DIR__ . '/pro-upgrade-modal.php';
