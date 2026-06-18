@@ -1245,6 +1245,29 @@ a.wpsubs-cell-title:hover {
   min-width: 0;
 }
 
+/* Pro-locked fields: shown in the free plugin as a non-interactive preview. */
+.wpsubs-settings-field--locked .wpsubs-settings-field__control {
+  opacity: 0.55;
+  pointer-events: none;
+  user-select: none;
+}
+
+.subscrpt-pro-badge {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-right: 6px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--wpsubs-brand);
+  color: var(--wpsubs-surface);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 /* Constrain and normalise control widths */
 .wpsubs-settings-field__control .wpsubs-input,
 .wpsubs-settings-field__control .wpsubs-select {
