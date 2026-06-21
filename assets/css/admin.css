@@ -328,7 +328,8 @@ body[class*="wpsubscription_page_wp-subscription"] #wpcontent {
 }
 
 /* Remove onboarding page menu item */
-.wp-submenu a[href*="page=wp-subscription-onboarding"] {
+.wp-submenu a[href*="page=wp-subscription-onboarding"],
+.wp-submenu a[href*="page=wp-subscription-details"] {
   display: none !important;
 }
 
