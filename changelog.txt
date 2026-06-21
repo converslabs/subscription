@@ -1,5 +1,12 @@
 *** WPSubscription Changelog ***
 
+2026-06-21 - version 1.10.3
+* fix: Admin headers.
+* fix: Subscription status badges.
+* fix: Pro feature previews.
+* fix: Categorize integrations.
+* fix: Pro settings.
+
 2026-06-15 - version 1.10.2
 * new: Subscription Onboarding.
 * fix: Subscription admin list datetime format.
