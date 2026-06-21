@@ -510,3 +510,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 });
 </script>
+
+<?php
+$modal_title = __( 'Unlock Reports', 'subscription' );
+$modal_desc  = __( 'Reports requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro.', 'subscription' );
+require __DIR__ . '/pro-upgrade-modal.php';
