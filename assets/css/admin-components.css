@@ -884,15 +884,31 @@ a.wpsubs-cell-title:hover {
   background: #9ca3af;
 }
 
-.wpsubs-badge--expired,
-.wpsubs-badge--draft {
+.wpsubs-badge--expired {
   background: #fee2e2;
   color: #991b1b;
   border-color: #fca5a5;
 }
-.wpsubs-badge--expired .wpsubs-badge__dot,
-.wpsubs-badge--draft .wpsubs-badge__dot {
+.wpsubs-badge--expired .wpsubs-badge__dot {
   background: #dc2626;
+}
+
+.wpsubs-badge--completed {
+  background: #eff6ff;
+  color: #1e40af;
+  border-color: #bfdbfe;
+}
+.wpsubs-badge--completed .wpsubs-badge__dot {
+  background: #2563eb;
+}
+
+.wpsubs-badge--draft {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+.wpsubs-badge--draft .wpsubs-badge__dot {
+  background: #94a3b8;
 }
 
 .wpsubs-badge--trash {
@@ -1485,4 +1501,83 @@ a.wpsubs-cell-title:hover {
 /* Settings context */
 .wpsubs-settings-field__control .wpsubs-tag-select {
   max-width: 400px;
+}
+
+/* --------------------------------------------------------------------------
+   Modal (wpsubs-modal)
+   Centered dialog over a dimmed backdrop. Toggle visibility with the [hidden]
+   attribute (or remove it to show). Behaviour (open/close) is wired per page.
+   -------------------------------------------------------------------------- */
+.wpsubs-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wpsubs-modal[hidden] {
+  display: none;
+}
+
+.wpsubs-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.5);
+}
+
+.wpsubs-modal__dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(640px, calc(100vw - 40px));
+  max-height: calc(100vh - 80px);
+  background: var(--wpsubs-surface);
+  border-radius: var(--wpsubs-radius);
+  box-shadow: var(--wpsubs-shadow-md);
+}
+
+.wpsubs-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--wpsubs-border);
+}
+
+.wpsubs-modal__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wpsubs-text);
+}
+
+.wpsubs-modal__close {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--wpsubs-text-muted);
+  transition: color 0.12s;
+}
+
+.wpsubs-modal__close:hover {
+  color: var(--wpsubs-text);
+}
+
+.wpsubs-modal__body {
+  padding: 18px;
+  overflow-y: auto;
+}
+
+.wpsubs-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--wpsubs-border);
 }

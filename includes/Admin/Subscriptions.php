@@ -155,7 +155,7 @@ class Subscriptions {
 				$status_obj = get_post_status_object( get_post_status( $post_id ) );
 				?>
 				<span
-					class="subscrpt-<?php echo esc_html( $status_obj->name ); ?>"><?php echo esc_html( $status_obj->label ); ?></span>
+					class="subscrpt-legacy-status subscrpt-legacy-status--<?php echo esc_html( $status_obj->name ); ?>"><?php echo esc_html( $status_obj->label ); ?></span>
 				<?php
 			}
 		} else {
@@ -384,7 +384,7 @@ class Subscriptions {
 			),
 			'status'           => array(
 				'label' => __( 'Status', 'subscription' ),
-				'value' => '<span class="subscrpt-' . get_post_status() . '">' . get_post_status_object( get_post_status() )->label . '</span>',
+				'value' => '<span class="subscrpt-legacy-status subscrpt-legacy-status--' . get_post_status() . '">' . get_post_status_object( get_post_status() )->label . '</span>',
 			),
 			'payment_method'   => array(
 				'label' => __( 'Payment Method', 'subscription' ),
@@ -520,7 +520,7 @@ class Subscriptions {
 							<th><?php esc_html_e( 'Status', 'subscription' ); ?></th>
 							<td>
 								<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
-									<span class="subscrpt-active grace-active">
+									<span class="subscrpt-legacy-status subscrpt-legacy-status--active grace-active">
 										Active
 
 										<?php
@@ -535,7 +535,7 @@ class Subscriptions {
 										</span>
 									</span>
 								<?php else : ?>
-									<span class="subscrpt-<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
+									<span class="subscrpt-legacy-status subscrpt-legacy-status--<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
 										<?php echo esc_html( $verbose_status ); ?>
 									</span>
 								<?php endif; ?>
