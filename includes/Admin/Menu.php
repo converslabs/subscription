@@ -2,6 +2,8 @@
 
 namespace SpringDevs\Subscription\Admin;
 
+use SpringDevs\Subscription\Illuminate\Helper;
+
 /**
  * Menu class
  *
@@ -623,7 +625,7 @@ class Menu {
 		$actions = $map_actions[ $status ] ?? array();
 
 		// Gather subscription data for the view.
-		$subscription_data = \SpringDevs\Subscription\Illuminate\Helper::get_subscription_data( $subscription_id );
+		$subscription_data = Helper::get_subscription_data( $subscription_id );
 
 		$order_id      = $subscription_data['order']['order_id'] ?? get_post_meta( $subscription_id, '_subscrpt_order_id', true );
 		$order         = $order_id ? wc_get_order( $order_id ) : null;
@@ -633,15 +635,7 @@ class Menu {
 		$rows = Subscriptions::get_info_rows( $subscription_id );
 
 		// Related orders.
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'subscrpt_order_relation';
-		// @phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$order_histories = $wpdb->get_results(
-			$wpdb->prepare(
-				'SELECT * FROM %i WHERE subscription_id=%d ORDER BY id DESC',
-				array( $table_name, $subscription_id )
-			)
-		);
+		$order_histories = Helper::get_related_orders( $subscription_id );
 
 		$this->render_admin_header(
 			'',
