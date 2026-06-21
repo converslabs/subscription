@@ -2,7 +2,13 @@
   min-width: 100px;
 }
 
-span[class*="subscrpt-"] {
+/*
+ * Legacy status badge. Dedicated `subscrpt-legacy-status` base +
+ * `subscrpt-legacy-status--{name}` colour modifiers. Self-contained class names
+ * (no broad `[class*="subscrpt-"]` attribute selector) so badges never collide
+ * with BEM component spans that merely share the `subscrpt-` prefix.
+ */
+span.subscrpt-legacy-status {
   background: #bfdbfe;
   color: #1e40af;
   font-weight: 600;
@@ -12,33 +18,33 @@ span[class*="subscrpt-"] {
   border-radius: 5px;
 }
 
-span.subscrpt-pending {
+span.subscrpt-legacy-status--pending {
   background: #dbeafe;
   color: #1e40af;
 }
 
-span.subscrpt-active {
+span.subscrpt-legacy-status--active {
   background: #bbf7d0;
   color: #166534;
 }
 
-span.subscrpt-expired {
+span.subscrpt-legacy-status--expired {
   background: #fecaca;
   color: #991b1b;
 }
 
-span.subscrpt-cancelled {
+span.subscrpt-legacy-status--cancelled {
   background: #e2e8f0;
   color: #475569;
 }
 
-span.subscrpt-pe_cancelled,
-span.subscrpt-on-hold {
+span.subscrpt-legacy-status--pe_cancelled,
+span.subscrpt-legacy-status--on-hold {
   background: #ffedd5;
   color: #b45309;
 }
 
-span.subscrpt-draft {
+span.subscrpt-legacy-status--draft {
   background: #f3f3f3;
   color: #888;
 }

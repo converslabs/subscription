@@ -12,7 +12,7 @@ STYLE GUIDE FOR WP SUBSCRIPTION ADMIN PAGES:
 - Use .widefat.wp-subscription-list-table for tables, with no outer border, only row bottom borders.
 - Use compact table cells: font-size 14px, padding 8px 10px.
 - Use .button, .button-primary, .button-small for actions, with rounded corners, soft backgrounds, and subtle hover.
-- Use pill-shaped status labels (e.g., .subscrpt-active) for status.
+- Use pill-shaped status labels (e.g., .subscrpt-legacy-status--active) for status.
 - Use Georgia, serif for titles, system sans-serif for body.
 - Keep all sections visually consistent, compact, and modern.
 - Avoid excessive spacing or large paddings.
@@ -239,7 +239,7 @@ $shipping_address = $order ? $order->get_formatted_shipping_address() : '-';
 					</tr>
 					<tr>
 						<th style="padding:8px 10px;">Status</th>
-						<td style="padding:8px 10px;"><span class="subscrpt-<?php echo esc_attr( $status_obj->name ); ?>"><?php echo esc_html( $status_obj->label ); ?></span></td>
+						<td style="padding:8px 10px;"><span class="subscrpt-legacy-status subscrpt-legacy-status--<?php echo esc_attr( $status_obj->name ); ?>"><?php echo esc_html( $status_obj->label ); ?></span></td>
 					</tr>
 					<tr>
 						<th style="padding:8px 10px;">Payment Method</th>

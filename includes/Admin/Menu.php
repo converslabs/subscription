@@ -262,15 +262,46 @@ class Menu {
 	/**
 	 * Render the admin header.
 	 *
-	 * @param string $title    Page title shown on the left.
-	 * @param string $subtitle Optional subtitle shown below the title.
+	 * The breadcrumb after the home icon is built from $breadcrumbs when given —
+	 * an ordered trail supporting any number of levels — otherwise it falls back
+	 * to the single $title segment (backward compatible with existing callers).
+	 *
+	 * Each breadcrumb item is an array: `[ 'label' => string, 'url' => string ]`.
+	 * Items with a non-empty `url` render as links, except the last item, which is
+	 * always the current (non-linked) page.
+	 *
+	 * @param string $title       Page title shown as the current segment when no
+	 *                            $breadcrumbs trail is supplied.
+	 * @param string $subtitle    Optional subtitle (reserved; not rendered).
+	 * @param array  $breadcrumbs Ordered trail of `[ 'label', 'url' ]` items.
 	 */
-	public function render_admin_header( string $title = '', string $subtitle = '' ) {
+	public function render_admin_header( string $title = '', string $subtitle = '', array $breadcrumbs = [] ) {
 		$current = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-subscription';
 
 		// Kept for backward compatibility — extensions may hook here for side-effects.
 		$menu_items = apply_filters( 'subscrpt_admin_header_menu_items', [], $current );
 		unset( $menu_items ); // Nav no longer rendered in header; navigation is in WP sidebar.
+
+		// Normalize to a single trail. Explicit breadcrumbs win; otherwise the
+		// legacy single $title segment is used.
+		$trail = [];
+		if ( ! empty( $breadcrumbs ) ) {
+			foreach ( $breadcrumbs as $crumb ) {
+				if ( is_array( $crumb ) && '' !== ( $crumb['label'] ?? '' ) ) {
+					$trail[] = [
+						'label' => (string) $crumb['label'],
+						'url'   => isset( $crumb['url'] ) ? (string) $crumb['url'] : '',
+					];
+				}
+			}
+		} elseif ( '' !== $title ) {
+			$trail[] = [
+				'label' => $title,
+				'url'   => '',
+			];
+		}
+
+		$last_index = count( $trail ) - 1;
 		?>
 		<div class="wp-subscription-admin-header">
 			<div class="wp-subscription-admin-header-inner">
@@ -279,10 +310,14 @@ class Menu {
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription' ) ); ?>" class="wp-subscription-breadcrumb-home" aria-label="<?php esc_attr_e( 'WPSubscription Home', 'subscription' ); ?>">
 						<span class="dashicons dashicons-admin-home"></span>
 					</a>
-					<?php if ( $title ) : ?>
+					<?php foreach ( $trail as $index => $crumb ) : ?>
 						<span class="wp-subscription-breadcrumb-sep" aria-hidden="true">/</span>
-						<span class="wp-subscription-breadcrumb-current"><?php echo esc_html( $title ); ?></span>
-					<?php endif; ?>
+						<?php if ( '' !== $crumb['url'] && $index < $last_index ) : ?>
+							<a href="<?php echo esc_url( $crumb['url'] ); ?>" class="wp-subscription-breadcrumb-link"><?php echo esc_html( $crumb['label'] ); ?></a>
+						<?php else : ?>
+							<span class="wp-subscription-breadcrumb-current"><?php echo esc_html( $crumb['label'] ); ?></span>
+						<?php endif; ?>
+					<?php endforeach; ?>
 				</nav>
 			</div>
 			<div class="wp-subscription-admin-header-right">

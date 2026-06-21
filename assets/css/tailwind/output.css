@@ -164,6 +164,61 @@
     }
   }
   @layer utilities {
+    .modal {
+      @layer daisyui.l1.l2.l3 {
+        pointer-events: none;
+        visibility: hidden;
+        position: fixed;
+        inset: calc(0.25rem * 0);
+        margin: calc(0.25rem * 0);
+        display: grid;
+        height: 100%;
+        max-height: none;
+        width: 100%;
+        max-width: none;
+        align-items: center;
+        justify-items: center;
+        background-color: transparent;
+        padding: calc(0.25rem * 0);
+        color: inherit;
+        transition: visibility 0.3s allow-discrete, background-color 0.3s ease-out, opacity 0.1s ease-out;
+        overflow: clip;
+        overscroll-behavior: contain;
+        z-index: 999;
+        scrollbar-gutter: auto;
+        &::backdrop {
+          display: none;
+        }
+      }
+      @layer daisyui.l1.l2 {
+        &.modal-open, &[open], &:target, .modal-toggle:checked + & {
+          pointer-events: auto;
+          visibility: visible;
+          opacity: 100%;
+          transition: visibility 0s allow-discrete, background-color 0.3s ease-out, opacity 0.1s ease-out;
+          background-color: oklch(0% 0 0/ 0.4);
+          .modal-box {
+            translate: 0 0;
+            scale: 1;
+            opacity: 1;
+          }
+          :root:has(&) {
+            --page-has-backdrop: 1;
+            --page-overflow: hidden;
+            --page-scroll-bg: var(--page-scroll-bg-on);
+            --page-scroll-gutter: stable;
+            --page-scroll-transition: var(--page-scroll-transition-on);
+            animation: set-page-has-scroll forwards;
+            animation-timeline: scroll();
+          }
+        }
+        @starting-style {
+          &.modal-open, &[open], &:target, .modal-toggle:checked + & {
+            opacity: 0%;
+          }
+        }
+      }
+    }
     .tooltip {
       @layer daisyui.l1.l2.l3 {
         position: relative;
@@ -1649,6 +1704,69 @@
         }
       }
     }
+    .timeline {
+      @layer daisyui.l1.l2.l3 {
+        position: relative;
+        display: flex;
+        > li {
+          position: relative;
+          display: grid;
+          flex-shrink: 0;
+          align-items: center;
+          grid-template-rows: var(--timeline-row-start, minmax(0, 1fr)) auto var( --timeline-row-end, minmax(0, 1fr) );
+          grid-template-columns: var(--timeline-col-start, minmax(0, 1fr)) auto var( --timeline-col-end, minmax(0, 1fr) );
+          > hr {
+            border: none;
+            width: 100%;
+            &:first-child {
+              grid-column-start: 1;
+              grid-row-start: 2;
+            }
+            &:last-child {
+              grid-column-start: 3;
+              grid-column-end: none;
+              grid-row-start: 2;
+              grid-row-end: auto;
+            }
+            @media print {
+              border: 0.1px solid var(--color-base-300);
+            }
+          }
+        }
+        :where(hr) {
+          height: calc(0.25rem * 1);
+          background-color: var(--color-base-300);
+        }
+        &:has(.timeline-middle hr) {
+          &:first-child {
+            border-start-start-radius: 0;
+            border-end-start-radius: 0;
+            border-start-end-radius: var(--radius-selector);
+            border-end-end-radius: var(--radius-selector);
+          }
+          &:last-child {
+            border-start-start-radius: var(--radius-selector);
+            border-end-start-radius: var(--radius-selector);
+            border-start-end-radius: 0;
+            border-end-end-radius: 0;
+          }
+        }
+        &:not(:has(.timeline-middle)) {
+          :first-child hr:last-child {
+            border-start-start-radius: var(--radius-selector);
+            border-end-start-radius: var(--radius-selector);
+            border-start-end-radius: 0;
+            border-end-end-radius: 0;
+          }
+          :last-child hr:first-child {
+            border-start-start-radius: 0;
+            border-end-start-radius: 0;
+            border-start-end-radius: var(--radius-selector);
+            border-end-end-radius: var(--radius-selector);
+          }
+        }
+      }
+    }
     .avatar {
       @layer daisyui.l1.l2.l3 {
         position: relative;
@@ -2181,6 +2299,62 @@
             width: calc(0.25rem * 0);
             padding-inline: calc(0.25rem * 0);
             opacity: 0%;
+          }
+        }
+      }
+    }
+    .breadcrumbs {
+      @layer daisyui.l1.l2.l3 {
+        max-width: 100%;
+        overflow-x: auto;
+        padding-block: calc(0.25rem * 2);
+        > menu, > ul, > ol {
+          display: flex;
+          min-height: min-content;
+          align-items: center;
+          white-space: nowrap;
+          > li {
+            display: flex;
+            align-items: center;
+            > * {
+              display: flex;
+              cursor: pointer;
+              align-items: center;
+              gap: calc(0.25rem * 2);
+              &:hover {
+                @media (hover: hover) {
+                  text-decoration-line: underline;
+                }
+              }
+              &:focus {
+                --tw-outline-style: none;
+                outline-style: none;
+                @media (forced-colors: active) {
+                  outline: 2px solid transparent;
+                  outline-offset: 2px;
+                }
+              }
+              &:focus-visible {
+                outline: 2px solid currentColor;
+                outline-offset: 2px;
+              }
+            }
+            & + *:before {
+              content: "";
+              margin-inline-start: calc(0.25rem * 2);
+              margin-inline-end: calc(0.25rem * 3);
+              display: block;
+              height: calc(0.25rem * 1.5);
+              width: calc(0.25rem * 1.5);
+              opacity: 40%;
+              rotate: 45deg;
+              border-top: 1px solid;
+              border-right: 1px solid;
+              background-color: #0000;
+            }
+            [dir="rtl"] & + *:before {
+              rotate: -135deg;
+            }
           }
         }
       }

@@ -57,7 +57,7 @@ do_action( 'before_single_subscrpt_content', $id );
 			<td><?php esc_html_e( 'Status', 'subscription' ); ?></td>
 			<td>
 				<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
-					<span class="subscrpt-active grace-active">
+					<span class="subscrpt-legacy-status subscrpt-legacy-status--active grace-active">
 						Active
 
 						<?php
@@ -72,7 +72,7 @@ do_action( 'before_single_subscrpt_content', $id );
 						</span>
 					</span>
 				<?php else : ?>
-					<span class="subscrpt-<?php echo esc_attr( strtolower( $status ) ); ?>">
+					<span class="subscrpt-legacy-status subscrpt-legacy-status--<?php echo esc_attr( strtolower( $status ) ); ?>">
 						<?php echo esc_html( $verbose_status ); ?>
 					</span>
 				<?php endif; ?>

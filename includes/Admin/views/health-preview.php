@@ -357,3 +357,8 @@ $issue_badge_map = array(
 	</div>
 
 </div>
+
+<?php
+$modal_title = __( 'Unlock Subscription Health', 'subscription' );
+$modal_desc  = __( 'Subscription Health requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro.', 'subscription' );
+require __DIR__ . '/pro-upgrade-modal.php';

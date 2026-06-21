@@ -115,6 +115,18 @@
   user-select: none;
 }
 
+.wp-subscription-breadcrumb-link {
+  color: #646970;
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.wp-subscription-breadcrumb-link:hover {
+  color: #2271b1;
+}
+
 .wp-subscription-breadcrumb-current {
   color: #1d2327;
   font-weight: 500;

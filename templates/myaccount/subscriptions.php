@@ -91,7 +91,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<td data-title="Status">
 						<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
-							<span class="subscrpt-active grace-active">
+							<span class="subscrpt-legacy-status subscrpt-legacy-status--active grace-active">
 								Active
 
 								<?php
@@ -106,7 +106,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								</span>
 							</span>
 						<?php else : ?>
-							<span class="subscrpt-<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
+							<span class="subscrpt-legacy-status subscrpt-legacy-status--<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
 								<?php echo esc_html( strlen( $verbose_status ) > 9 ? substr( $verbose_status, 0, 9 ) . '...' : $verbose_status ); ?>
 							</span>
 						<?php endif; ?>

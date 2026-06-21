@@ -140,6 +140,15 @@ class SettingsHelper {
 		}
 	}
 
+	/**
+	 * Pro badge markup, shown beside settings that require WPSubscription Pro.
+	 *
+	 * @return string Pre-escaped badge HTML.
+	 */
+	public static function pro_badge_html() {
+		return '<span class="subscrpt-pro-badge" title="' . esc_attr__( 'WPSubscription Pro required', 'subscription' ) . '">' . esc_html__( 'Pro', 'subscription' ) . '</span>';
+	}
+
 
 	/**
 	 * Text Element HTML.
@@ -303,8 +312,16 @@ class SettingsHelper {
 
 		ob_start();
 		?>
-		<div class="wpsubs-settings-field">
-			<div class="wpsubs-settings-field__label"><?php echo esc_html( $title ); ?></div>
+		<div class="wpsubs-settings-field<?php echo ! empty( $args['pro_locked'] ) ? ' wpsubs-settings-field--locked' : ''; ?>">
+			<div class="wpsubs-settings-field__label">
+				<?php
+				if ( ! empty( $args['pro_locked'] ) ) {
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped badge markup.
+					echo self::pro_badge_html();
+				}
+				?>
+				<?php echo esc_html( $title ); ?>
+			</div>
 			<div class="wpsubs-settings-field__control">
 				<?php
 					// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
@@ -377,8 +394,16 @@ class SettingsHelper {
 
 		ob_start();
 		?>
-		<div class="wpsubs-settings-field">
-			<div class="wpsubs-settings-field__label"><?php echo esc_html( $title ); ?></div>
+		<div class="wpsubs-settings-field<?php echo ! empty( $args['pro_locked'] ) ? ' wpsubs-settings-field--locked' : ''; ?>">
+			<div class="wpsubs-settings-field__label">
+				<?php
+				if ( ! empty( $args['pro_locked'] ) ) {
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped badge markup.
+					echo self::pro_badge_html();
+				}
+				?>
+				<?php echo esc_html( $title ); ?>
+			</div>
 			<div class="wpsubs-settings-field__control">
 				<label class="wpsubs-settings-toggle-label" for="<?php echo esc_attr( $id ); ?>">
 					<input
@@ -442,8 +467,16 @@ class SettingsHelper {
 
 		ob_start();
 		?>
-		<div class="wpsubs-settings-field">
-			<div class="wpsubs-settings-field__label"><?php echo esc_html( $title ); ?></div>
+		<div class="wpsubs-settings-field<?php echo ! empty( $args['pro_locked'] ) ? ' wpsubs-settings-field--locked' : ''; ?>">
+			<div class="wpsubs-settings-field__label">
+				<?php
+				if ( ! empty( $args['pro_locked'] ) ) {
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped badge markup.
+					echo self::pro_badge_html();
+				}
+				?>
+				<?php echo esc_html( $title ); ?>
+			</div>
 			<div class="wpsubs-settings-field__control">
 				<?php
 					// Output intentionally not escaped as element is already escaped during generation & re-escaping breaks the HTML structure.
@@ -504,8 +537,16 @@ class SettingsHelper {
 
 		ob_start();
 		?>
-		<div class="wpsubs-settings-field">
-			<div class="wpsubs-settings-field__label"><?php echo esc_html( $title ); ?></div>
+		<div class="wpsubs-settings-field<?php echo ! empty( $args['pro_locked'] ) ? ' wpsubs-settings-field--locked' : ''; ?>">
+			<div class="wpsubs-settings-field__label">
+				<?php
+				if ( ! empty( $args['pro_locked'] ) ) {
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped badge markup.
+					echo self::pro_badge_html();
+				}
+				?>
+				<?php echo esc_html( $title ); ?>
+			</div>
 			<div class="wpsubs-settings-field__control">
 				<div class="wpsubs-input-group"
 				<?php
