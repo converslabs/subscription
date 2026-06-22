@@ -8,7 +8,7 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 ?>
-<div style="max-width:1240px;margin:32px auto 0 auto;padding:0 20px 40px;">
+<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
 
 	<!-- Page header -->
 	<div style="margin-bottom:24px;">
