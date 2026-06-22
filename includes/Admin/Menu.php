@@ -618,7 +618,7 @@ class Menu {
 			'active'       => array( 'pe_cancelled', 'cancelled' ),
 			'pe_cancelled' => array( 'active', 'cancelled' ),
 			'cancelled'    => array( 'active' ),
-			'expired'      => array(),
+			'expired'      => array( 'active', 'cancelled' ),
 		);
 
 		$status  = get_post_status( $subscription_id );

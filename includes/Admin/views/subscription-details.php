@@ -25,8 +25,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use SpringDevs\Subscription\Illuminate\Helper;
 
-$product_name = $order_item ? $order_item->get_name() : '-';
-$product_link = $order_item ? get_the_permalink( $order_item->get_product_id() ) : '';
+$product_name  = $order_item ? $order_item->get_name() : '-';
+$product_id    = $order_item ? $order_item->get_product_id() : 0;
+$product_link  = $product_id ? get_the_permalink( $product_id ) : '';
+$product_obj   = $product_id ? wc_get_product( $product_id ) : null;
+$product_image = $product_obj ? $product_obj->get_image( 'thumbnail', array( 'class' => 'subscrpt-plan-img' ) ) : '';
 
 $subscrpt_status = $subscription_data['status'] ?? get_post_status( $subscription_id );
 $verbose_status  = Helper::get_verbose_status( $subscrpt_status );
@@ -180,13 +183,51 @@ $build_sections = function ( array $map ) use ( $rows, &$used_keys ) {
 	return $out;
 };
 
+// Payment Method renders next to the Plan card (main column). Shows the gateway
+// icon + title only — no key/value table. Extra rows (e.g. Stripe auto renewal)
+// keep their kv layout beneath.
+$used_keys['payment_method']      = true;
+$used_keys['stripe_auto_renewal'] = true;
+$payment_title                    = $order ? $order->get_payment_method_title() : '';
+$payment_icon                     = '';
+$payment_plugin                   = '';
+if ( $order ) {
+	$gateways     = WC()->payment_gateways() ? WC()->payment_gateways()->payment_gateways() : array();
+	$gateway_id   = $order->get_payment_method();
+	$gateway_obj  = isset( $gateways[ $gateway_id ] ) ? $gateways[ $gateway_id ] : null;
+	$payment_icon = $gateway_obj ? $gateway_obj->get_icon() : '';
+
+	// Resolve which plugin registered this gateway (e.g. several Stripe methods
+	// all come from "WooCommerce Stripe Gateway"). Map the gateway class file to
+	// its plugin folder, then read that plugin's header Name.
+	if ( $gateway_obj ) {
+		try {
+			$gateway_file = wp_normalize_path( ( new ReflectionClass( $gateway_obj ) )->getFileName() );
+			$plugins_dir  = wp_normalize_path( WP_PLUGIN_DIR );
+			if ( $gateway_file && 0 === strpos( $gateway_file, $plugins_dir ) ) {
+				$gateway_slug = strtok( ltrim( substr( $gateway_file, strlen( $plugins_dir ) ), '/' ), '/' );
+				if ( ! function_exists( 'get_plugins' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				}
+				foreach ( get_plugins() as $plugin_path => $plugin_data ) {
+					if ( strtok( $plugin_path, '/' ) === $gateway_slug ) {
+						$payment_plugin = $plugin_data['Name'];
+						break;
+					}
+				}
+			}
+		} catch ( \Exception $e ) {
+			$payment_plugin = '';
+		}
+	}
+}
+// Payment Method card is always shown; the title falls back to '-' when no
+// gateway is resolved.
+$has_payment = true;
+
 // Secondary info → sidebar.
 $side_sections = $build_sections(
 	array(
-		array(
-			'title' => __( 'Payment Method', 'subscription' ),
-			'keys'  => array( 'payment_method', 'stripe_auto_renewal' ),
-		),
 		array(
 			'title' => __( 'Billing & Shipping', 'subscription' ),
 			'keys'  => array( 'billing_address', 'shipping_address' ),
@@ -319,34 +360,78 @@ $subscrpt_render_table_tools = function () {
 				</div>
 			<?php endif; ?>
 
-			<!-- Plan card (product + qty side by side) -->
-			<?php if ( $plan_product || $plan_qty || ! empty( $plan_extra ) ) : ?>
-				<div class="subscrpt-card">
-					<div class="subscrpt-card__head"><?php esc_html_e( 'Plan', 'subscription' ); ?></div>
-					<div class="subscrpt-card__body">
-						<div class="subscrpt-plan-row">
-							<div class="subscrpt-plan-col">
-								<span class="subscrpt-plan-label"><?php esc_html_e( 'Product', 'subscription' ); ?></span>
-								<span class="subscrpt-plan-value"><?php echo $plan_product ? wp_kses_post( $plan_product ) : '&mdash;'; ?></span>
-							</div>
-							<div class="subscrpt-plan-col">
-								<span class="subscrpt-plan-label"><?php esc_html_e( 'Qty', 'subscription' ); ?></span>
-								<span class="subscrpt-plan-value"><?php echo $plan_qty ? wp_kses_post( $plan_qty ) : '&mdash;'; ?></span>
+			<!-- Plan + Payment Method side by side -->
+			<?php
+			$has_plan = $plan_product || $plan_qty || ! empty( $plan_extra );
+			if ( $has_plan || $has_payment ) :
+				?>
+				<div class="subscrpt-plan-pay">
+					<?php if ( $has_plan ) : ?>
+						<!-- Plan card (product + qty side by side) -->
+						<div class="subscrpt-card subscrpt-card--plan">
+							<div class="subscrpt-card__head"><?php esc_html_e( 'Plan', 'subscription' ); ?></div>
+							<div class="subscrpt-card__body">
+								<div class="subscrpt-plan-row">
+									<div class="subscrpt-plan-thumb">
+										<?php if ( $product_image ) : ?>
+											<?php echo wp_kses_post( $product_image ); ?>
+										<?php else : ?>
+											<span class="subscrpt-plan-thumb__ph dashicons dashicons-format-image"></span>
+										<?php endif; ?>
+									</div>
+									<div class="subscrpt-plan-meta">
+										<span class="subscrpt-plan-name"><?php echo $plan_product ? wp_kses_post( $plan_product ) : '&mdash;'; ?></span>
+										<span class="subscrpt-plan-qty">
+											<?php
+											/* translators: %s: quantity */
+											printf( esc_html__( 'Quantity: %s', 'subscription' ), $plan_qty ? wp_kses_post( $plan_qty ) : '1' );
+											?>
+										</span>
+									</div>
+								</div>
+								<?php if ( ! empty( $plan_extra ) ) : ?>
+									<table class="subscrpt-kv subscrpt-plan-extra">
+										<tbody>
+											<?php foreach ( $plan_extra as $row ) : ?>
+												<tr>
+													<th><?php echo esc_html( $row['label'] ); ?></th>
+													<td><?php echo wp_kses_post( $row['value'] ); ?></td>
+												</tr>
+											<?php endforeach; ?>
+										</tbody>
+									</table>
+								<?php endif; ?>
 							</div>
 						</div>
-						<?php if ( ! empty( $plan_extra ) ) : ?>
-							<table class="subscrpt-kv subscrpt-plan-extra">
-								<tbody>
-									<?php foreach ( $plan_extra as $row ) : ?>
-										<tr>
-											<th><?php echo esc_html( $row['label'] ); ?></th>
-											<td><?php echo wp_kses_post( $row['value'] ); ?></td>
-										</tr>
-									<?php endforeach; ?>
-								</tbody>
-							</table>
-						<?php endif; ?>
-					</div>
+					<?php endif; ?>
+
+					<?php if ( $has_payment ) : ?>
+						<!-- Payment method card (gateway icon + title) -->
+						<div class="subscrpt-card">
+							<div class="subscrpt-card__head"><?php esc_html_e( 'Payment Method', 'subscription' ); ?></div>
+							<div class="subscrpt-card__body">
+								<?php if ( $payment_title ) : ?>
+									<div class="subscrpt-payment">
+										<span class="subscrpt-payment__icon">
+											<?php if ( $payment_icon ) : ?>
+												<?php echo wp_kses_post( $payment_icon ); ?>
+											<?php else : ?>
+												<span class="subscrpt-payment__icon-ph dashicons dashicons-bank"></span>
+											<?php endif; ?>
+										</span>
+										<span class="subscrpt-payment__meta">
+											<span class="subscrpt-payment__title"><?php echo esc_html( $payment_title ); ?></span>
+											<?php if ( $payment_plugin ) : ?>
+												<span class="subscrpt-payment__plugin"><?php echo esc_html( $payment_plugin ); ?></span>
+											<?php endif; ?>
+										</span>
+									</div>
+								<?php else : ?>
+									<p class="subscrpt-muted"><?php esc_html_e( 'No payment method.', 'subscription' ); ?></p>
+								<?php endif; ?>
+							</div>
+						</div>
+					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 
@@ -369,7 +454,7 @@ $subscrpt_render_table_tools = function () {
 				</div>
 			<?php endforeach; ?>
 
-			<?php if ( empty( $summary_tiles ) && empty( $main_sections ) && empty( $side_sections ) && ! $plan_product && ! $plan_qty && empty( $plan_extra ) && ! $is_grace_period ) : ?>
+			<?php if ( empty( $summary_tiles ) && empty( $main_sections ) && empty( $side_sections ) && ! $has_payment && ! $plan_product && ! $plan_qty && empty( $plan_extra ) && ! $is_grace_period ) : ?>
 				<div class="subscrpt-card">
 					<div class="subscrpt-card__head"><?php esc_html_e( 'Subscription Details', 'subscription' ); ?></div>
 					<div class="subscrpt-card__body">
@@ -387,19 +472,37 @@ $subscrpt_render_table_tools = function () {
 					<?php endif; ?>
 				</div>
 				<?php if ( ! empty( $related_rows ) ) : ?>
-					<table class="wpsubs-table">
+					<table class="wpsubs-table subscrpt-table--compact">
 						<thead>
 							<tr>
 								<th><?php esc_html_e( 'Order', 'subscription' ); ?></th>
 								<th><?php esc_html_e( 'Type', 'subscription' ); ?></th>
 								<th><?php esc_html_e( 'Date', 'subscription' ); ?></th>
 								<th><?php esc_html_e( 'Status', 'subscription' ); ?></th>
+								<th><?php esc_html_e( 'Items', 'subscription' ); ?></th>
+								<th><?php esc_html_e( 'Payment', 'subscription' ); ?></th>
 								<th><?php esc_html_e( 'Total', 'subscription' ); ?></th>
 							</tr>
 						</thead>
 						<tbody>
-							<?php foreach ( $related_rows as $related ) : ?>
-								<?php $related_order = $related['order']; ?>
+							<?php
+							// Map WC order statuses onto the shared subscription badge
+							// modifiers so they get the same bg/border/color treatment.
+							$order_badge_map = array(
+								'completed'  => 'active',         // green
+								'pending'    => 'pending',        // blue
+								'processing' => 'pending-cancel', // yellow
+								'on-hold'    => 'pending-cancel', // yellow
+								'failed'     => 'expired',        // red
+								'refunded'   => 'expired',        // red
+								'trash'      => 'trash',          // red
+								'cancelled'  => 'cancelled',      // gray
+							);
+							foreach ( $related_rows as $related ) :
+								$related_order  = $related['order'];
+								$related_status = $related_order->get_status();
+								$badge_class    = $order_badge_map[ $related_status ] ?? 'draft';
+								?>
 								<tr>
 									<td>
 										<a href="<?php echo esc_url( $related_order->get_edit_order_url() ); ?>" target="_blank" class="wpsubs-cell-title">
@@ -408,7 +511,9 @@ $subscrpt_render_table_tools = function () {
 									</td>
 									<td><?php echo esc_html( $related['label'] ); ?></td>
 									<td><?php echo esc_html( $related_order->get_date_created()->date( get_option( 'date_format' ) . ' - ' . get_option( 'time_format' ) ) ); ?></td>
-									<td><?php echo esc_html( wc_get_order_status_name( $related_order->get_status() ) ); ?></td>
+									<td><span class="wpsubs-badge wpsubs-badge--<?php echo esc_attr( $badge_class ); ?>"><?php echo esc_html( wc_get_order_status_name( $related_status ) ); ?></span></td>
+									<td><?php echo esc_html( number_format_i18n( $related_order->get_item_count() ) ); ?></td>
+									<td><?php echo $related_order->get_payment_method_title() ? esc_html( $related_order->get_payment_method_title() ) : '&mdash;'; ?></td>
 									<td><?php echo wp_kses_post( $related_order->get_formatted_order_total() ); ?></td>
 								</tr>
 							<?php endforeach; ?>
@@ -464,7 +569,7 @@ $subscrpt_render_table_tools = function () {
 		<div class="subscrpt-detail-side">
 
 			<!-- Status action card -->
-			<div class="subscrpt-card">
+			<div class="subscrpt-card subscrpt-card--overflow">
 				<div class="subscrpt-card__head"><?php esc_html_e( 'Subscription Action', 'subscription' ); ?></div>
 				<div class="subscrpt-card__body">
 					<?php if ( ! empty( $actions ) ) : ?>
@@ -595,7 +700,7 @@ $subscrpt_render_table_tools = function () {
 .subscrpt-summary {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-	gap: 14px;
+	gap: 20px;
 }
 .subscrpt-summary__tile {
 	background: var(--wpsubs-surface);
@@ -657,6 +762,18 @@ $subscrpt_render_table_tools = function () {
 	background: var(--wpsubs-surface);
 }
 .subscrpt-card__body { padding: 16px 18px; }
+/* Cards holding an adv-select dropdown must not clip the popover. Without
+	overflow:hidden the head no longer inherits the card's rounded corners, so
+	round the head (and body) explicitly. */
+.subscrpt-card--overflow { overflow: visible; }
+.subscrpt-card--overflow .subscrpt-card__head {
+	border-top-left-radius: var(--wpsubs-radius);
+	border-top-right-radius: var(--wpsubs-radius);
+}
+.subscrpt-card--overflow .subscrpt-card__body:last-child {
+	border-bottom-left-radius: var(--wpsubs-radius);
+	border-bottom-right-radius: var(--wpsubs-radius);
+}
 
 /* Card head with right-aligned filter tools. */
 .subscrpt-card__head--toolbar {
@@ -691,6 +808,17 @@ $subscrpt_render_table_tools = function () {
 /* Tables render flush to the card edges (the table thead is the column strip). */
 .subscrpt-card .wpsubs-table { border: 0; }
 .subscrpt-card .wpsubs-table tbody tr:last-child td { border-bottom: 0; }
+/* Match the page's 13px body text (default wpsubs-table cells run larger). */
+.subscrpt-card .wpsubs-table th,
+.subscrpt-card .wpsubs-table td,
+.subscrpt-activities .wpsubs-table th,
+.subscrpt-activities .wpsubs-table td { font-size: 13px; }
+/* Tighter rows for the data tables. */
+.subscrpt-table--compact th,
+.subscrpt-table--compact td,
+.subscrpt-activities .wpsubs-table th,
+.subscrpt-activities .wpsubs-table td { padding-top: 12px; padding-bottom: 12px; }
+.subscrpt-table--compact .wpsubs-badge { font-size: 11px; }
 .subscrpt-activities .widefat,
 .subscrpt-activities .wpsubs-table { border: 0; margin: 0; }
 .subscrpt-card__actions {
@@ -719,13 +847,57 @@ $subscrpt_render_table_tools = function () {
 .subscrpt-kv a { color: var(--wpsubs-brand); text-decoration: none; }
 .subscrpt-kv a:hover { text-decoration: underline; }
 
-/* Plan card: product + qty side by side. */
+/* Plan + Payment Method row: Plan wider (2-col content), Payment narrower. */
+.subscrpt-plan-pay {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 20px;
+	align-items: stretch;
+}
+.subscrpt-plan-pay > .subscrpt-card { margin: 0; }
+/* Plan spans 2 of the 3 columns so its right edge aligns with the summary's
+	2nd/3rd column boundary; the gateway card fills the remaining column. */
+.subscrpt-plan-pay > .subscrpt-card--plan { grid-column: span 2; }
+@media (max-width: 782px) {
+	.subscrpt-plan-pay { grid-template-columns: 1fr; }
+}
+
+/* Plan card: product image (1:1) + name/qty stacked. */
 .subscrpt-plan-row {
 	display: grid;
-	grid-template-columns: 1fr auto;
-	gap: 16px 24px;
-	align-items: start;
+	grid-template-columns: 64px 1fr;
+	gap: 16px;
+	align-items: center;
 }
+.subscrpt-plan-thumb {
+	width: 64px;
+	height: 64px;
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius-sm);
+	overflow: hidden;
+	background: var(--wpsubs-surface-alt, #f6f7f7);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.subscrpt-plan-thumb img,
+.subscrpt-plan-thumb .subscrpt-plan-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+.subscrpt-plan-thumb__ph {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+	color: var(--wpsubs-text-subtle, #a7aaad);
+}
+.subscrpt-plan-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.subscrpt-plan-name { font-size: 14px; font-weight: 600; color: var(--wpsubs-text); line-height: 1.3; }
+.subscrpt-plan-name a { color: var(--wpsubs-text); text-decoration: none; }
+.subscrpt-plan-name a:hover { color: var(--wpsubs-brand); }
+.subscrpt-plan-qty { font-size: 13px; color: var(--wpsubs-text-muted); }
 .subscrpt-plan-col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .subscrpt-plan-label {
 	font-size: 11px;
@@ -738,6 +910,30 @@ $subscrpt_render_table_tools = function () {
 .subscrpt-plan-value a { color: var(--wpsubs-brand); text-decoration: none; }
 .subscrpt-plan-value a:hover { text-decoration: underline; }
 .subscrpt-plan-extra { margin-top: 14px; }
+
+/* Payment method: gateway icon + (gateway title / source plugin). Mirrors the
+	plan-row layout so the two cards line up. */
+.subscrpt-payment { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: center; }
+.subscrpt-payment__icon {
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--wpsubs-border);
+	border-radius: var(--wpsubs-radius-sm);
+	background: var(--wpsubs-surface-alt, #f6f7f7);
+	overflow: hidden;
+}
+.subscrpt-payment__icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.subscrpt-payment__icon-ph { font-size: 22px; width: 22px; height: 22px; color: var(--wpsubs-text-muted); }
+.subscrpt-payment__meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.subscrpt-payment__title { font-size: 14px; font-weight: 600; color: var(--wpsubs-text); line-height: 1.3; }
+.subscrpt-payment__plugin { font-size: 13px; color: var(--wpsubs-text-muted); }
+
+/* Plan + Payment cards stretch to equal height; bodies center their content. */
+.subscrpt-plan-pay > .subscrpt-card { display: flex; flex-direction: column; }
+.subscrpt-plan-pay > .subscrpt-card .subscrpt-card__body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 
 .subscrpt-customer-name { font-size: 14px; font-weight: 600; color: var(--wpsubs-text); }
 .subscrpt-customer-name a { color: var(--wpsubs-text); text-decoration: none; }
