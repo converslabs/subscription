@@ -160,4 +160,13 @@ class Assets {
 			wp_enqueue_script( 'subscrpt_admin_components' );
 		}
 	}
+
+	/**
+	 * Enqueue chart.js where this method is called.
+	 *
+	 * Source: https://cdn.jsdelivr.net/npm/chart.js
+	 */
+	public static function enqueue_chart_js() {
+		wp_enqueue_script( 'subscrpt-ext-lib-chartjs', SUBSCRPT_ASSETS . '/js/chart.js', [], SUBSCRPT_VERSION, true );
+	}
 }

@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim
 Tags: woocommerce subscriptions, subscriptions, recurring payments, billing, stripe
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 1.10.3
+Stable tag: 1.10.4
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -309,6 +309,9 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/)
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 1.10.4 - Jun 22, 2026 =
+-   security: chart.js asset loading.
 
 = 1.10.3 - Jun 21, 2026 =
 -   fix: Admin headers.

@@ -7,6 +7,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Enqueue Chart.js
+\SpringDevs\Subscription\Assets::enqueue_chart_js();
+
+// ---------------------------------------------------------------------------------------------------------- //
+
 $upgrade_url = 'https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro';
 $currency    = function_exists( 'get_woocommerce_currency_symbol' ) ? get_woocommerce_currency_symbol() : '$';
 
@@ -409,7 +414,6 @@ if ( ! function_exists( 'subscrpt_preview_format_price' ) ) {
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 	var months   = <?php echo wp_json_encode( array_column( $dummy_trends, 'label' ) ); ?>;
