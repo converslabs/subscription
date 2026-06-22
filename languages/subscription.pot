@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-21T06:21:19+00:00\n"
+"POT-Creation-Date: 2026-06-22T10:34:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -158,7 +158,7 @@ msgstr ""
 #: includes/Admin/views/delivery-preview.php:118
 #: includes/Admin/views/health-preview.php:119
 #: includes/Admin/views/pro-upgrade-modal.php:38
-#: includes/Admin/views/reports-preview.php:145
+#: includes/Admin/views/reports-preview.php:150
 #: includes/Admin/views/support.php:27
 msgid "Upgrade to Pro"
 msgstr ""
@@ -964,8 +964,8 @@ msgstr ""
 
 #: includes/Admin/views/delivery-preview.php:86
 #: includes/Admin/views/delivery-preview.php:158
-#: includes/Admin/views/reports-preview.php:318
-#: includes/Admin/views/reports-preview.php:500
+#: includes/Admin/views/reports-preview.php:323
+#: includes/Admin/views/reports-preview.php:504
 #: includes/Admin/views/subscription-list.php:61
 #: includes/Illuminate/Helper.php:71
 msgid "Cancelled"
@@ -979,13 +979,13 @@ msgstr ""
 
 #: includes/Admin/views/delivery-preview.php:116
 #: includes/Admin/views/health-preview.php:117
-#: includes/Admin/views/reports-preview.php:143
+#: includes/Admin/views/reports-preview.php:148
 msgid "Preview with sample data."
 msgstr ""
 
 #: includes/Admin/views/delivery-preview.php:117
 #: includes/Admin/views/health-preview.php:118
-#: includes/Admin/views/reports-preview.php:144
+#: includes/Admin/views/reports-preview.php:149
 msgid "This page shows example data to illustrate the feature."
 msgstr ""
 
@@ -1093,7 +1093,7 @@ msgid "Monitor and recover subscriptions that need attention."
 msgstr ""
 
 #: includes/Admin/views/health-preview.php:135
-#: includes/Admin/views/reports-preview.php:161
+#: includes/Admin/views/reports-preview.php:166
 msgid "Refresh"
 msgstr ""
 
@@ -1102,7 +1102,7 @@ msgid "are at risk zone"
 msgstr ""
 
 #: includes/Admin/views/health-preview.php:158
-#: includes/Admin/views/reports-preview.php:203
+#: includes/Admin/views/reports-preview.php:208
 msgid "Revenue at Risk"
 msgstr ""
 
@@ -1264,8 +1264,8 @@ msgstr ""
 
 #: includes/Admin/views/integrations.php:110
 #: includes/Admin/views/integrations.php:217
-#: includes/Admin/views/reports-preview.php:314
-#: includes/Admin/views/reports-preview.php:500
+#: includes/Admin/views/reports-preview.php:319
+#: includes/Admin/views/reports-preview.php:504
 #: includes/Admin/views/subscription-list.php:53
 #: includes/Admin/views/subscription-list.php:292
 #: includes/Illuminate/Helper.php:67
@@ -1605,7 +1605,7 @@ msgid "Date"
 msgstr ""
 
 #: includes/Admin/views/order-history.php:29
-#: includes/Admin/views/reports-preview.php:500
+#: includes/Admin/views/reports-preview.php:504
 #: templates/myaccount/single.php:284
 #: templates/myaccount/single.php:355
 #: templates/myaccount/subscriptions.php:24
@@ -1708,188 +1708,188 @@ msgstr ""
 msgid "Expiry date"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:146
+#: includes/Admin/views/reports-preview.php:151
 msgid "to unlock real subscription analytics."
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:155
+#: includes/Admin/views/reports-preview.php:160
 msgid "Subscription Reports"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:156
+#: includes/Admin/views/reports-preview.php:161
 msgid "Data-driven insights for your subscription business."
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:181
-#: includes/Admin/views/reports-preview.php:442
+#: includes/Admin/views/reports-preview.php:186
+#: includes/Admin/views/reports-preview.php:446
 msgid "Active Subscriptions"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:182
+#: includes/Admin/views/reports-preview.php:187
 msgid "Recurring revenue base"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:192
+#: includes/Admin/views/reports-preview.php:197
 msgid "Monthly Recurring Revenue"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:193
+#: includes/Admin/views/reports-preview.php:198
 msgid "Predictable monthly income"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:204
+#: includes/Admin/views/reports-preview.php:209
 msgid "Needs attention"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:214
+#: includes/Admin/views/reports-preview.php:219
 msgid "Churn Rate"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:215
+#: includes/Admin/views/reports-preview.php:220
 msgid "Customer retention indicator"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:225
+#: includes/Admin/views/reports-preview.php:230
 msgid "Trial Conversion"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:226
+#: includes/Admin/views/reports-preview.php:231
 msgid "Trial to paid success"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:234
+#: includes/Admin/views/reports-preview.php:239
 msgid "Revenue & Subscription Trends"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:241
+#: includes/Admin/views/reports-preview.php:246
 msgid "Quick Insights"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:244
+#: includes/Admin/views/reports-preview.php:249
 msgid "Revenue Growth"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:245
+#: includes/Admin/views/reports-preview.php:250
 msgid "MRR is growing steadily — great foundation!"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:248
+#: includes/Admin/views/reports-preview.php:253
 msgid "Pro Tip"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:249
+#: includes/Admin/views/reports-preview.php:254
 msgid "Focus on top-performing products and optimise trial conversions."
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:261
+#: includes/Admin/views/reports-preview.php:266
 msgid "Revenue Performance"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:266
+#: includes/Admin/views/reports-preview.php:271
 msgid "Total Revenue"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:270
+#: includes/Admin/views/reports-preview.php:275
 msgid "Annual Recurring"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:274
+#: includes/Admin/views/reports-preview.php:279
 msgid "Net Revenue"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:278
+#: includes/Admin/views/reports-preview.php:283
 msgid "Avg. Value"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:285
+#: includes/Admin/views/reports-preview.php:290
 msgid "Trial Performance"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:290
+#: includes/Admin/views/reports-preview.php:295
 msgid "Total Trials"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:294
+#: includes/Admin/views/reports-preview.php:299
 msgid "Converted"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:298
+#: includes/Admin/views/reports-preview.php:303
 msgid "Active Trials"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:302
+#: includes/Admin/views/reports-preview.php:307
 msgid "Trial Revenue"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:309
+#: includes/Admin/views/reports-preview.php:314
 msgid "Subscription Breakdown"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:322
+#: includes/Admin/views/reports-preview.php:327
 msgid "Trials"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:326
+#: includes/Admin/views/reports-preview.php:331
 msgid "Products"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:338
+#: includes/Admin/views/reports-preview.php:343
 msgid "Top Performing Products"
 msgstr ""
 
 #. translators: %s: number of subscriptions
-#: includes/Admin/views/reports-preview.php:352
+#: includes/Admin/views/reports-preview.php:357
 #, php-format
 msgid "%s subscriptions"
 msgstr ""
 
 #. translators: %s: average revenue
-#: includes/Admin/views/reports-preview.php:365
+#: includes/Admin/views/reports-preview.php:370
 #, php-format
 msgid "%s avg"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:377
+#: includes/Admin/views/reports-preview.php:382
 msgid "Action Items"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:381
+#: includes/Admin/views/reports-preview.php:386
 msgid "Best Performers"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:388
+#: includes/Admin/views/reports-preview.php:393
 msgid "Recommended Next Steps"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:390
+#: includes/Admin/views/reports-preview.php:395
 msgid "Analyse customer feedback"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:391
+#: includes/Admin/views/reports-preview.php:396
 msgid "Optimise pricing strategy"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:392
+#: includes/Admin/views/reports-preview.php:397
 msgid "Expand product offerings"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:403
+#: includes/Admin/views/reports-preview.php:408
 msgid "Detailed Analytics"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:431
+#: includes/Admin/views/reports-preview.php:435
 msgid "Revenue"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:485
+#: includes/Admin/views/reports-preview.php:489
 msgid "Subscription Performance"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:515
+#: includes/Admin/views/reports-preview.php:519
 msgid "Unlock Reports"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:516
+#: includes/Admin/views/reports-preview.php:520
 msgid "Reports requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro."
 msgstr ""
 

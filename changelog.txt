@@ -1,5 +1,8 @@
 *** WPSubscription Changelog ***
 
+2026-06-22 - version 1.10.4
+* security: chart.js asset loading.
+
 2026-06-21 - version 1.10.3
 * fix: Admin headers.
 * fix: Subscription status badges.
