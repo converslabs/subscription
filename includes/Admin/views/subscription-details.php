@@ -61,9 +61,6 @@ $customer_email = $order ? $order->get_billing_email() : '';
 $customer_phone = $order ? $order->get_billing_phone() : '';
 $customer_url   = $customer_id ? admin_url( 'user-edit.php?user_id=' . $customer_id ) : '';
 
-$view_subs_endpoint = \SpringDevs\Subscription\Illuminate\Subscription\Subscription::get_user_endpoint( 'view_subs' );
-$subs_frontend_url  = $order ? wc_get_endpoint_url( $view_subs_endpoint, $subscription_id, wc_get_page_permalink( 'myaccount' ) ) : '';
-
 // Page header: product title + meta description (badge · #id · email · next payment).
 $header_title = ( $product_name && '-' !== $product_name )
 	? $product_name
@@ -310,6 +307,26 @@ $subscrpt_render_table_tools = function () {
 	</div>
 	<?php
 };
+
+/**
+ * Shared context passed to every subscription-details extension hook so that
+ * third-party plugins can render extra sections without re-querying.
+ *
+ * @var array $subscrpt_details_ctx {
+ *     @type int       $subscription_id   Subscription post ID.
+ *     @type array     $subscription_data Structured data from Helper::get_subscription_data().
+ *     @type \WC_Order $order             Related WooCommerce order (or null).
+ *     @type mixed     $order_item        Related order line item (or null).
+ *     @type string    $status            Subscription post status.
+ * }
+ */
+$subscrpt_details_ctx = array(
+	'subscription_id'   => $subscription_id,
+	'subscription_data' => $subscription_data,
+	'order'             => $order,
+	'order_item'        => $order_item,
+	'status'            => $subscrpt_status,
+);
 ?>
 <div class="wp-subscription-admin-content list-page subscrpt-subs-details">
 
@@ -324,6 +341,17 @@ $subscrpt_render_table_tools = function () {
 
 		<!-- Main column -->
 		<div class="subscrpt-detail-main">
+
+			<?php
+			/**
+			 * Fires at the top of the details main (left) column, before the summary strip.
+			 *
+			 * Echo a `.subscrpt-card` to add a full-width section here.
+			 *
+			 * @param array $subscrpt_details_ctx Subscription details context.
+			 */
+			do_action( 'subscrpt_details_main_top', $subscrpt_details_ctx );
+			?>
 
 			<!-- Summary strip -->
 			<?php if ( ! empty( $summary_tiles ) ) : ?>
@@ -369,7 +397,7 @@ $subscrpt_render_table_tools = function () {
 					<?php if ( $has_plan ) : ?>
 						<!-- Plan card (product + qty side by side) -->
 						<div class="subscrpt-card subscrpt-card--plan">
-							<div class="subscrpt-card__head"><?php esc_html_e( 'Plan', 'subscription' ); ?></div>
+							<div class="subscrpt-card__head"><?php esc_html_e( 'Product', 'subscription' ); ?></div>
 							<div class="subscrpt-card__body">
 								<div class="subscrpt-plan-row">
 									<div class="subscrpt-plan-thumb">
@@ -563,10 +591,32 @@ $subscrpt_render_table_tools = function () {
 				<?php endif; ?>
 			</div>
 
+			<?php
+			/**
+			 * Fires at the bottom of the details main (left) column, after the activities card.
+			 *
+			 * Echo a `.subscrpt-card` to add a full-width section here.
+			 *
+			 * @param array $subscrpt_details_ctx Subscription details context.
+			 */
+			do_action( 'subscrpt_details_main_bottom', $subscrpt_details_ctx );
+			?>
+
 		</div><!-- /.subscrpt-detail-main -->
 
 		<!-- Sidebar column -->
 		<div class="subscrpt-detail-side">
+
+			<?php
+			/**
+			 * Fires at the top of the details sidebar (right) column, before the action card.
+			 *
+			 * Echo a `.subscrpt-card` to add a section here.
+			 *
+			 * @param array $subscrpt_details_ctx Subscription details context.
+			 */
+			do_action( 'subscrpt_details_side_top', $subscrpt_details_ctx );
+			?>
 
 			<!-- Status action card -->
 			<div class="subscrpt-card subscrpt-card--overflow">
@@ -624,16 +674,6 @@ $subscrpt_render_table_tools = function () {
 							<div class="subscrpt-customer-line"><a href="tel:<?php echo esc_attr( $customer_phone ); ?>"><?php echo esc_html( $customer_phone ); ?></a></div>
 						<?php endif; ?>
 
-						<div class="subscrpt-card__actions">
-							<a class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" target="_blank" href="<?php echo esc_url( $order->get_edit_order_url() ); ?>">
-								<?php esc_html_e( 'View Order', 'subscription' ); ?>
-							</a>
-							<?php if ( $subs_frontend_url ) : ?>
-								<a class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" target="_blank" href="<?php echo esc_url( $subs_frontend_url ); ?>">
-									<?php esc_html_e( 'View Frontend', 'subscription' ); ?>
-								</a>
-							<?php endif; ?>
-						</div>
 					<?php else : ?>
 						<p class="subscrpt-muted"><?php esc_html_e( 'Order not found.', 'subscription' ); ?></p>
 					<?php endif; ?>
@@ -658,6 +698,17 @@ $subscrpt_render_table_tools = function () {
 					</div>
 				</div>
 			<?php endforeach; ?>
+
+			<?php
+			/**
+			 * Fires at the bottom of the details sidebar (right) column, after the secondary info cards.
+			 *
+			 * Echo a `.subscrpt-card` to add a section here.
+			 *
+			 * @param array $subscrpt_details_ctx Subscription details context.
+			 */
+			do_action( 'subscrpt_details_side_bottom', $subscrpt_details_ctx );
+			?>
 
 		</div><!-- /.subscrpt-detail-side -->
 
