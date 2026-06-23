@@ -7,7 +7,37 @@
 
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
+
+$other_plugins = array(
+	array(
+		'name'     => 'Paddle for WooCommerce',
+		'tagline'  => 'Payments & checkout',
+		'desc'     => 'Looking to boost your sales of themes, plugins, or designs with the power of WooCommerce? Streamline your checkout process with Paddle’s WooCommerce integration.',
+		'url'      => 'https://wpsmartpay.com/paddle-for-woocommerce/',
+		'cta'      => __( 'Learn more', 'subscription' ),
+		'icon_url' => SUBSCRPT_ASSETS . '/images/other_plugins/paddle.png',
+	),
+	array(
+		'name'     => 'WPSmartpay',
+		'tagline'  => 'Payments & checkout',
+		'desc'     => 'Sell Digital Products & Accept Payment with WordPress. WPSmartPay is the perfect plugin for selling digital products, accepting one-time and recurring payments on your WordPress site without setting up a shopping cart.',
+		'url'      => 'https://wpsmartpay.com/features/',
+		'cta'      => __( 'Learn more', 'subscription' ),
+		'icon_url' => SUBSCRPT_ASSETS . '/images/other_plugins/wpsmartpay.png',
+	),
+	array(
+		'name'     => 'Thrivedesk',
+		'tagline'  => 'Agentic Helpdesk',
+		'desc'     => 'ThriveDesk unifies email, live chat, and knowledge base into one AI-powered helpdesk trained on your own data to handle repetitive tickets automatically, so your team gets back to building the business.',
+		'url'      => 'https://www.thrivedesk.com/',
+		'cta'      => __( 'Learn more', 'subscription' ),
+		'icon_url' => SUBSCRPT_ASSETS . '/images/other_plugins/thrivedesk.png',
+	),
+);
+
 ?>
+
+
 <div class="wp-subscription-admin-content list-page subscrpt-subs-list">
 
 	<!-- Page header -->
@@ -193,76 +223,26 @@ defined( 'ABSPATH' ) || exit;
 	</div>
 
 	<!-- Our Other Plugins -->
-	<?php
-	// TODO: Replace dummy data (including banner images) with real plugin list before release.
-	$other_plugins = array(
-		array(
-			'name'        => 'Sample Plugin One',
-			'tagline'     => 'Billing & subscriptions',
-			'desc'        => 'A short placeholder description for the first promoted plugin. Replace this with real copy later.',
-			'url'         => 'https://wordpress.org/plugins/',
-			'cta'         => __( 'Learn more', 'subscription' ),
-			'banner'      => '', // Banner image URL — falls back to a gradient placeholder when empty.
-			'icon_letter' => 'P',
-			'icon_bg'     => '#2d1b4e',
-			'icon_clr'    => '#facc15',
-		),
-		array(
-			'name'        => 'Sample Plugin Two',
-			'tagline'     => 'Payments & checkout',
-			'desc'        => 'A short placeholder description for the second promoted plugin. Replace this with real copy later.',
-			'url'         => 'https://wordpress.org/plugins/',
-			'cta'         => __( 'Learn more', 'subscription' ),
-			'banner'      => '',
-			'icon_letter' => 'S',
-			'icon_bg'     => '#0c4a6e',
-			'icon_clr'    => '#38bdf8',
-		),
-		array(
-			'name'        => 'Sample Plugin Three',
-			'tagline'     => 'Marketing & growth',
-			'desc'        => 'A short placeholder description for the third promoted plugin. Replace this with real copy later.',
-			'url'         => 'https://wordpress.org/plugins/',
-			'cta'         => __( 'Learn more', 'subscription' ),
-			'banner'      => '',
-			'icon_letter' => 'M',
-			'icon_bg'     => '#14532d',
-			'icon_clr'    => '#4ade80',
-		),
-	);
-	?>
 	<div style="margin-bottom:32px;">
 		<div style="margin-bottom:12px;">
-			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0;line-height:1.4;margin-left:1px;"><?php esc_html_e( 'Our Other Plugins', 'subscription' ); ?></h2>
+			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0;line-height:1.4;margin-left:1px;"><?php esc_html_e( 'Our Other Products', 'subscription' ); ?></h2>
 		</div>
-		<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+		<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
 			<?php foreach ( $other_plugins as $other_plugin ) : ?>
-				<div class="wpsubs-table-card" style="padding:0;display:flex;flex-direction:column;overflow:hidden;">
-
-					<!-- Banner -->
-					<?php if ( ! empty( $other_plugin['banner'] ) ) : ?>
-						<img src="<?php echo esc_url( $other_plugin['banner'] ); ?>" alt="" style="display:block;width:100%;height:150px;object-fit:cover;" />
-					<?php else : ?>
-						<div style="width:100%;height:150px;background:radial-gradient(120% 120% at 30% 20%, #3b1d4e 0%, #1a0f2b 60%, #0d0717 100%);display:flex;align-items:center;justify-content:center;">
-							<span style="font-size:13px;font-weight:600;letter-spacing:0.04em;color:rgba(255,255,255,0.85);"><?php echo esc_html( $other_plugin['name'] ); ?></span>
+				<div class="wpsubs-table-card" style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+					<div style="display:flex;align-items:center;gap:12px;">
+						<img src="<?php echo esc_url( $other_plugin['icon_url'] ); ?>" alt="" width="44" height="44" style="flex-shrink:0;border-radius:12px;object-fit:cover;" />
+						<div>
+							<div style="font-size:14px;font-weight:700;color:var(--wpsubs-text);line-height:1.2;"><?php echo esc_html( $other_plugin['name'] ); ?></div>
+							<div style="font-size:11px;color:var(--wpsubs-text-muted);font-weight:500;margin-top:2px;"><?php echo esc_html( $other_plugin['tagline'] ); ?></div>
 						</div>
-					<?php endif; ?>
-
-					<!-- Body -->
-					<div style="padding:20px;display:flex;flex-direction:column;gap:14px;flex:1;">
-						<div style="display:flex;align-items:center;gap:12px;">
-							<div style="width:44px;height:44px;flex-shrink:0;border-radius:12px;background:<?php echo esc_attr( $other_plugin['icon_bg'] ); ?>;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:<?php echo esc_attr( $other_plugin['icon_clr'] ); ?>;line-height:1;"><?php echo esc_html( $other_plugin['icon_letter'] ); ?></div>
-							<div>
-								<div style="font-size:15px;font-weight:700;color:var(--wpsubs-text);line-height:1.2;"><?php echo esc_html( $other_plugin['name'] ); ?></div>
-								<div style="font-size:12px;color:var(--wpsubs-text-muted);margin-top:4px;"><?php echo esc_html( $other_plugin['tagline'] ); ?></div>
-							</div>
-						</div>
-						<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.6;flex:1;"><?php echo esc_html( $other_plugin['desc'] ); ?></p>
-						<a href="<?php echo esc_url( $other_plugin['url'] ); ?>" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;height:46px;border-radius:10px;background:#211c3d;color:#fff;font-size:14px;font-weight:600;text-decoration:none;">
-							<?php echo esc_html( $other_plugin['cta'] ); ?>
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-						</a>
 					</div>
+					<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.6;flex:1;"><?php echo esc_html( $other_plugin['desc'] ); ?></p>
+					<div style="border-top:1px solid var(--wpsubs-border);margin:0 -20px;"></div>
+					<a href="<?php echo esc_url( $other_plugin['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" style="align-self:flex-start;">
+						<?php echo esc_html( $other_plugin['cta'] ); ?>
+						<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+					</a>
 				</div>
 			<?php endforeach; ?>
 		</div>
