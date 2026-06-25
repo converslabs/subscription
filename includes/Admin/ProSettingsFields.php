@@ -32,7 +32,7 @@ class ProSettingsFields {
 	 * Initialize the class.
 	 */
 	public function __construct() {
-		add_filter( 'subscrpt_settings_fields', array( $this, 'add_pro_preview_fields' ) );
+		add_filter( 'subscrpt_settings_fields', [ $this, 'add_pro_preview_fields' ] );
 	}
 
 	/**
@@ -76,36 +76,36 @@ class ProSettingsFields {
 	 * @return array
 	 */
 	private function pro_core_fields() {
-		return array(
-			array(
+		return [
+			[
 				'type'       => 'select',
 				'group'      => 'main',
 				'priority'   => 7,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_renewal_price',
 					'title'       => __( 'Renewal Price', 'subscription' ),
 					'description' => __( 'Choose a price that will be used for subscription renewal.', 'subscription' ),
-					'options'     => array(
+					'options'     => [
 						'subscribed' => __( 'Subscribed Price', 'subscription' ),
 						'updated'    => __( 'New/Updated Price', 'subscription' ),
-					),
+					],
 					'selected'    => esc_attr( get_option( 'subscrpt_renewal_price', 'subscribed' ) ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'toggle',
 				'group'      => 'main',
 				'priority'   => 8,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_early_renew',
 					'title'       => __( 'Early Renewal', 'subscription' ),
 					'label'       => __( 'Accept Early Renewal Payments', 'subscription' ),
 					'description' => __( 'With early renewals enabled, customers can renew their subscriptions before the next payment date.', 'subscription' ),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'subscrpt_early_renew', '1' ),
-				),
-			),
-		);
+				],
+			],
+		];
 	}
 
 	/**
@@ -114,61 +114,61 @@ class ProSettingsFields {
 	 * @return array
 	 */
 	private function grace_period_fields() {
-		return array(
-			array(
+		return [
+			[
 				'type'       => 'heading',
 				'group'      => 'grace_period',
 				'priority'   => 3,
-				'field_data' => array(
+				'field_data' => [
 					'title' => __( 'Grace Period Settings', 'subscription' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'input',
 				'group'      => 'grace_period',
 				'priority'   => 1,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_default_payment_grace_period',
 					'title'       => __( 'Grace Period (Days)', 'subscription' ),
 					'description' => __( 'Days to maintain access after subscriptions expires. (0 = No grace period. Max 30 days)', 'subscription' ),
 					'value'       => esc_attr( get_option( 'subscrpt_default_payment_grace_period', '7' ) ),
 					'type'        => 'number',
-					'attributes'  => array(
+					'attributes'  => [
 						'min' => 0,
 						'max' => 30,
-					),
-				),
-			),
-			array(
+					],
+				],
+			],
+			[
 				'type'       => 'toggle',
 				'group'      => 'grace_period',
 				'priority'   => 2,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_enable_grace_period_notifications',
 					'title'       => __( 'Grace Period Notifications', 'subscription' ),
 					'label'       => __( 'Send notifications during grace period', 'subscription' ),
 					'description' => __( 'Customers will receive warnings before their access is suspended.', 'subscription' ),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'subscrpt_enable_grace_period_notifications', '1' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'input',
 				'group'      => 'grace_period',
 				'priority'   => 3,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_grace_period_warning_days',
 					'title'       => __( 'Grace Period Warning (Days Before)', 'subscription' ),
 					'description' => __( 'Send warning emails this many days before grace period expires. (1-7 days)', 'subscription' ),
 					'value'       => esc_attr( get_option( 'subscrpt_grace_period_warning_days', '2' ) ),
 					'type'        => 'number',
-					'attributes'  => array(
+					'attributes'  => [
 						'min' => 1,
 						'max' => 7,
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 	}
 
 	/**
@@ -177,61 +177,61 @@ class ProSettingsFields {
 	 * @return array
 	 */
 	private function payment_failure_fields() {
-		return array(
-			array(
+		return [
+			[
 				'type'       => 'heading',
 				'group'      => 'payment_failure',
 				'priority'   => 4,
-				'field_data' => array(
+				'field_data' => [
 					'title' => __( 'Payment Failure Handling', 'subscription' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'input',
 				'group'      => 'payment_failure',
 				'priority'   => 1,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_default_max_payment_retries',
 					'title'       => __( 'Default Max Payment Retries', 'subscription' ),
 					'description' => __( 'Default number of automatic retry attempts for failed payments. (0 = No retries. Max 10 retries)', 'subscription' ),
 					'value'       => esc_attr( get_option( 'subscrpt_default_max_payment_retries', '3' ) ),
 					'type'        => 'number',
-					'attributes'  => array(
+					'attributes'  => [
 						'min' => 0,
 						'max' => 10,
-					),
-				),
-			),
-			array(
+					],
+				],
+			],
+			[
 				'type'       => 'toggle',
 				'group'      => 'payment_failure',
 				'priority'   => 2,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_enable_payment_failure_emails',
 					'title'       => __( 'Enable Payment Failure Emails', 'subscription' ),
 					'label'       => __( 'Send email notifications when payments fail', 'subscription' ),
 					'description' => __( 'Customers will receive emails about failed payments and retry attempts.', 'subscription' ),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'subscrpt_enable_payment_failure_emails', '1' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'input',
 				'group'      => 'payment_failure',
 				'priority'   => 3,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_payment_failure_email_delay',
 					'title'       => __( 'Payment Failure Email Delay (Hours)', 'subscription' ),
 					'description' => __( 'Delay before sending payment failure emails to avoid spam during temporary issues. (0-168 hours)', 'subscription' ),
 					'value'       => esc_attr( get_option( 'subscrpt_payment_failure_email_delay', '24' ) ),
 					'type'        => 'number',
-					'attributes'  => array(
+					'attributes'  => [
 						'min' => 0,
 						'max' => 168,
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 	}
 
 	/**
@@ -240,45 +240,45 @@ class ProSettingsFields {
 	 * @return array
 	 */
 	private function api_fields() {
-		return array(
-			array(
+		return [
+			[
 				'type'       => 'heading',
 				'group'      => 'api_settings',
 				'priority'   => 99,
-				'field_data' => array(
+				'field_data' => [
 					'title' => __( 'API Settings', 'subscription' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'toggle',
 				'group'      => 'api_settings',
 				'priority'   => 1,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'wpsubscription_api_enabled',
 					'title'       => __( 'Enable API', 'subscription' ),
 					'description' => __( 'Enable REST API endpoints for subscription actions', 'subscription' ),
 					'value'       => 'on',
 					'checked'     => 'on' === get_option( 'wpsubscription_api_enabled', 'on' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'join',
 				'group'      => 'api_settings',
 				'priority'   => 2,
-				'field_data' => array(
+				'field_data' => [
 					'title'       => __( 'API Key', 'subscription' ),
 					'description' => __( 'API key for external integrations. Keep this secure.', 'subscription' ),
-					'elements'    => array(
+					'elements'    => [
 						SettingsHelper::inp_element(
-							array(
+							[
 								'id'         => 'wpsubscription_api_key',
 								'value'      => esc_attr( get_option( 'wpsubscription_api_key', '' ) ),
 								'type'       => 'text',
 								'style'      => 'min-width:366px;',
-								'attributes' => array(
+								'attributes' => [
 									'readonly' => true,
-								),
-							),
+								],
+							],
 							true
 						),
 						'<span class="wpsubs-tooltip" data-tip="' . esc_attr__( 'Regenerate API Key', 'subscription' ) . '">'
@@ -286,25 +286,25 @@ class ProSettingsFields {
 						. '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>'
 						. '</button>'
 						. '</span>',
-					),
-				),
-			),
-			array(
+					],
+				],
+			],
+			[
 				'type'       => 'input',
 				'group'      => 'api_settings',
 				'priority'   => 3,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_api_endpoint_url',
 					'title'       => __( 'REST API Endpoint URL', 'subscription' ),
 					'description' => __( 'Copy and use this endpoint for all API actions.', 'subscription' ),
 					'value'       => esc_url( home_url( '/wp-json/wpsubscription/v1/action' ) ),
 					'type'        => 'text',
-					'attributes'  => array(
+					'attributes'  => [
 						'readonly' => true,
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 	}
 
 	/**
@@ -313,33 +313,33 @@ class ProSettingsFields {
 	 * @return array
 	 */
 	private function health_queue_fields() {
-		return array(
-			array(
+		return [
+			[
 				'type'       => 'heading',
 				'group'      => 'health_queue',
 				'priority'   => 8,
-				'field_data' => array(
+				'field_data' => [
 					'title' => __( 'Subscription Health', 'subscription' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'select',
 				'group'      => 'health_queue',
 				'priority'   => 2,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_health_queue_email_frequency',
 					'title'       => __( 'Health Queue Email Frequency', 'subscription' ),
 					'description' => __( 'How often to send the admin health queue reminder email. The email is only sent when subscriptions need attention.', 'subscription' ),
-					'options'     => array(
+					'options'     => [
 						'daily'            => __( 'Daily', 'subscription' ),
 						'subscrpt_weekly'  => __( 'Weekly', 'subscription' ),
 						'subscrpt_monthly' => __( 'Monthly', 'subscription' ),
 						'never'            => __( 'Never', 'subscription' ),
-					),
+					],
 					'selected'    => esc_attr( get_option( 'subscrpt_health_queue_email_frequency', 'subscrpt_weekly' ) ),
-				),
-			),
-		);
+				],
+			],
+		];
 	}
 
 	/**
@@ -348,20 +348,20 @@ class ProSettingsFields {
 	 * @return array
 	 */
 	private function order_fields() {
-		return array(
-			array(
+		return [
+			[
 				'type'       => 'toggle',
 				'group'      => 'payment_gateways',
 				'priority'   => 1,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'wp_subscription_auto_complete_order',
 					'title'       => __( 'Auto Complete Orders', 'subscription' ),
 					'description' => __( 'Automatically change status of processing orders to completed.', 'subscription' ),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'wp_subscription_auto_complete_order', '1' ),
-				),
-			),
-		);
+				],
+			],
+		];
 	}
 
 	/**
@@ -370,21 +370,21 @@ class ProSettingsFields {
 	 * @return array
 	 */
 	private function switch_fields() {
-		return array(
-			array(
+		return [
+			[
 				'type'       => 'toggle',
 				'group'      => 'general',
 				'priority'   => 9,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_switch_enabled',
 					'title'       => __( 'Switch Subscription', 'subscription' ),
 					'label'       => __( 'Allow users to upgrade/downgrade their subscriptions.', 'subscription' ),
 					'description' => __( 'Note: Downgrading subscription is not available at the moment.', 'subscription' ),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'subscrpt_switch_enabled', '0' ),
-				),
-			),
-		);
+				],
+			],
+		];
 	}
 
 	/**
@@ -393,28 +393,28 @@ class ProSettingsFields {
 	 * @return array
 	 */
 	private function role_management_fields() {
-		return array(
-			array(
+		return [
+			[
 				'type'       => 'heading',
 				'group'      => 'role_based_settings',
 				'priority'   => 6,
-				'field_data' => array(
+				'field_data' => [
 					'title' => __( 'Role-Based Settings', 'subscription' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'toggle',
 				'group'      => 'role_based_settings',
 				'priority'   => 1,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'subscrpt_role_based_access',
 					'title'       => __( 'Enable Role Based Access', 'subscription' ),
 					'description' => __( 'Show/Hide products based on user roles.', 'subscription' ),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'subscrpt_role_based_access', '1' ),
-				),
-			),
-		);
+				],
+			],
+		];
 	}
 
 	/**
@@ -423,64 +423,64 @@ class ProSettingsFields {
 	 * @return array
 	 */
 	private function live_qr_fields() {
-		return array(
-			array(
+		return [
+			[
 				'type'       => 'heading',
 				'group'      => 'live_qr_settings',
 				'priority'   => 5,
-				'field_data' => array(
+				'field_data' => [
 					'title' => __( 'Quick Details QR Settings', 'subscription' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'toggle',
 				'group'      => 'live_qr_settings',
 				'priority'   => 1,
-				'field_data' => array(
+				'field_data' => [
 					'id'      => 'subscrpt_live_qr_active',
 					'title'   => __( 'Enable Quick Details QR', 'subscription' ),
 					'label'   => '',
 					'value'   => '1',
 					'checked' => '1' === get_option( 'subscrpt_live_qr_active', '1' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'toggle',
 				'group'      => 'live_qr_settings',
 				'priority'   => 2,
-				'field_data' => array(
+				'field_data' => [
 					'id'      => 'subscrpt_live_qr_show_product',
 					'title'   => __( 'Product Details', 'subscription' ),
 					'label'   => __( 'Show product details in the subscription quick view', 'subscription' ),
 					'value'   => '1',
 					'checked' => '1' === get_option( 'subscrpt_live_qr_show_product', '1' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'toggle',
 				'group'      => 'live_qr_settings',
 				'priority'   => 3,
-				'field_data' => array(
+				'field_data' => [
 					'id'      => 'subscrpt_live_qr_show_billing',
 					'title'   => __( 'Billing Details', 'subscription' ),
 					'label'   => __( 'Show billing details in the subscription quick view', 'subscription' ),
 					'value'   => '1',
 					'checked' => '1' === get_option( 'subscrpt_live_qr_show_billing', '0' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'toggle',
 				'group'      => 'live_qr_settings',
 				'priority'   => 4,
-				'field_data' => array(
+				'field_data' => [
 					'id'      => 'subscrpt_live_qr_show_timeline',
 					'title'   => __( 'Timeline', 'subscription' ),
 					'label'   => __( 'Show subscription timeline in the subscription quick view', 'subscription' ),
 					'value'   => '1',
 					'checked' => '1' === get_option( 'subscrpt_live_qr_show_timeline', '0' ),
-				),
-			),
-		);
+				],
+			],
+		];
 	}
 
 	/**
@@ -489,34 +489,34 @@ class ProSettingsFields {
 	 * @return array
 	 */
 	private function payment_gateway_fields() {
-		$gateway_options = array();
+		$gateway_options = [];
 		if ( function_exists( 'WC' ) && WC()->payment_gateways ) {
 			foreach ( WC()->payment_gateways->get_available_payment_gateways() as $gateway_id => $gateway ) {
 				$gateway_options[ $gateway_id ] = $gateway->get_title();
 			}
 		}
 
-		return array(
-			array(
+		return [
+			[
 				'type'       => 'heading',
 				'group'      => 'payment_gateways',
 				'priority'   => 0.1,
-				'field_data' => array(
+				'field_data' => [
 					'title' => __( 'Payment Gateway Settings', 'subscription' ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'       => 'multi_select',
 				'group'      => 'payment_gateways',
 				'priority'   => 2,
-				'field_data' => array(
+				'field_data' => [
 					'id'          => 'hidden_payment_gateways',
 					'title'       => __( 'Hide Payment Gateways', 'subscription' ),
 					'description' => __( 'Select payment gateways to hide for subscription products. (keep empty for not hiding any)', 'subscription' ),
 					'options'     => $gateway_options,
-					'selected'    => get_option( 'hidden_payment_gateways', array() ),
-				),
-			),
-		);
+					'selected'    => get_option( 'hidden_payment_gateways', [] ),
+				],
+			],
+		];
 	}
 }
