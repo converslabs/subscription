@@ -145,3 +145,9 @@
   padding: 4px 12px;
   border-radius: 6px;
 }
+
+/* Switch Fee type picker: shrink to its content instead of filling the row. */
+.subscrpt-switch-fee-type .wpsubs-adv-select__trigger {
+  width: max-content;
+  min-width: unset;
+}

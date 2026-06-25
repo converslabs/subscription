@@ -397,6 +397,62 @@ class ProSettingsFields {
 					'checked'     => '1' === get_option( 'subscrpt_downgrade_allowed', '1' ),
 				],
 			],
+			[
+				'type'       => 'join',
+				'group'      => 'general',
+				'priority'   => 11,
+				'field_data' => [
+					'title'       => __( 'Switch Fee', 'subscription' ),
+					'description' => __( 'Optional fee charged when a customer switches plans. Use a flat amount or a percentage of the new plan price. (0 = no fee)', 'subscription' ),
+					'elements'    => [
+						SettingsHelper::inp_element(
+							[
+								'id'         => 'subscrpt_switch_fee_amount',
+								'value'      => esc_attr( get_option( 'subscrpt_switch_fee_amount', '0' ) ),
+								'type'       => 'number',
+								'style'      => 'min-width:170px;width:170px;',
+								'attributes' => [
+									'min'  => 0,
+									'step' => '0.01',
+								],
+							],
+							true
+						),
+						SettingsHelper::select_element(
+							[
+								'id'       => 'subscrpt_switch_fee_type',
+								'class'    => 'subscrpt-switch-fee-type',
+								'options'  => [
+									'flat'    => sprintf(
+										/* translators: %s: store currency symbol. */
+										__( 'Flat (%s)', 'subscription' ),
+										get_woocommerce_currency_symbol()
+									),
+									'percent' => __( 'Percentage (%)', 'subscription' ),
+								],
+								'selected' => esc_attr( get_option( 'subscrpt_switch_fee_type', 'flat' ) ),
+							],
+							true
+						),
+					],
+				],
+			],
+			[
+				'type'       => 'select',
+				'group'      => 'general',
+				'priority'   => 12,
+				'field_data' => [
+					'id'          => 'subscrpt_switch_fee_apply_to',
+					'title'       => __( 'Apply Fee To', 'subscription' ),
+					'description' => __( 'Choose which switch directions the fee applies to.', 'subscription' ),
+					'options'     => [
+						'both'      => __( 'Both upgrade and downgrade', 'subscription' ),
+						'upgrade'   => __( 'Upgrade only', 'subscription' ),
+						'downgrade' => __( 'Downgrade only', 'subscription' ),
+					],
+					'selected'    => esc_attr( get_option( 'subscrpt_switch_fee_apply_to', 'both' ) ),
+				],
+			],
 		];
 	}
 
