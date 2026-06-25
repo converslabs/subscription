@@ -379,9 +379,22 @@ class ProSettingsFields {
 					'id'          => 'subscrpt_switch_enabled',
 					'title'       => __( 'Switch Subscription', 'subscription' ),
 					'label'       => __( 'Allow users to upgrade/downgrade their subscriptions.', 'subscription' ),
-					'description' => __( 'Note: Downgrading subscription is not available at the moment.', 'subscription' ),
+					'description' => '',
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'subscrpt_switch_enabled', '0' ),
+				],
+			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'general',
+				'priority'   => 10,
+				'field_data' => [
+					'id'          => 'subscrpt_downgrade_allowed',
+					'title'       => __( 'Downgrade Subscription', 'subscription' ),
+					'label'       => __( 'Allow users to downgrade their subscriptions.', 'subscription' ),
+					'description' => '',
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'subscrpt_downgrade_allowed', '1' ),
 				],
 			],
 		];
