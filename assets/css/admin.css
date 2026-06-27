@@ -61,7 +61,7 @@
 .wp-subscription-admin-header {
   background: #fff;
   border-bottom: 1px solid #e2e4e7;
-  padding: 0 32px;
+  padding: 0 24px;
   position: sticky;
   top: 32px;
   z-index: 100;
@@ -328,7 +328,8 @@ body[class*="wpsubscription_page_wp-subscription"] #wpcontent {
 }
 
 /* Remove onboarding page menu item */
-.wp-submenu a[href*="page=wp-subscription-onboarding"] {
+.wp-submenu a[href*="page=wp-subscription-onboarding"],
+.wp-submenu a[href*="page=wp-subscription-details"] {
   display: none !important;
 }
 
@@ -477,14 +478,13 @@ body[class*="wpsubscription_page_wp-subscription"] #wpcontent {
   max-width: 1240px;
   margin: 32px auto 0 auto;
   background: #fff;
-  padding: 32px 24px 24px 24px;
+  padding: 0px 24px;
   border-radius: 12px;
 }
 
 /* Subscription list: toolbar sits on WP admin gray, table card is the white surface */
 .wp-subscription-admin-content.list-page.subscrpt-subs-list {
   background: transparent;
-  padding: 0;
   border-radius: 0;
   margin-top: 24px;
   margin-bottom: 32px;
