@@ -7,8 +7,38 @@
 
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
+
+$other_plugins = array(
+	array(
+		'name'     => 'Paddle for WooCommerce',
+		'tagline'  => 'Payments & checkout',
+		'desc'     => 'Looking to boost your sales of themes, plugins, or designs with the power of WooCommerce? Streamline your checkout process with Paddle’s WooCommerce integration.',
+		'url'      => 'https://wpsmartpay.com/paddle-for-woocommerce/',
+		'cta'      => __( 'Learn more', 'subscription' ),
+		'icon_url' => SUBSCRPT_ASSETS . '/images/other_plugins/paddle.png',
+	),
+	array(
+		'name'     => 'WPSmartpay',
+		'tagline'  => 'Payments & checkout',
+		'desc'     => 'Sell Digital Products & Accept Payment with WordPress. WPSmartPay is the perfect plugin for selling digital products, accepting one-time and recurring payments on your WordPress site without setting up a shopping cart.',
+		'url'      => 'https://wpsmartpay.com/features/',
+		'cta'      => __( 'Learn more', 'subscription' ),
+		'icon_url' => SUBSCRPT_ASSETS . '/images/other_plugins/wpsmartpay.png',
+	),
+	array(
+		'name'     => 'Thrivedesk',
+		'tagline'  => 'Agentic Helpdesk',
+		'desc'     => 'ThriveDesk unifies email, live chat, and knowledge base into one AI-powered helpdesk trained on your own data to handle repetitive tickets automatically, so your team gets back to building the business.',
+		'url'      => 'https://www.thrivedesk.com/',
+		'cta'      => __( 'Learn more', 'subscription' ),
+		'icon_url' => SUBSCRPT_ASSETS . '/images/other_plugins/thrivedesk.png',
+	),
+);
+
 ?>
-<div style="max-width:1240px;margin:32px auto 0 auto;padding:0 20px 40px;">
+
+
+<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
 
 	<!-- Page header -->
 	<div style="margin-bottom:24px;">
@@ -28,69 +58,10 @@ defined( 'ABSPATH' ) || exit;
 	</div>
 	<?php endif; ?>
 
-	<!-- Stats row -->
-	<div class="wpsubs-table-card" style="display:flex;flex-wrap:wrap;margin-bottom:32px;">
-		<div style="flex:1;min-width:160px;display:flex;align-items:center;gap:14px;padding:16px 20px;border-right:1px solid var(--wpsubs-border);">
-			<div style="width:40px;height:40px;flex-shrink:0;border-radius:10px;background:#e0f2fe;display:flex;align-items:center;justify-content:center;">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-			</div>
-			<div>
-				<div style="font-size:18px;font-weight:700;color:var(--wpsubs-text);line-height:1.1;">700+</div>
-				<div style="font-size:11px;color:var(--wpsubs-text-muted);margin-top:2px;line-height:1.3;"><?php esc_html_e( 'Active Installations', 'subscription' ); ?></div>
-			</div>
-		</div>
-		<div style="flex:1;min-width:160px;display:flex;align-items:center;gap:14px;padding:16px 20px;border-right:1px solid var(--wpsubs-border);">
-			<div style="width:40px;height:40px;flex-shrink:0;border-radius:10px;background:#fef3c7;display:flex;align-items:center;justify-content:center;">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-			</div>
-			<div>
-				<div style="font-size:18px;font-weight:700;color:var(--wpsubs-text);line-height:1.1;">4.9 / 5</div>
-				<div style="font-size:11px;color:var(--wpsubs-text-muted);margin-top:2px;line-height:1.3;"><?php esc_html_e( 'Average Rating', 'subscription' ); ?></div>
-			</div>
-		</div>
-		<div style="flex:1;min-width:160px;display:flex;align-items:center;gap:14px;padding:16px 20px;border-right:1px solid var(--wpsubs-border);">
-			<div style="width:40px;height:40px;flex-shrink:0;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-			</div>
-			<div>
-				<div style="font-size:18px;font-weight:700;color:var(--wpsubs-text);line-height:1.1;"><?php esc_html_e( 'Free', 'subscription' ); ?></div>
-				<div style="font-size:11px;color:var(--wpsubs-text-muted);margin-top:2px;line-height:1.3;"><?php esc_html_e( 'Open source on WP.org', 'subscription' ); ?></div>
-			</div>
-		</div>
-		<div style="flex:1;min-width:160px;display:flex;align-items:center;gap:14px;padding:16px 20px;border-right:1px solid var(--wpsubs-border);">
-			<div style="width:40px;height:40px;flex-shrink:0;border-radius:10px;background:#fce7f3;display:flex;align-items:center;justify-content:center;">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9d174d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-			</div>
-			<div>
-				<div style="font-size:18px;font-weight:700;color:var(--wpsubs-text);line-height:1.1;"><?php esc_html_e( '48 hr', 'subscription' ); ?></div>
-				<div style="font-size:11px;color:var(--wpsubs-text-muted);margin-top:2px;line-height:1.3;"><?php esc_html_e( 'Avg. support response', 'subscription' ); ?></div>
-			</div>
-		</div>
-		<div style="flex:1;min-width:160px;display:flex;align-items:center;gap:14px;padding:16px 20px;border-right:1px solid var(--wpsubs-border);">
-			<div style="width:40px;height:40px;flex-shrink:0;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-			</div>
-			<div>
-				<div style="font-size:18px;font-weight:700;color:var(--wpsubs-text);line-height:1.1;">5+</div>
-				<div style="font-size:11px;color:var(--wpsubs-text-muted);margin-top:2px;line-height:1.3;"><?php esc_html_e( 'Payment Gateways', 'subscription' ); ?></div>
-			</div>
-		</div>
-		<div style="flex:1;min-width:160px;display:flex;align-items:center;gap:14px;padding:16px 20px;">
-			<div style="width:40px;height:40px;flex-shrink:0;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center;">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-			</div>
-			<div>
-				<div style="font-size:18px;font-weight:700;color:var(--wpsubs-text);line-height:1.1;">5+</div>
-				<div style="font-size:11px;color:var(--wpsubs-text-muted);margin-top:2px;line-height:1.3;"><?php esc_html_e( 'Integrations', 'subscription' ); ?></div>
-			</div>
-		</div>
-	</div>
-
 	<!-- Community -->
 	<div style="margin-bottom:32px;">
 		<div style="margin-bottom:12px;">
-			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 3px;line-height:1.4;margin-left:1px;"><?php esc_html_e( 'Community', 'subscription' ); ?></h2>
-			<p style="font-size:12px;color:var(--wpsubs-text-muted);margin:0;line-height:1.5;margin-left:1px;"><?php esc_html_e( 'Help shape the product and share your experience with other users.', 'subscription' ); ?></p>
+			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0;line-height:1.4;margin-left:1px;"><?php esc_html_e( 'Community', 'subscription' ); ?></h2>
 		</div>
 		<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
 
@@ -172,8 +143,7 @@ defined( 'ABSPATH' ) || exit;
 	<!-- Resources -->
 	<div style="margin-bottom:32px;">
 		<div style="margin-bottom:12px;">
-			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 3px;line-height:1.4;margin-left:1px;"><?php esc_html_e( 'Resources', 'subscription' ); ?></h2>
-			<p style="font-size:12px;color:var(--wpsubs-text-muted);margin:0;line-height:1.5;margin-left:1px;"><?php esc_html_e( 'Guides and help for setting up and troubleshooting WPSubscription.', 'subscription' ); ?></p>
+			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0;line-height:1.4;margin-left:1px;"><?php esc_html_e( 'Resources', 'subscription' ); ?></h2>
 		</div>
 		<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
 
@@ -249,6 +219,32 @@ defined( 'ABSPATH' ) || exit;
 				</a>
 			</div>
 
+		</div>
+	</div>
+
+	<!-- Our Other Plugins -->
+	<div style="margin-bottom:32px;">
+		<div style="margin-bottom:12px;">
+			<h2 style="font-size:12px;font-weight:600;color:var(--wpsubs-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0;line-height:1.4;margin-left:1px;"><?php esc_html_e( 'Our Other Products', 'subscription' ); ?></h2>
+		</div>
+		<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
+			<?php foreach ( $other_plugins as $other_plugin ) : ?>
+				<div class="wpsubs-table-card" style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+					<div style="display:flex;align-items:center;gap:12px;">
+						<img src="<?php echo esc_url( $other_plugin['icon_url'] ); ?>" alt="" width="44" height="44" style="flex-shrink:0;border-radius:12px;object-fit:cover;" />
+						<div>
+							<div style="font-size:14px;font-weight:700;color:var(--wpsubs-text);line-height:1.2;"><?php echo esc_html( $other_plugin['name'] ); ?></div>
+							<div style="font-size:11px;color:var(--wpsubs-text-muted);font-weight:500;margin-top:2px;"><?php echo esc_html( $other_plugin['tagline'] ); ?></div>
+						</div>
+					</div>
+					<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.6;flex:1;"><?php echo esc_html( $other_plugin['desc'] ); ?></p>
+					<div style="border-top:1px solid var(--wpsubs-border);margin:0 -20px;"></div>
+					<a href="<?php echo esc_url( $other_plugin['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" style="align-self:flex-start;">
+						<?php echo esc_html( $other_plugin['cta'] ); ?>
+						<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+					</a>
+				</div>
+			<?php endforeach; ?>
 		</div>
 	</div>
 
