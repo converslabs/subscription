@@ -1253,7 +1253,7 @@ a.wpsubs-cell-title:hover {
   font-weight: 500;
   color: var(--wpsubs-text);
   line-height: 1.4;
-  padding-top: 8px; /* visually align with single-line input height */
+  padding-top: 2px; /* visually align with single-line input height */
 }
 
 .wpsubs-settings-field__control {

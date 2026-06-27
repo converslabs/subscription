@@ -88,3 +88,38 @@ if ( ! function_exists( 'wp_subscription_register_paypal_block' ) ) {
 }
 
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
+
+// ---------------------------------------------------------------------------
+// Legacy filters  (deprecated hook names bridged onto canonical ones)
+// ---------------------------------------------------------------------------
+
+if ( ! function_exists( 'subscrpt_legacy_split_payment_next_due_date' ) ) {
+	/**
+	 * Bridge the deprecated `subscrpt_split_payment_next_due_date` filter.
+	 *
+	 * The split-payment-scoped hook was replaced by the general-purpose
+	 * `subscrpt_subscription_next_date`. Any code still hooking the old name keeps
+	 * working (with a deprecation notice) via this bridge.
+	 *
+	 * @deprecated 1.11.0 Use the `subscrpt_subscription_next_date` filter instead.
+	 *
+	 * @param int|null $next_date       Computed next payment timestamp, or null.
+	 * @param int      $subscription_id Subscription ID.
+	 * @param string   $recurr_timing   Recurring timing string.
+	 * @param string   $type            Subscription history type.
+	 *
+	 * @return int|null
+	 */
+	function subscrpt_legacy_split_payment_next_due_date( $next_date, $subscription_id, $recurr_timing, $type ) {
+		if ( has_filter( 'subscrpt_split_payment_next_due_date' ) ) {
+			$next_date = apply_filters_deprecated(
+				'subscrpt_split_payment_next_due_date',
+				[ $next_date, $subscription_id, $recurr_timing, $type ],
+				'1.11.0',
+				'subscrpt_subscription_next_date'
+			);
+		}
+		return $next_date;
+	}
+}
+add_filter( 'subscrpt_subscription_next_date', 'subscrpt_legacy_split_payment_next_due_date', 5, 4 );

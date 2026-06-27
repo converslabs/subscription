@@ -246,6 +246,7 @@ class SettingsHelper {
 				'value'   => $selected,
 				'options' => $adv_options,
 				'align'   => 'left',
+				'class'   => $args['class'] ?? '',
 			)
 		);
 		return ob_get_clean();
