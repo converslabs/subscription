@@ -581,9 +581,11 @@ class Paypal extends \WC_Payment_Gateway {
 			}
 		}
 
-		// Gate subscription events only when both $order and $wpsubs_id are unresolved.
-		// Transaction events resolve $order internally; subscription events can use $wpsubs_id directly.
-		if ( empty( $order ) && empty( $wpsubs_id ) && in_array( $event, $subscription_events, true ) ) {
+		// Gate ALL events when both $order and $wpsubs_id are unresolved — return 425 so PayPal
+		// retries. Previously this guard was subscription-events-only; transaction events (e.g.
+		// PAYMENT.SALE.COMPLETED) fell through and returned a 404 which PayPal treats as a
+		// permanent failure and never retries, leaving the renewal order in "pending" forever.
+		if ( empty( $order ) && empty( $wpsubs_id ) ) {
 			$log_message = sprintf(
 				// translators: %s: event name.
 				__( 'PayPal webhook received [%s]. Order not found. Queuing for retry.', 'subscription' ),
