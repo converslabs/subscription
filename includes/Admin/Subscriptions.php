@@ -26,19 +26,28 @@ class Subscriptions {
 		add_filter( 'post_row_actions', array( $this, 'post_row_actions' ) );
 		add_filter( 'manage_subscrpt_order_posts_columns', array( $this, 'add_custom_columns' ) );
 		add_action( 'manage_subscrpt_order_posts_custom_column', array( $this, 'add_custom_columns_data' ), 10, 2 );
-		add_action( 'add_meta_boxes', array( $this, 'create_meta_boxes' ) );
-		add_action( 'admin_head-post.php', array( $this, 'some_styles' ) );
-		add_action( 'admin_head-post-new.php', array( $this, 'some_styles' ) );
-		add_action( 'admin_footer-post.php', array( $this, 'some_scripts' ) );
-		add_action( 'admin_footer-post-new.php', array( $this, 'some_scripts' ) );
-		add_action( 'save_post', array( $this, 'save_subscrpt_order' ) );
+		add_action( 'load-post.php', array( $this, 'redirect_legacy_edit_screen' ) );
 		add_filter( 'woocommerce_order_item_get_formatted_meta_data', array( $this, 'remove_order_meta' ), 10, 1 );
 		add_filter( 'bulk_actions-edit-subscrpt_order', array( $this, 'remove_bulk_actions' ) );
 		add_action( 'restrict_manage_posts', array( $this, 'add_subscription_filter_select' ) );
 		add_action( 'admin_menu', array( $this, 'add_overview_submenu' ), 40 );
-		add_action( 'edit_form_after_title', array( $this, 'display_subscription_details_section' ) );
+	}
 
-		add_action( 'admin_head-post.php', [ $this, 'add_back_to_list_button' ] );
+	/**
+	 * Redirect the legacy CPT edit screen to the standalone details page.
+	 *
+	 * The subscription details UI now lives at
+	 * admin.php?page=wp-subscription-details. Anyone landing on the old
+	 * post.php edit screen for a subscrpt_order is sent there.
+	 *
+	 * @return void
+	 */
+	public function redirect_legacy_edit_screen() {
+		$post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $post_id && 'subscrpt_order' === get_post_type( $post_id ) ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription-details&id=' . $post_id ) );
+			exit;
+		}
 	}
 
 	/**
@@ -164,181 +173,29 @@ class Subscriptions {
 	}
 
 	/**
-	 * Create meta boxes for admin subscriptions.
+	 * Build the subscription info rows.
+	 *
+	 * Assembles the label/value rows describing a subscription (product, cost,
+	 * dates, status, payment method, addresses, trial, etc.) and applies the
+	 * `subscrpt_admin_info_rows` filter so extensions (e.g. the Pro plugin) can
+	 * add or reorder rows. Returns null when the related order is missing.
+	 *
+	 * @param int $subscription_id Subscription (subscrpt_order) post ID.
+	 *
+	 * @return array<string,array{label:string,value:string}>|null
 	 */
-	public function create_meta_boxes() {
-		remove_meta_box( 'submitdiv', 'subscrpt_order', 'side' );
-		add_meta_box(
-			'subscrpt_order_save_post',
-			__( 'Subscription Action', 'subscription' ),
-			array( $this, 'subscrpt_order_save_post' ),
-			'subscrpt_order',
-			'side',
-			'default'
-		);
-
-		add_meta_box(
-			'subscrpt_customer_info',
-			__( 'Customer Details', 'subscription' ),
-			array( $this, 'customer_info' ),
-			'subscrpt_order',
-			'side',
-			'default'
-		);
-
-		// Removed the redundant subscription info meta box as it's now shown prominently above
-
-		add_meta_box(
-			'subscrpt_order_history',
-			__( 'Related Orders', 'subscription' ),
-			array( $this, 'order_histories' ),
-			'subscrpt_order',
-			'normal',
-			'default'
-		);
-
-		add_meta_box(
-			'subscrpt_order_activities',
-			__( 'Subscription Activities', 'subscription' ),
-			array( $this, 'order_activities' ),
-			'subscrpt_order',
-			'normal',
-			'default'
-		);
-	}
-
-	/**
-	 * Display Order Histories.
-	 *
-	 * @param \WP_Post $post Post Object.
-	 *
-	 * @return void
-	 */
-	public function order_histories( $post ) {
-		$subscription_id = $post->ID;
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'subscrpt_order_relation';
-
-		// @phpcs:ignore
-		$order_histories = $wpdb->get_results(
-			$wpdb->prepare(
-				'SELECT * FROM %i WHERE subscription_id=%d ORDER BY id DESC',
-				array(
-					$table_name,
-					$subscription_id,
-				)
-			)
-		);
-
-		include 'views/order-history.php';
-	}
-
-	/**
-	 * Display Order Activities
-	 *
-	 * @param \WP_Post $post Post Object.
-	 *
-	 * @return void
-	 */
-	public function order_activities( $post ) {
-		if ( function_exists( 'subscrpt_pro_activated' ) ) :
-			if ( subscrpt_pro_activated() ) :
-				do_action( 'subscrpt_order_activities', $post->ID );
-			else :
-				?>
-				<div class="wp-subscription-admin-box wp-subscription-upgrade-pro-banner" style="margin-bottom:18px;display:flex;align-items:center;gap:18px;justify-content:space-between;background:linear-gradient(90deg,#38bdf8 0%,#6366f1 100%);border-radius:10px;padding:22px 28px;box-shadow:0 2px 12px rgba(56,189,248,0.08);color:#fff;">
-					<div style="flex:1;">
-						<div style="display:flex;align-items:center;gap:14px;">
-							<span style="font-size:2.2em;line-height:1;">🚀</span>
-							<span style="font-family:Georgia,serif;font-size:1.25em;font-weight:bold;">Upgrade to WPSubscription Pro</span>
-						</div>
-						<div style="margin-top:8px;font-size:1.08em;max-width:500px;opacity:0.95;">
-							Unlock advanced features, automation, and priority support. Take your subscription business to the next level!
-						</div>
-					</div>
-					<div style="flex-shrink:0;">
-						<a href="https://wpsubscription.co/" target="_blank" class="button button-primary" style="background:#fff;color:#6366f1;font-weight:600;font-size:1.08em;padding:12px 28px;border:none;box-shadow:0 2px 8px rgba(99,102,241,0.10);border-radius:6px;">Upgrade to Pro</a>
-					</div>
-				</div>
-				<?php
-			endif;
-		endif;
-	}
-
-	/**
-	 * Save subscription HTML.
-	 */
-	public function subscrpt_order_save_post() {
-		$actions_data = array(
-			'active'       => array(
-				'label' => __( 'Activate Subscription', 'subscription' ),
-				'value' => 'active',
-			),
-			'pending'      => array(
-				'label' => __( 'Pending Subscription', 'subscription' ),
-				'value' => 'pending',
-			),
-			'expire'       => array(
-				'label' => __( 'Expire Subscription', 'subscription' ),
-				'value' => 'expired',
-			),
-			'pe_cancelled' => array(
-				'label' => __( 'Pending Cancel Subscription', 'subscription' ),
-				'value' => 'pe_cancelled',
-			),
-			'cancelled'    => array(
-				'label' => __( 'Cancel Subscription', 'subscription' ),
-				'value' => 'cancelled',
-			),
-		);
-
-		$map_actions = array(
-			'pending'      => array( 'active', 'cancelled' ),
-			'active'       => array( 'pe_cancelled', 'cancelled' ),
-			'pe_cancelled' => array( 'active', 'cancelled' ),
-			'cancelled'    => array( 'active' ),
-			'expired'      => array(),
-		);
-
-		$status  = get_post_status( get_the_ID() );
-		$actions = $map_actions[ $status ];
-
-		include 'views/subscription-save-meta.php';
-	}
-
-	/**
-	 * Display Customer Info
-	 *
-	 * @param \WP_Post $post Post Object.
-	 *
-	 * @return void
-	 */
-	public function customer_info( $post ) {
-		$order_id = get_post_meta( $post->ID, '_subscrpt_order_id', true );
-		$order    = wc_get_order( $order_id );
-		if ( ! $order ) {
-			return;
-		}
-		include 'views/subscription-customer.php';
-	}
-
-	/**
-	 * Display subscription info.
-	 *
-	 * @return void
-	 */
-	public function subscrpt_order_info() {
-		$order_id         = get_post_meta( get_the_ID(), '_subscrpt_order_id', true );
-		$order_item_id    = get_post_meta( get_the_ID(), '_subscrpt_order_item_id', true );
-		$trial            = get_post_meta( get_the_ID(), '_subscrpt_trial', true );
-		$start_date       = get_post_meta( get_the_ID(), '_subscrpt_start_date', true );
-		$next_date        = get_post_meta( get_the_ID(), '_subscrpt_next_date', true );
-		$trial_start_date = get_post_meta( get_the_ID(), '_subscrpt_trial_started', true );
-		$trial_end_date   = get_post_meta( get_the_ID(), '_subscrpt_trial_ended', true );
-		$trial_mode       = get_post_meta( get_the_ID(), '_subscrpt_trial_mode', true );
+	public static function get_info_rows( $subscription_id ) {
+		$order_id         = get_post_meta( $subscription_id, '_subscrpt_order_id', true );
+		$order_item_id    = get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
+		$trial            = get_post_meta( $subscription_id, '_subscrpt_trial', true );
+		$start_date       = get_post_meta( $subscription_id, '_subscrpt_start_date', true );
+		$next_date        = get_post_meta( $subscription_id, '_subscrpt_next_date', true );
+		$trial_start_date = get_post_meta( $subscription_id, '_subscrpt_trial_started', true );
+		$trial_end_date   = get_post_meta( $subscription_id, '_subscrpt_trial_ended', true );
+		$trial_mode       = get_post_meta( $subscription_id, '_subscrpt_trial_mode', true );
 		$order            = wc_get_order( $order_id );
 		if ( ! $order ) {
-			return;
+			return null;
 		}
 		$order_item = $order->get_item( $order_item_id );
 
@@ -346,9 +203,9 @@ class Subscriptions {
 		$product_link = get_the_permalink( $order_item->get_product_id() );
 
 		// Get payment information
-		$product_id    = $order_item->get_product_id(); // get_post_meta( get_the_ID(), '_subscrpt_product_id', true );
-		$max_payments  = subscrpt_get_max_payments( get_the_ID() ) ?: 0;
-		$payments_made = subscrpt_count_payments_made( get_the_ID() );
+		$product_id    = $order_item->get_product_id();
+		$max_payments  = subscrpt_get_max_payments( $subscription_id ) ? subscrpt_get_max_payments( $subscription_id ) : 0;
+		$payments_made = subscrpt_count_payments_made( $subscription_id );
 
 		$rows = array(
 			'product'  => array(
@@ -357,7 +214,7 @@ class Subscriptions {
 			),
 			'cost'     => array(
 				'label' => __( 'Cost', 'subscription' ),
-				'value' => Helper::format_price_with_order_item( get_post_meta( get_the_ID(), '_subscrpt_price', true ), $order_item->get_id() ),
+				'value' => Helper::format_price_with_order_item( get_post_meta( $subscription_id, '_subscrpt_price', true ), $order_item->get_id() ),
 			),
 			'quantity' => array(
 				'label' => __( 'Qty', 'subscription' ),
@@ -384,7 +241,7 @@ class Subscriptions {
 			),
 			'status'           => array(
 				'label' => __( 'Status', 'subscription' ),
-				'value' => '<span class="subscrpt-legacy-status subscrpt-legacy-status--' . get_post_status() . '">' . get_post_status_object( get_post_status() )->label . '</span>',
+				'value' => '<span class="subscrpt-legacy-status subscrpt-legacy-status--' . get_post_status( $subscription_id ) . '">' . get_post_status_object( get_post_status( $subscription_id ) )->label . '</span>',
 			),
 			'payment_method'   => array(
 				'label' => __( 'Payment Method', 'subscription' ),
@@ -413,7 +270,7 @@ class Subscriptions {
 		}
 
 		if ( class_exists( 'WC_Stripe' ) && 'stripe' === $order->get_payment_method() ) {
-			$is_auto_renew = get_post_meta( get_the_ID(), '_subscrpt_auto_renew', true );
+			$is_auto_renew = get_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
 			$new_rows      = array();
 			foreach ( $rows as $key => $value ) {
 				$new_rows[ $key ] = $value;
@@ -428,372 +285,25 @@ class Subscriptions {
 			$rows = $new_rows;
 		}
 
-		$rows = apply_filters( 'subscrpt_admin_info_rows', $rows, get_the_ID(), $order );
+		$rows = apply_filters( 'subscrpt_admin_info_rows', $rows, $subscription_id, $order );
 
-		include 'views/subscription-info.php';
+		return $rows;
 	}
 
 	/**
-	 * Display a prominent subscription details section.
+	 * Apply a status change to a subscription.
 	 *
-	 * @param \WP_Post $post The post object.
+	 * Updates the subscription post status, fires the admin status-change email
+	 * notification, runs the subscription status action, and completes the
+	 * related order when the subscription becomes active. Called from the
+	 * standalone subscription details page.
 	 *
-	 * @return void
-	 */
-	public function display_subscription_details_section( $post ) {
-		// Only display for subscription post type
-		if ( 'subscrpt_order' !== $post->post_type ) {
-			return;
-		}
-
-		$subscription_id   = $post->ID;
-		$subscription_data = Helper::get_subscription_data( $subscription_id );
-
-		$order_id = $subscription_data['order']['order_id'] ?? 0;
-		$order    = $order_id ? wc_get_order( $order_id ) : null;
-
-		$order_item_id = $subscription_data['order']['order_item_id'] ?? 0;
-		$order_item    = $order ? $order->get_item( $order_item_id ) : null;
-
-		if ( ! $order || ! $order_item ) {
-			return;
-		}
-
-		$product_id    = $subscription_data['product']['product_id'] ?? 0;
-		$max_payments  = ! empty( subscrpt_get_max_payments( $subscription_id ) ) ? subscrpt_get_max_payments( $subscription_id ) : 0;
-		$payments_made = subscrpt_count_payments_made( $subscription_id );
-
-		// Get subscription details
-		$product       = wc_get_product( $product_id );
-		$subscrpt_type = $subscription_data['schedule']['timing_option'] ?? '';
-		$subscrpt_time = $subscription_data['schedule']['timing_per'] ?? '';
-
-		$trial_type = $subscription_data['trial']['timing_option'] ?? 'days';
-		$trial_time = $subscription_data['trial']['timing_per'] ?? 0;
-
-		$signup_fee = $subscription_data['signup_fee'] ?? '';
-
-		$quantity = (int) $order_item->get_quantity();
-		$cost     = (float) ( $subscription_data['price'] ?? 0 ) * max( 1, $quantity );
-		$cost     = empty( $cost ) ? (float) $order_item->get_total() : $cost;
-
-		$price_excl_tax = (float) $order_item->get_total();
-		$tax_amount     = (float) $order_item->get_total_tax();
-		if ( $tax_amount > 0 ) {
-			$cost = $price_excl_tax + $tax_amount;
-			$cost = number_format( (float) $cost, 2, '.', '' );
-		}
-
-		$subscrpt_status = $subscription_data['status'] ?? '';
-		$verbose_status  = Helper::get_verbose_status( $subscrpt_status );
-
-		$started_date = $subscription_data['start_date'] ?? '';
-		$started_date = ! empty( $started_date ) ? wp_date( 'F j, Y - g:i A', strtotime( $started_date ) ) : '-';
-
-		$next_payment_date = $subscription_data['next_date'] ?? '';
-		$next_payment_date = ! empty( $next_payment_date ) ? wp_date( 'F j, Y - g:i A', strtotime( $next_payment_date ) ) : '-';
-
-		$is_grace_period = isset( $subscription_data['grace_period'] );
-		$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
-		$grace_end_date  = $subscription_data['grace_period']['end_date'] ?? '';
-		$grace_end_date  = ! empty( $grace_end_date ) ? wp_date( 'F j, Y - g:i A', strtotime( $grace_end_date ) ) : '';
-
-		?>
-		<div class="wp-subscription-details-section">
-			<h2 style="margin: 0 0 20px 0; padding: 0; border-bottom: 1px solid #ddd; padding-bottom: 12px;">
-				<?php
-				$text = sprintf(
-					// translators: Subscription ID.
-					__( 'Subscription #%d details', 'subscription' ),
-					$post->ID
-				);
-				echo esc_html( $text );
-				?>
-			</h2>
-			
-			<div class="subscription-details-grid">
-				<!-- Primary Information -->
-				<div class="details-group primary">
-					<h3><?php esc_html_e( 'General', 'subscription' ); ?></h3>
-					<table>
-						<tr>
-							<th><?php esc_html_e( 'Status', 'subscription' ); ?></th>
-							<td>
-								<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
-									<span class="subscrpt-legacy-status subscrpt-legacy-status--active grace-active">
-										Active
-
-										<?php
-											$grace_remaining_text = sprintf(
-												// translators: Number of days remaining in grace period.
-												__( '%d days remaining!', 'subscription' ),
-												$grace_remaining
-											);
-										?>
-										<span class="grace-icon" data-tooltip="<?php echo esc_attr( $grace_remaining_text ); ?>">
-											<span class="dashicons dashicons-warning"></span>
-										</span>
-									</span>
-								<?php else : ?>
-									<span class="subscrpt-legacy-status subscrpt-legacy-status--<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
-										<?php echo esc_html( $verbose_status ); ?>
-									</span>
-								<?php endif; ?>
-							</td>
-						</tr>
-						<tr>
-							<th><?php esc_html_e( 'Product', 'subscription' ); ?></th>
-							<td><a href="<?php echo esc_url( get_the_permalink( $order_item->get_product_id() ) ); ?>" target="_blank"><?php echo esc_html( $order_item->get_name() ); ?></a></td>
-						</tr>
-					</table>
-				</div>
-				
-				<!-- Subscription Terms -->
-				<div class="details-group">
-					<h3><?php esc_html_e( 'Subscription Terms', 'subscription' ); ?></h3>
-					<table>
-						<tr>
-							<th><?php esc_html_e( 'Billing', 'subscription' ); ?></th>
-							<td>
-								<?php echo wp_kses_post( wc_price( $cost ) ); ?> / 
-								<?php
-									echo esc_html( $subscrpt_time > 1 ? $subscrpt_time . '-' : '' );
-								?>
-								<?php
-									echo esc_html( $subscrpt_type );
-								?>
-							</td>
-						</tr>
-
-						<?php if ( $signup_fee ) : ?>
-						<tr>
-							<th><?php esc_html_e( 'Signup Fee', 'subscription' ); ?></th>
-							<td><?php echo wp_kses_post( wc_price( $signup_fee ) ); ?></td>
-						</tr>
-						<?php endif; ?>
-
-						<?php if ( $trial_time ) : ?>
-						<tr>
-							<th><?php esc_html_e( 'Free Trial', 'subscription' ); ?></th>
-							<td><?php echo esc_html( $trial_time . ' ' . $trial_type ); ?></td>
-						</tr>
-						<?php endif; ?>
-
-						<?php if ( ! empty( $max_payments ) && $max_payments > 0 ) : ?>
-						<tr>
-							<th><?php esc_html_e( 'Total Payments', 'subscription' ); ?></th>
-							<td><strong><?php echo esc_html( $payments_made . ' / ' . $max_payments ); ?></strong></td>
-						</tr>
-						<?php endif; ?>
-					</table>
-				</div>
-				
-				<!-- Schedule Dates -->
-				<div class="details-group">
-					<h3><?php esc_html_e( 'Schedule Dates', 'subscription' ); ?></h3>
-					<table>
-						<tr>
-							<th><?php esc_html_e( 'Started', 'subscription' ); ?></th>
-							<td><?php echo esc_html( $started_date ); ?></td>
-						</tr>
-						<tr>
-							<th><?php esc_html_e( 'Next Payment', 'subscription' ); ?></th>
-							<td><?php echo esc_html( $next_payment_date ); ?></td>
-						</tr>
-					</table>
-				</div>
-
-				<!-- Grace Period Info -->
-				<?php if ( $is_grace_period ) : ?>
-					<div class="details-group">
-						<h3><?php esc_html_e( 'Grace Period', 'subscription' ); ?></h3>
-						<table>
-							<tr>
-								<th><?php esc_html_e( 'Remaining', 'subscription' ); ?></th>
-								<td><?php echo esc_html( $grace_remaining . ' days' ); ?></td>
-							</tr>
-							<tr>
-								<th><?php esc_html_e( 'End Date', 'subscription' ); ?></th>
-								<td><?php echo esc_html( $grace_end_date ); ?></td>
-							</tr>
-						</table>
-					</div>
-				<?php endif; ?>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Include some styles.
+	 * @param int    $post_id Subscription (subscrpt_order) post ID.
+	 * @param string $action  Target status slug.
 	 *
 	 * @return void
 	 */
-	public function some_styles() {
-		global $post;
-		if ( 'subscrpt_order' === $post->post_type ) :
-			?>
-			<style>
-				.submitbox {
-					display: flex;
-					justify-content: space-around;
-				}
-
-				.subscrpt_sub_box {
-					display: grid;
-					line-height: 2;
-				}
-				
-				/* Hide WordPress title area margin */
-				#poststuff #post-body.columns-2 {
-					margin-right: 300px;
-				}
-				
-				/* Clean, minimal details section */
-				.wp-subscription-details-section {
-					margin: 20px 0 30px 0;
-					padding: 20px;
-					border: 1px solid #ddd;
-					background: #fff;
-				}
-				
-				/* Grid layout for organized sections */
-				.subscription-details-grid {
-					display: grid;
-					grid-template-columns: 1fr 1fr;
-					gap: 30px;
-					margin-top: 20px;
-				}
-				
-				@media (max-width: 782px) {
-					.subscription-details-grid {
-						grid-template-columns: 1fr;
-					}
-				}
-				
-				/* Details group styling */
-				.details-group h3 {
-					margin: 0 0 12px 0;
-					padding: 0 0 8px 0;
-					border-bottom: 1px solid #eee;
-					font-size: 14px;
-					font-weight: 600;
-					color: #555;
-					text-transform: uppercase;
-					letter-spacing: 0.5px;
-				}
-				
-				.details-group.primary h3 {
-					color: #333;
-				}
-				
-				.details-group table {
-					width: 100%;
-					border-collapse: collapse;
-				}
-				
-				.details-group table th {
-					text-align: left;
-					padding: 8px 12px 8px 0;
-					font-weight: 500;
-					color: #666;
-					width: 40%;
-					vertical-align: top;
-					font-size: 13px;
-				}
-				
-				.details-group table td {
-					padding: 8px 0;
-					color: #333;
-					font-size: 13px;
-					line-height: 1.4;
-				}
-				
-				.details-group table tr {
-					border-bottom: 1px solid #f5f5f5;
-				}
-				
-				.details-group table tr:last-child {
-					border-bottom: none;
-				}
-				
-				/* Simple status badge */
-				.status-badge {
-					display: inline-block;
-					padding: 2px 8px;
-					border-radius: 3px;
-					font-size: 12px;
-					font-weight: 500;
-					text-transform: capitalize;
-					background: #f5f5f5;
-					color: #666;
-					border: 1px solid #ddd;
-				}
-				
-				/* Clean links */
-				.details-group a {
-					color: #0073aa;
-					text-decoration: none;
-				}
-				
-				.details-group a:hover {
-					text-decoration: underline;
-				}
-				
-				/* Meta box styling improvements */
-				.postbox {
-					border: 1px solid #ddd;
-				}
-				
-				.postbox .hndle {
-					border-bottom: 1px solid #eee;
-					background: #fafafa;
-				}
-
-				#subscrpt_order_history .inside table,
-				#subscrpt_order_activities .inside table {
-					border: none;
-				}
-			</style>
-			<?php
-		endif;
-	}
-
-	/**
-	 * Disable changes popup.
-	 *
-	 * @return void
-	 */
-	public function some_scripts() {
-		global $post;
-		if ( 'subscrpt_order' === $post->post_type ) :
-			?>
-			<script>
-				jQuery(document).ready(function() {
-					jQuery(window).off('beforeunload', null);
-				});
-			</script>
-			<?php
-		endif;
-	}
-
-	public function save_subscrpt_order( $post_id ) {
-		if ( wp_is_post_revision( $post_id ) || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! isset( $_POST['subscrpt_order_action'] ) ) {
-			return;
-		}
-
-		// Verify nonce for security.
-		if ( ! isset( $_POST['subscrpt_order_action_nonce_field'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['subscrpt_order_action_nonce_field'] ) ), 'subscrpt_order_action_nonce' ) ) {
-			return;
-		}
-
-		// Check permissions.
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return;
-		}
-		remove_all_actions( 'save_post' );
-
-		$action     = sanitize_text_field( wp_unslash( $_POST['subscrpt_order_action'] ) );
+	public static function process_status_change( $post_id, $action ) {
 		$old_status = get_post_status( $post_id );
 
 		wp_update_post(
@@ -813,7 +323,9 @@ class Subscriptions {
 		$order_id = get_post_meta( $post_id, '_subscrpt_order_id', true );
 		if ( 'active' === $action ) {
 			$order = wc_get_order( $order_id );
-			$order->update_status( 'completed' );
+			if ( $order ) {
+				$order->update_status( 'completed' );
+			}
 			Action::status( $action, $post_id );
 		} else {
 			Action::status( $action, $post_id );
@@ -999,36 +511,6 @@ class Subscriptions {
 				</div>
 			</div>
 		</div>
-		<?php
-	}
-
-	/**
-	 * Add "Back to list" button next to the post title.
-	 */
-	public function add_back_to_list_button() {
-		global $post;
-
-		// Only apply on edit subscription screen
-		if ( ! isset( $post ) || $post->post_type !== 'subscrpt_order' ) {
-			return;
-		}
-
-		$list_url = admin_url( 'admin.php?page=wp-subscription' );
-		?>
-		<script type="text/javascript">
-			document.addEventListener('DOMContentLoaded', function() {
-				const heading = document.querySelector('.wrap .wp-heading-inline');
-				if (heading) {
-					const iconLink = document.createElement('a');
-					iconLink.href = '<?php echo esc_url( $list_url ); ?>';
-					iconLink.innerHTML = '<span class="dashicons dashicons-arrow-left-alt2" style="font-size:28px;height:28px;width:28px;"></span>';
-					iconLink.style.cssText = "text-decoration:none;color:#555;display:inline-flex;align-items:center;margin-right:2px;transform:translateY(20%);box-shadow:none;";
-					iconLink.title = '<?php echo esc_html_e( 'Back to subscriptions list.', 'subscription' ); ?>';
-					
-					heading.insertAdjacentElement('beforebegin', iconLink);
-				}
-			});
-		</script>
 		<?php
 	}
 }

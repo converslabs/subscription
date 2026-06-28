@@ -1,5 +1,11 @@
 *** WPSubscription Changelog ***
 
+2026-06-28 - version 1.10.5
+* new: Subscription details page.
+* new: Subscription Upgrade/Downgrade settings.
+* fix: PayPal webhook retry.
+* update: WP.Org plugin description.
+
 2026-06-22 - version 1.10.4
 * security: chart.js asset loading.
 

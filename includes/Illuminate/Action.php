@@ -62,6 +62,9 @@ class Action {
 			case 'pe_cancelled':
 				self::pe_cancelled( $subscription_id );
 				break;
+			case 'on-hold':
+				self::on_hold( $subscription_id );
+				break;
 		}
 	}
 
@@ -148,6 +151,26 @@ class Action {
 
 		// Fire split payment cancelled action
 		do_action( 'subscrpt_split_payment_cancelled', $subscription_id );
+	}
+
+	/**
+	 * Write Comment About On-Hold Subscription.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 */
+	private static function on_hold( int $subscription_id ) {
+		$comment_id = wp_insert_comment(
+			array(
+				'comment_author'  => 'Subscription for WooCommerce',
+				'comment_content' => 'Subscription is On Hold. Access suspended after payment failure.',
+				'comment_post_ID' => $subscription_id,
+				'comment_type'    => 'order_note',
+			)
+		);
+		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription On Hold' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_on_hold' );
+
+		do_action( 'subscrpt_subscription_on_hold', $subscription_id );
 	}
 
 	/**

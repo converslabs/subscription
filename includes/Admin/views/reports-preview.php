@@ -140,38 +140,38 @@ if ( ! function_exists( 'subscrpt_preview_format_price' ) ) {
 }
 ?>
 
-<!-- Disclaimer banner -->
-<div style="max-width:1240px;margin:20px auto 0;padding:0;">
-	<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;display:flex;align-items:flex-start;gap:10px;">
-		<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#d97706" style="flex-shrink:0;margin-top:1px;" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-		<p style="margin:0;font-size:13px;color:#92400e;line-height:1.5;">
-			<strong><?php esc_html_e( 'Preview with sample data.', 'subscription' ); ?></strong>
-			<?php esc_html_e( 'This page shows example data to illustrate the feature.', 'subscription' ); ?>
-			<a href="<?php echo esc_url( $upgrade_url ); ?>" target="_blank" rel="noreferrer noopener" style="color:#b45309;font-weight:600;text-decoration:underline;"><?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?></a>
-			<?php esc_html_e( 'to unlock real subscription analytics.', 'subscription' ); ?>
-		</p>
-	</div>
-</div>
-
-<!-- Page header -->
-<div style="max-width:1240px;margin:20px auto 0;padding:0 0 20px;">
-	<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;">
-		<div>
-			<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Subscription Reports', 'subscription' ); ?></h1>
-			<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.5;"><?php esc_html_e( 'Data-driven insights for your subscription business.', 'subscription' ); ?></p>
-		</div>
-		<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:4px;">
-			<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="height:28px;padding:0 10px;font-size:12px;cursor:not-allowed;opacity:0.6;" disabled>
-				<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" style="flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-				<?php esc_html_e( 'Refresh', 'subscription' ); ?>
-			</button>
-		</div>
-	</div>
-	<div style="border-top:1px dashed #d0d3d7;"></div>
-</div>
-
 <!-- Page content -->
-<div class="wp-subscription-admin-content list-page subscrpt-subs-list" style="margin-top:0;">
+<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
+
+	<!-- Disclaimer banner -->
+	<div style="max-width:1240px;margin:20px auto 0;padding:0;">
+		<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;display:flex;align-items:flex-start;gap:10px;">
+			<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#d97706" style="flex-shrink:0;margin-top:1px;" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+			<p style="margin:0;font-size:13px;color:#92400e;line-height:1.5;">
+				<strong><?php esc_html_e( 'Preview with sample data.', 'subscription' ); ?></strong>
+				<?php esc_html_e( 'This page shows example data to illustrate the feature.', 'subscription' ); ?>
+				<a href="<?php echo esc_url( $upgrade_url ); ?>" target="_blank" rel="noreferrer noopener" style="color:#b45309;font-weight:600;text-decoration:underline;"><?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?></a>
+				<?php esc_html_e( 'to unlock real subscription analytics.', 'subscription' ); ?>
+			</p>
+		</div>
+	</div>
+
+	<!-- Page header -->
+	<div style="max-width:1240px;margin:20px auto 0;padding:0 0 20px;">
+		<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;">
+			<div>
+				<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Subscription Reports', 'subscription' ); ?></h1>
+				<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.5;"><?php esc_html_e( 'Data-driven insights for your subscription business.', 'subscription' ); ?></p>
+			</div>
+			<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:4px;">
+				<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="height:28px;padding:0 10px;font-size:12px;cursor:not-allowed;opacity:0.6;" disabled>
+					<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" style="flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+					<?php esc_html_e( 'Refresh', 'subscription' ); ?>
+				</button>
+			</div>
+		</div>
+		<div style="border-top:1px dashed #d0d3d7;"></div>
+	</div>
 
 	<!-- KPI stat cards -->
 	<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:16px;">

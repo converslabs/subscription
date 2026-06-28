@@ -85,8 +85,22 @@ class Order {
 			$next_date = sdevs_wp_strtotime( $recurr_timing, time() );
 		}
 
-		// Allow filtering of next due date logic
-		$next_date = apply_filters( 'subscrpt_split_payment_next_due_date', $next_date, $subscription_id, $recurr_timing, $subscription_history->type );
+		/**
+		 * Filter the subscription next payment date before it is saved.
+		 *
+		 * General-purpose hook (not scoped to split payment) for adjusting the
+		 * computed next renewal date. Note `$next_date` may be null for history
+		 * types other than 'new'/'renew'/'early-renew' (e.g. switch orders).
+		 *
+		 * The deprecated `subscrpt_split_payment_next_due_date` filter is bridged
+		 * onto this hook in LegacyCompat.php for backward compatibility.
+		 *
+		 * @param int|null $next_date       Computed next payment timestamp, or null.
+		 * @param int      $subscription_id Subscription ID.
+		 * @param string   $recurr_timing   Recurring timing string (e.g. "1 month").
+		 * @param string   $type            Subscription history type.
+		 */
+		$next_date = apply_filters( 'subscrpt_subscription_next_date', $next_date, $subscription_id, $recurr_timing, $subscription_history->type );
 
 		update_post_meta( $subscription_id, '_subscrpt_next_date', $next_date );
 	}

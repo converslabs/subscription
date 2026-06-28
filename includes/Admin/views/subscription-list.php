@@ -269,7 +269,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 						// Action URLs
 						$nonce_action = 'wpsubs_action_' . $subscription->ID;
-						$view_url     = get_edit_post_link( $subscription->ID );
+						$view_url     = admin_url( 'admin.php?page=wp-subscription-details&id=' . $subscription->ID );
 						$trash_url    = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=trash&sub_id=' . $subscription->ID ), $nonce_action );
 						$delete_url   = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=delete&sub_id=' . $subscription->ID ), $nonce_action );
 						$restore_url  = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=restore&sub_id=' . $subscription->ID ), $nonce_action );
