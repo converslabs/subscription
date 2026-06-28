@@ -16,7 +16,7 @@ WPSubscription maximizes recurring revenue on WooCommerce. Set flexible subscrip
 
 [**Subscriptions for WooCommerce**](https://wordpress.org/plugins/subscription) is the most affordable, feature-rich WooCommerce subscription plugin for building predictable recurring revenue — automate billing cycles, split payments, free trials, and full subscription management with support for Stripe, PayPal, Paddle, Mollie, Razorpay, and Xendit.
 
-Effortlessly turn any WooCommerce product into a subscription with flexible billing cycles — daily, weekly, monthly, or yearly — while ensuring a seamless checkout experience for your customers. [**Upgrade to Pro**](https://wpsubscription.co/) for advanced payment gateways, installment plans, subscription health monitoring, recurring coupons, and CRM integrations.
+Effortlessly turn any WooCommerce product into a subscription with flexible billing cycles — daily, weekly, monthly, or yearly — while ensuring a seamless checkout experience for your customers. [**Upgrade to Pro**](https://wpsubscription.co/) for advanced payment gateways, installment plans, subscription health monitoring, subscription recovery campaigns, recurring coupons, and CRM integrations.
 
 Need help? [Read our full documentation and setup guide.](https://docs.converslabs.com/en) Want to connect your favorite tools? Browse all [WPSubscription integrations.](https://docs.converslabs.com/en/category/integrations)
 
@@ -31,6 +31,8 @@ Need help? [Read our full documentation and setup guide.](https://docs.conversla
 - **Multiple Payment Gateways**: Stripe, PayPal, Paddle, Mollie, Razorpay, and Xendit — all with automatic recurring billing and renewal support.
 
 - **Subscription Health Monitoring**: Detect at-risk subscribers, track Monthly Recurring Revenue (MRR), monitor churn rate, and calculate Revenue at Risk in real time.
+
+- **Subscription Recovery**: Win back cancelled subscribers automatically with targeted email campaigns, smart discount incentives, and a dedicated Recovery Report to track reactivations and recovered MRR.
 
 - **Growth-Oriented**: Free trials, sign-up fees, recurring coupons, and upgrade/downgrade options are all designed to boost conversions and build predictable revenue.
 
@@ -54,6 +56,7 @@ Explore all features and get started at [**WooCommerce Subscriptions & Recurring
 - Accept payments via Stripe, PayPal, Paddle, Mollie, Razorpay, and Xendit
 - Monitor subscription health — track MRR, churn rate, and revenue at risk
 - Apply recurring coupons that discount on first payment or on every renewal
+- Win back cancelled subscribers with automated recovery campaigns and smart discount incentives
 
 The **Subscription for WooCommerce plugin** gives both you and your customers full control over subscription management. From your dashboard, you can view all subscriptions and manage them with ease.
 
@@ -115,6 +118,8 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
 
 13. **Grace Period**: Give customers [**extra time to update their payment details**](https://docs.converslabs.com/en/wpsubscription-grace-period) before their subscription is cancelled after a failed payment. This prevents accidental cancellations and helps you retain more subscribers by offering a flexible buffer period.
 
+14. **Subscription Recovery**: [**Win back cancelled subscribers automatically**](https://docs.converslabs.com/en/wpsubscription-subscription-recovery) with targeted email campaigns and smart discount offers. Create one-time, scheduled, or recurring campaigns to reach lapsed subscribers — offer percentage discounts, fixed-amount incentives, or WooCommerce coupons redeemable only through recovery emails. Track recovered MRR, reactivations, and campaign performance from a dedicated Recovery Report dashboard, all without any manual intervention.
+
 [**Upgrade to Subscriptions for WooCommerce Pro**](https://wpsubscription.co/)
 
 ### Additional Features:
@@ -173,6 +178,7 @@ Subscriptions for WooCommerce is more than just a plugin — it's your key to un
 - Flexible billing cycles with free trials or one-time sign-up fees
 - Customer-managed dashboards for full transparency and self-service
 - Subscription health monitoring with MRR tracking and churn analytics
+- Subscription recovery campaigns to win back cancelled subscribers automatically
 - Compatibility with top tools like LearnDash, LearnPress, Tutor LMS, FluentCRM, MailPoet, and WP Fusion
 
 It's the solid, affordable choice for anyone searching for a subscription plugin for WooCommerce that's built for performance, reliability, and growth.
