@@ -2,6 +2,8 @@
 
 namespace SpringDevs\Subscription\Admin;
 
+use SpringDevs\Subscription\Illuminate\Helper;
+
 /**
  * Menu class
  *
@@ -94,6 +96,7 @@ class Menu {
 		);
 
 		// Onboarding Wizard (hidden from menu with CSS. can be accessed via direct URL: admin.php?page=wp-subscription-onboarding)
+		// CSS Record: admin.css -> `.wp-submenu a[href*="page=wp-subscription-onboarding"]`
 		add_submenu_page(
 			$parent_slug,
 			__( 'Setup Wizard', 'subscription' ),
@@ -111,6 +114,17 @@ class Menu {
 			'manage_options',
 			$parent_slug,
 			array( $this, 'render_subscriptions_page' )
+		);
+
+		// Subscription Details (hidden from menu with CSS — accessed via admin.php?page=wp-subscription-details&id=ID).
+		// CSS Record: admin.css -> `.wp-submenu a[href*="page=wp-subscription-details"]`
+		add_submenu_page(
+			$parent_slug,
+			__( 'Subscription Details', 'subscription' ),
+			__( 'Subscription Details', 'subscription' ),
+			'manage_options',
+			'wp-subscription-details',
+			array( $this, 'render_subscription_details_page' )
 		);
 
 		// Stats Overview
@@ -534,6 +548,113 @@ class Menu {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render the standalone Subscription Details page.
+	 *
+	 * Replaces the legacy metabox edit screen. Mirrors the list-page design
+	 * shell (header + wpsubs components) and handles the status-change form.
+	 *
+	 * @return void
+	 */
+	public function render_subscription_details_page() {
+		$subscription_id = isset( $_GET['id'] ) ? absint( wp_unslash( $_GET['id'] ) ) : 0;
+
+		if ( ! $subscription_id || 'subscrpt_order' !== get_post_type( $subscription_id ) ) {
+			wp_die( esc_html__( 'Invalid subscription.', 'subscription' ) );
+		}
+
+		if ( ! current_user_can( 'edit_post', $subscription_id ) ) {
+			wp_die( esc_html__( 'You do not have permission to view this subscription.', 'subscription' ) );
+		}
+
+		$list_url    = admin_url( 'admin.php?page=wp-subscription' );
+		$form_action = admin_url( 'admin.php?page=wp-subscription-details&id=' . $subscription_id );
+
+		// Handle the status-change submission.
+		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+		if ( 'POST' === $request_method && isset( $_POST['subscrpt_order_action'] ) ) {
+			$nonce = isset( $_POST['subscrpt_order_action_nonce_field'] ) ? sanitize_text_field( wp_unslash( $_POST['subscrpt_order_action_nonce_field'] ) ) : '';
+			if ( ! wp_verify_nonce( $nonce, 'subscrpt_order_action_nonce' ) ) {
+				wp_die( esc_html__( 'Security check failed.', 'subscription' ) );
+			}
+
+			$action = sanitize_text_field( wp_unslash( $_POST['subscrpt_order_action'] ) );
+			if ( '' !== $action ) {
+				Subscriptions::process_status_change( $subscription_id, $action );
+			}
+
+			wp_safe_redirect( $form_action );
+			exit;
+		}
+
+		// Allowed actions for the current status (mirrors Subscriptions::subscrpt_order_save_post()).
+		$actions_data = array(
+			'active'       => array(
+				'label' => __( 'Activate Subscription', 'subscription' ),
+				'value' => 'active',
+			),
+			'pending'      => array(
+				'label' => __( 'Pending Subscription', 'subscription' ),
+				'value' => 'pending',
+			),
+			'expire'       => array(
+				'label' => __( 'Expire Subscription', 'subscription' ),
+				'value' => 'expired',
+			),
+			'pe_cancelled' => array(
+				'label' => __( 'Pending Cancel Subscription', 'subscription' ),
+				'value' => 'pe_cancelled',
+			),
+			'cancelled'    => array(
+				'label' => __( 'Cancel Subscription', 'subscription' ),
+				'value' => 'cancelled',
+			),
+		);
+
+		$map_actions = array(
+			'pending'      => array( 'active', 'cancelled' ),
+			'active'       => array( 'pe_cancelled', 'cancelled' ),
+			'pe_cancelled' => array( 'active', 'cancelled' ),
+			'cancelled'    => array( 'active' ),
+			'expired'      => array( 'active', 'cancelled' ),
+		);
+
+		$status  = get_post_status( $subscription_id );
+		$actions = $map_actions[ $status ] ?? array();
+
+		// Gather subscription data for the view.
+		$subscription_data = Helper::get_subscription_data( $subscription_id );
+
+		$order_id      = $subscription_data['order']['order_id'] ?? get_post_meta( $subscription_id, '_subscrpt_order_id', true );
+		$order         = $order_id ? wc_get_order( $order_id ) : null;
+		$order_item_id = $subscription_data['order']['order_item_id'] ?? get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
+		$order_item    = ( $order && $order_item_id ) ? $order->get_item( $order_item_id ) : null;
+
+		$rows = Subscriptions::get_info_rows( $subscription_id );
+
+		// Related orders.
+		$order_histories = Helper::get_related_orders( $subscription_id );
+
+		$this->render_admin_header(
+			'',
+			'',
+			array(
+				array(
+					'label' => __( 'Subscriptions', 'subscription' ),
+					'url'   => $list_url,
+				),
+				array(
+					'label' => '#' . $subscription_id,
+					'url'   => '',
+				),
+			)
+		);
+
+		include __DIR__ . '/views/subscription-details.php';
+
+		$this->render_admin_footer();
 	}
 
 	/**
