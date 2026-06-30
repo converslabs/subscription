@@ -1,0 +1,39 @@
+.subscrpt-pending-cancel-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  border: 1px dashed #fca5a5;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fffafa 0%, #fef2f2 100%);
+  box-shadow: 0 1px 2px rgba(120, 0, 0, 0.06);
+  color: #3f3f46;
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+.subscrpt-pending-cancel-notice__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.subscrpt-pending-cancel-notice__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.subscrpt-pending-cancel-notice__text {
+  margin: 0;
+}
+
+.subscrpt-pending-cancel-notice__text strong {
+  color: #18181b;
+}
