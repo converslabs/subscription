@@ -5,6 +5,7 @@ namespace SpringDevs\Subscription;
 use SpringDevs\Subscription\Frontend\Checkout;
 use SpringDevs\Subscription\Illuminate\AutoRenewal;
 use SpringDevs\Subscription\Illuminate\Block;
+use SpringDevs\Subscription\Illuminate\Cancellation;
 use SpringDevs\Subscription\Illuminate\Cron;
 use SpringDevs\Subscription\Illuminate\Email;
 use SpringDevs\Subscription\Illuminate\Order;
@@ -31,6 +32,7 @@ class Illuminate {
 		new RoleManagement();
 		new Order();
 		new Cron();
+		new Cancellation();
 		new Stats();
 		new Post();
 		new Block();
@@ -75,7 +77,7 @@ class Illuminate {
 
 		// Register the PayPal gateway with WooCommerce.
 		if ( $is_paypal_integration_enabled ) {
-			add_filter( 'woocommerce_payment_gateways', array( $this, 'register_paypal_gateway' ) );
+			add_filter( 'woocommerce_payment_gateways', [ $this, 'register_paypal_gateway' ] );
 		}
 	}
 
