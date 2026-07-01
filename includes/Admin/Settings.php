@@ -159,7 +159,7 @@ class Settings {
 					'label'       => __( 'Ask customers why they are cancelling', 'subscription' ),
 					'description' => __( 'Show a short feedback form when a customer cancels a subscription, and record the reason for churn tracking.', 'subscription' ),
 					'value'       => '1',
-					'checked'     => '1' === get_option( 'subscrpt_cancellation_feedback_enabled', '' ),
+					'checked'     => '1' === get_option( 'subscrpt_cancellation_feedback_enabled', '1' ),
 				],
 			],
 		];

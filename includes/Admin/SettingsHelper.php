@@ -134,8 +134,8 @@ class SettingsHelper {
 				return self::render_multiselect_field( $args, $should_print );
 			case 'join':
 				return self::render_joined_field( $args, $should_print );
-			case 'reasons':
-				return self::render_reasons_field( $args, $should_print );
+			case 'editlist':
+				return self::render_editlist_field( $args, $should_print );
 			case 'input':
 			default:
 				return self::render_input_field( $args, $should_print );
@@ -579,35 +579,55 @@ class SettingsHelper {
 	}
 
 	/**
-	 * Render an editable reasons list (used by cancellation feedback).
+	 * Render an editable, reorderable list field (the `wpsubs-editlist` component).
 	 *
-	 * Renders the reusable `wpsubs-editlist` admin component: a reorderable list
-	 * with per-row remove/move controls and an inline input + add button. The
-	 * ordered list is serialized as JSON into a hidden input so it submits with the
-	 * settings form; behaviour is wired by `WPSubsEditList` (admin-components.js).
+	 * Generic and reusable: a sortable list of text items with per-row remove/move
+	 * controls and an inline input + add button. The ordered list is serialized as
+	 * JSON (`[{ key, label }]`) into a hidden input so it submits with the form;
+	 * behaviour is wired by `WPSubsEditList` (admin-components.js). All user-facing
+	 * strings are overridable so the field carries no feature-specific text.
+	 *
+	 * When `modal` is true the list lives inside a `wpsubs-modal` (via the
+	 * `WPSubsModal` component) and the settings row only shows a trigger button with
+	 * a live item count.
 	 *
 	 * - Args:
-	 *   - id (string)   - Field ID / option key.
+	 *   - id (string)          - Field ID / option key.
 	 *   - title (string)
 	 *   - description (string)
-	 *   - value (array) - Ordered list of { key, label } entries.
+	 *   - value (array)        - Ordered list of { key, label } entries.
+	 *   - add_placeholder (string) - Inline input placeholder.
+	 *   - add_label (string)   - Add button accessible label.
+	 *   - empty_text (string)  - Message shown when the list is empty.
+	 *   - modal (bool)         - Present the list inside a modal (default false).
+	 *   - button_label (string) - Modal trigger button text (modal mode).
+	 *   - modal_title (string) - Modal header title (modal mode; defaults to title).
 	 *   - pro_locked (bool)
 	 *
 	 * @param array $args Field arguments.
 	 * @param bool  $should_print Whether to print the field or return as HTML string.
 	 */
-	public static function render_reasons_field( $args = [], $should_print = true ) {
+	public static function render_editlist_field( $args = [], $should_print = true ) {
 		$id          = $args['id'] ?? '';
 		$title       = $args['title'] ?? '';
 		$description = $args['description'] ?? '';
-		$reasons     = is_array( $args['value'] ?? null ) ? $args['value'] : [];
+		$items       = is_array( $args['value'] ?? null ) ? $args['value'] : [];
 		$locked      = ! empty( $args['pro_locked'] );
+		$modal       = ! empty( $args['modal'] );
+
+		$add_placeholder = $args['add_placeholder'] ?? __( 'Add an item…', 'subscription' );
+		$add_label       = $args['add_label'] ?? __( 'Add item', 'subscription' );
+		$empty_text      = $args['empty_text'] ?? __( 'No items yet. Add one below.', 'subscription' );
+		$button_label    = $args['button_label'] ?? __( 'Manage list', 'subscription' );
+		$modal_title     = $args['modal_title'] ?? ( '' !== $title ? $title : __( 'Edit list', 'subscription' ) );
 
 		if ( empty( $id ) ) {
 			$field_hint = empty( $title ) ? 'Error' : $title;
 			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'subscription' ) . '</p>';
 			return $should_print ? print wp_kses_post( $no_id_msg ) : $no_id_msg;
 		}
+
+		$body = self::editlist_body_html( $items, $add_placeholder, $add_label, $empty_text, $locked );
 
 		ob_start();
 		?>
@@ -623,34 +643,30 @@ class SettingsHelper {
 			</div>
 			<div class="wpsubs-settings-field__control">
 				<div class="wpsubs-editlist<?php echo $locked ? ' wpsubs-editlist--locked' : ''; ?>">
-					<input type="hidden" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( wp_json_encode( array_values( $reasons ) ) ); ?>" />
-					<ul class="wpsubs-editlist__items">
-						<?php foreach ( $reasons as $reason ) : ?>
-							<?php
-							$reason_key   = isset( $reason['key'] ) ? (string) $reason['key'] : '';
-							$reason_label = isset( $reason['label'] ) ? (string) $reason['label'] : '';
-							if ( '' === $reason_label ) {
-								continue;
-							}
-							?>
-							<li class="wpsubs-editlist__item" data-key="<?php echo esc_attr( $reason_key ); ?>">
-								<span class="wpsubs-editlist__handle" aria-hidden="true">&#8942;&#8942;</span>
-								<span class="wpsubs-editlist__label"><?php echo esc_html( $reason_label ); ?></span>
-								<span class="wpsubs-editlist__actions">
-									<button type="button" class="wpsubs-editlist__btn" data-editlist-up aria-label="<?php esc_attr_e( 'Move up', 'subscription' ); ?>"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg></button>
-									<button type="button" class="wpsubs-editlist__btn" data-editlist-down aria-label="<?php esc_attr_e( 'Move down', 'subscription' ); ?>"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-									<button type="button" class="wpsubs-editlist__btn wpsubs-editlist__btn--danger" data-editlist-remove aria-label="<?php esc_attr_e( 'Remove', 'subscription' ); ?>"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
-								</span>
-							</li>
-						<?php endforeach; ?>
-					</ul>
-					<p class="wpsubs-editlist__empty"<?php echo empty( $reasons ) ? '' : ' hidden'; ?>><?php esc_html_e( 'No reasons yet. Add one below.', 'subscription' ); ?></p>
-					<div class="wpsubs-editlist__add">
-						<input type="text" class="wpsubs-input wpsubs-editlist__input" placeholder="<?php esc_attr_e( 'Add a reason…', 'subscription' ); ?>"<?php echo $locked ? ' disabled' : ''; ?> />
-						<button type="button" class="wpsubs-editlist__add-btn" data-editlist-add aria-label="<?php esc_attr_e( 'Add reason', 'subscription' ); ?>"<?php echo $locked ? ' disabled' : ''; ?>>
-							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+					<input type="hidden" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( wp_json_encode( array_values( $items ) ) ); ?>" />
+					<?php if ( $modal ) : ?>
+						<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-editlist__trigger" data-wpsubs-modal-open="<?php echo esc_attr( $id . '_modal' ); ?>"<?php echo $locked ? ' disabled' : ''; ?>>
+							<?php echo esc_html( $button_label ); ?>
+							<span class="wpsubs-editlist__count"><?php echo esc_html( (string) count( $items ) ); ?></span>
 						</button>
-					</div>
+						<?php
+						wpsubs_render_modal(
+							[
+								'id'     => $id . '_modal',
+								'title'  => $modal_title,
+								'body'   => $body,
+								'class'  => 'wpsubs-modal--editlist',
+								'footer' => '<button type="button" class="wpsubs-btn wpsubs-btn--primary" data-wpsubs-modal-close>' . esc_html__( 'Done', 'subscription' ) . '</button>',
+							]
+						);
+						?>
+					<?php else : ?>
+						<?php
+						// Body markup is pre-escaped during generation.
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo $body;
+						?>
+					<?php endif; ?>
 				</div>
 				<?php if ( ! empty( $description ) ) : ?>
 					<p class="wpsubs-settings-field__hint"><?php echo wp_kses_post( $description ); ?></p>
@@ -664,5 +680,51 @@ class SettingsHelper {
 		// All form elements inside $html_content are pre-escaped during generation (esc_attr, esc_html).
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $should_print ? print( $html_content ) : $html_content;
+	}
+
+	/**
+	 * Build the inner markup of an edit list (items + empty message + add row).
+	 *
+	 * Shared by inline and modal presentations of {@see self::render_editlist_field}.
+	 *
+	 * @param array  $items           Ordered list of { key, label } entries.
+	 * @param string $add_placeholder Inline input placeholder.
+	 * @param string $add_label       Add button accessible label.
+	 * @param string $empty_text      Message shown when the list is empty.
+	 * @param bool   $locked          Whether the controls are disabled.
+	 * @return string Pre-escaped HTML.
+	 */
+	private static function editlist_body_html( array $items, $add_placeholder, $add_label, $empty_text, $locked ) {
+		ob_start();
+		?>
+		<ul class="wpsubs-editlist__items">
+			<?php foreach ( $items as $item ) : ?>
+				<?php
+				$item_key   = isset( $item['key'] ) ? (string) $item['key'] : '';
+				$item_label = isset( $item['label'] ) ? (string) $item['label'] : '';
+				if ( '' === $item_label ) {
+					continue;
+				}
+				?>
+				<li class="wpsubs-editlist__item" data-key="<?php echo esc_attr( $item_key ); ?>">
+					<span class="wpsubs-editlist__handle" aria-hidden="true">&#8942;&#8942;</span>
+					<span class="wpsubs-editlist__label"><?php echo esc_html( $item_label ); ?></span>
+					<span class="wpsubs-editlist__actions">
+						<button type="button" class="wpsubs-editlist__btn" data-editlist-up aria-label="<?php esc_attr_e( 'Move up', 'subscription' ); ?>"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg></button>
+						<button type="button" class="wpsubs-editlist__btn" data-editlist-down aria-label="<?php esc_attr_e( 'Move down', 'subscription' ); ?>"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+						<button type="button" class="wpsubs-editlist__btn wpsubs-editlist__btn--danger" data-editlist-remove aria-label="<?php esc_attr_e( 'Remove', 'subscription' ); ?>"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+					</span>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<p class="wpsubs-editlist__empty"<?php echo empty( $items ) ? '' : ' hidden'; ?>><?php echo esc_html( $empty_text ); ?></p>
+		<div class="wpsubs-editlist__add">
+			<input type="text" class="wpsubs-input wpsubs-editlist__input" placeholder="<?php echo esc_attr( $add_placeholder ); ?>"<?php echo $locked ? ' disabled' : ''; ?> />
+			<button type="button" class="wpsubs-editlist__add-btn" data-editlist-add aria-label="<?php echo esc_attr( $add_label ); ?>"<?php echo $locked ? ' disabled' : ''; ?>>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+			</button>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 }

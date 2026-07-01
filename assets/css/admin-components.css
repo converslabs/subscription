@@ -1615,6 +1615,27 @@ a.wpsubs-cell-title:hover {
   max-width: 520px;
 }
 
+.wpsubs-editlist__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wpsubs-editlist__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--wpsubs-surface-muted, #f2f3f5);
+  color: var(--wpsubs-text-muted, #6b7075);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
 .wpsubs-editlist__items {
   margin: 0 0 12px;
   padding: 0;
@@ -1733,10 +1754,13 @@ a.wpsubs-cell-title:hover {
   display: flex;
   align-items: stretch;
   gap: 8px;
+  width: 100%;
 }
 
 .wpsubs-editlist__input {
   flex: 1 1 auto;
+  max-width: unset !important;
+  width: auto;
 }
 
 .wpsubs-editlist__add-btn {
@@ -1763,4 +1787,10 @@ a.wpsubs-cell-title:hover {
 .wpsubs-editlist--locked {
   opacity: 0.55;
   pointer-events: none;
+}
+
+/* Compact dialog for an edit list shown in a modal — keeps the rows and the add
+   input a comfortable, matching width. */
+.wpsubs-modal--editlist .wpsubs-modal__dialog {
+  width: min(520px, calc(100vw - 40px));
 }
