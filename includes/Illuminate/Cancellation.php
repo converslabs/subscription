@@ -44,6 +44,94 @@ class Cancellation {
 		add_action( 'before_single_subscrpt_content', [ $this, 'display_pending_cancellation_notice' ] );
 		add_action( 'before_single_subscrpt_content', [ $this, 'maybe_render_feedback_modal' ] );
 		add_action( 'wp_ajax_subscrpt_record_cancellation_feedback', [ $this, 'record_feedback' ] );
+		add_action( 'subscrpt_details_side_bottom', [ $this, 'render_admin_feedback_card' ] );
+	}
+
+	/**
+	 * Fetch the most recent cancellation-feedback row for a subscription.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return array|null Associative row, or null when none exists.
+	 */
+	public static function get_feedback( $subscription_id ) {
+		global $wpdb;
+
+		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				"SELECT reason_label, comment, created_at FROM {$wpdb->prefix}subscrpt_cancellation_feedback WHERE subscription_id = %d ORDER BY id DESC LIMIT 1",
+				(int) $subscription_id
+			),
+			ARRAY_A
+		);
+
+		return $row ? $row : null;
+	}
+
+	/**
+	 * Show the customer's cancellation reason on the admin subscription details page
+	 * (bottom of the right-hand column).
+	 *
+	 * Renders only for cancelled / pending-cancellation subscriptions that have a
+	 * recorded feedback row.
+	 *
+	 * @param array $ctx Subscription details context.
+	 * @return void
+	 */
+	public function render_admin_feedback_card( $ctx ) {
+		$subscription_id = (int) ( $ctx['subscription_id'] ?? 0 );
+		$status          = $ctx['status'] ?? '';
+
+		if ( ! in_array( $status, [ 'cancelled', 'pe_cancelled' ], true ) ) {
+			return;
+		}
+
+		$feedback = self::get_feedback( $subscription_id );
+		if ( ! $feedback ) {
+			return;
+		}
+
+		$reason  = (string) ( $feedback['reason_label'] ?? '' );
+		$comment = (string) ( $feedback['comment'] ?? '' );
+		$when    = '';
+		if ( ! empty( $feedback['created_at'] ) ) {
+			$when = date_i18n(
+				get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+				strtotime( get_date_from_gmt( $feedback['created_at'] ) )
+			);
+		}
+		?>
+		<div class="subscrpt-card">
+			<div class="subscrpt-card__head"><?php esc_html_e( 'Cancellation Reason', 'subscription' ); ?></div>
+			<div class="subscrpt-card__body">
+				<div style="display:flex;gap:10px;align-items:flex-start;">
+					<span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:var(--wpsubs-brand-light);color:var(--wpsubs-brand);">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+					</span>
+					<div style="flex:1 1 auto;min-width:0;">
+						<p style="margin:0;font-weight:600;color:var(--wpsubs-text);word-break:break-word;">
+							<?php echo '' !== $reason ? esc_html( $reason ) : esc_html__( 'No reason selected', 'subscription' ); ?>
+						</p>
+						<?php if ( '' !== $when ) : ?>
+							<p style="margin:2px 0 0;font-size:12px;color:var(--wpsubs-text-subtle);">
+								<?php
+								printf(
+									/* translators: %s: date and time the feedback was submitted. */
+									esc_html__( 'Submitted %s', 'subscription' ),
+									esc_html( $when )
+								);
+								?>
+							</p>
+						<?php endif; ?>
+					</div>
+				</div>
+				<?php if ( '' !== $comment ) : ?>
+					<blockquote style="margin:12px 0 0;padding:8px 12px;border-left:3px solid var(--wpsubs-border-strong);background:var(--wpsubs-surface-muted);border-radius:6px;color:var(--wpsubs-text-muted);font-size:13px;line-height:1.5;word-break:break-word;">
+						<?php echo wp_kses( nl2br( esc_html( $comment ) ), [ 'br' => [] ] ); ?>
+					</blockquote>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
@@ -173,7 +261,8 @@ class Cancellation {
 		}
 
 		global $wpdb;
-		$data = [
+		$table = $wpdb->prefix . 'subscrpt_cancellation_feedback';
+		$data  = [
 			'subscription_id' => $subscription_id,
 			'customer_id'     => $author_id,
 			'reason_key'      => $reason_key,
@@ -182,13 +271,41 @@ class Cancellation {
 			'created_at'      => current_time( 'mysql', true ),
 		];
 
-		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->prefix . 'subscrpt_cancellation_feedback',
-			$data,
-			[ '%d', '%d', '%s', '%s', '%s', '%s' ]
+		// One row per subscription: overwrite any previous feedback (e.g. after a
+		// reactivate → cancel-again cycle) rather than accumulating a log, so the
+		// row always reflects the latest cancellation reason.
+		$existing_id = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				"SELECT id FROM {$wpdb->prefix}subscrpt_cancellation_feedback WHERE subscription_id = %d ORDER BY id DESC LIMIT 1",
+				$subscription_id
+			)
 		);
 
-		$data['id'] = (int) $wpdb->insert_id;
+		if ( $existing_id ) {
+			// Clear any stray duplicates from earlier writes, keep the one we update.
+			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->prefix}subscrpt_cancellation_feedback WHERE subscription_id = %d AND id <> %d",
+					$subscription_id,
+					$existing_id
+				)
+			);
+			$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$table,
+				$data,
+				[ 'id' => $existing_id ],
+				[ '%d', '%d', '%s', '%s', '%s', '%s' ],
+				[ '%d' ]
+			);
+			$data['id'] = $existing_id;
+		} else {
+			$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$table,
+				$data,
+				[ '%d', '%d', '%s', '%s', '%s', '%s' ]
+			);
+			$data['id'] = (int) $wpdb->insert_id;
+		}
 
 		/**
 		 * Fires after a cancellation-feedback row is stored.

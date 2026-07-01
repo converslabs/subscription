@@ -125,10 +125,12 @@ class Installer {
 	/**
 	 * Create the cancellation feedback table.
 	 *
-	 * One row per cancellation-feedback submission, keyed by subscription. Stores
-	 * the customer's stated reason (key + a label snapshot that survives later
-	 * reason edits/deletes) and optional comment. Consumed for churn tracking —
-	 * the recovery plugin joins its recovery log to this table on subscription_id.
+	 * One row per subscription — the latest cancellation feedback (a re-cancel after
+	 * reactivation overwrites the previous row rather than accumulating a log, so
+	 * churn-by-reason reports never double-count a subscription). Stores the
+	 * customer's stated reason (key + a label snapshot that survives later reason
+	 * edits/deletes) and optional comment. Consumed for churn tracking — the recovery
+	 * plugin joins its recovery log to this table on subscription_id.
 	 *
 	 * @return void
 	 */
