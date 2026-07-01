@@ -121,6 +121,17 @@ class ProSettingsFields {
 					'selected'    => esc_attr( \SpringDevs\Subscription\Illuminate\Cancellation::get_settings( 'subscrpt_cancellation_delay' ) ),
 				],
 			],
+			[
+				'type'       => 'reasons',
+				'group'      => 'main',
+				'priority'   => 9.6,
+				'field_data' => [
+					'id'          => 'subscrpt_cancellation_reasons',
+					'title'       => __( 'Cancellation Reasons', 'subscription' ),
+					'description' => __( 'Reasons offered in the cancellation feedback form. Shown when Cancellation Feedback is enabled.', 'subscription' ),
+					'value'       => \SpringDevs\Subscription\Illuminate\Cancellation::get_reasons(),
+				],
+			],
 		];
 	}
 

@@ -42,6 +42,154 @@ class Cancellation {
 		add_action( 'subscrpt_hourly_cron', [ $this, 'process_due_cancellations' ] );
 		add_action( 'subscrpt_subscription_resumed', [ $this, 'clear_scheduled_cancellation' ] );
 		add_action( 'before_single_subscrpt_content', [ $this, 'display_pending_cancellation_notice' ] );
+		add_action( 'before_single_subscrpt_content', [ $this, 'maybe_render_feedback_modal' ] );
+		add_action( 'wp_ajax_subscrpt_record_cancellation_feedback', [ $this, 'record_feedback' ] );
+	}
+
+	/**
+	 * Render the cancellation-feedback modal on the single-subscription page.
+	 *
+	 * Only renders when the feature is enabled and the subscription is in a state
+	 * that shows a Cancel button (pending/active/on_hold with user cancellation
+	 * allowed). The markup is hidden by default; the frontend script intercepts the
+	 * Cancel link click, opens it, and on confirm records feedback before following
+	 * the original secure cancel URL.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return void
+	 */
+	public function maybe_render_feedback_modal( $subscription_id ) {
+		if ( ! self::is_feedback_enabled() ) {
+			return;
+		}
+
+		$subscription_id = (int) $subscription_id;
+		$status          = get_post_status( $subscription_id );
+
+		if ( ! in_array( $status, [ 'pending', 'active', 'on_hold' ], true ) ) {
+			return;
+		}
+
+		if ( 'no' === get_post_meta( $subscription_id, '_subscrpt_user_cancel', true ) ) {
+			return;
+		}
+
+		$reasons = self::get_reasons();
+		if ( empty( $reasons ) ) {
+			return;
+		}
+
+		wp_enqueue_style( 'subscrpt_cancellation_css', SUBSCRPT_ASSETS . '/css/cancellation.css', [], SUBSCRPT_VERSION );
+		wp_enqueue_script( 'subscrpt_cancellation_feedback', SUBSCRPT_ASSETS . '/js/frontend/cancellation-feedback.js', [], SUBSCRPT_VERSION, true );
+		wp_localize_script(
+			'subscrpt_cancellation_feedback',
+			'subscrptCancellationFeedback',
+			[
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'subscrpt_cancellation_feedback' ),
+			]
+		);
+		?>
+		<div class="subscrpt-feedback-modal" id="subscrpt-feedback-modal" data-subscription="<?php echo esc_attr( $subscription_id ); ?>" hidden>
+			<div class="subscrpt-feedback-modal__overlay" data-subscrpt-feedback-dismiss></div>
+			<div class="subscrpt-feedback-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="subscrpt-feedback-title">
+				<h3 class="subscrpt-feedback-modal__title" id="subscrpt-feedback-title"><?php esc_html_e( 'Before you go', 'subscription' ); ?></h3>
+				<p class="subscrpt-feedback-modal__intro"><?php esc_html_e( 'Please let us know why you are cancelling. Your feedback helps us improve.', 'subscription' ); ?></p>
+				<ul class="subscrpt-feedback-modal__reasons">
+					<?php foreach ( $reasons as $index => $reason ) : ?>
+						<?php
+						$reason_key   = isset( $reason['key'] ) ? (string) $reason['key'] : '';
+						$reason_label = isset( $reason['label'] ) ? (string) $reason['label'] : '';
+						if ( '' === $reason_key || '' === $reason_label ) {
+							continue;
+						}
+						$input_id = 'subscrpt-feedback-reason-' . $index;
+						?>
+						<li>
+							<label for="<?php echo esc_attr( $input_id ); ?>">
+								<input type="radio" id="<?php echo esc_attr( $input_id ); ?>" name="subscrpt_feedback_reason" value="<?php echo esc_attr( $reason_key ); ?>" data-label="<?php echo esc_attr( $reason_label ); ?>" />
+								<span><?php echo esc_html( $reason_label ); ?></span>
+							</label>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+				<textarea class="subscrpt-feedback-modal__comment" id="subscrpt-feedback-comment" rows="3" placeholder="<?php esc_attr_e( 'Additional comments (optional)', 'subscription' ); ?>"></textarea>
+				<div class="subscrpt-feedback-modal__actions">
+					<button type="button" class="button subscrpt-feedback-modal__keep" data-subscrpt-feedback-dismiss><?php esc_html_e( 'Keep subscription', 'subscription' ); ?></button>
+					<button type="button" class="button subscrpt-feedback-modal__confirm" id="subscrpt-feedback-confirm"><?php esc_html_e( 'Confirm cancellation', 'subscription' ); ?></button>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * AJAX: record a cancellation-feedback submission.
+	 *
+	 * Best-effort — the frontend proceeds with cancellation regardless of the
+	 * outcome. Verifies the nonce and that the current user owns the subscription
+	 * (or is an admin), snapshots the reason label so historic rows survive later
+	 * reason edits, stores the row, and fires `subscrpt_cancellation_feedback_recorded`.
+	 *
+	 * @return void
+	 */
+	public function record_feedback() {
+		check_ajax_referer( 'subscrpt_cancellation_feedback', 'nonce' );
+
+		$subscription_id = isset( $_POST['subscription_id'] ) ? absint( wp_unslash( $_POST['subscription_id'] ) ) : 0;
+		if ( $subscription_id <= 0 ) {
+			wp_send_json_error( [ 'message' => 'invalid_subscription' ] );
+		}
+
+		$subs_post = get_post( $subscription_id );
+		if ( ! $subs_post || 'subscrpt_order' !== $subs_post->post_type ) {
+			wp_send_json_error( [ 'message' => 'invalid_subscription' ] );
+		}
+
+		$author_id = (int) $subs_post->post_author;
+		if ( ! current_user_can( 'manage_options' ) && $author_id !== get_current_user_id() ) {
+			wp_send_json_error( [ 'message' => 'forbidden' ] );
+		}
+
+		$reason_key = isset( $_POST['reason_key'] ) ? sanitize_key( wp_unslash( $_POST['reason_key'] ) ) : '';
+		$comment    = isset( $_POST['comment'] ) ? sanitize_textarea_field( wp_unslash( $_POST['comment'] ) ) : '';
+
+		// Snapshot the label from the current reason set so it survives later edits.
+		$reason_label = '';
+		foreach ( self::get_reasons() as $reason ) {
+			if ( isset( $reason['key'] ) && (string) $reason['key'] === $reason_key ) {
+				$reason_label = isset( $reason['label'] ) ? (string) $reason['label'] : '';
+				break;
+			}
+		}
+
+		global $wpdb;
+		$data = [
+			'subscription_id' => $subscription_id,
+			'customer_id'     => $author_id,
+			'reason_key'      => $reason_key,
+			'reason_label'    => $reason_label,
+			'comment'         => $comment,
+			'created_at'      => current_time( 'mysql', true ),
+		];
+
+		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prefix . 'subscrpt_cancellation_feedback',
+			$data,
+			[ '%d', '%d', '%s', '%s', '%s', '%s' ]
+		);
+
+		$data['id'] = (int) $wpdb->insert_id;
+
+		/**
+		 * Fires after a cancellation-feedback row is stored.
+		 *
+		 * @param int   $subscription_id Subscription ID.
+		 * @param array $data            Stored feedback row.
+		 */
+		do_action( 'subscrpt_cancellation_feedback_recorded', $subscription_id, $data );
+
+		wp_send_json_success( [ 'id' => $data['id'] ] );
 	}
 
 	/**
@@ -51,9 +199,85 @@ class Cancellation {
 	 */
 	public static function get_settings( $id = '' ) {
 		$settings = [
-			'subscrpt_cancellation_delay' => subscrpt_pro_activated() ? get_option( 'subscrpt_cancellation_delay', '24h' ) : '24h',
+			'subscrpt_cancellation_delay'            => subscrpt_pro_activated() ? get_option( 'subscrpt_cancellation_delay', '24h' ) : '24h',
+			'subscrpt_cancellation_feedback_enabled' => get_option( 'subscrpt_cancellation_feedback_enabled', '1' ),
 		];
 		return ! empty( $id ) ? $settings[ $id ] ?? false : $settings;
+	}
+
+	/**
+	 * Whether the cancellation-feedback prompt is enabled.
+	 *
+	 * A free feature — works with or without Pro.
+	 *
+	 * @return bool
+	 */
+	public static function is_feedback_enabled() {
+		return '1' === self::get_settings( 'subscrpt_cancellation_feedback_enabled' );
+	}
+
+	/**
+	 * Built-in default cancellation reasons.
+	 *
+	 * Used when no Pro-managed reason list is set. Filterable so Pro and
+	 * integrations can adjust the defaults.
+	 *
+	 * @return array<int,array{key:string,label:string}>
+	 */
+	public static function default_reasons() {
+		$reasons = [
+			[
+				'key'   => 'too_expensive',
+				'label' => __( 'Too expensive', 'subscription' ),
+			],
+			[
+				'key'   => 'missing_features',
+				'label' => __( 'Missing features I need', 'subscription' ),
+			],
+			[
+				'key'   => 'found_alternative',
+				'label' => __( 'Found a better alternative', 'subscription' ),
+			],
+			[
+				'key'   => 'no_longer_needed',
+				'label' => __( 'No longer needed', 'subscription' ),
+			],
+			[
+				'key'   => 'technical_issues',
+				'label' => __( 'Technical issues', 'subscription' ),
+			],
+			[
+				'key'   => 'other',
+				'label' => __( 'Other', 'subscription' ),
+			],
+		];
+
+		/**
+		 * Filter the built-in default cancellation reasons.
+		 *
+		 * @param array $reasons List of { key, label } reason entries.
+		 */
+		return apply_filters( 'subscrpt_cancellation_default_reasons', $reasons );
+	}
+
+	/**
+	 * Resolve the active cancellation reason list.
+	 *
+	 * Uses the Pro-managed `subscrpt_cancellation_reasons` option when Pro is
+	 * active and the option is non-empty; otherwise falls back to the built-in
+	 * defaults so the feature works without Pro.
+	 *
+	 * @return array<int,array{key:string,label:string}>
+	 */
+	public static function get_reasons() {
+		if ( subscrpt_pro_activated() ) {
+			$reasons = get_option( 'subscrpt_cancellation_reasons', [] );
+			if ( ! empty( $reasons ) && is_array( $reasons ) ) {
+				return $reasons;
+			}
+		}
+
+		return self::default_reasons();
 	}
 
 	/**
