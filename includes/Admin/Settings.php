@@ -149,6 +149,32 @@ class Settings {
 					'selected'    => esc_attr( get_option( 'wp_subscription_unactive_role', 'customer' ) ),
 				],
 			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'main',
+				'priority'   => 9.5,
+				'field_data' => [
+					'id'          => 'subscrpt_cancellation_feedback_enabled',
+					'title'       => __( 'Cancellation Feedback', 'subscription' ),
+					'label'       => __( 'Ask customers why they are cancelling', 'subscription' ),
+					'description' => __( 'Show a short feedback form when a customer cancels a subscription, and record the reason for churn tracking.', 'subscription' ),
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'subscrpt_cancellation_feedback_enabled', '1' ),
+				],
+			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'main',
+				'priority'   => 9.6,
+				'field_data' => [
+					'id'          => 'subscrpt_cancellation_feedback_comment',
+					'title'       => __( 'Feedback Comment Box', 'subscription' ),
+					'label'       => __( 'Allow an additional comment', 'subscription' ),
+					'description' => __( 'Show an optional free-text comment field in the cancellation feedback form.', 'subscription' ),
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'subscrpt_cancellation_feedback_comment', '1' ),
+				],
+			],
 		];
 
 		// Allow other modules to add/modify settings fields.
@@ -208,6 +234,22 @@ class Settings {
 		register_setting(
 			'wp_subscription_settings',
 			'wp_subscription_auto_renewal_toggle',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+		register_setting(
+			'wp_subscription_settings',
+			'subscrpt_cancellation_feedback_enabled',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+		register_setting(
+			'wp_subscription_settings',
+			'subscrpt_cancellation_feedback_comment',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',

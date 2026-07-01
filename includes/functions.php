@@ -1090,3 +1090,55 @@ function wpsubs_render_tag_select( array $args ): void {
 	</div>
 	<?php
 }
+
+/**
+ * Render a modal dialog (admin-components `wpsubs-modal`).
+ *
+ * Behaviour is handled by WPSubsModal (admin-components.js): open it from any
+ * control with `data-wpsubs-modal-open="<id>"`; the backdrop, header close, and
+ * footer buttons close it; Escape closes it. The dialog is hidden until opened.
+ *
+ * @param array $args Modal arguments: `id` (required, matches the opener's target),
+ *                    `title` (header title), `body` (pre-escaped body HTML), `footer`
+ *                    (pre-escaped footer HTML, optional), `class` (extra root class,
+ *                    optional).
+ * @return void
+ */
+function wpsubs_render_modal( array $args ): void {
+	$id = $args['id'] ?? '';
+	if ( empty( $id ) ) {
+		return;
+	}
+
+	$title       = $args['title'] ?? '';
+	$body        = $args['body'] ?? '';
+	$footer      = $args['footer'] ?? '';
+	$extra_class = $args['class'] ?? '';
+	?>
+	<div class="wpsubs-modal <?php echo esc_attr( $extra_class ); ?>" id="<?php echo esc_attr( $id ); ?>" hidden>
+		<div class="wpsubs-modal__backdrop" data-wpsubs-modal-close></div>
+		<div class="wpsubs-modal__dialog" role="dialog" aria-modal="true"<?php echo $title ? ' aria-label="' . esc_attr( $title ) . '"' : ''; ?>>
+			<div class="wpsubs-modal__head">
+				<span class="wpsubs-modal__title"><?php echo esc_html( $title ); ?></span>
+				<button type="button" class="wpsubs-modal__close" data-wpsubs-modal-close aria-label="<?php esc_attr_e( 'Close', 'subscription' ); ?>">&times;</button>
+			</div>
+			<div class="wpsubs-modal__body">
+				<?php
+				// Body is pre-escaped by the caller; re-escaping would break markup.
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $body;
+				?>
+			</div>
+			<?php if ( '' !== $footer ) : ?>
+				<div class="wpsubs-modal__footer">
+					<?php
+					// Footer is pre-escaped by the caller.
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo $footer;
+					?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</div>
+	<?php
+}
