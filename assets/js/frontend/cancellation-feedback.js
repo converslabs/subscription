@@ -31,6 +31,9 @@
     function openModal(e) {
       e.preventDefault();
       modal.hidden = false;
+      document.body.style.overflow = "hidden";
+      var firstRadio = modal.querySelector('input[name="subscrpt_feedback_reason"]');
+      if (firstRadio) firstRadio.focus();
     }
 
     /**
@@ -38,6 +41,7 @@
      */
     function closeModal() {
       modal.hidden = true;
+      document.body.style.overflow = "";
     }
 
     /**
@@ -53,6 +57,13 @@
     for (var i = 0; i < dismissEls.length; i++) {
       dismissEls[i].addEventListener("click", closeModal);
     }
+
+    // Close on Escape, but only while this modal is open.
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !modal.hidden) {
+        closeModal();
+      }
+    });
 
     if (confirmBtn) {
       confirmBtn.addEventListener("click", function () {

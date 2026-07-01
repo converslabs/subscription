@@ -92,31 +92,40 @@ class Cancellation {
 		?>
 		<div class="subscrpt-feedback-modal" id="subscrpt-feedback-modal" data-subscription="<?php echo esc_attr( $subscription_id ); ?>" hidden>
 			<div class="subscrpt-feedback-modal__overlay" data-subscrpt-feedback-dismiss></div>
-			<div class="subscrpt-feedback-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="subscrpt-feedback-title">
-				<h3 class="subscrpt-feedback-modal__title" id="subscrpt-feedback-title"><?php esc_html_e( 'Before you go', 'subscription' ); ?></h3>
-				<p class="subscrpt-feedback-modal__intro"><?php esc_html_e( 'Please let us know why you are cancelling. Your feedback helps us improve.', 'subscription' ); ?></p>
-				<ul class="subscrpt-feedback-modal__reasons">
-					<?php foreach ( $reasons as $index => $reason ) : ?>
-						<?php
-						$reason_key   = isset( $reason['key'] ) ? (string) $reason['key'] : '';
-						$reason_label = isset( $reason['label'] ) ? (string) $reason['label'] : '';
-						if ( '' === $reason_key || '' === $reason_label ) {
-							continue;
-						}
-						$input_id = 'subscrpt-feedback-reason-' . $index;
-						?>
-						<li>
-							<label for="<?php echo esc_attr( $input_id ); ?>">
-								<input type="radio" id="<?php echo esc_attr( $input_id ); ?>" name="subscrpt_feedback_reason" value="<?php echo esc_attr( $reason_key ); ?>" data-label="<?php echo esc_attr( $reason_label ); ?>" />
-								<span><?php echo esc_html( $reason_label ); ?></span>
-							</label>
-						</li>
-					<?php endforeach; ?>
-				</ul>
-				<textarea class="subscrpt-feedback-modal__comment" id="subscrpt-feedback-comment" rows="3" placeholder="<?php esc_attr_e( 'Additional comments (optional)', 'subscription' ); ?>"></textarea>
-				<div class="subscrpt-feedback-modal__actions">
-					<button type="button" class="button subscrpt-feedback-modal__keep" data-subscrpt-feedback-dismiss><?php esc_html_e( 'Keep subscription', 'subscription' ); ?></button>
-					<button type="button" class="button subscrpt-feedback-modal__confirm" id="subscrpt-feedback-confirm"><?php esc_html_e( 'Confirm cancellation', 'subscription' ); ?></button>
+			<div class="subscrpt-feedback-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="subscrpt-feedback-title" aria-describedby="subscrpt-feedback-intro">
+				<div class="subscrpt-feedback-modal__header">
+					<h3 class="subscrpt-feedback-modal__title" id="subscrpt-feedback-title"><?php esc_html_e( 'Before you go', 'subscription' ); ?></h3>
+					<button type="button" class="subscrpt-feedback-modal__close" data-subscrpt-feedback-dismiss aria-label="<?php esc_attr_e( 'Close', 'subscription' ); ?>">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+					</button>
+				</div>
+				<div class="subscrpt-feedback-modal__body">
+					<p class="subscrpt-feedback-modal__intro" id="subscrpt-feedback-intro"><?php esc_html_e( 'Please let us know why you are cancelling. Your feedback helps us improve.', 'subscription' ); ?></p>
+					<ul class="subscrpt-feedback-modal__reasons">
+						<?php foreach ( $reasons as $index => $reason ) : ?>
+							<?php
+							$reason_key   = isset( $reason['key'] ) ? (string) $reason['key'] : '';
+							$reason_label = isset( $reason['label'] ) ? (string) $reason['label'] : '';
+							if ( '' === $reason_key || '' === $reason_label ) {
+								continue;
+							}
+							$input_id = 'subscrpt-feedback-reason-' . $index;
+							?>
+							<li class="subscrpt-feedback-modal__reason">
+								<label class="subscrpt-feedback-modal__reason-label" for="<?php echo esc_attr( $input_id ); ?>">
+									<input type="radio" class="subscrpt-feedback-modal__radio" id="<?php echo esc_attr( $input_id ); ?>" name="subscrpt_feedback_reason" value="<?php echo esc_attr( $reason_key ); ?>" data-label="<?php echo esc_attr( $reason_label ); ?>" />
+									<span class="subscrpt-feedback-modal__reason-text"><?php echo esc_html( $reason_label ); ?></span>
+								</label>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+					<?php if ( self::is_feedback_comment_enabled() ) : ?>
+						<textarea class="subscrpt-feedback-modal__comment" id="subscrpt-feedback-comment" rows="3" placeholder="<?php esc_attr_e( 'Additional comments (optional)', 'subscription' ); ?>"></textarea>
+					<?php endif; ?>
+				</div>
+				<div class="subscrpt-feedback-modal__footer">
+					<button type="button" class="subscrpt-feedback-modal__btn subscrpt-feedback-modal__keep" data-subscrpt-feedback-dismiss><?php esc_html_e( 'Keep subscription', 'subscription' ); ?></button>
+					<button type="button" class="subscrpt-feedback-modal__btn subscrpt-feedback-modal__confirm" id="subscrpt-feedback-confirm"><?php esc_html_e( 'Confirm cancellation', 'subscription' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -201,6 +210,7 @@ class Cancellation {
 		$settings = [
 			'subscrpt_cancellation_delay'            => subscrpt_pro_activated() ? get_option( 'subscrpt_cancellation_delay', '24h' ) : '24h',
 			'subscrpt_cancellation_feedback_enabled' => get_option( 'subscrpt_cancellation_feedback_enabled', '1' ),
+			'subscrpt_cancellation_feedback_comment' => get_option( 'subscrpt_cancellation_feedback_comment', '1' ),
 		];
 		return ! empty( $id ) ? $settings[ $id ] ?? false : $settings;
 	}
@@ -214,6 +224,15 @@ class Cancellation {
 	 */
 	public static function is_feedback_enabled() {
 		return '1' === self::get_settings( 'subscrpt_cancellation_feedback_enabled' );
+	}
+
+	/**
+	 * Whether the optional comment box is shown in the feedback form. Defaults to on.
+	 *
+	 * @return bool
+	 */
+	public static function is_feedback_comment_enabled() {
+		return '1' === self::get_settings( 'subscrpt_cancellation_feedback_comment' );
 	}
 
 	/**
