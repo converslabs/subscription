@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Subscription & Recurring Payment for WooCommerce
+ * Plugin Name: Subscriptions for WooCommerce with Stripe Recurring Payments
  * Plugin URI: https://wpsubscription.co/
- * Description: WPSubscription allow WooCommerce to enables recurring payments, subscriptions, and auto-renewals for digital and physical products. Supports Stripe, PayPal, Paddle, and more.
+ * Description: WPSubscription allows WooCommerce to enable recurring payments, subscriptions, and auto-renewals for digital and physical products. Supports Stripe, PayPal, Paddle, and more.
  *
  * Version: #WPSUBS_VERSION
  *
