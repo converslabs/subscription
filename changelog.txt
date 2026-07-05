@@ -1,5 +1,9 @@
 *** WPSubscription Changelog ***
 
+2026-07-05 - version 1.10.6
+* new: Subscription cancellation feedback.
+* fix: Subscription status change cron.
+
 2026-06-28 - version 1.10.5
 * new: Subscription details page.
 * new: Subscription Upgrade/Downgrade settings.

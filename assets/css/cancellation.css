@@ -1,0 +1,353 @@
+.subscrpt-pending-cancel-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  border: 1px dashed #fca5a5;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fffafa 0%, #fef2f2 100%);
+  box-shadow: 0 1px 2px rgba(120, 0, 0, 0.06);
+  color: #3f3f46;
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+.subscrpt-pending-cancel-notice__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.subscrpt-pending-cancel-notice__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.subscrpt-pending-cancel-notice__text {
+  margin: 0;
+}
+
+.subscrpt-pending-cancel-notice__text strong {
+  color: #18181b;
+}
+
+/* ==========================================================================
+   Cancellation feedback modal
+   All rules are scoped under .subscrpt-feedback-modal and reset the properties
+   themes commonly set (buttons, inputs, box-sizing), so the modal renders
+   consistently across themes without leaking styles out.
+   ========================================================================== */
+.subscrpt-feedback-modal {
+  /* Theming tokens — override any of these on `.subscrpt-feedback-modal` from a
+     theme to recolor the modal. Brand tokens mirror admin-components (whose
+     stylesheet is not loaded on the frontend). Structural overrides can also
+     target the BEM classes directly (e.g. .subscrpt-feedback-modal__confirm). */
+  --subscrpt-brand: #ff4d00;
+  --subscrpt-brand-dark: #d93f00;
+  --subscrpt-brand-light: #fff1eb;
+  --subscrpt-brand-ring: rgba(255, 77, 0, 0.2);
+  --subscrpt-cfm-on-brand: #ffffff;
+
+  --subscrpt-cfm-surface: #ffffff;
+  --subscrpt-cfm-overlay: rgba(17, 24, 39, 0.6);
+  --subscrpt-cfm-title: #18181b;
+  --subscrpt-cfm-text: #3f3f46;
+  --subscrpt-cfm-muted: #52525b;
+  --subscrpt-cfm-subtle: #a1a1aa;
+  --subscrpt-cfm-border: #e4e4e7;
+  --subscrpt-cfm-border-strong: #d4d4d8;
+  --subscrpt-cfm-hover-bg: #fafafa;
+  --subscrpt-cfm-hover-bg-strong: #f4f4f5;
+
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.subscrpt-feedback-modal *,
+.subscrpt-feedback-modal *::before,
+.subscrpt-feedback-modal *::after {
+  box-sizing: border-box;
+}
+
+.subscrpt-feedback-modal[hidden] {
+  display: none !important;
+}
+
+.subscrpt-feedback-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--subscrpt-cfm-overlay);
+  animation: subscrpt-feedback-fade 0.18s ease-out;
+}
+
+.subscrpt-feedback-modal__dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--subscrpt-cfm-surface);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.12);
+  color: var(--subscrpt-cfm-text);
+  animation: subscrpt-feedback-in 0.18s ease-out;
+}
+
+.subscrpt-feedback-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px 0;
+}
+
+.subscrpt-feedback-modal__title {
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--subscrpt-cfm-title);
+}
+
+.subscrpt-feedback-modal__close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin: -4px -6px 0 0;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--subscrpt-cfm-subtle);
+  cursor: pointer;
+  line-height: 0;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+
+.subscrpt-feedback-modal__close:hover {
+  color: var(--subscrpt-cfm-text);
+  background: var(--subscrpt-cfm-hover-bg-strong);
+}
+
+.subscrpt-feedback-modal__body {
+  padding: 12px 24px 4px;
+  overflow-y: auto;
+}
+
+.subscrpt-feedback-modal__intro {
+  margin: 0 0 16px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--subscrpt-cfm-muted);
+}
+
+.subscrpt-feedback-modal__reasons {
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.subscrpt-feedback-modal__reason {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.subscrpt-feedback-modal__reason-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 11px 14px;
+  border: 1px solid var(--subscrpt-cfm-border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--subscrpt-cfm-text);
+  cursor: pointer;
+  transition:
+    border-color 0.12s,
+    background 0.12s;
+}
+
+.subscrpt-feedback-modal__reason-label:hover {
+  border-color: var(--subscrpt-cfm-border-strong);
+  background: var(--subscrpt-cfm-hover-bg);
+}
+
+.subscrpt-feedback-modal__reason-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.subscrpt-feedback-modal__radio {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--subscrpt-brand);
+  outline: none;
+  box-shadow: none;
+}
+
+/* Suppress the native/theme focus box on the radio itself (shows as a square
+   around the round control); the focus ring is moved to the row below. */
+.subscrpt-feedback-modal__radio:focus,
+.subscrpt-feedback-modal__radio:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.subscrpt-feedback-modal__reason:has(.subscrpt-feedback-modal__radio:focus-visible)
+  .subscrpt-feedback-modal__reason-label {
+  border-color: var(--subscrpt-brand);
+  box-shadow: 0 0 0 3px var(--subscrpt-brand-ring);
+}
+
+/* Highlight the whole row when its radio is selected (progressive enhancement;
+   falls back to the native radio dot where :has() is unsupported). */
+.subscrpt-feedback-modal__reason:has(.subscrpt-feedback-modal__radio:checked) .subscrpt-feedback-modal__reason-label {
+  border-color: var(--subscrpt-brand);
+  background: var(--subscrpt-brand-light);
+}
+
+.subscrpt-feedback-modal__comment {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--subscrpt-cfm-border-strong);
+  border-radius: 10px;
+  background: var(--subscrpt-cfm-surface);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--subscrpt-cfm-text);
+  resize: vertical;
+  box-shadow: none;
+}
+
+.subscrpt-feedback-modal__comment:focus {
+  outline: none;
+  border-color: var(--subscrpt-brand);
+  box-shadow: 0 0 0 3px var(--subscrpt-brand-ring);
+}
+
+.subscrpt-feedback-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 20px;
+}
+
+.subscrpt-feedback-modal__btn {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  margin: 0;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    border-color 0.12s,
+    color 0.12s,
+    box-shadow 0.12s;
+}
+
+.subscrpt-feedback-modal__keep {
+  background: var(--subscrpt-cfm-surface);
+  border-color: var(--subscrpt-cfm-border-strong);
+  color: var(--subscrpt-cfm-text);
+}
+
+.subscrpt-feedback-modal__keep:hover {
+  background: var(--subscrpt-cfm-hover-bg-strong);
+  border-color: var(--subscrpt-cfm-subtle);
+}
+
+.subscrpt-feedback-modal__confirm {
+  background: var(--subscrpt-brand);
+  color: var(--subscrpt-cfm-on-brand);
+}
+
+.subscrpt-feedback-modal__confirm:hover {
+  background: var(--subscrpt-brand-dark);
+}
+
+.subscrpt-feedback-modal__confirm[disabled] {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@keyframes subscrpt-feedback-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes subscrpt-feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subscrpt-feedback-modal__overlay,
+  .subscrpt-feedback-modal__dialog {
+    animation: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .subscrpt-feedback-modal__footer {
+    flex-direction: column-reverse;
+  }
+
+  .subscrpt-feedback-modal__btn {
+    width: 100%;
+  }
+}

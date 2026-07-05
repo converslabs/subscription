@@ -16,7 +16,7 @@ class Installer {
 	 *
 	 * @var string
 	 */
-	const DB_VERSION = '1.1.0';
+	const DB_VERSION = '1.2.0';
 
 	/**
 	 * Run the installer
@@ -83,6 +83,7 @@ class Installer {
 
 		$this->create_histories_table();
 		$this->create_stats_snapshot_table();
+		$this->create_cancellation_feedback_table();
 		PaypalDB::maybe_create_tables();
 
 		update_option( 'subscrpt_db_version', self::DB_VERSION );
@@ -116,6 +117,40 @@ class Installer {
                       `created_at` DATETIME NOT NULL,
                       PRIMARY KEY (`id`),
                       UNIQUE KEY `snapshot_date` (`snapshot_date`)
+                    ) $charset_collate";
+
+		dbDelta( $schema );
+	}
+
+	/**
+	 * Create the cancellation feedback table.
+	 *
+	 * One row per subscription — the latest cancellation feedback (a re-cancel after
+	 * reactivation overwrites the previous row rather than accumulating a log, so
+	 * churn-by-reason reports never double-count a subscription). Stores the
+	 * customer's stated reason (key + a label snapshot that survives later reason
+	 * edits/deletes) and optional comment. Consumed for churn tracking — the recovery
+	 * plugin joins its recovery log to this table on subscription_id.
+	 *
+	 * @return void
+	 */
+	public function create_cancellation_feedback_table() {
+		global $wpdb;
+
+		$charset_collate = $wpdb->get_charset_collate();
+		$table_name      = $wpdb->prefix . 'subscrpt_cancellation_feedback';
+
+		$schema = "CREATE TABLE IF NOT EXISTS `{$table_name}` (
+                      `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                      `subscription_id` BIGINT(20) UNSIGNED NOT NULL,
+                      `customer_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
+                      `reason_key` VARCHAR(60) NOT NULL DEFAULT '',
+                      `reason_label` VARCHAR(191) NOT NULL DEFAULT '',
+                      `comment` TEXT NULL,
+                      `created_at` DATETIME NOT NULL,
+                      PRIMARY KEY (`id`),
+                      KEY `subscription_id` (`subscription_id`),
+                      KEY `created_at` (`created_at`)
                     ) $charset_collate";
 
 		dbDelta( $schema );

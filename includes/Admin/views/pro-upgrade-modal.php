@@ -17,10 +17,10 @@ $modal_desc  = isset( $modal_desc ) ? $modal_desc : __( 'This feature requires W
 $upgrade_url = isset( $upgrade_url ) ? $upgrade_url : 'https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro';
 ?>
 
-<div class="wpsubs-modal" id="subscrpt-pro-modal" role="dialog" aria-modal="true" aria-labelledby="subscrpt-pro-modal-title" hidden>
-	<div class="wpsubs-modal__backdrop" data-subscrpt-modal-close style="backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);"></div>
+<div class="wpsubs-modal" id="subscrpt-pro-modal" role="dialog" aria-modal="true" aria-labelledby="subscrpt-pro-modal-title" data-wpsubs-modal-autoopen hidden>
+	<div class="wpsubs-modal__backdrop" data-wpsubs-modal-close style="backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);"></div>
 	<div class="wpsubs-modal__dialog" role="document" style="width:min(440px,calc(100vw - 40px));">
-		<button type="button" class="wpsubs-modal__close" data-subscrpt-modal-close aria-label="<?php esc_attr_e( 'Close', 'subscription' ); ?>" style="position:absolute;top:12px;right:14px;">&times;</button>
+		<button type="button" class="wpsubs-modal__close" data-wpsubs-modal-close aria-label="<?php esc_attr_e( 'Close', 'subscription' ); ?>" style="position:absolute;top:12px;right:14px;">&times;</button>
 		<div class="wpsubs-modal__body" style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:28px 28px 24px;">
 			<div style="position:relative;display:flex;align-items:center;justify-content:center;">
 				<div style="position:absolute;width:100px;height:100px;background:radial-gradient(circle,rgba(255,106,52,0.22) 0%,transparent 70%);border-radius:50%;"></div>
@@ -40,35 +40,3 @@ $upgrade_url = isset( $upgrade_url ) ? $upgrade_url : 'https://wpsubscription.co
 		</div>
 	</div>
 </div>
-
-<script>
-	( function () {
-		var modal = document.getElementById( 'subscrpt-pro-modal' );
-		if ( ! modal ) {
-			return;
-		}
-
-		function openModal() {
-			modal.hidden = false;
-			document.body.style.overflow = 'hidden';
-		}
-
-		function closeModal() {
-			modal.hidden = true;
-			document.body.style.overflow = '';
-		}
-
-		modal.querySelectorAll( '[data-subscrpt-modal-close]' ).forEach( function ( el ) {
-			el.addEventListener( 'click', closeModal );
-		} );
-
-		document.addEventListener( 'keydown', function ( e ) {
-			if ( 'Escape' === e.key && ! modal.hidden ) {
-				closeModal();
-			}
-		} );
-
-		// Show on page load.
-		openModal();
-	}() );
-</script>
