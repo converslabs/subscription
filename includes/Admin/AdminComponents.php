@@ -85,6 +85,14 @@ function wpsubs_pager_page_range( int $current, int $total ): array {
  *     @type int    $item_count    Total items (defaults to total * per_page).
  *     @type string $base_url      Base URL for server-side links (link_mode=url).
  *                                 The component appends ?paged= and ?per_page= query args.
+ *                                 Ignored if `link_url_callback` is provided.
+ *     @type callable $link_url_callback Optional callable `function( int $page ): string`
+ *                                 that returns the URL for a given page. When supplied,
+ *                                 it replaces the default `add_query_arg( $base_url )` builder
+ *                                 and lets callers (e.g. Pro templates) build URLs with
+ *                                 admin_url() and arbitrary query args. The returned URL is
+ *                                 not re-escaped — callers must escape with esc_url() before
+ *                                 returning.
  *     @type string $link_mode     'url' (default, server <a href>) or 'cb' (<button data-page>).
  *     @type string $info_format   sprintf-style override for the info text. Default
  *                                 'Showing %1$s–%2$s of %3$s'. Pass '%3$s subscriptions'
@@ -100,19 +108,20 @@ function wpsubs_render_pager( array $args ): void {
 	$args = wp_parse_args(
 		$args,
 		array(
-			'current'     => 1,
-			'total'       => 1,
-			'info'        => false,
-			'per_page'    => 10,
-			'item_count'  => 0,
-			'base_url'    => '',
-			'link_mode'   => 'url',
-			'info_format' => '',
-			'aria_label'  => __( 'Pagination', 'subscription' ),
-			'class'       => '',
-			'id'          => '',
-			'attrs'       => array(),
-			'context'     => '',
+			'current'           => 1,
+			'total'             => 1,
+			'info'              => false,
+			'per_page'          => 10,
+			'item_count'        => 0,
+			'base_url'          => '',
+			'link_url_callback' => null,
+			'link_mode'         => 'url',
+			'info_format'       => '',
+			'aria_label'        => __( 'Pagination', 'subscription' ),
+			'class'             => '',
+			'id'                => '',
+			'attrs'             => array(),
+			'context'           => '',
 		)
 	);
 
@@ -192,7 +201,10 @@ function wpsubs_render_pager( array $args ): void {
 		 * @param array  $args     Pager args passed to wpsubs_render_pager().
 		 */
 		$url = '';
-		if ( $args['base_url'] ) {
+		if ( is_callable( $args['link_url_callback'] ) ) {
+			// Caller-supplied builder takes over entirely; it must escape itself.
+			$url = (string) call_user_func( $args['link_url_callback'], $page );
+		} elseif ( $args['base_url'] ) {
 			$url = add_query_arg(
 				array(
 					'paged'    => $page,
