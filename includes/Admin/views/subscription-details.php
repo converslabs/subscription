@@ -1109,8 +1109,68 @@ $subscrpt_details_ctx = array(
 			return el;
 		}
 
+		// Build the list of page numbers (and ellipsis markers) to render.
+		// Always show page 1 and the last page. When the current page sits in
+		// the middle, show 3 pages centered on it: current − 1, current,
+		// current + 1 (clamped to the valid range, and excludes the pinned
+		// first/last pages). Any gap between visible groups collapses to a
+		// single "…".
+		function pageRange( totalPages ) {
+			var first = 1;
+			var last  = totalPages;
+
+			// Sliding window of 3 pages centered on the current page.
+			var nearStart = Math.max( 2, page - 1 );
+			var nearEnd   = Math.min( last - 1, page + 1 );
+
+			var nearby = [];
+			for ( var i = nearStart; i <= nearEnd; i++ ) {
+				nearby.push( i );
+			}
+
+			// Dedupe while preserving order (first/last may already be in nearby).
+			var seen  = {};
+			var parts = [];
+			function push( n ) {
+				if ( ! seen[ n ] ) {
+					seen[ n ] = true;
+					parts.push( n );
+				}
+			}
+			push( first );
+			nearby.forEach( push );
+			if ( last > first ) {
+				push( last );
+			}
+
+			// Insert ellipsis for gaps > 1 between consecutive visible numbers.
+			var range = [];
+			for ( var j = 0; j < parts.length; j++ ) {
+				var p = parts[ j ];
+				if ( j > 0 ) {
+					var gap = p - parts[ j - 1 ];
+					if ( gap === 2 ) {
+						range.push( parts[ j - 1 ] + 1 ); // single hidden page — surface it
+					} else if ( gap > 2 ) {
+						range.push( null ); // ellipsis
+					}
+				}
+				range.push( p );
+			}
+			return range;
+		}
+
+		function makeEllipsis() {
+			var el = document.createElement( 'span' );
+			// Reuses the page-button shell via a non-interactive modifier.
+			el.className = 'wpsubs-pagination__btn wpsubs-pagination__btn--ellipsis';
+			el.setAttribute( 'aria-hidden', 'true' );
+			el.textContent = '…';
+			return el;
+		}
+
 		// Pagination is always shown — a single page renders just "1".
-		function renderPager( total, pages, start, end ) {
+		function renderPager( total, pagesArg, start, end ) {
 			if ( ! pager ) {
 				return;
 			}
@@ -1125,10 +1185,16 @@ $subscrpt_details_ctx = array(
 			var nav = document.createElement( 'div' );
 			nav.className = 'wpsubs-pagination__nav';
 			nav.appendChild( makeBtn( '‹', page - 1, page <= 1, false, page <= 1 ) );
-			for ( var p = 1; p <= pages; p++ ) {
-				nav.appendChild( makeBtn( String( p ), p, p === page, p === page, false ) );
+			var range = pageRange( pagesArg );
+			for ( var i = 0; i < range.length; i++ ) {
+				var p = range[ i ];
+				if ( p === null ) {
+					nav.appendChild( makeEllipsis() );
+				} else {
+					nav.appendChild( makeBtn( String( p ), p, p === page, p === page, false ) );
+				}
 			}
-			nav.appendChild( makeBtn( '›', page + 1, page >= pages, false, page >= pages ) );
+			nav.appendChild( makeBtn( '›', page + 1, page >= pagesArg, false, page >= pagesArg ) );
 			pager.appendChild( nav );
 		}
 

@@ -469,7 +469,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 					<?php // Numbered pages + ellipsis ?>
 					<?php foreach ( $page_range as $p ) : ?>
 						<?php if ( null === $p ) : ?>
-							<span class="wpsubs-pagination__ellipsis" aria-hidden="true">…</span>
+							<span class="wpsubs-pagination__btn wpsubs-pagination__btn--ellipsis" aria-hidden="true">…</span>
 						<?php elseif ( $p === $paged ) : ?>
 							<span class="wpsubs-pagination__btn wpsubs-pagination__btn--active" aria-current="page"><?php echo (int) $p; ?></span>
 						<?php else : ?>
