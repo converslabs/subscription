@@ -21,7 +21,7 @@ class Email {
 		add_filter( 'woocommerce_email_classes', array( $this, 'register_emails' ) );
 
 		add_action( 'subscrpt_subscription_expired', array( $this, 'schedule_expired_email' ) );
-		add_action( 'subscrpt_send_delayed_expired_email', array( $this, 'send_delayed_expired_email' ), 10, 1 );
+		add_action( 'subscrpt_send_delayed_expired_email', array( $this, 'send_expired_email' ), 10, 1 );
 		add_action( 'subscrpt_subscription_activated', array( $this, 'cancel_pending_expired_email' ) );
 
 		add_action( 'subscrpt_status_changed_admin_email', array( 'WC_Emails', 'send_transactional_email' ), 10, 3 );
@@ -39,8 +39,7 @@ class Email {
 
 		// Zero delay: send immediately.
 		if ( $delay_seconds <= 0 ) {
-			WC()->mailer();
-			do_action( 'subscrpt_subscription_expired_email_notification', $subscription_id );
+			$this->send_expired_email( $subscription_id );
 			return;
 		}
 
@@ -63,7 +62,7 @@ class Email {
 	 * @param int $subscription_id Subscription id.
 	 * @return void
 	 */
-	public function send_delayed_expired_email( int $subscription_id ) {
+	public function send_expired_email( int $subscription_id ) {
 		if ( 'expired' !== get_post_status( $subscription_id ) ) {
 			return;
 		}
