@@ -91,7 +91,7 @@ class Assets {
 			),
 			'subscrpt_admin_components' => array(
 				'src'       => $plugin_js_assets_path . 'admin-components.js',
-				'deps'      => array(),
+				'deps'      => array( 'wp-i18n' ),
 				'in_footer' => true,
 			),
 			'sdevs_installer'           => array(

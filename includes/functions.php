@@ -934,6 +934,310 @@ function wpsubs_render_adv_select( array $args ): void {
 }
 
 /**
+ * Compute the visible page list for a paginator (current ± 1 window with
+ * ellipsis for wider gaps, page 1 and the last page always pinned).
+ *
+ * Mirrors the JS algorithm used by WPSubsPager so server- and client-side
+ * markup agree on what to render.
+ *
+ * @param int $current Current page (1-indexed). Clamped to [1, total].
+ * @param int $total   Total number of pages. Floored at 1.
+ * @return array<int|null> Page numbers in display order; `null` is an ellipsis.
+ */
+function wpsubs_pager_page_range( int $current, int $total ): array {
+	$total   = max( 1, $total );
+	$first   = 1;
+	$last    = $total;
+	$current = max( 1, min( $total, $current ) );
+
+	// Slide a 3-number window centred on the current page, excluding the pinned
+	// first/last pages so they don't show twice.
+	$near_start = max( 2, $current - 1 );
+	$near_end   = min( $last - 1, $current + 1 );
+
+	$nearby = array();
+	for ( $i = $near_start; $i <= $near_end; $i++ ) {
+		$nearby[] = $i;
+	}
+
+	// Dedupe while preserving order (first/last may already be in $nearby).
+	$parts = array();
+	$seen  = array();
+	$push  = function ( int $n ) use ( &$parts, &$seen ) {
+		if ( ! isset( $seen[ $n ] ) ) {
+			$seen[ $n ] = true;
+			$parts[]    = $n;
+		}
+	};
+	$push( $first );
+	foreach ( $nearby as $n ) {
+		$push( $n );
+	}
+	if ( $last > $first ) {
+		$push( $last );
+	}
+
+	// Emit ellipsis for gaps > 1 between consecutive visible numbers.
+	$range = array();
+	foreach ( $parts as $j => $p ) {
+		if ( $j > 0 ) {
+			$gap = $p - $parts[ $j - 1 ];
+			if ( 2 === $gap ) {
+				$range[] = $parts[ $j - 1 ] + 1; // single hidden page — surface it
+			} elseif ( $gap > 2 ) {
+				$range[] = null; // ellipsis
+			}
+		}
+		$range[] = $p;
+	}
+	return $range;
+}
+
+/**
+ * Render a WPSubscription paginator footer (info text + prev / next / numbered
+ * buttons + ellipsis). Single source of truth used by the subscriptions list
+ * (server-side) and the subscription details cards (hydrated by JS).
+ *
+ * Pair with `WPSubsPager` in `assets/js/admin-components.js` for auto-init on
+ * `.wpsubs-pager[data-wpsubs-pager]` elements. Pass `link_mode => 'cb'` from
+ * the details page so buttons trigger the JS controller instead of navigating.
+ *
+ * Markup follows the BEM classes defined in `admin-components.css`:
+ *   .wpsubs-pagination
+ *     .wpsubs-pagination__info
+ *     .wpsubs-pagination__nav
+ *       .wpsubs-pagination__btn  (mods: --active | --disabled | --ellipsis)
+ *
+ * @param array $args {
+ *     @type int    $current       Current page (1-indexed). Default 1.
+ *     @type int    $total         Total number of pages. Default 1.
+ *     @type bool   $info          Whether to render the "Showing X–Y of Z" info
+ *                                 text alongside the buttons. Default false (only
+ *                                 buttons are rendered).
+ *     @type int    $per_page      Items per page (used when $info is true).
+ *     @type int    $item_count    Total items (defaults to total * per_page).
+ *     @type string $base_url      Base URL for server-side links (link_mode=url).
+ *                                 The component appends ?paged= and ?per_page= query args.
+ *     @type string $link_mode     'url' (default, server <a href>) or 'cb' (<button data-page>).
+ *     @type string $info_format   sprintf-style override for the info text. Default
+ *                                 'Showing %1$s–%2$s of %3$s'. Pass '%3$s subscriptions'
+ *                                 etc. for richer copy.
+ *     @type string $aria_label    ARIA label on the root. Default 'Pagination'.
+ *     @type string $class         Extra classes on the root element.
+ *     @type string $id            Optional id on the root.
+ *     @type array  $attrs         Extra HTML attributes (key => value) on the root.
+ *     @type string $context       Free-form hint passed to filters. Default ''.
+ * }
+ */
+function wpsubs_render_pager( array $args ): void {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'current'     => 1,
+			'total'       => 1,
+			'info'        => false,
+			'per_page'    => 10,
+			'item_count'  => 0,
+			'base_url'    => '',
+			'link_mode'   => 'url',
+			'info_format' => '',
+			'aria_label'  => __( 'Pagination', 'subscription' ),
+			'class'       => '',
+			'id'          => '',
+			'attrs'       => array(),
+			'context'     => '',
+		)
+	);
+
+	$current   = max( 1, (int) $args['current'] );
+	$total     = max( 1, (int) $args['total'] );
+	$per_page  = max( 1, (int) $args['per_page'] );
+	$show_info = (bool) $args['info'];
+
+	// Item window for "Showing X–Y of Z" (only used when $info is true).
+	if ( $show_info ) {
+		// Callers that know the real item_count pass it; for cards where the
+		// row count isn't known at render time (Pro activities), item_count=0
+		// keeps the info text minimal ("0–0 of 0") and the JS rehydrates it
+		// once rows are visible.
+		if ( $args['item_count'] > 0 ) {
+			$item_total = (int) $args['item_count'];
+		} else {
+			$item_total = 0;
+		}
+		$start_item = $item_total > 0 ? ( ( $current - 1 ) * $per_page ) + 1 : 0;
+		$end_item   = $item_total > 0 ? min( $current * $per_page, $item_total ) : 0;
+	} else {
+		$start_item = 0;
+		$end_item   = 0;
+		$item_total = 0;
+	}
+
+	$root_classes = 'wpsubs-pager wpsubs-pagination';
+	if ( 'cb' !== $args['link_mode'] ) {
+		$root_classes .= ' wpsubs-pager--links';
+	}
+	if ( $args['class'] ) {
+		$root_classes .= ' ' . $args['class'];
+	}
+
+	$attrs_out = '';
+	foreach ( $args['attrs'] as $name => $value ) {
+		$attrs_out .= ' ' . esc_attr( $name ) . '="' . esc_attr( $value ) . '"';
+	}
+
+	$page_range = wpsubs_pager_page_range( $current, $total );
+	$has_prev   = $current > 1;
+	$has_next   = $current < $total;
+
+	// Filterable info string (only composed when $info is true). The default
+	// keeps the previous hard-coded copy so the existing POT entry stays the
+	// source of truth.
+	$info_text = '';
+	if ( $show_info ) {
+		$info_format = '' !== $args['info_format']
+			? $args['info_format']
+			: __( 'Showing %1$s–%2$s of %3$s', 'subscription' );
+		$info_text   = sprintf(
+			$info_format,
+			number_format_i18n( $start_item ),
+			number_format_i18n( $end_item ),
+			number_format_i18n( $item_total )
+		);
+		/**
+		 * Filter the paginator info text (right-hand label, e.g. "Showing 1–10 of 96").
+		 *
+		 * @param string $info_text  Composed info text.
+		 * @param int    $start_item First item on the current page (1-indexed, 0 if empty).
+		 * @param int    $end_item   Last item on the current page (1-indexed, 0 if empty).
+		 * @param int    $item_total Total number of items across all pages.
+		 * @param string $context    Caller-supplied hint from `$args['context']`.
+		 */
+		$info_text = apply_filters( 'wpsubs_pager_info_text', $info_text, $start_item, $end_item, $item_total, $args['context'] );
+	}
+
+	$build_link = function ( int $page ) use ( $args ): string {
+		/**
+		 * Filter the URL built for a paginator page link (server mode only).
+		 *
+		 * @param string $url      Computed URL (may be empty).
+		 * @param int    $page     Target page number (1-indexed).
+		 * @param array  $args     Pager args passed to wpsubs_render_pager().
+		 */
+		$url = '';
+		if ( $args['base_url'] ) {
+			$url = add_query_arg(
+				array(
+					'paged'    => $page,
+					'per_page' => max( 1, (int) $args['per_page'] ),
+				),
+				$args['base_url']
+			);
+			$url = esc_url( $url );
+		}
+		return apply_filters( 'wpsubs_pager_link_url', $url, $page, $args );
+	};
+
+	$render_page_btn = function ( int $p ) use ( $current, $build_link, $args ): string {
+		$is_active = $p === $current;
+		$classes   = 'wpsubs-pagination__btn';
+		if ( $is_active ) {
+			$classes .= ' wpsubs-pagination__btn--active';
+		}
+		$label = (string) $p;
+		/**
+		 * Filter the label rendered for a paginator page button.
+		 *
+		 * @param string $label  Default label (the page number as a string).
+		 * @param int    $p      Page number being rendered.
+		 * @param bool   $is_active Whether this is the current page.
+		 */
+		$label = apply_filters( 'wpsubs_pager_page_label', $label, $p, $is_active );
+
+		if ( 'cb' === $args['link_mode'] ) {
+			return '<button type="button" class="' . esc_attr( $classes )
+				. '" data-page="' . esc_attr( (string) $p ) . '"'
+				. ( $is_active ? ' aria-current="page"' : '' )
+				. '>' . esc_html( $label ) . '</button>';
+		}
+		return '<a href="' . $build_link( $p )
+			. '" class="' . esc_attr( $classes ) . '"'
+			. ( $is_active ? ' aria-current="page"' : '' )
+			. '>' . esc_html( $label ) . '</a>';
+	};
+
+	$render_ellipsis = function (): string {
+		return '<span class="wpsubs-pagination__btn wpsubs-pagination__btn--ellipsis" aria-hidden="true">…</span>';
+	};
+
+	$render_prev = function () use ( $has_prev, $current, $build_link, $args ): string {
+		$page  = $current - 1;
+		$label = '&#8249;';
+		$attrs = ' aria-label="' . esc_attr__( 'Previous page', 'subscription' ) . '"';
+		if ( $has_prev ) {
+			if ( 'cb' === $args['link_mode'] ) {
+				return '<button type="button" class="wpsubs-pagination__btn" data-page="' . esc_attr( (string) $page ) . '"' . $attrs . '>' . $label . '</button>';
+			}
+			return '<a href="' . $build_link( $page ) . '" class="wpsubs-pagination__btn"' . $attrs . '>' . $label . '</a>';
+		}
+		return '<span class="wpsubs-pagination__btn wpsubs-pagination__btn--disabled" aria-hidden="true">' . $label . '</span>';
+	};
+
+	$render_next = function () use ( $has_next, $current, $build_link, $args ): string {
+		$page  = $current + 1;
+		$label = '&#8250;';
+		$attrs = ' aria-label="' . esc_attr__( 'Next page', 'subscription' ) . '"';
+		if ( $has_next ) {
+			if ( 'cb' === $args['link_mode'] ) {
+				return '<button type="button" class="wpsubs-pagination__btn" data-page="' . esc_attr( (string) $page ) . '"' . $attrs . '>' . $label . '</button>';
+			}
+			return '<a href="' . $build_link( $page ) . '" class="wpsubs-pagination__btn"' . $attrs . '>' . $label . '</a>';
+		}
+		return '<span class="wpsubs-pagination__btn wpsubs-pagination__btn--disabled" aria-hidden="true">' . $label . '</span>';
+	};
+	?>
+	<div class="<?php echo esc_attr( $root_classes ); ?>"
+		<?php
+		if ( $args['id'] ) :
+			?>
+			id="<?php echo esc_attr( $args['id'] ); ?>"<?php endif; ?>
+		role="navigation"
+		aria-label="<?php echo esc_attr( $args['aria_label'] ); ?>"
+		data-wpsubs-pager
+		data-current="<?php echo esc_attr( (string) $current ); ?>"
+		data-total="<?php echo esc_attr( (string) $total ); ?>"
+		data-per-page="<?php echo esc_attr( (string) $per_page ); ?>"
+		<?php
+		if ( 'cb' === $args['link_mode'] ) :
+			?>
+			data-link-mode="cb"<?php endif; ?>
+		<?php
+		if ( $args['info_format'] ) :
+			?>
+			data-info-format="<?php echo esc_attr( $args['info_format'] ); ?>"<?php endif; ?>
+		<?php echo $attrs_out; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built from esc_attr() parts above. ?>
+	>
+		<?php if ( $show_info ) : ?>
+			<span class="wpsubs-pagination__info"><?php echo esc_html( $info_text ); ?></span>
+		<?php endif; ?>
+		<div class="wpsubs-pagination__nav">
+			<?php echo $render_prev(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output built from safe esc_*() helpers. ?>
+			<?php
+			foreach ( $page_range as $p ) :
+				if ( null === $p ) {
+					echo $render_ellipsis(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Markup is fully escaped.
+				} else {
+					echo $render_page_btn( (int) $p ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Markup is fully escaped.
+				}
+			endforeach;
+			?>
+			<?php echo $render_next(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output built from safe esc_*() helpers. ?>
+		</div>
+	</div>
+	<?php
+}
+
+/**
  * Render a tag/pill select input with an inline filter and filterable dropdown.
  * Supports single and multiple selection. No external dependencies.
  *

@@ -1089,6 +1089,24 @@ a.wpsubs-cell-title:hover {
   flex-shrink: 0;
 }
 
+/* Strip the WordPress admin / browser default focus ring. WP admin's
+   `forms.css` applies a coloured border + box-shadow on :focus to every
+   button-class element; on these small chips it looks like a heavy
+   double-border. Keep a subtle :focus-visible ring for keyboard users. */
+.wpsubs-pagination__btn:focus,
+.wpsubs-pagination__btn:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--wpsubs-border);
+  color: var(--wpsubs-text-muted);
+  background: var(--wpsubs-surface);
+}
+.wpsubs-pagination__btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--wpsubs-brand-ring);
+  border-color: var(--wpsubs-brand);
+  color: var(--wpsubs-brand);
+}
+
 .wpsubs-pagination__btn:hover {
   border-color: var(--wpsubs-brand);
   color: var(--wpsubs-brand);

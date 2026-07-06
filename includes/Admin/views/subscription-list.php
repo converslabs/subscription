@@ -404,112 +404,21 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 			<!-- Pagination inside table card -->
 			<?php
-			$start_item  = $total > 0 ? ( ( $paged - 1 ) * $per_page ) + 1 : 0;
-			$end_item    = min( $paged * $per_page, $total );
-			$base_url    = remove_query_arg( 'paged' );
-			$total_pages = max( 1, $max_num_pages );
-
-			// Build page range: first, last, current ± 1 neighbours, ellipsis for gaps.
-			$nearby = array();
-			for ( $i = 1; $i <= $total_pages; $i++ ) {
-				if ( $i === 1 || $i === $total_pages || abs( $i - $paged ) <= 1 ) {
-					$nearby[] = $i;
-				}
-			}
-			$page_range = array();
-			$prev_page  = null;
-			foreach ( $nearby as $p ) {
-				if ( null !== $prev_page ) {
-					$gap = $p - $prev_page;
-					if ( $gap === 2 ) {
-						$page_range[] = $prev_page + 1; // single hidden page — show it directly
-					} elseif ( $gap > 2 ) {
-						$page_range[] = null; // ellipsis
-					}
-				}
-				$page_range[] = $p;
-				$prev_page    = $p;
-			}
+			wpsubs_render_pager(
+				array(
+					'current'     => (int) $paged,
+					'total'       => max( 1, (int) $max_num_pages ),
+					'info'        => true,
+					'per_page'    => (int) $per_page,
+					'item_count'  => (int) $total,
+					'base_url'    => remove_query_arg( 'paged' ),
+					'link_mode'   => 'url',
+					// translators: %1$s = first item number, %2$s = last item number, %3$s = total items.
+					'info_format' => __( 'Showing %1$s–%2$s of %3$s subscriptions', 'subscription' ),
+					'context'     => 'subscription-list',
+				)
+			);
 			?>
-			<div class="wpsubs-pagination">
-				<span class="wpsubs-pagination__info">
-					<?php
-					echo esc_html(
-						sprintf(
-							/* translators: 1: first item number, 2: last item number, 3: total count */
-							__( 'Showing %1$s–%2$s of %3$s subscriptions', 'subscription' ),
-							number_format_i18n( $start_item ),
-							number_format_i18n( $end_item ),
-							number_format_i18n( $total )
-						)
-					);
-					?>
-				</span>
-				<div class="wpsubs-pagination__nav">
-
-					<?php // Previous button ?>
-					<?php if ( $paged > 1 ) : ?>
-						<a href="
-						<?php
-						echo esc_url(
-							add_query_arg(
-								array(
-									'paged'    => $paged - 1,
-									'per_page' => $per_page,
-								),
-								$base_url
-							)
-						);
-						?>
-									" class="wpsubs-pagination__btn" aria-label="<?php esc_attr_e( 'Previous page', 'subscription' ); ?>">&#8249;</a>
-					<?php else : ?>
-						<span class="wpsubs-pagination__btn wpsubs-pagination__btn--disabled" aria-hidden="true">&#8249;</span>
-					<?php endif; ?>
-
-					<?php // Numbered pages + ellipsis ?>
-					<?php foreach ( $page_range as $p ) : ?>
-						<?php if ( null === $p ) : ?>
-							<span class="wpsubs-pagination__btn wpsubs-pagination__btn--ellipsis" aria-hidden="true">…</span>
-						<?php elseif ( $p === $paged ) : ?>
-							<span class="wpsubs-pagination__btn wpsubs-pagination__btn--active" aria-current="page"><?php echo (int) $p; ?></span>
-						<?php else : ?>
-							<a href="
-							<?php
-							echo esc_url(
-								add_query_arg(
-									array(
-										'paged'    => $p,
-										'per_page' => $per_page,
-									),
-									$base_url
-								)
-							);
-							?>
-										" class="wpsubs-pagination__btn"><?php echo (int) $p; ?></a>
-						<?php endif; ?>
-					<?php endforeach; ?>
-
-					<?php // Next button ?>
-					<?php if ( $paged < $total_pages ) : ?>
-						<a href="
-						<?php
-						echo esc_url(
-							add_query_arg(
-								array(
-									'paged'    => $paged + 1,
-									'per_page' => $per_page,
-								),
-								$base_url
-							)
-						);
-						?>
-									" class="wpsubs-pagination__btn" aria-label="<?php esc_attr_e( 'Next page', 'subscription' ); ?>">&#8250;</a>
-					<?php else : ?>
-						<span class="wpsubs-pagination__btn wpsubs-pagination__btn--disabled" aria-hidden="true">&#8250;</span>
-					<?php endif; ?>
-
-				</div>
-			</div>
 
 		</div><!-- /.wpsubs-table-card -->
 
