@@ -174,6 +174,7 @@ final class Sdevs_Subscription {
 	public function includes() {
 		// Include functions file first to ensure global functions are available
 		require_once SUBSCRPT_INCLUDES . '/functions.php';
+		require_once SUBSCRPT_INCLUDES . '/Admin/AdminComponents.php';
 
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['admin'] = new SpringDevs\Subscription\Admin();
