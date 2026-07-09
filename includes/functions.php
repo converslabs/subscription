@@ -1,4 +1,9 @@
 <?php
+/**
+ * Global helper functions.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
@@ -149,7 +154,7 @@ function subscrpt_get_max_payments( $subscription_id ) {
 		$max_payments = get_post_meta( $subscription_id, '_subscrpt_max_no_payment', true );
 	}
 
-	return $max_payments ?: '';
+	return $max_payments ? $max_payments : '';
 }
 
 /**
@@ -351,7 +356,7 @@ function subscrpt_check_enhanced_completion( $subscription_id, $payments_made, $
 	}
 
 	// Check for maximum failure threshold
-	$failure_count                  = get_post_meta( $subscription_id, '_subscrpt_payment_failure_count', true ) ?: 0;
+	$failure_count                  = (int) get_post_meta( $subscription_id, '_subscrpt_payment_failure_count', true );
 	$max_failures_before_completion = apply_filters( 'subscrpt_max_failures_before_completion', 0, $subscription_id );
 
 	if ( $max_failures_before_completion > 0 && $failure_count >= $max_failures_before_completion ) {
@@ -560,6 +565,9 @@ if ( ! function_exists( 'wps_subscription_get_timing_types' ) ) {
  * Get WC product in subscription wrapper.
  *
  * @deprecated 1.8.17 Use SpringDevs\Subscription\Illuminate\Subscription\Subscription::get_subs_product().
+ *
+ * @param \WC_Product|int $product Product object or product id.
+ * @return mixed Subscription product wrapper.
  */
 function sdevs_get_subscription_product( $product ) {
 	// Deprecated notice.
@@ -837,6 +845,8 @@ function subscrpt_render_page_preview( array $args = [] ) {
  * JS (admin-components.js WPSubsAdvSelect) handles open/close and selection.
  *
  * @param array $args {
+ *   Component arguments.
+ *
  *   @type string   $name          Hidden input name attribute.  Required.
  *   @type string   $placeholder   Trigger label when nothing is selected.
  *   @type string   $value         Initial hidden-input value (default: '').
@@ -960,14 +970,16 @@ function wpsubs_render_adv_select( array $args ): void {
  * Event fired on root: `wpsubs:select` — detail: { value, label, selected }
  *
  * @param array $args {
- *   string       $name        Form field name (base name, without [] suffix).
- *   string       $placeholder Input placeholder shown when nothing is selected.
- *   string|array $value       Current value(s). Array for multiple, string for single.
- *   array        $options     Options: array of { value, label, disabled? }.
- *   bool         $multiple    Enable multi-select mode.
- *   string       $id          Optional root element id.
- *   string       $class       Extra CSS classes for the root element.
- *   array        $attrs       Extra HTML attributes for the root element.
+ *   Component arguments.
+ *
+ *   @type string       $name        Form field name (base name, without [] suffix).
+ *   @type string       $placeholder Input placeholder shown when nothing is selected.
+ *   @type string|array $value       Current value(s). Array for multiple, string for single.
+ *   @type array        $options     Options: array of { value, label, disabled? }.
+ *   @type bool         $multiple    Enable multi-select mode.
+ *   @type string       $id          Optional root element id.
+ *   @type string       $class       Extra CSS classes for the root element.
+ *   @type array        $attrs       Extra HTML attributes for the root element.
  * }
  */
 function wpsubs_render_tag_select( array $args ): void {
