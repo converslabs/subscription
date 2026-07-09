@@ -128,7 +128,7 @@ class ProSettingsFields {
 				'field_data' => [
 					'id'              => 'subscrpt_cancellation_reasons',
 					'title'           => __( 'Cancellation Reasons', 'subscription' ),
-					'description'     => __( 'Reasons offered in the cancellation feedback form. Shown when Cancellation Feedback is enabled.', 'subscription' ),
+					'description'     => __( 'Reasons offered in the cancellation survey form. Shown when Cancellation Survey is enabled.', 'subscription' ),
 					'value'           => \SpringDevs\Subscription\Illuminate\Cancellation::get_reasons(),
 					'modal'           => true,
 					'button_label'    => __( 'Manage reasons', 'subscription' ),
