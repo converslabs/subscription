@@ -7,7 +7,7 @@
  * `manage_woocommerce`. This is the free plugin's first REST surface; Pro adds
  * the extra routes (`/plans/detach`, `/plans/migrate`, plan-side bulk attach).
  *
- * Admin-only: the storefront and checkout never call these routes — they read
+ * Admin-only: the storefront and checkout never call these routes - they read
  * plan data directly via PlanRepository. A REST fault cannot break checkout.
  *
  * @package SpringDevs\Subscription\Api
@@ -191,7 +191,7 @@ class PlanController {
 	/* ---- Groups ---- */
 
 	/**
-	 * GET /plans/groups — list every plan group with its term count.
+	 * GET /plans/groups - list every plan group with its term count.
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -209,7 +209,7 @@ class PlanController {
 	}
 
 	/**
-	 * POST /plans/groups — create a plan group.
+	 * POST /plans/groups - create a plan group.
 	 *
 	 * Free is Recurring-only: a non-Recurring type is rejected unless Pro is
 	 * active (Pro unlocks Subscribe & Save / Installments).
@@ -236,7 +236,7 @@ class PlanController {
 	}
 
 	/**
-	 * GET /plans/groups/{id} — full group tree.
+	 * GET /plans/groups/{id} - full group tree.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 *
@@ -253,7 +253,7 @@ class PlanController {
 	}
 
 	/**
-	 * PUT /plans/groups/{id} — update a plan group.
+	 * PUT /plans/groups/{id} - update a plan group.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 *
@@ -279,7 +279,7 @@ class PlanController {
 	}
 
 	/**
-	 * DELETE /plans/groups/{id} — delete group + cascade.
+	 * DELETE /plans/groups/{id} - delete group + cascade.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 *
@@ -305,7 +305,7 @@ class PlanController {
 	/* ---- Terms ---- */
 
 	/**
-	 * POST /plans/terms — create a plan term under a group.
+	 * POST /plans/terms - create a plan term under a group.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 *
@@ -332,7 +332,7 @@ class PlanController {
 	}
 
 	/**
-	 * GET /plans/terms/{id} — single plan term (for edit prefill).
+	 * GET /plans/terms/{id} - single plan term (for edit prefill).
 	 *
 	 * @param WP_REST_Request $request Request.
 	 *
@@ -349,7 +349,7 @@ class PlanController {
 	}
 
 	/**
-	 * PUT /plans/terms/{id} — update a plan term.
+	 * PUT /plans/terms/{id} - update a plan term.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 *
@@ -368,7 +368,7 @@ class PlanController {
 	}
 
 	/**
-	 * DELETE /plans/terms/{id} — delete a plan term + its relations.
+	 * DELETE /plans/terms/{id} - delete a plan term + its relations.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 *
@@ -394,7 +394,7 @@ class PlanController {
 	/* ---- Relations ---- */
 
 	/**
-	 * POST /plans/relations — attach a product to a plan term.
+	 * POST /plans/relations - attach a product to a plan term.
 	 *
 	 * Free is simple-product only: a variation relation (`vid` != 0) is rejected
 	 * unless Pro is active (Pro unlocks per-variation attach).
@@ -433,7 +433,7 @@ class PlanController {
 	}
 
 	/**
-	 * PUT /plans/relations/{id} — update a relation (price / exclude).
+	 * PUT /plans/relations/{id} - update a relation (price / exclude).
 	 *
 	 * @param WP_REST_Request $request Request.
 	 *
@@ -452,7 +452,7 @@ class PlanController {
 	}
 
 	/**
-	 * DELETE /plans/relations/{id} — detach a product from a plan term.
+	 * DELETE /plans/relations/{id} - detach a product from a plan term.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 *
@@ -478,7 +478,7 @@ class PlanController {
 	/* ---- Product picker ---- */
 
 	/**
-	 * GET /plans/products — search WC products for the connect picker.
+	 * GET /plans/products - search WC products for the connect picker.
 	 *
 	 * Free is simple-product only: the picker returns simple products.
 	 *

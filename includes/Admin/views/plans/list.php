@@ -26,17 +26,17 @@ use SpringDevs\Subscription\Admin\Plans;
 				<?php esc_html_e( 'Create Plan Group', 'subscription' ); ?>
 			</button>
 		</div>
-		<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0 0 12px;line-height:1.5;"><?php esc_html_e( 'Create a plan group once and connect it to your products — manage the billing from one place.', 'subscription' ); ?></p>
+		<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0 0 12px;line-height:1.5;"><?php esc_html_e( 'Set up a plan group and connect it to your products. Manage billing from one place.', 'subscription' ); ?></p>
 		<div style="border-top:1px dashed #d0d3d7;"></div>
 	</div>
 
 	<?php if ( empty( $plans ) ) : ?>
 
 		<div class="wpsubs-empty">
-			<span class="wpsubs-empty__icon dashicons dashicons-screenoptions"></span>
+			<div class="wpsubs-empty__icon">🗂️</div>
 			<h3 class="wpsubs-empty__title"><?php esc_html_e( 'No plan groups yet', 'subscription' ); ?></h3>
-			<p class="wpsubs-empty__desc"><?php esc_html_e( 'Create a plan group once and connect it to your products — manage the billing from one place.', 'subscription' ); ?></p>
-			<button type="button" class="wpsubs-btn wpsubs-btn--primary" data-wpsubs-modal-open="subscrpt-create-plan">
+			<p class="wpsubs-empty__desc"><?php esc_html_e( 'Set up a plan group and connect it to your products. Manage billing from one place.', 'subscription' ); ?></p>
+			<button type="button" class="wpsubs-btn wpsubs-btn--primary" style="margin-top:20px;" data-wpsubs-modal-open="subscrpt-create-plan">
 				<?php esc_html_e( 'Create your first plan group', 'subscription' ); ?>
 			</button>
 		</div>

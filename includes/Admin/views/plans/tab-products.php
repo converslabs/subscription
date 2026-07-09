@@ -1,10 +1,10 @@
 <?php
 /**
- * Plan detail — Products tab (READ-ONLY in free).
+ * Plan detail - Products tab (READ-ONLY in free).
  *
  * Lists the products attached to this plan and the price each pays per selling
  * plan. Attaching a product and editing its price is done from the product
- * editor's Subscription tab — not here. (Plan-side attach / inline edit is Pro.)
+ * editor's Subscription tab - not here. (Plan-side attach / inline edit is Pro.)
  *
  * @var array $plan Plan (PlanPresenter shape).
  *
@@ -19,9 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<?php if ( empty( $plan['products'] ) ) : ?>
 		<div class="wpsubs-empty">
-			<span class="wpsubs-empty__icon dashicons dashicons-products"></span>
+			<div class="wpsubs-empty__icon">📦</div>
 			<h3 class="wpsubs-empty__title"><?php esc_html_e( 'No products connected', 'subscription' ); ?></h3>
-			<p class="wpsubs-empty__desc"><?php esc_html_e( 'Open a product and use its Subscription tab to connect it to this plan and set its price.', 'subscription' ); ?></p>
+			<p class="wpsubs-empty__desc"><?php esc_html_e( 'Products are connected from their own editor. Open a product, go to its Subscription tab, pick this plan group, and set the price. It will then show here.', 'subscription' ); ?></p>
+			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=product' ) ); ?>" class="wpsubs-btn wpsubs-btn--primary" style="margin-top:20px;">
+				<?php esc_html_e( 'Go to Products', 'subscription' ); ?>
+			</a>
 		</div>
 	<?php else : ?>
 

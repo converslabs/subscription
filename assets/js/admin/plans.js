@@ -1,10 +1,10 @@
 /**
- * Subscription Plans — admin interactions (free base).
+ * Subscription Plans - admin interactions (free base).
  *
  * Relies on the shared components in admin-components.js:
- *   - WPSubsModal     — data-wpsubs-modal-open / -close, fires wpsubs:modal:open.
- *   - WPSubsTabs      — the detail page's Selling Plans / Products tabs.
- *   - WPSubsAccordion — the term list + term-modal sections.
+ *   - WPSubsModal     - data-wpsubs-modal-open / -close, fires wpsubs:modal:open.
+ *   - WPSubsTabs      - the detail page's Selling Plans / Products tabs.
+ *   - WPSubsAccordion - the term list + term-modal sections.
  *
  * Everything here is the list/detail chrome plus REST CRUD for plan groups and
  * selling plans (terms). All writes go through wpsubscription/v1. The Products
@@ -129,7 +129,7 @@
    * ------------------------------------------------------------------ */
 
   // Plan-type cards: click to select (skips locked/Pro cards). Selection is a
-  // border + soft brand background — no radio input.
+  // border + soft brand background - no radio input.
   document.addEventListener("click", function (e) {
     var card = e.target.closest(".subscrpt-type-card");
     if (!card || card.hasAttribute("data-locked")) {
@@ -228,7 +228,9 @@
     var out = {};
     scope.querySelectorAll("[data-subscrpt-field]").forEach(function (el) {
       var key = el.getAttribute("data-subscrpt-field");
-      if (el.type === "checkbox") {
+      if (el.classList.contains("wpsubs-adv-select")) {
+        out[key] = advValue(el);
+      } else if (el.type === "checkbox") {
         out[key] = el.checked;
       } else if (el.type === "radio") {
         if (el.checked) {
@@ -239,6 +241,36 @@
       }
     });
     return out;
+  }
+
+  /**
+   * Read the current value of an advanced-select (its hidden input).
+   *
+   * @param {HTMLElement} root .wpsubs-adv-select root.
+   * @return {string}
+   */
+  function advValue(root) {
+    var hidden = root.querySelector('input[type="hidden"]');
+    return hidden ? hidden.value : "";
+  }
+
+  /**
+   * Programmatically set an advanced-select's value + visible label.
+   *
+   * @param {HTMLElement} root  .wpsubs-adv-select root.
+   * @param {string}      value Option value to select.
+   */
+  function setAdvSelect(root, value) {
+    value = value == null ? "" : String(value);
+    var hidden = root.querySelector('input[type="hidden"]');
+    if (hidden) {
+      hidden.value = value;
+    }
+    var label = root.querySelector(".wpsubs-adv-select__label");
+    var item = root.querySelector('.wpsubs-adv-select__item[data-value="' + value + '"]');
+    if (label) {
+      label.textContent = item ? item.textContent.trim() : root.getAttribute("data-placeholder") || "";
+    }
   }
 
   /**
@@ -260,7 +292,6 @@
       status: "active",
       data: {
         free_trial_interval: f.free_trial_interval || "day",
-        pricing_breakdown: f.pricing_breakdown || "",
       },
     };
   }
@@ -274,14 +305,20 @@
   function fillTermModal(modal, term) {
     modal.querySelectorAll("[data-subscrpt-field]").forEach(function (el) {
       var key = el.getAttribute("data-subscrpt-field");
+      var adv = el.classList.contains("wpsubs-adv-select");
+
+      // Reset to defaults for "add".
       if (!term) {
-        if (el.type === "checkbox") {
+        if (adv) {
+          setAdvSelect(el, el.getAttribute("data-default-value") || "");
+        } else if (el.type === "checkbox") {
           el.checked = false;
         } else if (el.type !== "radio") {
           el.value = key === "billing_frequency" || key === "billing_length" ? el.defaultValue : "";
         }
         return;
       }
+
       var data = term.data || {};
       switch (key) {
         case "title":
@@ -291,7 +328,7 @@
           el.value = term.billing_frequency || 1;
           break;
         case "billing_interval":
-          el.value = INT_TO_INTERVAL[term.billing_interval] || "month";
+          setAdvSelect(el, INT_TO_INTERVAL[term.billing_interval] || "month");
           break;
         case "billing_length":
           el.value = term.billing_length || 0;
@@ -300,10 +337,7 @@
           el.value = term.free_trial || "";
           break;
         case "free_trial_interval":
-          el.value = data.free_trial_interval || el.value;
-          break;
-        case "pricing_breakdown":
-          el.value = data.pricing_breakdown || "";
+          setAdvSelect(el, data.free_trial_interval || "day");
           break;
         default:
           break;

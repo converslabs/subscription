@@ -1,6 +1,6 @@
 <?php
 /**
- * Plan detail view. Uses the shared WPSubsTabs component (client-side tabs —
+ * Plan detail view. Uses the shared WPSubsTabs component (client-side tabs -
  * no page reload): Selling Plans | Products (read-only).
  *
  * @var array  $plan     Plan (PlanPresenter shape).

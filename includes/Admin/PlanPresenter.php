@@ -1,6 +1,6 @@
 <?php
 /**
- * Plan presenter — maps PlanRepository rows to the admin template shape.
+ * Plan presenter - maps PlanRepository rows to the admin template shape.
  *
  * Builds the array contract the Plans admin templates render (name / type /
  * terms / products / rows …) from the real DB rows, so the templates stay
@@ -103,7 +103,7 @@ class PlanPresenter {
 					);
 				}
 
-				// One row per selling plan (term) — guard against duplicate rows.
+				// One row per selling plan (term) - guard against duplicate rows.
 				$plan_id = (int) $plan['id'];
 
 				if ( isset( $by_product[ $oid ]['_terms'][ $plan_id ] ) ) {
