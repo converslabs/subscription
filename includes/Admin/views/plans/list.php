@@ -50,6 +50,7 @@ use SpringDevs\Subscription\Admin\Plans;
 						<th><?php esc_html_e( 'Plan Group', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Type', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Selling Plans', 'subscription' ); ?></th>
+						<th><?php esc_html_e( 'Products', 'subscription' ); ?></th>
 						<th><?php esc_html_e( 'Last Edited', 'subscription' ); ?></th>
 						<th style="width:48px;"></th>
 					</tr>
@@ -57,31 +58,51 @@ use SpringDevs\Subscription\Admin\Plans;
 				<tbody>
 					<?php
 					foreach ( $plans as $plan ) :
-						$detail_url = add_query_arg(
+						$detail_url    = add_query_arg(
 							array(
 								'view' => 'detail',
 								'plan' => $plan['id'],
 							),
 							$list_url
 						);
+						$term_count    = count( $plan['terms'] );
+						$product_count = count( $plan['products'] );
 						?>
 						<tr class="wpsubs-plan-row" data-subscrpt-name="<?php echo esc_attr( strtolower( $plan['name'] ) ); ?>" data-plan-id="<?php echo esc_attr( $plan['id'] ); ?>">
 							<td>
-								<a href="<?php echo esc_url( $detail_url ); ?>" style="font-weight:600;text-decoration:none;"><?php echo esc_html( $plan['name'] ); ?></a>
+								<a href="<?php echo esc_url( $detail_url ); ?>" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;text-decoration:none;color:var(--wpsubs-text);">
+									<span class="dashicons dashicons-screenoptions" style="color:var(--wpsubs-text-subtle);"></span>
+									<?php echo esc_html( $plan['name'] ); ?>
+								</a>
 								<?php if ( 'draft' === $plan['status'] ) : ?>
-									<span class="wpsubs-badge wpsubs-badge--draft"><?php esc_html_e( 'Draft', 'subscription' ); ?></span>
+									<span class="wpsubs-badge wpsubs-badge--draft" style="margin-left:4px;"><?php esc_html_e( 'Draft', 'subscription' ); ?></span>
 								<?php endif; ?>
 							</td>
 							<td>
-								<span class="wpsubs-badge"><?php echo esc_html( Plans::type_label( $plan['type'] ) ); ?></span>
+								<span class="wpsubs-badge wpsubs-badge--neutral"><?php echo esc_html( Plans::type_label( $plan['type'] ) ); ?></span>
 							</td>
-							<td><?php echo esc_html( count( $plan['terms'] ) ); ?></td>
+							<td>
+								<?php
+								echo $term_count > 0
+									/* translators: %d: number of selling plans. */
+									? esc_html( sprintf( _n( '%d plan', '%d plans', $term_count, 'subscription' ), $term_count ) )
+									: '<span style="color:var(--wpsubs-text-subtle);">' . esc_html__( 'None', 'subscription' ) . '</span>';
+								?>
+							</td>
+							<td>
+								<?php
+								echo $product_count > 0
+									/* translators: %d: number of connected products. */
+									? esc_html( sprintf( _n( '%d product', '%d products', $product_count, 'subscription' ), $product_count ) )
+									: '<span style="color:var(--wpsubs-text-subtle);">' . esc_html__( 'None', 'subscription' ) . '</span>';
+								?>
+							</td>
 							<td><?php echo esc_html( $plan['edited'] ); ?></td>
 							<td>
 								<div class="wpsubs-row-actions" data-subscrpt-dropdown>
-									<button type="button" class="wpsubs-row-actions__trigger" aria-label="<?php esc_attr_e( 'Actions', 'subscription' ); ?>">&hellip;</button>
+									<button type="button" class="wpsubs-row-actions__trigger" aria-label="<?php esc_attr_e( 'Actions', 'subscription' ); ?>">···</button>
 									<div class="wpsubs-dropdown" hidden>
-										<a href="<?php echo esc_url( $detail_url ); ?>" class="wpsubs-dropdown__item"><?php esc_html_e( 'Edit', 'subscription' ); ?></a>
+										<a href="<?php echo esc_url( $detail_url ); ?>" class="wpsubs-dropdown__item"><?php esc_html_e( 'View / Edit', 'subscription' ); ?></a>
 										<div class="wpsubs-dropdown__divider"></div>
 										<a href="#" class="wpsubs-dropdown__item wpsubs-dropdown__item--danger" data-subscrpt-delete-plan="<?php echo esc_attr( $plan['id'] ); ?>"><?php esc_html_e( 'Delete', 'subscription' ); ?></a>
 									</div>

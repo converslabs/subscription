@@ -693,6 +693,15 @@ input[type="checkbox"].wpsubs-checkbox:focus {
   border-bottom: none;
 }
 
+/* Keep the card's rounded bottom corners visible on last-row hover. */
+.wpsubs-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--wpsubs-radius);
+}
+
+.wpsubs-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--wpsubs-radius);
+}
+
 .wpsubs-table td.wpsubs-col--check {
   padding-right: 4px;
 }
@@ -847,6 +856,12 @@ a.wpsubs-cell-title:hover {
   height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+.wpsubs-badge--neutral {
+  background: var(--wpsubs-surface-muted);
+  color: var(--wpsubs-text);
+  border-color: var(--wpsubs-border);
 }
 
 .wpsubs-badge--active {

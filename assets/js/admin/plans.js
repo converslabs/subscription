@@ -82,31 +82,34 @@
       e.preventDefault();
       var wrap = trigger.closest("[data-subscrpt-dropdown]");
       var menu = wrap.querySelector(".wpsubs-dropdown");
-      var opening = menu && menu.hidden;
-      document.querySelectorAll(".wpsubs-row-actions--open").forEach(function (other) {
-        other.classList.remove("wpsubs-row-actions--open");
-        var om = other.querySelector(".wpsubs-dropdown");
-        if (om) {
-          om.hidden = true;
-        }
-      });
+      var opening = menu && !menu.classList.contains("wpsubs-dropdown--open");
+      closeDropdowns();
       if (menu && opening) {
         menu.hidden = false;
+        menu.classList.add("wpsubs-dropdown--open");
         wrap.classList.add("wpsubs-row-actions--open");
       }
       return;
     }
-    // Click anywhere else closes any open dropdown.
-    if (!e.target.closest(".wpsubs-dropdown")) {
-      document.querySelectorAll(".wpsubs-row-actions--open").forEach(function (wrap) {
-        wrap.classList.remove("wpsubs-row-actions--open");
-        var menu = wrap.querySelector(".wpsubs-dropdown");
-        if (menu) {
-          menu.hidden = true;
-        }
-      });
+    // A click on a menu item (or anywhere outside the menu) closes the dropdown.
+    if (!e.target.closest(".wpsubs-dropdown") || e.target.closest(".wpsubs-dropdown__item")) {
+      closeDropdowns();
     }
   });
+
+  /**
+   * Close every open row-actions dropdown.
+   */
+  function closeDropdowns() {
+    document.querySelectorAll(".wpsubs-row-actions--open").forEach(function (wrap) {
+      wrap.classList.remove("wpsubs-row-actions--open");
+      var menu = wrap.querySelector(".wpsubs-dropdown");
+      if (menu) {
+        menu.classList.remove("wpsubs-dropdown--open");
+        menu.hidden = true;
+      }
+    });
+  }
 
   document.addEventListener("input", function (e) {
     var input = e.target.closest("[data-subscrpt-filter]");
