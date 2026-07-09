@@ -25,10 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	<?php else : ?>
 
-		<p style="color:var(--wpsubs-text-muted,#6b7280);margin-top:0;">
-			<?php esc_html_e( 'Connect products and set prices from each product’s Subscription tab.', 'subscription' ); ?>
-		</p>
-
 		<?php foreach ( $plan['products'] as $product ) : ?>
 			<div class="wpsubs-table-card" style="margin-bottom:16px;">
 				<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--wpsubs-border,#e5e7eb);">

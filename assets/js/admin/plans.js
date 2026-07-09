@@ -125,6 +125,29 @@
    * Plan group: create + delete.
    * ------------------------------------------------------------------ */
 
+  // Plan-type cards: click to select (skips locked/Pro cards). Selection is a
+  // border + soft brand background — no radio input.
+  document.addEventListener("click", function (e) {
+    var card = e.target.closest(".subscrpt-type-card");
+    if (!card || card.hasAttribute("data-locked")) {
+      return;
+    }
+    var list = card.closest("[data-subscrpt-type-list]");
+    if (!list) {
+      return;
+    }
+    list.querySelectorAll(".subscrpt-type-card").forEach(function (c) {
+      var on = c === card;
+      c.classList.toggle("is-selected", on);
+      c.style.borderColor = on ? "var(--wpsubs-brand)" : "var(--wpsubs-border)";
+      c.style.background = on ? "var(--wpsubs-brand-light)" : "";
+      var icon = c.querySelector(".dashicons");
+      if (icon) {
+        icon.style.color = on ? "var(--wpsubs-brand)" : "var(--wpsubs-text-subtle)";
+      }
+    });
+  });
+
   document.addEventListener("click", function (e) {
     var btn = e.target.closest("[data-subscrpt-create-plan]");
     if (!btn) {
@@ -141,11 +164,15 @@
       return;
     }
 
+    // Selected type card (defaults to recurring). The REST controller rejects
+    // non-recurring types unless Pro is active.
+    var selectedCard = modal.querySelector(".subscrpt-type-card.is-selected");
+    var planType = selectedCard ? selectedCard.getAttribute("data-subscrpt-type") : "recurring";
+
     setLoading(btn, true);
-    // Free is Recurring-only; the type is fixed server-side too.
     api("POST", "/groups", {
       title: name,
-      type: "recurring",
+      type: planType || "recurring",
       product_type: 1,
       status: "active",
     })
