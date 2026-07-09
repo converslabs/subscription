@@ -92,6 +92,25 @@ function subscrpt_pro_activated(): bool {
 }
 
 /**
+ * Whether a product is tied to at least one active subscription plan.
+ *
+ * The single fallback guard every surface (storefront, checkout, admin) branches
+ * on: when this returns false, code must fall back to the classic `_subscrpt_*`
+ * per-product meta and must not read or write any plan table. Keeps plan
+ * detection consistent so no surface invents its own.
+ *
+ * @param int $product_id   Product (parent) id.
+ * @param int $variation_id Variation id, or 0 for simple products.
+ *
+ * @return bool
+ */
+function subscrpt_product_has_plan( $product_id, $variation_id = 0 ): bool {
+	return ! empty(
+		\SpringDevs\Subscription\Illuminate\Plans\PlanRepository::resolve_for_product( $product_id, $variation_id )
+	);
+}
+
+/**
  * Get renewal process settings.
  *
  * @return bool

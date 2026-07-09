@@ -753,3 +753,222 @@
   // Public API
   window.WPSubsModal = { open: open, close: close, init: init };
 })();
+
+/**
+ * WPSubsTabs — accessible tabbed panels.
+ *
+ * Markup:
+ *   <div class="wpsubs-tabs">
+ *     <div class="wpsubs-tabs__list" role="tablist">
+ *       <button class="wpsubs-tabs__tab" role="tab" id="t1" aria-controls="p1" aria-selected="true">One</button>
+ *       <button class="wpsubs-tabs__tab" role="tab" id="t2" aria-controls="p2">Two</button>
+ *     </div>
+ *     <div class="wpsubs-tab-panel" role="tabpanel" id="p1" aria-labelledby="t1">…</div>
+ *     <div class="wpsubs-tab-panel" role="tabpanel" id="p2" aria-labelledby="t2" hidden>…</div>
+ *   </div>
+ *
+ * The tab with aria-selected="true" (or the first tab) is active on load.
+ *
+ * Events fired on the root element (bubbles):
+ *   wpsubs:tab:change — { id }  the newly selected tab's id
+ */
+(function () {
+  "use strict";
+
+  /**
+   * @param {HTMLElement} el  Root .wpsubs-tabs element.
+   */
+  function WPSubsTabs(el) {
+    this.el = el;
+    this.tabs = Array.prototype.slice.call(el.querySelectorAll(".wpsubs-tabs__tab"));
+    this._bind();
+
+    // Activate the pre-selected tab, or fall back to the first one.
+    var selected = this.tabs.filter(function (t) {
+      return t.getAttribute("aria-selected") === "true";
+    })[0];
+    this.activate(selected || this.tabs[0], false);
+  }
+
+  /** Panel controlled by a tab (via aria-controls). */
+  WPSubsTabs.prototype._panel = function (tab) {
+    if (!tab) return null;
+    var id = tab.getAttribute("aria-controls");
+    return id ? this.el.querySelector("#" + id) : null;
+  };
+
+  /**
+   * Show one tab's panel, hide the rest.
+   *
+   * @param {HTMLElement} tab     Tab to activate.
+   * @param {boolean}     [focus] Move focus to the tab (keyboard nav).
+   */
+  WPSubsTabs.prototype.activate = function (tab, focus) {
+    if (!tab) return;
+    var self = this;
+
+    this.tabs.forEach(function (t) {
+      var active = t === tab;
+      t.setAttribute("aria-selected", active ? "true" : "false");
+      t.setAttribute("tabindex", active ? "0" : "-1");
+      var panel = self._panel(t);
+      if (panel) panel.hidden = !active;
+    });
+
+    if (focus) tab.focus();
+
+    this.el.dispatchEvent(
+      new CustomEvent("wpsubs:tab:change", {
+        bubbles: true,
+        detail: { id: tab.id || "" },
+      }),
+    );
+  };
+
+  WPSubsTabs.prototype._bind = function () {
+    var self = this;
+
+    this.tabs.forEach(function (tab, index) {
+      tab.addEventListener("click", function (e) {
+        e.preventDefault();
+        self.activate(tab);
+      });
+
+      tab.addEventListener("keydown", function (e) {
+        var dir = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault();
+        var next = (index + dir + self.tabs.length) % self.tabs.length;
+        self.activate(self.tabs[next], true);
+      });
+    });
+  };
+
+  /**
+   * Initialise all un-initialised .wpsubs-tabs elements under root.
+   *
+   * @param {Document|HTMLElement} [root]
+   */
+  function init(root) {
+    (root || document).querySelectorAll(".wpsubs-tabs:not([data-tabs-init])").forEach(function (el) {
+      el.setAttribute("data-tabs-init", "1");
+      new WPSubsTabs(el);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      init();
+    });
+  } else {
+    init();
+  }
+
+  // Public API
+  window.WPSubsTabs = { init: init };
+})();
+
+/**
+ * WPSubsAccordion — expand/collapse sections.
+ *
+ * Markup:
+ *   <div class="wpsubs-accordion" data-multi="1">
+ *     <div class="wpsubs-accordion__item">
+ *       <button class="wpsubs-accordion__header" aria-controls="a1" aria-expanded="false">Title</button>
+ *       <div class="wpsubs-accordion__panel" id="a1" hidden>…</div>
+ *     </div>
+ *   </div>
+ *
+ * data-multi (truthy) allows multiple panels open at once; default is
+ * single-open (opening one collapses the others). A header with
+ * aria-expanded="true" starts open.
+ *
+ * Events fired on the root element (bubbles):
+ *   wpsubs:accordion:toggle — { id, open }
+ */
+(function () {
+  "use strict";
+
+  /**
+   * @param {HTMLElement} el  Root .wpsubs-accordion element.
+   */
+  function WPSubsAccordion(el) {
+    this.el = el;
+    this.multi = !!el.dataset.multi;
+    this.headers = Array.prototype.slice.call(el.querySelectorAll(".wpsubs-accordion__header"));
+    this._bind();
+
+    // Sync initial panel visibility to each header's aria-expanded.
+    var self = this;
+    this.headers.forEach(function (header) {
+      var panel = self._panel(header);
+      if (panel) panel.hidden = header.getAttribute("aria-expanded") !== "true";
+    });
+  }
+
+  WPSubsAccordion.prototype._panel = function (header) {
+    if (!header) return null;
+    var id = header.getAttribute("aria-controls");
+    return id ? this.el.querySelector("#" + id) : null;
+  };
+
+  /**
+   * Open or close one section.
+   *
+   * @param {HTMLElement} header Section header button.
+   * @param {boolean}     open   Desired state.
+   */
+  WPSubsAccordion.prototype.set = function (header, open) {
+    var panel = this._panel(header);
+    header.setAttribute("aria-expanded", open ? "true" : "false");
+    if (panel) panel.hidden = !open;
+
+    // Single-open mode: collapse every other section when opening this one.
+    if (open && !this.multi) {
+      var self = this;
+      this.headers.forEach(function (other) {
+        if (other !== header) self.set(other, false);
+      });
+    }
+
+    this.el.dispatchEvent(
+      new CustomEvent("wpsubs:accordion:toggle", {
+        bubbles: true,
+        detail: { id: header.getAttribute("aria-controls") || "", open: open },
+      }),
+    );
+  };
+
+  WPSubsAccordion.prototype._bind = function () {
+    var self = this;
+    this.headers.forEach(function (header) {
+      header.addEventListener("click", function (e) {
+        e.preventDefault();
+        self.set(header, header.getAttribute("aria-expanded") !== "true");
+      });
+    });
+  };
+
+  /**
+   * Initialise all un-initialised .wpsubs-accordion elements under root.
+   *
+   * @param {Document|HTMLElement} [root]
+   */
+  function init(root) {
+    (root || document).querySelectorAll(".wpsubs-accordion:not([data-accordion-init])").forEach(function (el) {
+      el.setAttribute("data-accordion-init", "1");
+      new WPSubsAccordion(el);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      init();
+    });
+  } else {
+    init();
+  }
+
+  // Public API
+  window.WPSubsAccordion = { init: init };
+})();
