@@ -476,18 +476,9 @@ body[class*="wpsubscription_page_wp-subscription"] #wpcontent {
 /* Subscriptions List Page Layout */
 .wp-subscription-admin-content.list-page {
   max-width: 1240px;
-  margin: 32px auto 0 auto;
-  background: #fff;
-  padding: 0px 24px;
-  border-radius: 12px;
-}
-
-/* Subscription list: toolbar sits on WP admin gray, table card is the white surface */
-.wp-subscription-admin-content.list-page.subscrpt-subs-list {
+  margin: 24px auto 32px auto;
   background: transparent;
-  border-radius: 0;
-  margin-top: 24px;
-  margin-bottom: 32px;
+  padding: 0px 24px;
 }
 .wp-subscription-list-header {
   margin-bottom: 28px;

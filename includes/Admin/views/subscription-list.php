@@ -20,7 +20,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 	$months[ date( 'Y-m', $month ) ] = date( 'F Y', $month );
 }
 ?>
-<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
+<div class="wp-subscription-admin-content list-page">
 
 	<?php
 		// Getting started card — hidden once a subscription product exists.

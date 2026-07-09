@@ -141,7 +141,7 @@ if ( ! function_exists( 'subscrpt_preview_format_price' ) ) {
 ?>
 
 <!-- Page content -->
-<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
+<div class="wp-subscription-admin-content list-page">
 
 	<!-- Disclaimer banner -->
 	<div style="max-width:1240px;margin:20px auto 0;padding:0;">

@@ -76,7 +76,7 @@ foreach ( $third_party as $integration ) {
 $third_party_grouped = array_filter( $third_party_grouped );
 ?>
 
-<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
+<div class="wp-subscription-admin-content list-page">
 
 	<!-- Page header -->
 	<div style="margin-bottom:20px;">
