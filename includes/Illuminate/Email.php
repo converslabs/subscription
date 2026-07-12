@@ -19,21 +19,72 @@ class Email {
 	public function __construct() {
 		add_action( 'woocommerce_email_after_order_table', array( $this, 'add_subscription_table' ) );
 		add_filter( 'woocommerce_email_classes', array( $this, 'register_emails' ) );
-		add_action( 'subscrpt_subscription_expired', array( $this, 'after_subscription_expired' ) );
+
+		add_action( 'subscrpt_subscription_expired', array( $this, 'schedule_expired_email' ) );
+		add_action( 'subscrpt_send_delayed_expired_email', array( $this, 'send_expired_email' ), 10, 1 );
+		add_action( 'subscrpt_subscription_activated', array( $this, 'cancel_pending_expired_email' ) );
 
 		add_action( 'subscrpt_status_changed_admin_email', array( 'WC_Emails', 'send_transactional_email' ), 10, 3 );
 		add_action( 'subscrpt_subscription_expired_email', array( 'WC_Emails', 'send_transactional_email' ), 10, 3 );
 	}
 
 	/**
-	 * Sent mail after subscription expired!
+	 * Schedule the "subscription expired" email to fire after a short delay.
 	 *
 	 * @param int $subscription_id Subscription id.
 	 * @return void
 	 */
-	public function after_subscription_expired( int $subscription_id ) {
+	public function schedule_expired_email( int $subscription_id ) {
+		$delay_seconds = (int) apply_filters( 'subscrpt_expired_email_delay', HOUR_IN_SECONDS );
+
+		// Zero delay: send immediately.
+		if ( $delay_seconds <= 0 ) {
+			$this->send_expired_email( $subscription_id );
+			return;
+		}
+
+		$hook           = 'subscrpt_send_delayed_expired_email';
+		$args           = array( $subscription_id );
+		$scheduled_time = time() + $delay_seconds;
+
+		// Existing queue check.
+		$existing = wp_next_scheduled( $hook, $args );
+		if ( $existing ) {
+			wp_unschedule_event( $existing, $hook, $args );
+		}
+
+		wp_schedule_single_event( $scheduled_time, $hook, $args );
+	}
+
+	/**
+	 * Fire the delayed "subscription expired" email.
+	 *
+	 * @param int $subscription_id Subscription id.
+	 * @return void
+	 */
+	public function send_expired_email( int $subscription_id ) {
+		if ( 'expired' !== get_post_status( $subscription_id ) ) {
+			return;
+		}
+
 		WC()->mailer();
 		do_action( 'subscrpt_subscription_expired_email_notification', $subscription_id );
+	}
+
+	/**
+	 * Cancel any pending delayed "subscription expired" email.
+	 *
+	 * @param int $subscription_id Subscription id.
+	 * @return void
+	 */
+	public function cancel_pending_expired_email( int $subscription_id ) {
+		$hook = 'subscrpt_send_delayed_expired_email';
+		$args = array( $subscription_id );
+
+		if ( function_exists( 'as_unschedule_action' ) ) {
+			as_unschedule_action( $hook, $args );
+		}
+		wp_clear_scheduled_hook( $hook, $args );
 	}
 
 	/**
