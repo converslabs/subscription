@@ -547,7 +547,24 @@ $subscrpt_details_ctx = array(
 							<?php endforeach; ?>
 						</tbody>
 					</table>
-					<div class="subscrpt-pager wpsubs-pagination" hidden></div>
+					<?php
+					// Initial pager; WPSubsPager hydrates and re-derives totals on init.
+					$related_total = count( $related_rows );
+					wpsubs_render_pager(
+						array(
+							'current'     => 1,
+							'total'       => max( 1, (int) ceil( $related_total / 10 ) ),
+							'info'        => true,
+							'per_page'    => 10,
+							'item_count'  => $related_total,
+							'link_mode'   => 'cb',
+							'class'       => 'subscrpt-pager',
+							// translators: %1$s: first item number, %2$s: last item number, %3$s: total items
+							'info_format' => __( 'Showing %1$s–%2$s of %3$s related orders', 'subscription' ),
+							'context'     => 'subscription-details-related-orders',
+						)
+					);
+					?>
 				<?php else : ?>
 					<div class="subscrpt-card__body"><p class="subscrpt-muted"><?php esc_html_e( 'No related orders found.', 'subscription' ); ?></p></div>
 				<?php endif; ?>
@@ -575,7 +592,24 @@ $subscrpt_details_ctx = array(
 						do_action( 'subscrpt_order_activities', $subscription_id );
 						?>
 					</div>
-					<div class="subscrpt-pager wpsubs-pagination" hidden></div>
+					<?php
+					// Activities pager. Total pages are unknown at render time (Pro
+					// injects the rows); WPSubsPager recomputes on init via render().
+					wpsubs_render_pager(
+						array(
+							'current'     => 1,
+							'total'       => 1,
+							'info'        => true,
+							'per_page'    => 10,
+							'item_count'  => 0,
+							'link_mode'   => 'cb',
+							'class'       => 'subscrpt-pager',
+							// translators: %1$s: first item number, %2$s: last item number, %3$s: total items
+							'info_format' => __( 'Showing %1$s–%2$s of %3$s activities', 'subscription' ),
+							'context'     => 'subscription-details-activities',
+						)
+					);
+					?>
 				<?php else : ?>
 					<div class="subscrpt-card__body">
 						<div class="subscrpt-upgrade-banner">
@@ -851,9 +885,8 @@ $subscrpt_details_ctx = array(
 	padding-bottom: 0;
 }
 
-/* Pager footer (uses .wpsubs-pagination layout). */
-.subscrpt-pager .wpsubs-pagination__info { font-size: 12px; color: var(--wpsubs-text-muted); }
-.subscrpt-pager .wpsubs-pagination__nav { display: flex; align-items: center; gap: 4px; }
+/* Pager (uses .wpsubs-pagination layout; styles in admin-components.css). */
+.subscrpt-pager { margin: 0; }
 .subscrpt-empty-row td { color: var(--wpsubs-text-muted); font-size: 13px; }
 
 /* Tables render flush to the card edges (the table thead is the column strip). */
@@ -1011,169 +1044,3 @@ $subscrpt_details_ctx = array(
 .subscrpt-upgrade-banner strong { color: var(--wpsubs-text); font-size: 14px; }
 .subscrpt-upgrade-banner p { margin: 4px 0 0; font-size: 13px; color: var(--wpsubs-text-muted); }
 </style>
-
-<script>
-( function () {
-	'use strict';
-
-	var MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
-
-	// Derive a "YYYY-MM" key from a row's date column.
-	function monthKey( tr, dateCol ) {
-		var cell = tr.children[ dateCol ];
-		if ( ! cell ) {
-			return '';
-		}
-		var d = new Date( cell.textContent.replace( ' - ', ' ' ).trim() );
-		if ( isNaN( d.getTime() ) ) {
-			return '';
-		}
-		return d.getFullYear() + '-' + ( '0' + ( d.getMonth() + 1 ) ).slice( -2 );
-	}
-
-	function initBox( box ) {
-		var tools = box.querySelector( '.subscrpt-card__tools' );
-		var table = box.querySelector( 'table' );
-		var tbody = table ? table.querySelector( 'tbody' ) : null;
-		var rows  = tbody ? Array.prototype.slice.call( tbody.querySelectorAll( 'tr' ) ) : [];
-
-		if ( ! rows.length ) {
-			if ( tools ) {
-				tools.style.display = 'none';
-			}
-			return;
-		}
-
-		var dateCol  = box.hasAttribute( 'data-date-col' ) ? parseInt( box.getAttribute( 'data-date-col' ), 10 ) : -1;
-		var dateAdv  = box.querySelector( '.subscrpt-filter-date' );
-		var ppAdv    = box.querySelector( '.subscrpt-filter-perpage' );
-		var pager    = box.querySelector( '.subscrpt-pager' );
-		var colSpan  = ( table.querySelectorAll( 'thead th' ).length ) || 1;
-		var page     = 1;
-		var emptyRow = null;
-
-		function advValue( adv ) {
-			var input = adv ? adv.querySelector( 'input[type="hidden"]' ) : null;
-			return input ? input.value : '';
-		}
-
-		var perPage = parseInt( advValue( ppAdv ), 10 ) || parseInt( box.getAttribute( 'data-per-page' ), 10 ) || 10;
-
-		// Inject month options into the date advanced-select (built from the data).
-		if ( dateAdv && dateCol >= 0 ) {
-			var menu = dateAdv.querySelector( '.wpsubs-adv-select__menu' );
-			var seen = {};
-			var months = [];
-			rows.forEach( function ( tr ) {
-				var key = monthKey( tr, dateCol );
-				if ( key && ! seen[ key ] ) {
-					seen[ key ] = true;
-					months.push( key );
-				}
-			} );
-			months.sort().reverse().forEach( function ( key ) {
-				var parts = key.split( '-' );
-				var btn   = document.createElement( 'button' );
-				btn.type  = 'button';
-				btn.className = 'wpsubs-adv-select__item';
-				btn.setAttribute( 'data-value', key );
-				btn.setAttribute( 'role', 'option' );
-				var span = document.createElement( 'span' );
-				span.className = 'wpsubs-adv-select__item-label';
-				span.textContent = MONTHS[ parseInt( parts[1], 10 ) - 1 ] + ' ' + parts[0];
-				btn.appendChild( span );
-				if ( menu ) {
-					menu.appendChild( btn );
-				}
-			} );
-		}
-
-		function filtered() {
-			var dm = advValue( dateAdv );
-			if ( ! dm || dateCol < 0 ) {
-				return rows;
-			}
-			return rows.filter( function ( tr ) { return monthKey( tr, dateCol ) === dm; } );
-		}
-
-		function makeBtn( label, target, inert, active, disabled ) {
-			var el = document.createElement( inert ? 'span' : 'button' );
-			el.className = 'wpsubs-pagination__btn'
-				+ ( active ? ' wpsubs-pagination__btn--active' : '' )
-				+ ( disabled ? ' wpsubs-pagination__btn--disabled' : '' );
-			el.innerHTML = label;
-			if ( ! inert ) {
-				el.type = 'button';
-				el.addEventListener( 'click', function () { page = target; render(); } );
-			}
-			return el;
-		}
-
-		// Pagination is always shown — a single page renders just "1".
-		function renderPager( total, pages, start, end ) {
-			if ( ! pager ) {
-				return;
-			}
-			pager.hidden = false;
-			pager.innerHTML = '';
-
-			var info = document.createElement( 'span' );
-			info.className = 'wpsubs-pagination__info';
-			info.textContent = 'Showing ' + ( total ? start + 1 : 0 ) + '–' + Math.min( end, total ) + ' of ' + total;
-			pager.appendChild( info );
-
-			var nav = document.createElement( 'div' );
-			nav.className = 'wpsubs-pagination__nav';
-			nav.appendChild( makeBtn( '‹', page - 1, page <= 1, false, page <= 1 ) );
-			for ( var p = 1; p <= pages; p++ ) {
-				nav.appendChild( makeBtn( String( p ), p, p === page, p === page, false ) );
-			}
-			nav.appendChild( makeBtn( '›', page + 1, page >= pages, false, page >= pages ) );
-			pager.appendChild( nav );
-		}
-
-		function render() {
-			var list  = filtered();
-			var pages = Math.max( 1, Math.ceil( list.length / perPage ) );
-			if ( page > pages ) {
-				page = pages;
-			}
-			var start = ( page - 1 ) * perPage;
-			var end   = start + perPage;
-
-			rows.forEach( function ( tr ) { tr.style.display = 'none'; } );
-			list.slice( start, end ).forEach( function ( tr ) { tr.style.display = ''; } );
-
-			if ( ! list.length ) {
-				if ( ! emptyRow ) {
-					emptyRow = document.createElement( 'tr' );
-					emptyRow.className = 'subscrpt-empty-row';
-					var td = document.createElement( 'td' );
-					td.colSpan = colSpan;
-					td.style.textAlign = 'center';
-					td.style.padding = '18px';
-					td.textContent = 'No matching records.';
-					emptyRow.appendChild( td );
-					tbody.appendChild( emptyRow );
-				}
-				emptyRow.style.display = '';
-			} else if ( emptyRow ) {
-				emptyRow.style.display = 'none';
-			}
-
-			renderPager( list.length, pages, start, end );
-		}
-
-		if ( dateAdv ) {
-			dateAdv.addEventListener( 'wpsubs:select', function () { page = 1; render(); } );
-		}
-		if ( ppAdv ) {
-			ppAdv.addEventListener( 'wpsubs:select', function () { perPage = parseInt( advValue( ppAdv ), 10 ) || 10; page = 1; render(); } );
-		}
-
-		render();
-	}
-
-	document.querySelectorAll( '[data-subscrpt-paginate]' ).forEach( initBox );
-}() );
-</script>
