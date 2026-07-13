@@ -12,8 +12,6 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
-wp_enqueue_style( 'subscrpt_admin_components' );
-
 // Split by type.
 $payment_gateways = array_filter(
 	$integrations,
