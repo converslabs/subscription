@@ -83,6 +83,20 @@ class Assets {
 				'version'      => SUBSCRPT_VERSION,
 			);
 
+		// Admin UI components, one file each for readability (assets/js/admin-components/).
+		// Each attaches its API to `window` and auto-inits; they are registered as
+		// individual scripts and bundled behind the `subscrpt_admin_components` handle.
+		$components      = array();
+		$component_files = array( 'adv-select', 'tag-select', 'editlist', 'modal', 'tabs', 'accordion' );
+		foreach ( $component_files as $component_file ) {
+			$handle                = 'subscrpt_component_' . str_replace( '-', '_', $component_file );
+			$components[ $handle ] = array(
+				'src'       => $plugin_js_assets_path . 'admin-components/' . $component_file . '.js',
+				'deps'      => array(),
+				'in_footer' => true,
+			);
+		}
+
 		$scripts = array(
 			'sdevs_subscription_admin'  => array(
 				'src'       => $plugin_js_assets_path . 'admin.js',
@@ -90,8 +104,8 @@ class Assets {
 				'in_footer' => true,
 			),
 			'subscrpt_admin_components' => array(
-				'src'       => $plugin_js_assets_path . 'admin-components.js',
-				'deps'      => array(),
+				'src'       => false,
+				'deps'      => array_keys( $components ),
 				'in_footer' => true,
 			),
 			'sdevs_installer'           => array(
@@ -107,7 +121,7 @@ class Assets {
 			),
 		);
 
-		return $scripts;
+		return array_merge( $components, $scripts );
 	}
 
 	/**
