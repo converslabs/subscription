@@ -1,0 +1,150 @@
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+.wpsubs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--wpsubs-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background 0.12s,
+    border-color 0.12s,
+    color 0.12s;
+  border: 1px solid transparent;
+  line-height: 1;
+  vertical-align: middle;
+  box-shadow: none;
+}
+
+.wpsubs-btn:focus,
+.wpsubs-btn:focus-visible,
+.wpsubs-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: var(--wpsubs-radius-sm) !important;
+}
+
+.wpsubs-btn--outline {
+  background: var(--wpsubs-surface);
+  border-color: var(--wpsubs-border);
+  color: var(--wpsubs-text);
+}
+
+.wpsubs-btn--outline:hover {
+  border-color: var(--wpsubs-border-strong);
+  background: var(--wpsubs-surface-muted);
+  color: var(--wpsubs-text);
+  text-decoration: none;
+}
+
+.wpsubs-btn--primary {
+  background: var(--wpsubs-brand);
+  border-color: var(--wpsubs-brand);
+  color: #fff;
+}
+
+.wpsubs-btn--primary:hover {
+  background: var(--wpsubs-brand-dark);
+  border-color: var(--wpsubs-brand-dark);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Icon-only square button */
+.wpsubs-btn--icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.wpsubs-btn--sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Tooltip  (wpsubs-tooltip)
+   CSS-only. Wrap any element with .wpsubs-tooltip and set data-tip="text".
+   -------------------------------------------------------------------------- */
+.wpsubs-tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.wpsubs-tooltip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  font-family: inherit;
+  line-height: 1.4;
+  padding: 5px 9px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 9999;
+}
+
+/* Arrow — base sits 4px inside the element so tip meets bubble bottom edge exactly */
+.wpsubs-tooltip::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% - 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1f2937;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 9999;
+}
+
+.wpsubs-tooltip:hover::after,
+.wpsubs-tooltip:hover::before {
+  opacity: 1;
+}
+
+/* Placement variants */
+.wpsubs-tooltip--bottom::after {
+  bottom: auto;
+  top: calc(100% + 6px);
+}
+
+.wpsubs-tooltip--bottom::before {
+  bottom: auto;
+  top: calc(100% - 4px);
+  border-top-color: transparent;
+  border-bottom-color: #1f2937;
+}
+
+.wpsubs-btn--danger {
+  background: var(--wpsubs-surface);
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.wpsubs-btn--danger:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+  color: #b91c1c;
+  text-decoration: none;
+}

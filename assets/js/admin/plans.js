@@ -1,7 +1,7 @@
 /**
  * Subscription Plans - admin interactions (free base).
  *
- * Relies on the shared components in admin-components.js:
+ * Relies on the shared components in assets/js/admin-components/:
  *   - WPSubsModal     - data-wpsubs-modal-open / -close, fires wpsubs:modal:open.
  *   - WPSubsTabs      - the detail page's Selling Plans / Products tabs.
  *   - WPSubsAccordion - the term list + term-modal sections.

@@ -12,7 +12,7 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
-wp_enqueue_style( 'wp-subscription-admin-components', SUBSCRPT_ASSETS . '/css/admin-components.css', [], SUBSCRPT_VERSION );
+wp_enqueue_style( 'subscrpt_admin_components' );
 
 // Split by type.
 $payment_gateways = array_filter(

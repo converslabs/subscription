@@ -842,7 +842,7 @@ function subscrpt_render_page_preview( array $args = [] ) {
  *
  * Outputs a styled trigger-button + dropdown that replaces a native <select>.
  * A hidden <input> carries the selected value for form submission.
- * JS (admin-components.js WPSubsAdvSelect) handles open/close and selection.
+ * JS (admin-components/adv-select.js WPSubsAdvSelect) handles open/close and selection.
  *
  * @param array $args {
  *   Component arguments.
@@ -966,7 +966,7 @@ function wpsubs_render_adv_select( array $args ): void {
  * Render a tag/pill select input with an inline filter and filterable dropdown.
  * Supports single and multiple selection. No external dependencies.
  *
- * JS: WPSubsTagSelect (admin-components.js) auto-inits elements.
+ * JS: WPSubsTagSelect (admin-components/tag-select.js) auto-inits elements.
  * Event fired on root: `wpsubs:select` — detail: { value, label, selected }
  *
  * @param array $args {
@@ -1125,7 +1125,7 @@ function wpsubs_render_tag_select( array $args ): void {
 /**
  * Render a modal dialog (admin-components `wpsubs-modal`).
  *
- * Behaviour is handled by WPSubsModal (admin-components.js): open it from any
+ * Behaviour is handled by WPSubsModal (admin-components/modal.js): open it from any
  * control with `data-wpsubs-modal-open="<id>"`; the backdrop, header close, and
  * footer buttons close it; Escape closes it. The dialog is hidden until opened.
  *

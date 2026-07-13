@@ -132,12 +132,43 @@ class Assets {
 	public function get_styles() {
 		$plugin_css_assets_path = SUBSCRPT_ASSETS . '/css/';
 
+		// Admin UI component styles, split by section for readability
+		// (assets/css/admin-components/). Loaded in this order behind the
+		// `subscrpt_admin_components` handle; `tokens` must stay first.
+		$component_styles = array();
+		$component_files  = array(
+			'tokens',
+			'layout',
+			'forms',
+			'buttons',
+			'select',
+			'table',
+			'badges',
+			'dropdown',
+			'pagination',
+			'empty',
+			'toggle',
+			'settings',
+			'tag-select',
+			'modal',
+			'editlist',
+			'tabs',
+			'accordion',
+		);
+		foreach ( $component_files as $component_file ) {
+			$handle                      = 'subscrpt_style_' . str_replace( '-', '_', $component_file );
+			$component_styles[ $handle ] = array(
+				'src' => $plugin_css_assets_path . 'admin-components/' . $component_file . '.css',
+			);
+		}
+
 		$styles = array(
 			'subscrpt_admin_css'        => array(
 				'src' => $plugin_css_assets_path . 'admin.css',
 			),
 			'subscrpt_admin_components' => array(
-				'src' => $plugin_css_assets_path . 'admin-components.css',
+				'src'  => false,
+				'deps' => array_keys( $component_styles ),
 			),
 			'subscrpt_status_css'       => array(
 				'src' => $plugin_css_assets_path . 'status.css',
@@ -147,7 +178,7 @@ class Assets {
 			),
 		);
 
-		return $styles;
+		return array_merge( $component_styles, $styles );
 	}
 
 	/**
