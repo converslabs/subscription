@@ -56,6 +56,7 @@ class PlanPresenter {
 				'name'      => $plan['title'],
 				'breakdown' => self::breakdown( $plan ),
 				'status'    => $plan['status'],
+				'chips'     => self::term_chips( $plan ),
 			);
 		}
 
@@ -170,6 +171,47 @@ class PlanPresenter {
 		}
 
 		return max( 0, $base );
+	}
+
+	/**
+	 * Build the short info chips for a term (free trial, signup fee, expiry).
+	 *
+	 * Each chip is a ready-to-print label; only the ones that apply are returned.
+	 *
+	 * @param array $plan Plan term row.
+	 *
+	 * @return array<int,string>
+	 */
+	protected static function term_chips( $plan ) {
+		$chips = array();
+
+		$trial_days = (int) ( $plan['free_trial'] ?? 0 );
+		if ( $trial_days > 0 ) {
+			$trial_unit = isset( $plan['data']['free_trial_interval'] ) ? (string) $plan['data']['free_trial_interval'] : 'day';
+			$chips[]    = sprintf(
+				/* translators: 1: number, 2: unit (day/week/month/year). */
+				__( '%1$d-%2$s free trial', 'subscription' ),
+				$trial_days,
+				$trial_unit
+			);
+		}
+
+		$signup_fee = isset( $plan['signup_fee']['amount'] ) ? (float) $plan['signup_fee']['amount'] : 0.0;
+		if ( $signup_fee > 0 ) {
+			/* translators: %s: formatted signup fee amount. */
+			$chips[] = sprintf( __( 'Signup fee: %s', 'subscription' ), self::money( $signup_fee ) );
+		}
+
+		$length = (int) ( $plan['billing_length'] ?? 0 );
+		if ( $length > 0 ) {
+			$chips[] = sprintf(
+				/* translators: %d: number of billing cycles. */
+				_n( 'Ends after %d cycle', 'Ends after %d cycles', $length, 'subscription' ),
+				$length
+			);
+		}
+
+		return $chips;
 	}
 
 	/**

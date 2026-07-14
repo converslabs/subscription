@@ -24,8 +24,13 @@ use SpringDevs\Subscription\Admin\Plans;
 		$product_count = count( $plan['products'] );
 		$sep           = '<span style="color:var(--wpsubs-text-subtle);">&middot;</span>';
 
+		$status_badge = 'draft' === $plan['status']
+			? '<span class="wpsubs-badge wpsubs-badge--draft">' . esc_html__( 'Draft', 'subscription' ) . '</span>'
+			: '<span class="wpsubs-badge wpsubs-badge--active">' . esc_html__( 'Active', 'subscription' ) . '</span>';
+
 		$meta   = array();
 		$meta[] = '<span class="wpsubs-badge wpsubs-badge--neutral">' . esc_html( Plans::type_label( $plan['type'] ) ) . '</span>';
+		$meta[] = $status_badge;
 		/* translators: %d: number of selling plans. */
 		$meta[] = esc_html( sprintf( _n( '%d selling plan', '%d selling plans', $term_count, 'subscription' ), $term_count ) );
 		/* translators: %d: number of connected products. */

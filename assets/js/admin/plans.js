@@ -124,6 +124,16 @@
     });
   });
 
+  // Whole plan-group row opens its detail page — except clicks on a link,
+  // button, or the actions menu, which keep their own behaviour.
+  document.addEventListener("click", function (e) {
+    var row = e.target.closest(".wpsubs-plan-row[data-href]");
+    if (!row || e.target.closest("a, button, .wpsubs-row-actions")) {
+      return;
+    }
+    window.location.href = row.getAttribute("data-href");
+  });
+
   /* ------------------------------------------------------------------ *
    * Plan group: create + delete.
    * ------------------------------------------------------------------ */
@@ -289,6 +299,7 @@
       billing_interval: INTERVAL_TO_INT[f.billing_interval] || 3,
       billing_length: parseInt(f.billing_length, 10) || 0,
       free_trial: f.free_trial || "",
+      signup_fee: { amount: f.signup_fee_amount || "" },
       status: "active",
       data: {
         free_trial_interval: f.free_trial_interval || "day",
@@ -338,6 +349,9 @@
           break;
         case "free_trial_interval":
           setAdvSelect(el, data.free_trial_interval || "day");
+          break;
+        case "signup_fee_amount":
+          el.value = term.signup_fee && term.signup_fee.amount ? term.signup_fee.amount : "";
           break;
         default:
           break;
@@ -419,7 +433,7 @@
     var id = btn.getAttribute("data-subscrpt-delete-term");
     api("DELETE", "/terms/" + id)
       .then(function () {
-        var item = btn.closest(".wpsubs-accordion__item");
+        var item = btn.closest("[data-term-id]");
         if (item) {
           item.parentNode.removeChild(item);
         }

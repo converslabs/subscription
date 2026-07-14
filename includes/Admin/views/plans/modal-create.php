@@ -72,7 +72,7 @@ $types = array(
 							<span style="display:block;font-weight:600;color:var(--wpsubs-text);">
 								<?php echo esc_html( $type_def['label'] ); ?>
 								<?php if ( $locked ) : ?>
-									<span class="wpsubs-badge wpsubs-badge--draft"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
+									<span class="wpsubs-badge wpsubs-badge--pro"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
 								<?php endif; ?>
 							</span>
 							<span style="display:block;color:var(--wpsubs-text-muted);font-size:13px;word-break:break-word;"><?php echo esc_html( $type_def['desc'] ); ?></span>

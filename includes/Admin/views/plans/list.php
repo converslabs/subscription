@@ -68,7 +68,7 @@ use SpringDevs\Subscription\Admin\Plans;
 						$term_count    = count( $plan['terms'] );
 						$product_count = count( $plan['products'] );
 						?>
-						<tr class="wpsubs-plan-row" data-subscrpt-name="<?php echo esc_attr( strtolower( $plan['name'] ) ); ?>" data-plan-id="<?php echo esc_attr( $plan['id'] ); ?>">
+						<tr class="wpsubs-plan-row" data-subscrpt-name="<?php echo esc_attr( strtolower( $plan['name'] ) ); ?>" data-plan-id="<?php echo esc_attr( $plan['id'] ); ?>" data-href="<?php echo esc_url( $detail_url ); ?>" style="cursor:pointer;">
 							<td>
 								<a href="<?php echo esc_url( $detail_url ); ?>" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;text-decoration:none;color:var(--wpsubs-text);">
 									<span class="dashicons dashicons-screenoptions" style="color:var(--wpsubs-text-subtle);"></span>
