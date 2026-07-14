@@ -443,16 +443,21 @@
       });
   });
 
-  // Toggle a term active/draft.
-  document.addEventListener("change", function (e) {
-    var box = e.target.closest("[data-subscrpt-toggle-term]");
-    if (!box) {
+  // Set a term active/draft from its actions menu, then refresh.
+  document.addEventListener("click", function (e) {
+    var link = e.target.closest("[data-subscrpt-set-term-status]");
+    if (!link) {
       return;
     }
-    var id = box.getAttribute("data-subscrpt-toggle-term");
-    api("PUT", "/terms/" + id, { status: box.checked ? "active" : "draft" }).catch(function (err) {
-      box.checked = !box.checked;
-      window.alert(err.message || i18n.genericError);
-    });
+    e.preventDefault();
+    var id = link.getAttribute("data-term-id");
+    var status = link.getAttribute("data-subscrpt-set-term-status");
+    api("PUT", "/terms/" + id, { status: status })
+      .then(function () {
+        window.location.reload();
+      })
+      .catch(function (err) {
+        window.alert(err.message || i18n.genericError);
+      });
   });
 })();

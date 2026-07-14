@@ -1,7 +1,7 @@
 <?php
 /**
- * Plan detail - Selling Plans tab. Terms render as a flat table: name +
- * breakdown on the left, actions (active toggle / edit / delete) on the right.
+ * Plan detail - Selling Plans tab. Each term is its own card: icon + name and
+ * a muted meta line (breakdown, trial, signup fee, expiry) + a 3-dot actions menu.
  *
  * @var array $plan Plan (PlanPresenter shape).
  *
@@ -24,44 +24,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</button>
 		</div>
 	<?php else : ?>
-		<div class="wpsubs-table-card">
-			<table class="wpsubs-table">
-				<tbody>
-					<?php foreach ( $plan['terms'] as $selling_term ) : ?>
-						<tr data-term-id="<?php echo esc_attr( $selling_term['id'] ); ?>">
-							<td>
-								<span style="font-weight:600;"><?php echo esc_html( $selling_term['name'] ); ?></span>
-								<?php if ( 'draft' === $selling_term['status'] ) : ?>
-									<span class="wpsubs-badge wpsubs-badge--draft" style="margin-left:6px;"><?php esc_html_e( 'Draft', 'subscription' ); ?></span>
-								<?php endif; ?>
-								<span style="display:block;margin-top:2px;font-size:13px;color:var(--wpsubs-text-muted);"><?php echo esc_html( $selling_term['breakdown'] ); ?></span>
-								<?php if ( ! empty( $selling_term['chips'] ) ) : ?>
-									<span style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
-										<?php foreach ( $selling_term['chips'] as $chip ) : ?>
-											<span class="wpsubs-badge wpsubs-badge--neutral" style="font-weight:400;"><?php echo esc_html( $chip ); ?></span>
-										<?php endforeach; ?>
-									</span>
-								<?php endif; ?>
-							</td>
-							<td style="width:1%;white-space:nowrap;">
-								<div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
-									<label class="wpsubs-settings-toggle-label">
-										<span class="wpsubs-settings-toggle-label__text"><?php esc_html_e( 'Active', 'subscription' ); ?></span>
-										<input type="checkbox" class="wpsubs-toggle" data-subscrpt-toggle-term="<?php echo esc_attr( $selling_term['id'] ); ?>" <?php checked( 'active', $selling_term['status'] ); ?> />
-										<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
-									</label>
-									<button type="button" class="wpsubs-btn wpsubs-btn--icon wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-edit-term="<?php echo esc_attr( $selling_term['id'] ); ?>" aria-label="<?php esc_attr_e( 'Edit', 'subscription' ); ?>" title="<?php esc_attr_e( 'Edit', 'subscription' ); ?>">
-										<span class="dashicons dashicons-edit"></span>
-									</button>
-									<button type="button" class="wpsubs-btn wpsubs-btn--icon wpsubs-btn--outline wpsubs-btn--sm wpsubs-btn--danger" data-subscrpt-delete-term="<?php echo esc_attr( $selling_term['id'] ); ?>" aria-label="<?php esc_attr_e( 'Delete', 'subscription' ); ?>" title="<?php esc_attr_e( 'Delete', 'subscription' ); ?>">
-										<span class="dashicons dashicons-trash"></span>
-									</button>
-								</div>
-							</td>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
+		<div style="display:flex;flex-direction:column;gap:10px;">
+			<?php foreach ( $plan['terms'] as $selling_term ) : ?>
+				<div class="wpsubs-table-card" data-term-id="<?php echo esc_attr( $selling_term['id'] ); ?>" style="display:flex;align-items:center;gap:14px;padding:14px 16px;">
+					<span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--wpsubs-radius);background:var(--wpsubs-brand-light);color:var(--wpsubs-brand);">
+						<span class="dashicons dashicons-calendar-alt"></span>
+					</span>
+					<div style="flex:1 1 auto;min-width:0;">
+						<span style="font-weight:600;font-size:13.5px;"><?php echo esc_html( $selling_term['name'] ); ?></span>
+						<?php if ( 'draft' === $selling_term['status'] ) : ?>
+							<span class="wpsubs-badge wpsubs-badge--draft" style="margin-left:6px;"><?php esc_html_e( 'Draft', 'subscription' ); ?></span>
+						<?php endif; ?>
+						<?php $subscrpt_meta_parts = array_merge( array( $selling_term['breakdown'] ), $selling_term['chips'] ); ?>
+						<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--wpsubs-text-muted);">
+							<?php foreach ( $subscrpt_meta_parts as $subscrpt_i => $subscrpt_part ) : ?>
+								<?php
+								if ( $subscrpt_i > 0 ) :
+									?>
+									<span style="color:var(--wpsubs-text-subtle);">&middot;</span><?php endif; ?>
+								<span><?php echo esc_html( $subscrpt_part ); ?></span>
+							<?php endforeach; ?>
+						</div>
+					</div>
+					<div class="wpsubs-row-actions" data-subscrpt-dropdown style="flex:0 0 auto;">
+						<button type="button" class="wpsubs-row-actions__trigger" aria-label="<?php esc_attr_e( 'Actions', 'subscription' ); ?>">···</button>
+						<div class="wpsubs-dropdown" hidden>
+							<a href="#" class="wpsubs-dropdown__item" data-subscrpt-edit-term="<?php echo esc_attr( $selling_term['id'] ); ?>"><?php esc_html_e( 'Edit', 'subscription' ); ?></a>
+							<?php if ( 'draft' === $selling_term['status'] ) : ?>
+								<a href="#" class="wpsubs-dropdown__item" data-subscrpt-set-term-status="active" data-term-id="<?php echo esc_attr( $selling_term['id'] ); ?>"><?php esc_html_e( 'Set as Active', 'subscription' ); ?></a>
+							<?php else : ?>
+								<a href="#" class="wpsubs-dropdown__item" data-subscrpt-set-term-status="draft" data-term-id="<?php echo esc_attr( $selling_term['id'] ); ?>"><?php esc_html_e( 'Set as Draft', 'subscription' ); ?></a>
+							<?php endif; ?>
+							<div class="wpsubs-dropdown__divider"></div>
+							<a href="#" class="wpsubs-dropdown__item wpsubs-dropdown__item--danger" data-subscrpt-delete-term="<?php echo esc_attr( $selling_term['id'] ); ?>"><?php esc_html_e( 'Delete', 'subscription' ); ?></a>
+						</div>
+					</div>
+				</div>
+			<?php endforeach; ?>
 		</div>
 
 		<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="margin-top:16px;" data-wpsubs-modal-open="subscrpt-term-modal" data-subscrpt-add-term>
