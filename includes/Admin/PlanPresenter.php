@@ -185,6 +185,15 @@ class PlanPresenter {
 	protected static function term_chips( $plan ) {
 		$chips = array();
 
+		$installments = isset( $plan['data']['installment_count'] ) ? (int) $plan['data']['installment_count'] : 0;
+		if ( $installments > 1 ) {
+			$chips[] = sprintf(
+				/* translators: %d: number of installment payments. */
+				_n( '%d payment', '%d payments', $installments, 'subscription' ),
+				$installments
+			);
+		}
+
 		$trial_days = (int) ( $plan['free_trial'] ?? 0 );
 		if ( $trial_days > 0 ) {
 			$trial_unit = isset( $plan['data']['free_trial_interval'] ) ? (string) $plan['data']['free_trial_interval'] : 'day';

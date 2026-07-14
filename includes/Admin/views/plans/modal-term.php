@@ -1,7 +1,10 @@
 <?php
 /**
- * Add / Edit Selling Plan modal (Recurring). Field rows mirror the onboarding
- * wizard's "Subscription details" section. Signup fee is a Pro-only field.
+ * Add / Edit Selling Plan modal.
+ *
+ * Common rows: name, billing every, free trial, signup fee (Pro).
+ * Recurring Delivery adds: delivery schedule + synchronize toggle (all Pro).
+ * Split Payment adds: number of payments + access-ends timing (all Pro).
  *
  * @var array $plan Plan (provides id + type).
  *
@@ -31,6 +34,30 @@ $interval_options = array(
 	),
 );
 
+$access_options = array(
+	array(
+		'value' => 'full_duration',
+		'label' => __( 'After full duration', 'subscription' ),
+	),
+	array(
+		'value' => 'lifetime',
+		'label' => __( 'Lifetime access', 'subscription' ),
+	),
+	array(
+		'value' => 'custom',
+		'label' => __( 'Custom', 'subscription' ),
+	),
+);
+
+global $wp_locale;
+$weekday_options = array();
+for ( $subscrpt_wd = 0; $subscrpt_wd < 7; $subscrpt_wd++ ) {
+	$weekday_options[] = array(
+		'value' => (string) $subscrpt_wd,
+		'label' => $wp_locale ? $wp_locale->get_weekday( $subscrpt_wd ) : (string) $subscrpt_wd,
+	);
+}
+
 // Match the onboarding "Subscription details" form-row styling.
 $label_style = 'display:block;font-size:13px;font-weight:500;color:var(--wpsubs-text);margin:0 0 6px;';
 $hint_style  = 'font-size:12px;color:var(--wpsubs-text-muted);margin:5px 0 0;line-height:1.4;';
@@ -41,8 +68,21 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 $currency   = function_exists( 'get_woocommerce_currency_symbol' )
 	? html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' )
 	: '$';
+
+$group_type      = isset( $plan['type'] ) ? $plan['type'] : 'recurring';
+$is_delivery     = 'subscribe_save' === $group_type;
+$is_installments = 'installments' === $group_type;
+
+// The delivery + split-payment fields are Pro. When Pro is inactive (e.g. a
+// Pro-typed group opened after Pro was deactivated), lock them: a Pro badge on
+// the label, disabled native inputs, and a non-interactive look on adv-selects.
+$pro_locked = ! $pro_active;
+$pro_badge  = $pro_locked
+	? ' <span class="wpsubs-badge wpsubs-badge--pro" style="margin-left:6px;" title="' . esc_attr__( 'WPSubscription Pro required', 'subscription' ) . '">' . esc_html__( 'Pro', 'subscription' ) . '</span>'
+	: '';
+$adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 ?>
-<div class="wpsubs-modal" id="subscrpt-term-modal" hidden data-subscrpt-term-modal data-group-id="<?php echo esc_attr( $plan['id'] ); ?>" data-group-type="recurring">
+<div class="wpsubs-modal" id="subscrpt-term-modal" hidden data-subscrpt-term-modal data-group-id="<?php echo esc_attr( $plan['id'] ); ?>" data-group-type="<?php echo esc_attr( $group_type ); ?>">
 	<div class="wpsubs-modal__backdrop" data-wpsubs-modal-close></div>
 	<div class="wpsubs-modal__dialog" style="width:min(460px, calc(100vw - 40px));">
 		<div class="wpsubs-modal__head">
@@ -51,14 +91,14 @@ $currency   = function_exists( 'get_woocommerce_currency_symbol' )
 		</div>
 		<div class="wpsubs-modal__body" style="overflow:visible;">
 
-			<!-- Row 1: Plan name -->
+			<!-- Plan name -->
 			<div style="<?php echo esc_attr( $row_style ); ?>">
 				<label style="<?php echo esc_attr( $label_style ); ?>" for="subscrpt-term-name"><?php esc_html_e( 'Plan Name', 'subscription' ); ?></label>
 				<input type="text" id="subscrpt-term-name" class="wpsubs-input" value="" placeholder="<?php esc_attr_e( 'e.g. Monthly', 'subscription' ); ?>" data-subscrpt-field="title" />
 				<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'Shown to customers when they pick this plan.', 'subscription' ); ?></p>
 			</div>
 
-			<!-- Row 2: Billing every (full width) -->
+			<!-- Billing every -->
 			<div style="<?php echo esc_attr( $row_style ); ?>">
 				<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Billing every', 'subscription' ); ?></label>
 				<div style="<?php echo esc_attr( $pair_style ); ?>">
@@ -80,8 +120,8 @@ $currency   = function_exists( 'get_woocommerce_currency_symbol' )
 				<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'How often the customer is charged, for example every 1 month.', 'subscription' ); ?></p>
 			</div>
 
-			<!-- Row 3: Free trial | Signup fee -->
-			<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0;">
+			<!-- Free trial | Signup fee -->
+			<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;<?php echo ( $is_delivery || $is_installments ) ? esc_attr( $row_style ) : 'margin-bottom:0;'; ?>">
 				<div>
 					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Free trial', 'subscription' ); ?> <span style="color:var(--wpsubs-text-subtle);font-weight:400;">(<?php esc_html_e( 'optional', 'subscription' ); ?>)</span></label>
 					<div style="<?php echo esc_attr( $pair_style ); ?>">
@@ -117,6 +157,105 @@ $currency   = function_exists( 'get_woocommerce_currency_symbol' )
 					<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'One-time fee on the first payment.', 'subscription' ); ?></p>
 				</div>
 			</div>
+
+			<?php if ( $is_delivery ) : ?>
+				<!-- Recurring Delivery extras -->
+				<div style="<?php echo esc_attr( $row_style ); ?>">
+					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Delivery schedule', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
+					<div style="<?php echo esc_attr( $pair_style ); ?>">
+						<input type="number" class="wpsubs-input" value="" min="1" placeholder="<?php esc_attr_e( 'Same as billing', 'subscription' ); ?>" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="delivery_frequency" aria-label="<?php esc_attr_e( 'Delivery frequency', 'subscription' ); ?>" <?php disabled( $pro_locked ); ?> />
+						<?php
+						wpsubs_render_adv_select(
+							array(
+								'name'    => 'subscrpt_delivery_interval',
+								'value'   => 'month',
+								'options' => $interval_options,
+								'attrs'   => array(
+									'data-subscrpt-field' => 'delivery_interval',
+									'style'               => 'flex:0 0 auto;' . $adv_lock,
+								),
+							)
+						);
+						?>
+					</div>
+					<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'How often the product ships. Leave empty to match the billing schedule.', 'subscription' ); ?></p>
+				</div>
+
+				<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-bottom:0;">
+					<div>
+						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Synchronize schedule', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
+						<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:8px;height:36px;<?php echo esc_attr( $adv_lock ); ?>">
+							<input type="checkbox" class="wpsubs-toggle" data-subscrpt-field="delivery_sync" <?php disabled( $pro_locked ); ?> />
+							<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+						</label>
+						<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'Deliver everyone on the same weekday.', 'subscription' ); ?></p>
+					</div>
+					<div data-subscrpt-delivery-day style="opacity:0.55;pointer-events:none;">
+						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Delivery day', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
+						<?php
+						wpsubs_render_adv_select(
+							array(
+								'name'    => 'subscrpt_delivery_day',
+								'value'   => '1',
+								'options' => $weekday_options,
+								'attrs'   => array(
+									'data-subscrpt-field' => 'delivery_day',
+									'style'               => 'width:100%;',
+								),
+							)
+						);
+						?>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $is_installments ) : ?>
+				<!-- Split Payment extras -->
+				<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-bottom:0;">
+					<div>
+						<label style="<?php echo esc_attr( $label_style ); ?>" for="subscrpt-term-installments"><?php esc_html_e( 'Number of payments', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
+						<input type="number" id="subscrpt-term-installments" class="wpsubs-input" value="2" min="2" data-subscrpt-field="installment_count" <?php disabled( $pro_locked ); ?> />
+						<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'Total payments to collect (minimum 2).', 'subscription' ); ?></p>
+					</div>
+					<div>
+						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Access ends', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
+						<?php
+						wpsubs_render_adv_select(
+							array(
+								'name'    => 'subscrpt_access_ends',
+								'value'   => 'full_duration',
+								'options' => $access_options,
+								'attrs'   => array(
+									'data-subscrpt-field' => 'access_ends',
+									'style'               => 'width:100%;' . $adv_lock,
+								),
+							)
+						);
+						?>
+						<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'When the customer loses access after the payments finish.', 'subscription' ); ?></p>
+					</div>
+				</div>
+
+				<div data-subscrpt-access-custom style="display:none;margin-top:16px;">
+					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Custom access duration', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
+					<div style="<?php echo esc_attr( $pair_style ); ?>">
+						<input type="number" class="wpsubs-input" value="1" min="1" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="access_custom_value" aria-label="<?php esc_attr_e( 'Access length', 'subscription' ); ?>" <?php disabled( $pro_locked ); ?> />
+						<?php
+						wpsubs_render_adv_select(
+							array(
+								'name'    => 'subscrpt_access_custom_interval',
+								'value'   => 'month',
+								'options' => $interval_options,
+								'attrs'   => array(
+									'data-subscrpt-field' => 'access_custom_interval',
+									'style'               => 'flex:0 0 auto;' . $adv_lock,
+								),
+							)
+						);
+						?>
+					</div>
+				</div>
+			<?php endif; ?>
 
 		</div>
 		<div class="wpsubs-modal__footer">

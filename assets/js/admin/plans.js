@@ -284,16 +284,52 @@
   }
 
   /**
-   * Map the term modal's flat fields to a /terms payload (Recurring).
+   * Map the term modal's flat fields to a /terms payload.
    *
-   * @param {Object} f       Flat field map.
-   * @param {string} groupId Plan group id.
+   * @param {Object} f         Flat field map.
+   * @param {string} groupId   Plan group id.
+   * @param {string} groupType Plan group type key.
    * @return {Object} REST payload.
    */
-  function termPayload(f, groupId) {
+  function termPayload(f, groupId, groupType) {
+    var data = {
+      free_trial_interval: f.free_trial_interval || "day",
+    };
+
+    // Recurring Delivery: separate delivery schedule + sync toggle.
+    if (typeof f.delivery_sync !== "undefined") {
+      data.delivery_sync = !!f.delivery_sync;
+      if (data.delivery_sync && typeof f.delivery_day !== "undefined") {
+        data.delivery_day = f.delivery_day;
+      }
+    }
+    if (typeof f.delivery_frequency !== "undefined") {
+      var deliveryFreq = parseInt(f.delivery_frequency, 10);
+      if (!String(f.delivery_frequency).trim() || isNaN(deliveryFreq) || deliveryFreq < 1) {
+        // Empty delivery schedule -> mirror the billing schedule.
+        data.delivery_frequency = parseInt(f.billing_frequency, 10) || 1;
+        data.delivery_interval = f.billing_interval || "month";
+      } else {
+        data.delivery_frequency = deliveryFreq;
+        data.delivery_interval = f.delivery_interval || "month";
+      }
+    }
+
+    // Split Payment: number of payments + access-ends timing.
+    if (typeof f.installment_count !== "undefined") {
+      data.installment_count = Math.max(2, parseInt(f.installment_count, 10) || 2);
+    }
+    if (typeof f.access_ends !== "undefined") {
+      data.access_ends = f.access_ends || "full_duration";
+      if ("custom" === data.access_ends) {
+        data.access_custom_value = parseInt(f.access_custom_value, 10) || 1;
+        data.access_custom_interval = f.access_custom_interval || "month";
+      }
+    }
+
     return {
       plan_group_id: parseInt(groupId, 10),
-      type: "recurring",
+      type: groupType || "recurring",
       title: f.title || "",
       billing_frequency: parseInt(f.billing_frequency, 10) || 1,
       billing_interval: INTERVAL_TO_INT[f.billing_interval] || 3,
@@ -301,9 +337,7 @@
       free_trial: f.free_trial || "",
       signup_fee: { amount: f.signup_fee_amount || "" },
       status: "active",
-      data: {
-        free_trial_interval: f.free_trial_interval || "day",
-      },
+      data: data,
     };
   }
 
@@ -353,16 +387,95 @@
         case "signup_fee_amount":
           el.value = term.signup_fee && term.signup_fee.amount ? term.signup_fee.amount : "";
           break;
+        case "delivery_sync":
+          el.checked = !!data.delivery_sync;
+          break;
+        case "delivery_day":
+          setAdvSelect(el, typeof data.delivery_day !== "undefined" ? data.delivery_day : "1");
+          break;
+        case "delivery_frequency":
+          el.value = data.delivery_frequency || 1;
+          break;
+        case "delivery_interval":
+          setAdvSelect(el, data.delivery_interval || "month");
+          break;
+        case "installment_count":
+          el.value = data.installment_count || 2;
+          break;
+        case "access_ends":
+          setAdvSelect(el, data.access_ends || "full_duration");
+          break;
+        case "access_custom_value":
+          el.value = data.access_custom_value || 1;
+          break;
+        case "access_custom_interval":
+          setAdvSelect(el, data.access_custom_interval || "month");
+          break;
         default:
           break;
       }
     });
     modal.setAttribute("data-editing", term ? term.id : "");
+    toggleAccessCustom(modal);
+    toggleDeliveryDay(modal);
     var title = modal.querySelector("[data-subscrpt-term-title]");
     if (title) {
       title.textContent = term ? i18n.editTerm || "Edit Selling Plan" : i18n.addTerm || "Add Selling Plan";
     }
   }
+
+  /**
+   * Show the custom access-length inputs only when "Custom" is selected.
+   *
+   * @param {HTMLElement} modal Term modal (or any ancestor of the controls).
+   */
+  function toggleAccessCustom(modal) {
+    if (!modal) {
+      return;
+    }
+    var sel = modal.querySelector('[data-subscrpt-field="access_ends"]');
+    var custom = modal.querySelector("[data-subscrpt-access-custom]");
+    if (!sel || !custom) {
+      return;
+    }
+    custom.style.display = "custom" === advValue(sel) ? "" : "none";
+  }
+
+  // Re-evaluate the custom access row when the selection changes.
+  document.addEventListener("wpsubs:select", function (e) {
+    var root = e.target.closest('[data-subscrpt-field="access_ends"]');
+    if (root) {
+      toggleAccessCustom(root.closest("[data-subscrpt-term-modal]"));
+    }
+  });
+
+  /**
+   * Enable the delivery-day picker only when Synchronize schedule is on
+   * (it stays visible but disabled otherwise).
+   *
+   * @param {HTMLElement} modal Term modal.
+   */
+  function toggleDeliveryDay(modal) {
+    if (!modal) {
+      return;
+    }
+    var box = modal.querySelector('[data-subscrpt-field="delivery_sync"]');
+    var day = modal.querySelector("[data-subscrpt-delivery-day]");
+    if (!box || !day) {
+      return;
+    }
+    var on = box.checked;
+    day.style.opacity = on ? "" : "0.55";
+    day.style.pointerEvents = on ? "" : "none";
+  }
+
+  // Toggle the delivery-day picker as the sync checkbox changes.
+  document.addEventListener("change", function (e) {
+    var box = e.target.closest('[data-subscrpt-field="delivery_sync"]');
+    if (box) {
+      toggleDeliveryDay(box.closest("[data-subscrpt-term-modal]"));
+    }
+  });
 
   // Open the term modal in add or edit mode.
   document.addEventListener("click", function (e) {
@@ -401,8 +514,9 @@
     }
     var modal = btn.closest("[data-subscrpt-term-modal]");
     var groupId = modal.getAttribute("data-group-id");
+    var groupType = modal.getAttribute("data-group-type");
     var editing = modal.getAttribute("data-editing");
-    var payload = termPayload(collectFields(modal), groupId);
+    var payload = termPayload(collectFields(modal), groupId, groupType);
 
     if (!payload.title) {
       window.alert(i18n.nameRequired);
