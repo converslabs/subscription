@@ -574,4 +574,142 @@
         window.alert(err.message || i18n.genericError);
       });
   });
+
+  /* ------------------------------------------------------------------ *
+   * Products tab (Pro): bulk-add products to the plan group.
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Populate the Add Products picker with a product search.
+   *
+   * @param {HTMLElement} modal  The add-product modal.
+   * @param {string}      search Search term.
+   */
+  function loadProducts(modal, search) {
+    var list = modal.querySelector("[data-subscrpt-product-list]");
+    if (!list) {
+      return;
+    }
+    list.innerHTML =
+      '<li style="padding:10px 4px;color:var(--wpsubs-text-subtle);font-size:13px;">' +
+      (i18n.loading || "Loading…") +
+      "</li>";
+
+    api("GET", "/products?search=" + encodeURIComponent(search || ""))
+      .then(function (products) {
+        if (!products.length) {
+          list.innerHTML =
+            '<li style="padding:10px 4px;color:var(--wpsubs-text-subtle);font-size:13px;">' +
+            (i18n.noProducts || "No products found.") +
+            "</li>";
+          return;
+        }
+        list.innerHTML = "";
+        products.forEach(function (p) {
+          var li = document.createElement("li");
+          li.style.cssText =
+            "display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--wpsubs-border);";
+
+          var label = document.createElement("label");
+          label.style.cssText = "display:flex;align-items:center;gap:10px;flex:1 1 auto;min-width:0;cursor:pointer;";
+
+          var cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.className = "wpsubs-checkbox";
+          cb.value = p.id;
+          cb.setAttribute("data-price", p.price || "");
+
+          var name = document.createElement("span");
+          name.textContent = p.name;
+          name.style.fontWeight = "500";
+
+          label.appendChild(cb);
+          label.appendChild(name);
+
+          var price = document.createElement("span");
+          price.style.cssText = "color:var(--wpsubs-text-muted);font-size:13px;flex:0 0 auto;";
+          price.textContent = p.price_html || "";
+
+          li.appendChild(label);
+          li.appendChild(price);
+          list.appendChild(li);
+        });
+      })
+      .catch(function () {
+        list.innerHTML =
+          '<li style="padding:10px 4px;color:var(--wpsubs-text-subtle);font-size:13px;">' +
+          (i18n.genericError || "") +
+          "</li>";
+      });
+  }
+
+  // Load the picker when the modal opens.
+  document.addEventListener("wpsubs:modal:open", function (e) {
+    var modal = e.target;
+    if (modal && modal.id === "subscrpt-add-product") {
+      loadProducts(modal, "");
+    }
+  });
+
+  // Debounced product search.
+  var addProductTimer;
+  document.addEventListener("input", function (e) {
+    var input = e.target.closest("[data-subscrpt-product-search]");
+    if (!input) {
+      return;
+    }
+    var modal = input.closest("[data-subscrpt-add-product]");
+    window.clearTimeout(addProductTimer);
+    addProductTimer = window.setTimeout(function () {
+      loadProducts(modal, input.value.trim());
+    }, 300);
+  });
+
+  // Attach the checked products to every selling plan in the group.
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-add-product-submit]");
+    if (!btn) {
+      return;
+    }
+    var modal = btn.closest("[data-subscrpt-add-product]");
+    var groupId = modal.getAttribute("data-group-id");
+    var checked = modal.querySelectorAll("[data-subscrpt-product-list] input:checked");
+    if (!checked.length) {
+      return;
+    }
+
+    setLoading(btn, true);
+    api("GET", "/groups/" + groupId)
+      .then(function (group) {
+        var terms = (group && group.plans) || [];
+        var isInstallments = group && ("installments" === group.type_key || 3 === parseInt(group.type, 10));
+        var calls = [];
+        Array.prototype.forEach.call(checked, function (box) {
+          var price = box.getAttribute("data-price") || "";
+          var data = isInstallments
+            ? { price_per_installment: price, down_payment: "" }
+            : { regular_price: price, sale_price: "" };
+          terms.forEach(function (term) {
+            calls.push(
+              api("POST", "/relations", {
+                plan_id: term.id,
+                oid: parseInt(box.value, 10),
+                vid: 0,
+                type: 1,
+                status: "active",
+                data: data,
+              }),
+            );
+          });
+        });
+        return Promise.all(calls);
+      })
+      .then(function () {
+        window.location.reload();
+      })
+      .catch(function (err) {
+        setLoading(btn, false);
+        window.alert(err.message || i18n.genericError);
+      });
+  });
 })();

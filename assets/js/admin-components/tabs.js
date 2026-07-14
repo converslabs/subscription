@@ -13,6 +13,11 @@
  *
  * The tab with aria-selected="true" (or the first tab) is active on load.
  *
+ * Persistence (opt-in): add data-tabs-query="<param>" to the root and the
+ * active tab's key is written to that URL query param (via replaceState, no
+ * reload). On load the tab matching the param is restored, else the first tab.
+ * Each tab's key comes from data-tab-key, falling back to its id.
+ *
  * Events fired on the root element (bubbles):
  *   wpsubs:tab:change — { id }  the newly selected tab's id
  */
@@ -25,14 +30,32 @@
   function WPSubsTabs(el) {
     this.el = el;
     this.tabs = Array.prototype.slice.call(el.querySelectorAll(".wpsubs-tabs__tab"));
+    this.queryParam = el.getAttribute("data-tabs-query") || "";
     this._bind();
 
-    // Activate the pre-selected tab, or fall back to the first one.
+    var self = this;
+
+    // Restore from the URL query param (opt-in), else the pre-selected tab,
+    // else the first tab.
+    var fromQuery = null;
+    if (this.queryParam) {
+      var wanted = new URLSearchParams(window.location.search).get(this.queryParam);
+      if (wanted) {
+        fromQuery = this.tabs.filter(function (t) {
+          return self._key(t) === wanted;
+        })[0];
+      }
+    }
     var selected = this.tabs.filter(function (t) {
       return t.getAttribute("aria-selected") === "true";
     })[0];
-    this.activate(selected || this.tabs[0], false);
+    this.activate(fromQuery || selected || this.tabs[0], false);
   }
+
+  /** Stable key for a tab: data-tab-key, else its id. */
+  WPSubsTabs.prototype._key = function (tab) {
+    return tab.getAttribute("data-tab-key") || tab.id || "";
+  };
 
   /** Panel controlled by a tab (via aria-controls). */
   WPSubsTabs.prototype._panel = function (tab) {
@@ -44,10 +67,11 @@
   /**
    * Show one tab's panel, hide the rest.
    *
-   * @param {HTMLElement} tab     Tab to activate.
-   * @param {boolean}     [focus] Move focus to the tab (keyboard nav).
+   * @param {HTMLElement} tab         Tab to activate.
+   * @param {boolean}     [focus]     Move focus to the tab (keyboard nav).
+   * @param {boolean}     [updateUrl] Write the tab key to the URL query param.
    */
-  WPSubsTabs.prototype.activate = function (tab, focus) {
+  WPSubsTabs.prototype.activate = function (tab, focus, updateUrl) {
     if (!tab) return;
     var self = this;
 
@@ -60,6 +84,12 @@
     });
 
     if (focus) tab.focus();
+
+    if (updateUrl && this.queryParam) {
+      var url = new URL(window.location.href);
+      url.searchParams.set(this.queryParam, this._key(tab));
+      window.history.replaceState(null, "", url);
+    }
 
     this.el.dispatchEvent(
       new CustomEvent("wpsubs:tab:change", {
@@ -75,7 +105,7 @@
     this.tabs.forEach(function (tab, index) {
       tab.addEventListener("click", function (e) {
         e.preventDefault();
-        self.activate(tab);
+        self.activate(tab, false, true);
       });
 
       tab.addEventListener("keydown", function (e) {
@@ -83,7 +113,7 @@
         if (!dir) return;
         e.preventDefault();
         var next = (index + dir + self.tabs.length) % self.tabs.length;
-        self.activate(self.tabs[next], true);
+        self.activate(self.tabs[next], true, true);
       });
     });
   };

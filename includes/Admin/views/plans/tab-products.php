@@ -1,10 +1,10 @@
 <?php
 /**
- * Plan detail - Products tab (READ-ONLY in free).
+ * Plan detail - Products tab.
  *
- * Lists the products attached to this plan and the price each pays per selling
- * plan. Attaching a product and editing its price is done from the product
- * editor's Subscription tab - not here. (Plan-side attach / inline edit is Pro.)
+ * Lists the products attached to this plan group. In free this is read-only:
+ * products are connected from their own editor. With Pro active, an "Add
+ * Products" bulk picker is available here.
  *
  * @var array $plan Plan (PlanPresenter shape).
  *
@@ -14,6 +14,8 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+$pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activated();
 ?>
 <div style="padding-top:8px;">
 
@@ -21,10 +23,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="wpsubs-empty">
 			<div class="wpsubs-empty__icon">📦</div>
 			<h3 class="wpsubs-empty__title"><?php esc_html_e( 'No products connected', 'subscription' ); ?></h3>
-			<p class="wpsubs-empty__desc"><?php esc_html_e( 'Products are connected from their own editor. Open a product, go to its Subscription tab, pick this plan group, and set the price. It will then show here.', 'subscription' ); ?></p>
-			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=product' ) ); ?>" class="wpsubs-btn wpsubs-btn--primary" style="margin-top:20px;">
-				<?php esc_html_e( 'Go to Products', 'subscription' ); ?>
-			</a>
+			<?php if ( $pro_active ) : ?>
+				<p class="wpsubs-empty__desc"><?php esc_html_e( 'Add products to this plan group and set their prices here, or connect a product from its own Subscription tab.', 'subscription' ); ?></p>
+				<button type="button" class="wpsubs-btn wpsubs-btn--primary" style="margin-top:20px;" data-wpsubs-modal-open="subscrpt-add-product">
+					<span class="dashicons dashicons-plus-alt2" style="font-size:16px;width:16px;height:16px;line-height:1;"></span>
+					<?php esc_html_e( 'Add Products', 'subscription' ); ?>
+				</button>
+			<?php else : ?>
+				<p class="wpsubs-empty__desc"><?php esc_html_e( 'Products are connected from their own editor: open a product, go to its Subscription tab, pick this plan group, and set the price. Bulk-add from here is available with WPSubscription Pro.', 'subscription' ); ?></p>
+				<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=product' ) ); ?>" class="wpsubs-btn wpsubs-btn--primary" style="margin-top:20px;">
+					<?php esc_html_e( 'Go to Products', 'subscription' ); ?>
+				</a>
+			<?php endif; ?>
 		</div>
 	<?php else : ?>
 
@@ -74,6 +84,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 		<?php endforeach; ?>
 
+		<?php if ( $pro_active ) : ?>
+			<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="margin-top:16px;" data-wpsubs-modal-open="subscrpt-add-product">
+				<span class="dashicons dashicons-plus-alt2" style="font-size:16px;width:16px;height:16px;line-height:1;"></span>
+				<?php esc_html_e( 'Add Products', 'subscription' ); ?>
+			</button>
+		<?php endif; ?>
+
 	<?php endif; ?>
 
 </div>
+
+<?php
+if ( $pro_active ) {
+	require __DIR__ . '/modal-add-product.php';
+}

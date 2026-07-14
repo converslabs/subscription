@@ -503,17 +503,29 @@ class PlanController {
 		$results  = array();
 
 		foreach ( $products as $product ) {
+			// Plain product price only — wc_price() skips the subscription
+			// price-html filter (no "/ period" suffix), and the entity is decoded
+			// so it renders correctly when set as text.
+			$price = (float) wc_get_price_to_display( $product );
+
 			$results[] = array(
 				'id'         => $product->get_id(),
 				'name'       => $product->get_name(),
 				'type'       => $product->get_type(),
-				'price'      => wc_get_price_to_display( $product ),
-				'price_html' => wp_strip_all_tags( $product->get_price_html() ),
+				'price'      => $price,
+				'price_html' => html_entity_decode( wp_strip_all_tags( wc_price( $price ) ), ENT_QUOTES, 'UTF-8' ),
 				'is_virtual' => $product->is_virtual(),
 			);
 		}
 
-		return rest_ensure_response( $results );
+		/**
+		 * Filter the product-picker results. Free returns simple products only;
+		 * Pro hooks this to append variable products.
+		 *
+		 * @param array  $results Product rows (id, name, type, price, price_html, is_virtual).
+		 * @param string $search  Current search term.
+		 */
+		return rest_ensure_response( apply_filters( 'subscrpt_plan_products', $results, $search ) );
 	}
 
 	/* ---- Free constraint guards ---- */
