@@ -30,7 +30,8 @@
       "SpringDevs\\Subscription\\": "includes/"
     },
     "files": [
-      "includes/functions.php"
+      "includes/functions.php",
+      "includes/Admin/AdminComponents.php"
     ]
   },
   "config": {

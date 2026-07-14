@@ -30,7 +30,9 @@ class Cart {
 		add_action( 'woocommerce_before_calculate_totals', array( $this, 'add_calculation_price_filter' ) );
 		add_action( 'woocommerce_calculate_totals', array( $this, 'remove_calculation_price_filter' ) );
 		add_action( 'woocommerce_after_calculate_totals', array( $this, 'remove_calculation_price_filter' ) );
-		add_filter( 'woocommerce_add_to_cart_validation', array( $this, 'add_to_cart_validation' ), 10, 2 );
+
+		add_filter( 'woocommerce_add_to_cart_validation', array( $this, 'add_to_cart_validation' ), 10, 4 );
+		add_action( 'woocommerce_store_api_validate_add_to_cart', array( $this, 'add_to_cart_validation_store_api' ), 10, 1 );
 	}
 
 	/**
@@ -38,14 +40,54 @@ class Cart {
 	 *
 	 * @param bool $passed Passed ?.
 	 * @param int  $product_id Product Id.
+	 * @param int  $quantity Quantity.
+	 * @param int  $variation_id Variation Id.
 	 *
 	 * @return bool
 	 */
-	public function add_to_cart_validation( bool $passed, int $product_id ): bool {
-		$cart_items   = WC()->cart->cart_contents;
+	public function add_to_cart_validation( bool $passed, int $product_id, int $quantity, int $variation_id = 0 ): bool {
+		$product_id = $variation_id > 0 ? $variation_id : $product_id;
+		$validation = $this->validate_cart_items( $product_id );
+
+		if ( $validation['failed'] ) {
+			$error_notice = empty( $validation['error_notice'] ) ? __( 'This product cannot be added to the cart.', 'subscription' ) : $validation['error_notice'];
+			wc_add_notice( $error_notice, 'error' );
+			return false;
+		}
+
+		// Validation passed.
+		return $passed;
+	}
+
+	/**
+	 * Add to cart validation.
+	 *
+	 * @param \WC_Product $product Product.
+	 * @throws \Exception If validation fails.
+	 */
+	public function add_to_cart_validation_store_api( $product ) {
+		$product_id = $product->get_id();
+		$validation = $this->validate_cart_items( $product_id );
+
+		if ( $validation['failed'] ) {
+			$error_notice = empty( $validation['error_notice'] ) ? __( 'This product cannot be added to the cart.', 'subscription' ) : $validation['error_notice'];
+			throw new \Exception( esc_html( $error_notice ) );
+		}
+	}
+
+	/**
+	 * Validate cart items.
+	 *
+	 * @param int $product_id Product Id.
+	 * @return array
+	 */
+	public function validate_cart_items( $product_id ) {
+		$cart_items = WC()->cart->cart_contents;
+
+		$product = Subscription::get_subs_product( $product_id );
+
 		$error_notice = null;
 		$failed       = false;
-		$product      = Subscription::get_subs_product( $product_id );
 		$enabled      = $product->is_enabled();
 
 		foreach ( $cart_items as $key => $cart_item ) {
@@ -62,12 +104,10 @@ class Cart {
 			}
 		}
 
-		if ( $failed ) {
-			wc_add_notice( $error_notice, 'error' );
-			return false;
-		}
-
-		return $passed;
+		return [
+			'failed'       => (bool) $failed,
+			'error_notice' => $error_notice,
+		];
 	}
 
 	/**

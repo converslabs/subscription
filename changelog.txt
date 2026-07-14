@@ -1,5 +1,10 @@
 *** WPSubscription Changelog ***
 
+2026-07-12 - version 1.10.7
+* fix: Add to cart validation.
+* fix: Admin table paginations.
+* fix: Subscription expired email timing.
+
 2026-07-05 - version 1.10.6
 * new: Subscription cancellation feedback.
 * fix: Subscription status change cron.

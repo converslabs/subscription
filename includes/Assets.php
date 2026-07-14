@@ -87,7 +87,7 @@ class Assets {
 		// Each attaches its API to `window` and auto-inits; they are registered as
 		// individual scripts and bundled behind the `subscrpt_admin_components` handle.
 		$components      = array();
-		$component_files = array( 'adv-select', 'tag-select', 'editlist', 'modal', 'tabs', 'accordion' );
+		$component_files = array( 'adv-select', 'tag-select', 'editlist', 'modal', 'tabs', 'accordion', 'pagination' );
 		foreach ( $component_files as $component_file ) {
 			$handle                = 'subscrpt_component_' . str_replace( '-', '_', $component_file );
 			$components[ $handle ] = array(
@@ -154,6 +154,7 @@ class Assets {
 			'editlist',
 			'tabs',
 			'accordion',
+			'pagination',
 		);
 		foreach ( $component_files as $component_file ) {
 			$handle                      = 'subscrpt_style_' . str_replace( '-', '_', $component_file );

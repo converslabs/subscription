@@ -126,9 +126,9 @@ class Installer {
 	}
 
 	/**
-	 * Create the cancellation feedback table.
+	 * Create the cancellation survey table.
 	 *
-	 * One row per subscription — the latest cancellation feedback (a re-cancel after
+	 * One row per subscription — the latest cancellation survey (a re-cancel after
 	 * reactivation overwrites the previous row rather than accumulating a log, so
 	 * churn-by-reason reports never double-count a subscription). Stores the
 	 * customer's stated reason (key + a label snapshot that survives later reason
