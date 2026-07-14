@@ -14,19 +14,19 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 
 $types = array(
 	'recurring'      => array(
-		'label' => __( 'Recurring', 'subscription' ),
+		'label' => __( 'Recurring Payment', 'subscription' ),
 		'icon'  => 'dashicons-update',
 		'desc'  => __( 'Automatically charge recurring payments (best for virtual & downloadable products).', 'subscription' ),
 		'free'  => true,
 	),
 	'subscribe_save' => array(
-		'label' => __( 'Subscribe & Save', 'subscription' ),
+		'label' => __( 'Recurring Delivery', 'subscription' ),
 		'icon'  => 'dashicons-cart',
 		'desc'  => __( 'Charge and deliver physical products on a schedule.', 'subscription' ),
 		'free'  => false,
 	),
 	'installments'   => array(
-		'label' => __( 'Installments', 'subscription' ),
+		'label' => __( 'Split Payment', 'subscription' ),
 		'icon'  => 'dashicons-money-alt',
 		'desc'  => __( 'Split a price into a fixed number of payments.', 'subscription' ),
 		'free'  => false,
@@ -36,17 +36,18 @@ $types = array(
 <div class="wpsubs-modal" id="subscrpt-create-plan" hidden>
 	<div class="wpsubs-modal__backdrop" data-wpsubs-modal-close></div>
 	<div class="wpsubs-modal__dialog">
-		<div class="wpsubs-modal__head">
-			<h2 class="wpsubs-modal__title"><?php esc_html_e( 'Create Plan Group', 'subscription' ); ?></h2>
+		<div class="wpsubs-modal__head" style="align-items:flex-start;">
+			<div>
+				<h2 class="wpsubs-modal__title" style="font-size:16px;line-height:1.3;"><?php esc_html_e( 'Create Plan Group', 'subscription' ); ?></h2>
+				<p style="margin:5px 0 0;color:var(--wpsubs-text-muted);font-size:13px;line-height:1.5;font-weight:400;">
+					<?php esc_html_e( 'A plan group bundles the selling plans (billing terms) you attach to products. Name it, pick a type, then add selling plans.', 'subscription' ); ?>
+				</p>
+			</div>
 			<button type="button" class="wpsubs-modal__close" data-wpsubs-modal-close aria-label="<?php esc_attr_e( 'Close', 'subscription' ); ?>">&times;</button>
 		</div>
 		<div class="wpsubs-modal__body">
 
-			<p style="margin-top:0;color:var(--wpsubs-text-muted);font-size:13px;line-height:1.5;">
-				<?php esc_html_e( 'A plan group bundles the selling plans (billing terms) you attach to products. Name it, pick a type, then add selling plans.', 'subscription' ); ?>
-			</p>
-
-			<label for="subscrpt-create-name" style="display:block;font-weight:600;margin:16px 0 6px;"><?php esc_html_e( 'Name', 'subscription' ); ?></label>
+			<label for="subscrpt-create-name" style="display:block;font-weight:600;margin:0 0 6px;"><?php esc_html_e( 'Name', 'subscription' ); ?></label>
 			<input type="text" id="subscrpt-create-name" class="wpsubs-input" placeholder="<?php esc_attr_e( 'e.g. Premium Membership', 'subscription' ); ?>" autocomplete="off" />
 
 			<p style="font-weight:600;margin:16px 0 8px;"><?php esc_html_e( 'Plan Type', 'subscription' ); ?></p>
@@ -83,7 +84,7 @@ $types = array(
 
 			<?php if ( ! $pro_active ) : ?>
 				<p style="color:var(--wpsubs-text-muted);font-size:12px;margin:12px 0 0;">
-					<?php esc_html_e( 'Subscribe & Save and Installment plans are available in Subscription Pro.', 'subscription' ); ?>
+					<?php esc_html_e( 'Recurring Delivery and Split Payment plans are available in Subscription Pro.', 'subscription' ); ?>
 				</p>
 			<?php endif; ?>
 		</div>

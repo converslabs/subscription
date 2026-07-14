@@ -43,6 +43,8 @@
 }
 
 .wpsubs-modal__title {
+  margin: 0 0 8px;
+  padding: 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--wpsubs-text);

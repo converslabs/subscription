@@ -172,10 +172,25 @@ class Plans {
 	 */
 	public static function type_label( $type ) {
 		$labels = array(
-			'recurring'      => __( 'Recurring', 'subscription' ),
-			'subscribe_save' => __( 'Subscribe & Save', 'subscription' ),
-			'installments'   => __( 'Installments', 'subscription' ),
+			'recurring'      => __( 'Recurring Payment', 'subscription' ),
+			'subscribe_save' => __( 'Recurring Delivery', 'subscription' ),
+			'installments'   => __( 'Split Payment', 'subscription' ),
 		);
 		return isset( $labels[ $type ] ) ? $labels[ $type ] : ucfirst( $type );
+	}
+
+	/**
+	 * Dashicon class for a plan type.
+	 *
+	 * @param string $type Plan type key.
+	 * @return string
+	 */
+	public static function type_icon( $type ) {
+		$icons = array(
+			'recurring'      => 'dashicons-update',
+			'subscribe_save' => 'dashicons-cart',
+			'installments'   => 'dashicons-money-alt',
+		);
+		return isset( $icons[ $type ] ) ? $icons[ $type ] : 'dashicons-screenoptions';
 	}
 }

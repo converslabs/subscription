@@ -535,7 +535,7 @@ class PlanController {
 		if ( PlanRepository::TYPE_MAP['recurring'] !== $type_int ) {
 			return new WP_Error(
 				'subscrpt_plan_type_pro',
-				__( 'Subscribe & Save and Installment plans require Subscription Pro.', 'subscription' ),
+				__( 'Recurring Delivery and Split Payment plans require Subscription Pro.', 'subscription' ),
 				array( 'status' => 403 )
 			);
 		}
