@@ -54,6 +54,11 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 							<?php esc_html_e( 'Edit product', 'subscription' ); ?>
 						</a>
 					<?php endif; ?>
+					<?php if ( $pro_active ) : ?>
+						<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm wpsubs-btn--danger" data-subscrpt-remove-product="<?php echo esc_attr( $product['id'] ); ?>">
+							<?php esc_html_e( 'Remove', 'subscription' ); ?>
+						</button>
+					<?php endif; ?>
 				</div>
 				<table class="wpsubs-table">
 					<thead>

@@ -503,29 +503,61 @@ class PlanController {
 		$results  = array();
 
 		foreach ( $products as $product ) {
-			// Plain product price only — wc_price() skips the subscription
-			// price-html filter (no "/ period" suffix), and the entity is decoded
-			// so it renders correctly when set as text.
-			$price = (float) wc_get_price_to_display( $product );
-
-			$results[] = array(
-				'id'         => $product->get_id(),
-				'name'       => $product->get_name(),
-				'type'       => $product->get_type(),
-				'price'      => $price,
-				'price_html' => html_entity_decode( wp_strip_all_tags( wc_price( $price ) ), ENT_QUOTES, 'UTF-8' ),
-				'is_virtual' => $product->is_virtual(),
-			);
+			$results[] = self::product_row( $product );
 		}
 
 		/**
 		 * Filter the product-picker results. Free returns simple products only;
-		 * Pro hooks this to append variable products.
+		 * Pro hooks this to append variable products (with nested variations).
 		 *
-		 * @param array  $results Product rows (id, name, type, price, price_html, is_virtual).
+		 * @param array  $results Product rows (see product_row()).
 		 * @param string $search  Current search term.
 		 */
-		return rest_ensure_response( apply_filters( 'subscrpt_plan_products', $results, $search ) );
+		$results = apply_filters( 'subscrpt_plan_products', $results, $search );
+
+		// Newest first — sort parents by ID descending (variations keep their order).
+		usort(
+			$results,
+			function ( $a, $b ) {
+				return (int) $b['id'] - (int) $a['id'];
+			}
+		);
+
+		return rest_ensure_response( $results );
+	}
+
+	/**
+	 * Build one product-picker row.
+	 *
+	 * Shape: id, name, type, image (thumbnail URL or ''), price (numeric,
+	 * for the relation price field), price_html (display, decoded), is_virtual,
+	 * variations (array of child rows — empty for simple products).
+	 *
+	 * @param \WC_Product $product   Product (or variation).
+	 * @param string      $name_over Optional name override (used for variations).
+	 *
+	 * @return array
+	 */
+	public static function product_row( $product, $name_over = '' ) {
+		$image_id = $product->get_image_id();
+		$price    = (float) wc_get_price_to_display( $product );
+
+		// Amount only — wc_price() skips the subscription "/ period" suffix.
+		// Variable parents have no single price, so they show none.
+		$price_html = $product->is_type( 'variable' )
+			? ''
+			: html_entity_decode( wp_strip_all_tags( wc_price( $price ) ), ENT_QUOTES, 'UTF-8' );
+
+		return array(
+			'id'         => $product->get_id(),
+			'name'       => '' !== $name_over ? $name_over : $product->get_name(),
+			'type'       => $product->get_type(),
+			'image'      => $image_id ? wp_get_attachment_image_url( $image_id, array( 48, 48 ) ) : '',
+			'price'      => $price,
+			'price_html' => $price_html,
+			'is_virtual' => $product->is_virtual(),
+			'variations' => array(),
+		);
 	}
 
 	/* ---- Free constraint guards ---- */

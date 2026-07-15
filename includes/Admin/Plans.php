@@ -103,14 +103,15 @@ class Plans {
 					? html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' )
 					: '$',
 				'i18n'     => array(
-					'saved'        => __( 'Saved.', 'subscription' ),
-					'deleted'      => __( 'Deleted.', 'subscription' ),
-					'confirmPlan'  => __( 'Delete this plan group and all its selling plans? This cannot be undone.', 'subscription' ),
-					'confirmTerm'  => __( 'Delete this selling plan?', 'subscription' ),
-					'genericError' => __( 'Something went wrong. Please try again.', 'subscription' ),
-					'nameRequired' => __( 'Please enter a name.', 'subscription' ),
-					'addTerm'      => __( 'Add Selling Plan', 'subscription' ),
-					'editTerm'     => __( 'Edit Selling Plan', 'subscription' ),
+					'saved'                => __( 'Saved.', 'subscription' ),
+					'deleted'              => __( 'Deleted.', 'subscription' ),
+					'confirmPlan'          => __( 'Delete this plan group and all its selling plans? This cannot be undone.', 'subscription' ),
+					'confirmTerm'          => __( 'Delete this selling plan?', 'subscription' ),
+					'confirmRemoveProduct' => __( 'Remove this product from the plan group? It will be detached from every selling plan.', 'subscription' ),
+					'genericError'         => __( 'Something went wrong. Please try again.', 'subscription' ),
+					'nameRequired'         => __( 'Please enter a name.', 'subscription' ),
+					'addTerm'              => __( 'Add Selling Plan', 'subscription' ),
+					'editTerm'             => __( 'Edit Selling Plan', 'subscription' ),
 				),
 			)
 		);

@@ -580,6 +580,117 @@
    * ------------------------------------------------------------------ */
 
   /**
+   * Set a variable parent's checkbox from its children's state.
+   *
+   * @param {HTMLElement} parentCb   Parent control checkbox.
+   * @param {HTMLElement[]} childBoxes Variation checkboxes.
+   */
+  function syncParent(parentCb, childBoxes) {
+    var all = childBoxes.every(function (c) {
+      return c.checked;
+    });
+    var none = childBoxes.every(function (c) {
+      return !c.checked;
+    });
+    parentCb.checked = all;
+    parentCb.indeterminate = !all && !none;
+  }
+
+  /**
+   * Fetch the group's product relations as a Set of "oid:vid" keys, so the
+   * picker can pre-check what's already attached.
+   *
+   * @param {number|string} groupId Plan group id.
+   * @return {Promise<Set>}
+   */
+  function fetchAttached(groupId) {
+    return api("GET", "/groups/" + groupId)
+      .then(function (group) {
+        var set = new Set();
+        ((group && group.plans) || []).forEach(function (term) {
+          (term.relations || []).forEach(function (rel) {
+            if (1 === parseInt(rel.type, 10)) {
+              set.add(parseInt(rel.oid, 10) + ":" + (parseInt(rel.vid, 10) || 0));
+            }
+          });
+        });
+        return set;
+      })
+      .catch(function () {
+        return new Set();
+      });
+  }
+
+  /**
+   * Build one picker row: checkbox, thumbnail, name, price.
+   *
+   * Attachable rows (simple products, variations) carry data-oid / data-vid /
+   * data-price on the checkbox. A "control" row (variable parent) has none —
+   * it only toggles its children and is skipped when attaching.
+   *
+   * @param {Object}  p    Product/variation row from the API.
+   * @param {Object}  opts { indent, control, parentId }.
+   * @return {{ li: HTMLElement, cb: HTMLElement }}
+   */
+  function productRow(p, opts) {
+    opts = opts || {};
+
+    var li = document.createElement("li");
+    li.style.cssText =
+      "display:flex;align-items:center;gap:10px;padding:8px 4px;padding-left:" +
+      (opts.indent ? "36px" : "4px") +
+      ";border-bottom:1px solid var(--wpsubs-border);";
+
+    var label = document.createElement("label");
+    label.style.cssText = "display:flex;align-items:center;gap:10px;flex:1 1 auto;min-width:0;cursor:pointer;";
+
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.className = "wpsubs-checkbox";
+    if (!opts.control) {
+      var oid = opts.parentId ? opts.parentId : p.id;
+      var vid = opts.parentId ? p.id : 0;
+      cb.setAttribute("data-oid", oid);
+      cb.setAttribute("data-vid", vid);
+      cb.setAttribute("data-price", p.price || "");
+      // Pre-check rows already attached to the group.
+      if (opts.attached && opts.attached.has(oid + ":" + vid)) {
+        cb.checked = true;
+      }
+    }
+    label.appendChild(cb);
+
+    var thumb = document.createElement("span");
+    thumb.style.cssText =
+      "flex:0 0 auto;width:32px;height:32px;border-radius:4px;background:var(--wpsubs-bg-subtle,#f1f2f4);border:1px solid var(--wpsubs-border);overflow:hidden;display:flex;align-items:center;justify-content:center;";
+    if (p.image) {
+      var img = document.createElement("img");
+      img.src = p.image;
+      img.alt = "";
+      img.style.cssText = "width:100%;height:100%;object-fit:cover;display:block;";
+      thumb.appendChild(img);
+    } else {
+      thumb.innerHTML =
+        '<span class="dashicons dashicons-format-image" style="font-size:16px;width:16px;height:16px;color:var(--wpsubs-text-subtle);"></span>';
+    }
+    label.appendChild(thumb);
+
+    var name = document.createElement("span");
+    name.textContent = p.name;
+    name.style.cssText = "font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
+    label.appendChild(name);
+
+    var price = document.createElement("span");
+    price.style.cssText = "color:var(--wpsubs-text-muted);font-size:13px;flex:0 0 auto;";
+    price.textContent = p.price_html || "";
+
+    li.appendChild(label);
+    li.appendChild(price);
+
+    return { li: li, cb: cb };
+  }
+
+  /**
    * Populate the Add Products picker with a product search.
    *
    * @param {HTMLElement} modal  The add-product modal.
@@ -590,6 +701,7 @@
     if (!list) {
       return;
     }
+    var attached = modal._attached || new Set();
     list.innerHTML =
       '<li style="padding:10px 4px;color:var(--wpsubs-text-subtle);font-size:13px;">' +
       (i18n.loading || "Loading…") +
@@ -606,33 +718,39 @@
         }
         list.innerHTML = "";
         products.forEach(function (p) {
-          var li = document.createElement("li");
-          li.style.cssText =
-            "display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--wpsubs-border);";
+          var variations = p.variations || [];
 
-          var label = document.createElement("label");
-          label.style.cssText = "display:flex;align-items:center;gap:10px;flex:1 1 auto;min-width:0;cursor:pointer;";
+          if (variations.length) {
+            // Variable product: parent row is a select-all control (no own
+            // relation), variations are the attachable rows offset beneath it.
+            var parent = productRow(p, { indent: false, control: true });
+            list.appendChild(parent.li);
 
-          var cb = document.createElement("input");
-          cb.type = "checkbox";
-          cb.className = "wpsubs-checkbox";
-          cb.value = p.id;
-          cb.setAttribute("data-price", p.price || "");
+            var childBoxes = [];
+            variations.forEach(function (v) {
+              var child = productRow(v, { indent: true, parentId: p.id, attached: attached });
+              childBoxes.push(child.cb);
+              list.appendChild(child.li);
+            });
 
-          var name = document.createElement("span");
-          name.textContent = p.name;
-          name.style.fontWeight = "500";
+            // Reflect the pre-checked children in the parent control.
+            syncParent(parent.cb, childBoxes);
 
-          label.appendChild(cb);
-          label.appendChild(name);
-
-          var price = document.createElement("span");
-          price.style.cssText = "color:var(--wpsubs-text-muted);font-size:13px;flex:0 0 auto;";
-          price.textContent = p.price_html || "";
-
-          li.appendChild(label);
-          li.appendChild(price);
-          list.appendChild(li);
+            // Parent toggles every child; children keep the parent in sync.
+            parent.cb.addEventListener("change", function () {
+              childBoxes.forEach(function (cb) {
+                cb.checked = parent.cb.checked;
+              });
+              parent.cb.indeterminate = false;
+            });
+            childBoxes.forEach(function (cb) {
+              cb.addEventListener("change", function () {
+                syncParent(parent.cb, childBoxes);
+              });
+            });
+          } else {
+            list.appendChild(productRow(p, { indent: false, attached: attached }).li);
+          }
         });
       })
       .catch(function () {
@@ -643,11 +761,14 @@
       });
   }
 
-  // Load the picker when the modal opens.
+  // Load the picker when the modal opens (pre-checking attached products).
   document.addEventListener("wpsubs:modal:open", function (e) {
     var modal = e.target;
     if (modal && modal.id === "subscrpt-add-product") {
-      loadProducts(modal, "");
+      fetchAttached(modal.getAttribute("data-group-id")).then(function (set) {
+        modal._attached = set;
+        loadProducts(modal, "");
+      });
     }
   });
 
@@ -673,8 +794,28 @@
     }
     var modal = btn.closest("[data-subscrpt-add-product]");
     var groupId = modal.getAttribute("data-group-id");
-    var checked = modal.querySelectorAll("[data-subscrpt-product-list] input:checked");
-    if (!checked.length) {
+    // Only attachable rows carry data-oid (variable parents are skipped).
+    var boxes = modal.querySelectorAll("[data-subscrpt-product-list] input[data-oid]");
+
+    // Sync the group to the picker: attach checked rows, detach any previously
+    // attached row that is now unchecked.
+    var checkedKeys = new Set();
+    var checked = [];
+    Array.prototype.forEach.call(boxes, function (box) {
+      if (box.checked) {
+        checked.push(box);
+        checkedKeys.add(box.getAttribute("data-oid") + ":" + (box.getAttribute("data-vid") || "0"));
+      }
+    });
+    var attached = modal._attached || new Set();
+    var toRemove = new Set();
+    attached.forEach(function (key) {
+      if (!checkedKeys.has(key)) {
+        toRemove.add(key);
+      }
+    });
+
+    if (!checked.length && !toRemove.size) {
       return;
     }
 
@@ -684,7 +825,9 @@
         var terms = (group && group.plans) || [];
         var isInstallments = group && ("installments" === group.type_key || 3 === parseInt(group.type, 10));
         var calls = [];
-        Array.prototype.forEach.call(checked, function (box) {
+
+        // Attach checked rows to every term.
+        checked.forEach(function (box) {
           var price = box.getAttribute("data-price") || "";
           var data = isInstallments
             ? { price_per_installment: price, down_payment: "" }
@@ -693,8 +836,8 @@
             calls.push(
               api("POST", "/relations", {
                 plan_id: term.id,
-                oid: parseInt(box.value, 10),
-                vid: 0,
+                oid: parseInt(box.getAttribute("data-oid"), 10),
+                vid: parseInt(box.getAttribute("data-vid"), 10) || 0,
                 type: 1,
                 status: "active",
                 data: data,
@@ -702,7 +845,63 @@
             );
           });
         });
+
+        // Detach rows that were unchecked.
+        if (toRemove.size) {
+          terms.forEach(function (term) {
+            (term.relations || []).forEach(function (rel) {
+              if (1 !== parseInt(rel.type, 10)) {
+                return;
+              }
+              var key = parseInt(rel.oid, 10) + ":" + (parseInt(rel.vid, 10) || 0);
+              if (toRemove.has(key)) {
+                calls.push(api("DELETE", "/relations/" + rel.id));
+              }
+            });
+          });
+        }
+
         return Promise.all(calls);
+      })
+      .then(function () {
+        window.location.reload();
+      })
+      .catch(function (err) {
+        setLoading(btn, false);
+        window.alert(err.message || i18n.genericError);
+      });
+  });
+
+  // Remove a product from the group: delete every relation for that product
+  // (all selling plans, all variations).
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-remove-product]");
+    if (!btn) {
+      return;
+    }
+    var oid = parseInt(btn.getAttribute("data-subscrpt-remove-product"), 10);
+    var wrap = document.querySelector("[data-plan-id]");
+    var groupId = wrap && wrap.getAttribute("data-plan-id");
+    if (!groupId || !window.confirm(i18n.confirmRemoveProduct || "Remove this product from the plan?")) {
+      return;
+    }
+
+    setLoading(btn, true);
+    api("GET", "/groups/" + groupId)
+      .then(function (group) {
+        var ids = [];
+        ((group && group.plans) || []).forEach(function (term) {
+          (term.relations || []).forEach(function (rel) {
+            if (1 === parseInt(rel.type, 10) && parseInt(rel.oid, 10) === oid) {
+              ids.push(rel.id);
+            }
+          });
+        });
+        return Promise.all(
+          ids.map(function (id) {
+            return api("DELETE", "/relations/" + id);
+          }),
+        );
       })
       .then(function () {
         window.location.reload();
