@@ -9,6 +9,10 @@
   overflow: hidden;
 }
 
+.wpsubs-accordion__item:last-child {
+  margin-bottom: 0;
+}
+
 .wpsubs-accordion__header {
   appearance: none;
   width: 100%;

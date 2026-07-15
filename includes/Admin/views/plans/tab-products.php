@@ -183,23 +183,18 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 										<span class="dashicons dashicons-format-image" style="font-size:22px;width:22px;height:22px;color:var(--wpsubs-text-subtle);"></span>
 									<?php endif; ?>
 								</span>
+								<span style="display:flex;flex-direction:column;min-width:0;line-height:1.35;">
 								<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo esc_html( $product['name'] ); ?></span>
 								<?php if ( ! empty( $product['is_variable'] ) ) : ?>
-									<span class="wpsubs-badge wpsubs-badge--neutral" style="font-weight:400;">
+									<span style="font-size:12px;font-weight:400;color:var(--wpsubs-text-muted);white-space:nowrap;">
 										<?php
 										$subscrpt_var_count = count( $product['variations'] );
 										/* translators: %d: number of variations. */
 										echo esc_html( sprintf( _n( '%d variation', '%d variations', $subscrpt_var_count, 'subscription' ), $subscrpt_var_count ) );
 										?>
 									</span>
-								<?php elseif ( '' !== $product['base_price'] ) : ?>
-									<span class="wpsubs-badge" style="font-weight:400;">
-										<?php
-										/* translators: %s: product base price. */
-										echo esc_html( sprintf( __( 'Base: %s', 'subscription' ), $product['base_price'] ) );
-										?>
-									</span>
 								<?php endif; ?>
+								</span>
 							</span>
 						</button>
 						<div style="display:flex;align-items:center;gap:8px;padding:0 12px 0 4px;">
@@ -225,12 +220,6 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 										<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--wpsubs-border,#e5e7eb);">
 											<span class="dashicons dashicons-image-filter" style="flex:0 0 auto;font-size:16px;width:16px;height:16px;color:var(--wpsubs-text-subtle);"></span>
 											<strong style="font-size:13px;color:var(--wpsubs-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo esc_html( $variation['name'] ); ?></strong>
-											<span class="wpsubs-badge" style="font-weight:400;">
-												<?php
-												/* translators: %s: variation base price. */
-												echo esc_html( sprintf( __( 'Base: %s', 'subscription' ), $variation['base_price'] ) );
-												?>
-											</span>
 											<span class="wpsubs-toolbar__spacer"></span>
 											<?php $subscrpt_price_actions( $subscrpt_ot ); ?>
 											<?php if ( $pro_active ) : ?>
