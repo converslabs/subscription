@@ -38,56 +38,240 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 		</div>
 	<?php else : ?>
 
-		<?php foreach ( $plan['products'] as $product ) : ?>
-			<div class="wpsubs-table-card" style="margin-bottom:16px;">
-				<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--wpsubs-border,#e5e7eb);">
-					<strong><?php echo esc_html( $product['name'] ); ?></strong>
-					<span class="wpsubs-badge">
-						<?php
-						/* translators: %s: product base price. */
-						echo esc_html( sprintf( __( 'Base: %s', 'subscription' ), $product['base_price'] ) );
-						?>
-					</span>
-					<span class="wpsubs-toolbar__spacer"></span>
-					<?php if ( ! empty( $product['edit_url'] ) ) : ?>
-						<a href="<?php echo esc_url( $product['edit_url'] ); ?>" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" target="_blank" rel="noopener">
-							<?php esc_html_e( 'Edit product', 'subscription' ); ?>
-						</a>
-					<?php endif; ?>
-					<?php if ( $pro_active ) : ?>
-						<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm wpsubs-btn--danger" data-subscrpt-remove-product="<?php echo esc_attr( $product['id'] ); ?>">
-							<?php esc_html_e( 'Remove', 'subscription' ); ?>
-						</button>
-					<?php endif; ?>
-				</div>
-				<table class="wpsubs-table">
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Selling Plan', 'subscription' ); ?></th>
-							<th><?php esc_html_e( 'Regular Price', 'subscription' ); ?></th>
-							<th><?php esc_html_e( 'Offer Price', 'subscription' ); ?></th>
-							<th><?php esc_html_e( 'Status', 'subscription' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php foreach ( $product['rows'] as $row ) : ?>
-							<tr>
-								<td><?php echo esc_html( $row['term'] ); ?></td>
-								<td><?php echo esc_html( $row['regular'] ); ?></td>
-								<td><?php echo esc_html( $row['offer'] ); ?></td>
-								<td>
-									<?php if ( ! empty( $row['exclude'] ) ) : ?>
-										<span class="wpsubs-badge wpsubs-badge--draft"><?php esc_html_e( 'Excluded', 'subscription' ); ?></span>
+		<?php
+		/**
+		 * Render one selling-plan × price table for a set of relation rows.
+		 * Each editable cell has a read view + a hidden input, toggled by the
+		 * card's Edit/Save buttons (JS). The One-time price column is shown only
+		 * when the card's one-time purchase toggle is on; an empty price for a
+		 * plan means no one-time charge for that plan.
+		 *
+		 * @param array $rows        Price rows (term / regular / offer / …).
+		 * @param bool  $one_time_on Whether the one-time column starts visible.
+		 */
+		$subscrpt_render_rows = function ( $rows, $one_time_on ) use ( $pro_active ) {
+			$ot_col  = $one_time_on ? '' : 'display:none;';
+			$ot_div  = $ot_col . 'width:1px;padding:0 6px;text-align:center;';
+			$div_bar = '<span style="display:inline-block;vertical-align:middle;width:2px;height:16px;border-radius:1px;background:var(--wpsubs-border,#e5e7eb);"></span>';
+			?>
+			<table class="wpsubs-table">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'Selling Plan', 'subscription' ); ?></th>
+						<th>
+							<?php esc_html_e( 'Regular Price', 'subscription' ); ?>
+							<?php echo wp_kses_post( wpsubs_render_hint( __( 'The recurring price charged each billing cycle.', 'subscription' ) ) ); ?>
+						</th>
+						<th>
+							<?php esc_html_e( 'Offer Price', 'subscription' ); ?>
+							<?php echo wp_kses_post( wpsubs_render_hint( __( 'A discounted recurring price shown in place of the regular price. Leave empty for no discount.', 'subscription' ) ) ); ?>
+						</th>
+						<th class="subscrpt-onetime-col" style="<?php echo esc_attr( $ot_div ); ?>"><?php echo $div_bar; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></th>
+						<th class="subscrpt-onetime-col" style="<?php echo esc_attr( $ot_col ); ?>">
+							<?php esc_html_e( 'One-time price', 'subscription' ); ?>
+							<?php echo wp_kses_post( wpsubs_render_hint( __( 'Price for a single, non-recurring purchase of this plan. Empty means one-time purchase is not offered for that plan.', 'subscription' ) ) ); ?>
+						</th>
+						<th class="subscrpt-onetime-col" style="<?php echo esc_attr( $ot_col ); ?>">
+							<?php esc_html_e( 'One-time offer', 'subscription' ); ?>
+							<?php echo wp_kses_post( wpsubs_render_hint( __( 'A discounted one-time price shown in place of the one-time price. Leave empty for no discount.', 'subscription' ) ) ); ?>
+						</th>
+						<th><?php esc_html_e( 'Status', 'subscription' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $rows as $row ) : ?>
+						<tr data-subscrpt-relation="<?php echo esc_attr( $row['relation_id'] ); ?>">
+							<td><?php echo esc_html( $row['term'] ); ?></td>
+							<td>
+								<span class="subscrpt-pe-view"><?php echo esc_html( $row['regular'] ); ?></span>
+								<?php if ( $pro_active ) : ?>
+									<input type="number" min="0" step="0.01" class="wpsubs-input subscrpt-pe-edit" data-field="regular_price" value="<?php echo esc_attr( $row['regular_raw'] ); ?>" placeholder="0.00" style="display:none;max-width:110px;" />
+								<?php endif; ?>
+							</td>
+							<td>
+								<span class="subscrpt-pe-view"><?php echo esc_html( $row['offer'] ); ?></span>
+								<?php if ( $pro_active ) : ?>
+									<input type="number" min="0" step="0.01" class="wpsubs-input subscrpt-pe-edit" data-field="sale_price" value="<?php echo esc_attr( $row['offer_raw'] ); ?>" placeholder="0.00" style="display:none;max-width:110px;" />
+								<?php endif; ?>
+							</td>
+							<td class="subscrpt-onetime-col" style="<?php echo esc_attr( $ot_div ); ?>"><?php echo $div_bar; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td>
+							<td class="subscrpt-onetime-col" style="<?php echo esc_attr( $ot_col ); ?>">
+								<span class="subscrpt-pe-view">
+									<?php if ( '' !== $row['one_time_disp'] ) : ?>
+										<?php echo esc_html( $row['one_time_disp'] ); ?>
 									<?php else : ?>
-										<span class="wpsubs-badge wpsubs-badge--active"><?php esc_html_e( 'Active', 'subscription' ); ?></span>
+										<span style="color:var(--wpsubs-text-subtle);">&mdash;</span>
 									<?php endif; ?>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
-			</div>
-		<?php endforeach; ?>
+								</span>
+								<?php if ( $pro_active ) : ?>
+									<input type="number" min="0" step="0.01" class="wpsubs-input subscrpt-pe-edit" data-field="one_time_price" value="<?php echo esc_attr( $row['one_time_price'] ); ?>" placeholder="<?php esc_attr_e( 'No charge', 'subscription' ); ?>" style="display:none;max-width:110px;" />
+								<?php endif; ?>
+							</td>
+							<td class="subscrpt-onetime-col" style="<?php echo esc_attr( $ot_col ); ?>">
+								<span class="subscrpt-pe-view">
+									<?php if ( '' !== $row['one_time_offer_disp'] ) : ?>
+										<?php echo esc_html( $row['one_time_offer_disp'] ); ?>
+									<?php else : ?>
+										<span style="color:var(--wpsubs-text-subtle);">&mdash;</span>
+									<?php endif; ?>
+								</span>
+								<?php if ( $pro_active ) : ?>
+									<input type="number" min="0" step="0.01" class="wpsubs-input subscrpt-pe-edit" data-field="one_time_offer" value="<?php echo esc_attr( $row['one_time_offer'] ); ?>" placeholder="<?php esc_attr_e( 'No offer', 'subscription' ); ?>" style="display:none;max-width:110px;" />
+								<?php endif; ?>
+							</td>
+							<td>
+								<span class="subscrpt-pe-view">
+									<?php if ( ! empty( $row['exclude'] ) ) : ?>
+										<span class="wpsubs-badge wpsubs-badge--draft"><?php esc_html_e( 'Disabled', 'subscription' ); ?></span>
+									<?php else : ?>
+										<span class="wpsubs-badge wpsubs-badge--active"><?php esc_html_e( 'Enabled', 'subscription' ); ?></span>
+									<?php endif; ?>
+								</span>
+								<?php if ( $pro_active ) : ?>
+									<label class="wpsubs-settings-toggle-label subscrpt-pe-edit" style="display:none;align-items:center;" title="<?php esc_attr_e( 'Enable this plan for the product', 'subscription' ); ?>">
+										<input type="checkbox" class="wpsubs-toggle" data-field="enabled" <?php checked( empty( $row['exclude'] ) ); ?> />
+										<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+									</label>
+								<?php endif; ?>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+			<?php
+		};
+
+		/**
+		 * Render the price-card header controls (Pro only): the one-time purchase
+		 * toggle + Edit / Cancel / Save buttons. JS toggles the card into edit
+		 * mode, shows/hides the one-time column, and saves via REST.
+		 *
+		 * @param bool $one_time_on Whether one-time purchase is enabled for this card.
+		 */
+		$subscrpt_price_actions = function ( $one_time_on ) use ( $pro_active ) {
+			if ( ! $pro_active ) {
+				return;
+			}
+			?>
+			<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--wpsubs-text-muted);cursor:pointer;">
+				<input type="checkbox" class="wpsubs-toggle" data-subscrpt-onetime-toggle <?php checked( $one_time_on ); ?> disabled />
+				<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+				<span><?php esc_html_e( 'One-time purchase', 'subscription' ); ?></span>
+			</label>
+			<span aria-hidden="true" style="align-self:center;width:2px;height:16px;background:var(--wpsubs-border,#e5e7eb);margin:0 4px;"></span>
+			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-edit-prices>
+				<span class="dashicons dashicons-edit" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
+				<?php esc_html_e( 'Edit prices', 'subscription' ); ?>
+			</button>
+			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-cancel-prices style="display:none;"><?php esc_html_e( 'Cancel', 'subscription' ); ?></button>
+			<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-save-prices style="display:none;"><?php esc_html_e( 'Save', 'subscription' ); ?></button>
+			<?php
+		};
+	?>
+
+		<div class="wpsubs-accordion" data-multi="1">
+			<?php foreach ( $plan['products'] as $product ) : ?>
+				<?php $subscrpt_panel_id = 'subscrpt-prod-' . (int) $product['id']; ?>
+				<div class="wpsubs-accordion__item">
+					<div style="display:flex;align-items:stretch;background:var(--wpsubs-surface-muted,#f9fafb);">
+						<button type="button" class="wpsubs-accordion__header wpsubs-accordion__header--chevron-start" style="flex:1 1 auto;min-width:0;background:transparent;" aria-controls="<?php echo esc_attr( $subscrpt_panel_id ); ?>" aria-expanded="false">
+							<span style="display:flex;align-items:center;gap:10px;min-width:0;">
+								<span style="flex:0 0 auto;width:44px;height:44px;border-radius:6px;background:var(--wpsubs-surface,#fff);border:1px solid var(--wpsubs-border,#e5e7eb);overflow:hidden;display:flex;align-items:center;justify-content:center;">
+									<?php if ( ! empty( $product['image'] ) ) : ?>
+										<img src="<?php echo esc_url( $product['image'] ); ?>" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" />
+									<?php else : ?>
+										<span class="dashicons dashicons-format-image" style="font-size:22px;width:22px;height:22px;color:var(--wpsubs-text-subtle);"></span>
+									<?php endif; ?>
+								</span>
+								<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo esc_html( $product['name'] ); ?></span>
+								<?php if ( ! empty( $product['is_variable'] ) ) : ?>
+									<span class="wpsubs-badge wpsubs-badge--neutral" style="font-weight:400;">
+										<?php
+										$subscrpt_var_count = count( $product['variations'] );
+										/* translators: %d: number of variations. */
+										echo esc_html( sprintf( _n( '%d variation', '%d variations', $subscrpt_var_count, 'subscription' ), $subscrpt_var_count ) );
+										?>
+									</span>
+								<?php elseif ( '' !== $product['base_price'] ) : ?>
+									<span class="wpsubs-badge" style="font-weight:400;">
+										<?php
+										/* translators: %s: product base price. */
+										echo esc_html( sprintf( __( 'Base: %s', 'subscription' ), $product['base_price'] ) );
+										?>
+									</span>
+								<?php endif; ?>
+							</span>
+						</button>
+						<div style="display:flex;align-items:center;gap:8px;padding:0 12px 0 4px;">
+							<?php if ( ! empty( $product['edit_url'] ) ) : ?>
+								<a href="<?php echo esc_url( $product['edit_url'] ); ?>" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" target="_blank" rel="noopener">
+									<?php esc_html_e( 'Edit product', 'subscription' ); ?>
+								</a>
+							<?php endif; ?>
+							<?php if ( $pro_active ) : ?>
+								<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm wpsubs-btn--danger" data-subscrpt-remove-product="<?php echo esc_attr( $product['id'] ); ?>">
+									<?php esc_html_e( 'Remove', 'subscription' ); ?>
+								</button>
+							<?php endif; ?>
+						</div>
+					</div>
+
+					<div class="wpsubs-accordion__panel" id="<?php echo esc_attr( $subscrpt_panel_id ); ?>" style="padding:14px 16px;background:var(--wpsubs-surface-muted,#f9fafb);" hidden>
+						<?php if ( ! empty( $product['is_variable'] ) ) : ?>
+							<div style="display:flex;flex-direction:column;gap:14px;">
+								<?php foreach ( $product['variations'] as $variation ) : ?>
+									<?php $subscrpt_ot = ! empty( $variation['rows'] ) && ! empty( $variation['rows'][0]['one_time'] ); ?>
+									<div data-subscrpt-price-card style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);">
+										<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--wpsubs-border,#e5e7eb);">
+											<span class="dashicons dashicons-image-filter" style="flex:0 0 auto;font-size:16px;width:16px;height:16px;color:var(--wpsubs-text-subtle);"></span>
+											<strong style="font-size:13px;color:var(--wpsubs-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo esc_html( $variation['name'] ); ?></strong>
+											<span class="wpsubs-badge" style="font-weight:400;">
+												<?php
+												/* translators: %s: variation base price. */
+												echo esc_html( sprintf( __( 'Base: %s', 'subscription' ), $variation['base_price'] ) );
+												?>
+											</span>
+											<span class="wpsubs-toolbar__spacer"></span>
+											<?php $subscrpt_price_actions( $subscrpt_ot ); ?>
+											<?php if ( $pro_active ) : ?>
+												<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm wpsubs-btn--danger" data-subscrpt-remove-variation data-oid="<?php echo esc_attr( $product['id'] ); ?>" data-vid="<?php echo esc_attr( $variation['vid'] ); ?>">
+													<?php esc_html_e( 'Remove', 'subscription' ); ?>
+												</button>
+											<?php endif; ?>
+										</div>
+										<?php $subscrpt_render_rows( $variation['rows'], $subscrpt_ot ); ?>
+									</div>
+								<?php endforeach; ?>
+								<?php if ( ! empty( $product['rows'] ) ) : ?>
+									<?php $subscrpt_ot = ! empty( $product['rows'][0]['one_time'] ); ?>
+									<div data-subscrpt-price-card style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);">
+										<?php if ( $pro_active ) : ?>
+											<div style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--wpsubs-border,#e5e7eb);">
+												<span class="wpsubs-toolbar__spacer"></span>
+												<?php $subscrpt_price_actions( $subscrpt_ot ); ?>
+											</div>
+										<?php endif; ?>
+										<?php $subscrpt_render_rows( $product['rows'], $subscrpt_ot ); ?>
+									</div>
+								<?php endif; ?>
+							</div>
+						<?php else : ?>
+							<?php $subscrpt_ot = ! empty( $product['rows'] ) && ! empty( $product['rows'][0]['one_time'] ); ?>
+							<div data-subscrpt-price-card style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);">
+								<?php if ( $pro_active ) : ?>
+									<div style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--wpsubs-border,#e5e7eb);">
+										<strong style="font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'Pricing', 'subscription' ); ?></strong>
+										<span class="wpsubs-toolbar__spacer"></span>
+										<?php $subscrpt_price_actions( $subscrpt_ot ); ?>
+									</div>
+								<?php endif; ?>
+								<?php $subscrpt_render_rows( $product['rows'], $subscrpt_ot ); ?>
+							</div>
+						<?php endif; ?>
+					</div>
+				</div>
+			<?php endforeach; ?>
+		</div>
 
 		<?php if ( $pro_active ) : ?>
 			<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="margin-top:16px;" data-wpsubs-modal-open="subscrpt-add-product">

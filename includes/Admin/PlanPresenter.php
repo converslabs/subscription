@@ -89,39 +89,84 @@ class PlanPresenter {
 					continue;
 				}
 
-				$oid = (int) $relation['oid'];
+				$oid     = (int) $relation['oid'];
+				$vid     = (int) $relation['vid'];
+				$plan_id = (int) $plan['id'];
 
 				if ( ! isset( $by_product[ $oid ] ) ) {
 					$product            = function_exists( 'wc_get_product' ) ? wc_get_product( $oid ) : null;
+					$is_variable        = $product ? $product->is_type( 'variable' ) : false;
+					$image_id           = $product ? $product->get_image_id() : 0;
 					$by_product[ $oid ] = array(
-						'id'         => $oid,
-						'name'       => $product ? $product->get_name() : sprintf( '#%d', $oid ),
-						'base_price' => $product ? self::money( (float) $product->get_price() ) : '-',
-						'edit_url'   => get_edit_post_link( $oid, 'raw' ),
-						'view_url'   => get_permalink( $oid ),
-						'rows'       => array(),
-						'_terms'     => array(),
+						'id'          => $oid,
+						'name'        => $product ? $product->get_name() : sprintf( '#%d', $oid ),
+						'image'       => $image_id ? wp_get_attachment_image_url( $image_id, array( 88, 88 ) ) : '',
+						'is_variable' => $is_variable,
+						// Variable parents have no single price - the variations carry it.
+						'base_price'  => ( $product && ! $is_variable ) ? self::money( (float) $product->get_price() ) : '',
+						'edit_url'    => get_edit_post_link( $oid, 'raw' ),
+						'view_url'    => get_permalink( $oid ),
+						'rows'        => array(),
+						'variations'  => array(),
+						'_seen'       => array(),
 					);
 				}
 
-				// One row per selling plan (term) - guard against duplicate rows.
-				$plan_id = (int) $plan['id'];
+				if ( $vid > 0 ) {
+					// Per-variation group under the parent.
+					if ( ! isset( $by_product[ $oid ]['variations'][ $vid ] ) ) {
+						$variation                                = function_exists( 'wc_get_product' ) ? wc_get_product( $vid ) : null;
+						$by_product[ $oid ]['variations'][ $vid ] = array(
+							'vid'        => $vid,
+							'name'       => self::variation_name( $variation, $by_product[ $oid ]['name'] ),
+							'base_price' => $variation ? self::money( (float) $variation->get_price() ) : '-',
+							'rows'       => array(),
+						);
+					}
 
-				if ( isset( $by_product[ $oid ]['_terms'][ $plan_id ] ) ) {
-					continue;
+					// One row per selling plan (term) - guard against duplicates.
+					if ( isset( $by_product[ $oid ]['_seen'][ $vid ][ $plan_id ] ) ) {
+						continue;
+					}
+					$by_product[ $oid ]['_seen'][ $vid ][ $plan_id ]    = true;
+					$by_product[ $oid ]['variations'][ $vid ]['rows'][] = self::row( $plan, $relation, $type_key );
+				} else {
+					// Simple product (or a parent-level relation): rows at product level.
+					if ( isset( $by_product[ $oid ]['_seen'][0][ $plan_id ] ) ) {
+						continue;
+					}
+					$by_product[ $oid ]['_seen'][0][ $plan_id ] = true;
+					$by_product[ $oid ]['rows'][]               = self::row( $plan, $relation, $type_key );
 				}
-
-				$by_product[ $oid ]['_terms'][ $plan_id ] = true;
-				$by_product[ $oid ]['rows'][]             = self::row( $plan, $relation, $type_key );
 			}
 		}
 
 		foreach ( $by_product as &$entry ) {
-			unset( $entry['_terms'] );
+			unset( $entry['_seen'] );
+			$entry['variations'] = array_values( $entry['variations'] );
 		}
 		unset( $entry );
 
 		return array_values( $by_product );
+	}
+
+	/**
+	 * Display name for a variation: its attribute values (e.g. "Large, Red"),
+	 * falling back to the WC formatted name or the parent name.
+	 *
+	 * @param \WC_Product|null $variation   Variation product.
+	 * @param string           $parent_name Parent product name.
+	 *
+	 * @return string
+	 */
+	protected static function variation_name( $variation, $parent_name ) {
+		if ( ! $variation ) {
+			return $parent_name;
+		}
+
+		$attributes = array_filter( array_values( $variation->get_variation_attributes() ) );
+
+		return $attributes ? implode( ', ', $attributes ) : $variation->get_name();
 	}
 
 	/**
@@ -140,13 +185,23 @@ class PlanPresenter {
 		$selling        = isset( $data['sale_price'] ) ? (string) $data['sale_price'] : '';
 		$discount_type  = $data['discount_type'] ?? 'percentage';
 		$discount_value = isset( $data['discount_value'] ) ? (string) $data['discount_value'] : '0';
+		$one_time       = ! empty( $data['one_time'] );
+		$one_time_price = isset( $data['one_time_price'] ) ? (string) $data['one_time_price'] : '';
+		$one_time_offer = isset( $data['one_time_offer'] ) ? (string) $data['one_time_offer'] : '';
 
 		return array(
-			'relation_id' => (int) $relation['id'],
-			'term'        => $plan['title'],
-			'regular'     => '' !== $regular ? self::money( (float) $regular ) : '-',
-			'offer'       => self::money( self::offer_price( $regular, $selling, $discount_type, $discount_value ) ),
-			'exclude'     => ! empty( $relation['exclude'] ),
+			'relation_id'         => (int) $relation['id'],
+			'term'                => $plan['title'],
+			'regular'             => '' !== $regular ? self::money( (float) $regular ) : '-',
+			'offer'               => self::money( self::offer_price( $regular, $selling, $discount_type, $discount_value ) ),
+			'regular_raw'         => $regular,
+			'offer_raw'           => $selling,
+			'one_time'            => $one_time,
+			'one_time_price'      => $one_time_price,
+			'one_time_disp'       => '' !== $one_time_price ? self::money( (float) $one_time_price ) : '',
+			'one_time_offer'      => $one_time_offer,
+			'one_time_offer_disp' => '' !== $one_time_offer ? self::money( (float) $one_time_offer ) : '',
+			'exclude'             => ! empty( $relation['exclude'] ),
 		);
 	}
 

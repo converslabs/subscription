@@ -911,4 +911,185 @@
         window.alert(err.message || i18n.genericError);
       });
   });
+
+  // Remove a single variation from the group: delete every relation for that
+  // (product, variation) pair across all selling plans.
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-remove-variation]");
+    if (!btn) {
+      return;
+    }
+    var oid = parseInt(btn.getAttribute("data-oid"), 10);
+    var vid = parseInt(btn.getAttribute("data-vid"), 10);
+    var wrap = document.querySelector("[data-plan-id]");
+    var groupId = wrap && wrap.getAttribute("data-plan-id");
+    if (!groupId || !window.confirm(i18n.confirmRemoveVariation || "Remove this variation from the plan?")) {
+      return;
+    }
+
+    setLoading(btn, true);
+    api("GET", "/groups/" + groupId)
+      .then(function (group) {
+        var ids = [];
+        ((group && group.plans) || []).forEach(function (term) {
+          (term.relations || []).forEach(function (rel) {
+            if (1 === parseInt(rel.type, 10) && parseInt(rel.oid, 10) === oid && parseInt(rel.vid, 10) === vid) {
+              ids.push(rel.id);
+            }
+          });
+        });
+        return Promise.all(
+          ids.map(function (id) {
+            return api("DELETE", "/relations/" + id);
+          }),
+        );
+      })
+      .then(function () {
+        window.location.reload();
+      })
+      .catch(function (err) {
+        setLoading(btn, false);
+        window.alert(err.message || i18n.genericError);
+      });
+  });
+
+  /* ------------------------------------------------------------------ *
+   * Products tab (Pro): inline edit of a price card's rows.
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Toggle a price card between read and edit mode.
+   *
+   * @param {HTMLElement} card    The [data-subscrpt-price-card] element.
+   * @param {boolean}     editing Desired mode.
+   */
+  /**
+   * Show or hide a price card's one-time column.
+   *
+   * @param {HTMLElement} card The [data-subscrpt-price-card] element.
+   * @param {boolean}     show Whether the column is visible.
+   */
+  function setOneTimeColumn(card, show) {
+    card.querySelectorAll(".subscrpt-onetime-col").forEach(function (cell) {
+      cell.style.display = show ? "" : "none";
+    });
+  }
+
+  function priceCardMode(card, editing) {
+    card.querySelectorAll(".subscrpt-pe-view").forEach(function (el) {
+      el.style.display = editing ? "none" : "";
+    });
+    card.querySelectorAll(".subscrpt-pe-edit").forEach(function (el) {
+      el.style.display = editing ? "" : "none";
+    });
+    var toggle = function (sel, show) {
+      var btn = card.querySelector(sel);
+      if (btn) {
+        btn.style.display = show ? "" : "none";
+      }
+    };
+    toggle("[data-subscrpt-edit-prices]", !editing);
+    toggle("[data-subscrpt-cancel-prices]", editing);
+    toggle("[data-subscrpt-save-prices]", editing);
+
+    // The one-time toggle is only interactive while editing.
+    var one = card.querySelector("[data-subscrpt-onetime-toggle]");
+    if (one) {
+      one.disabled = !editing;
+    }
+  }
+
+  // Enter edit mode (snapshot current values for cancel).
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-edit-prices]");
+    if (!btn) {
+      return;
+    }
+    var card = btn.closest("[data-subscrpt-price-card]");
+    card.querySelectorAll("[data-field]").forEach(function (field) {
+      field.dataset.orig = "checkbox" === field.type ? (field.checked ? "1" : "") : field.value;
+    });
+    var one = card.querySelector("[data-subscrpt-onetime-toggle]");
+    if (one) {
+      one.dataset.orig = one.checked ? "1" : "";
+    }
+    priceCardMode(card, true);
+  });
+
+  // Toggling one-time purchase reveals / hides the one-time price column.
+  document.addEventListener("change", function (e) {
+    var toggle = e.target.closest("[data-subscrpt-onetime-toggle]");
+    if (!toggle) {
+      return;
+    }
+    var card = toggle.closest("[data-subscrpt-price-card]");
+    if (card) {
+      setOneTimeColumn(card, toggle.checked);
+    }
+  });
+
+  // Cancel: restore snapshot, back to read mode.
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-cancel-prices]");
+    if (!btn) {
+      return;
+    }
+    var card = btn.closest("[data-subscrpt-price-card]");
+    card.querySelectorAll("[data-field]").forEach(function (field) {
+      if ("checkbox" === field.type) {
+        field.checked = "1" === field.dataset.orig;
+      } else {
+        field.value = field.dataset.orig || "";
+      }
+    });
+    var one = card.querySelector("[data-subscrpt-onetime-toggle]");
+    if (one) {
+      one.checked = "1" === one.dataset.orig;
+      setOneTimeColumn(card, one.checked);
+    }
+    priceCardMode(card, false);
+  });
+
+  // Save: PUT each row's regular / offer / one-time to its relation.
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-save-prices]");
+    if (!btn) {
+      return;
+    }
+    var card = btn.closest("[data-subscrpt-price-card]");
+    var rows = card.querySelectorAll("[data-subscrpt-relation]");
+    // One-time purchase is a card-level flag applied to every plan row.
+    var cardToggle = card.querySelector("[data-subscrpt-onetime-toggle]");
+    var oneTimeOn = cardToggle ? cardToggle.checked : false;
+
+    setLoading(btn, true);
+    var calls = Array.prototype.map.call(rows, function (row) {
+      var id = row.getAttribute("data-subscrpt-relation");
+      var reg = row.querySelector('[data-field="regular_price"]');
+      var sale = row.querySelector('[data-field="sale_price"]');
+      var onePrice = row.querySelector('[data-field="one_time_price"]');
+      var oneOffer = row.querySelector('[data-field="one_time_offer"]');
+      var enabled = row.querySelector('[data-field="enabled"]');
+      return api("PUT", "/relations/" + id, {
+        exclude: enabled ? !enabled.checked : false,
+        data: {
+          regular_price: reg ? reg.value : "",
+          sale_price: sale ? sale.value : "",
+          discount_value: 0,
+          one_time: oneTimeOn,
+          one_time_price: onePrice ? onePrice.value : "",
+          one_time_offer: oneOffer ? oneOffer.value : "",
+        },
+      });
+    });
+
+    Promise.all(calls)
+      .then(function () {
+        window.location.reload();
+      })
+      .catch(function (err) {
+        setLoading(btn, false);
+        window.alert(err.message || i18n.genericError);
+      });
+  });
 })();

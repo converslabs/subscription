@@ -766,7 +766,14 @@ class PlanRepository {
 		global $wpdb;
 
 		$existing = self::get_relation( $relation_id );
-		$row      = self::prepare_relation_columns( $data );
+
+		// Merge a partial `data` payload into the existing JSON so callers can
+		// update a few fields (e.g. price, one_time) without resending all of it.
+		if ( array_key_exists( 'data', $data ) && $existing && is_array( $existing['data'] ) ) {
+			$data['data'] = array_merge( $existing['data'], (array) $data['data'] );
+		}
+
+		$row = self::prepare_relation_columns( $data );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$ok = $wpdb->update( self::relation_table(), $row, array( 'id' => absint( $relation_id ) ) );

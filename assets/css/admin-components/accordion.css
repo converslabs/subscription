@@ -53,6 +53,32 @@
   transform: rotate(-135deg);
 }
 
+/* Chevron-on-the-left variant: marker sits before the title (points right when
+   collapsed, down when open). Opt in with `--chevron-start`. */
+.wpsubs-accordion__header--chevron-start {
+  justify-content: flex-start;
+}
+
+.wpsubs-accordion__header--chevron-start::after {
+  display: none;
+}
+
+.wpsubs-accordion__header--chevron-start::before {
+  content: "";
+  order: -1;
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--wpsubs-text-subtle, #9ca3af);
+  border-bottom: 2px solid var(--wpsubs-text-subtle, #9ca3af);
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+
+.wpsubs-accordion__header--chevron-start[aria-expanded="true"]::before {
+  transform: rotate(45deg);
+}
+
 .wpsubs-accordion__panel {
   padding: 16px;
 }

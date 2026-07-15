@@ -48,6 +48,8 @@
   font-weight: 400;
   line-height: 1.5;
   text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
   white-space: normal;
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.16),
