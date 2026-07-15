@@ -59,8 +59,8 @@ for ( $subscrpt_wd = 0; $subscrpt_wd < 7; $subscrpt_wd++ ) {
 }
 
 // Match the onboarding "Subscription details" form-row styling.
-$label_style = 'display:block;font-size:13px;font-weight:500;color:var(--wpsubs-text);margin:0 0 6px;';
-$row_style   = 'margin-bottom:16px;';
+$label_style = 'display:block;font-size:13px;font-weight:500;color:var(--wpsubs-text);margin:0 0 7px;';
+$row_style   = 'margin-bottom:22px;';
 $pair_style  = 'display:flex;gap:8px;align-items:center;';
 
 /**
@@ -240,7 +240,7 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 					</div>
 				</div>
 
-				<div data-subscrpt-access-custom style="display:none;margin-top:16px;">
+				<div data-subscrpt-access-custom style="display:none;margin-top:22px;">
 					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Custom access duration', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
 					<div style="<?php echo esc_attr( $pair_style ); ?>">
 						<input type="number" class="wpsubs-input" value="1" min="1" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="access_custom_value" aria-label="<?php esc_attr_e( 'Access length', 'subscription' ); ?>" <?php disabled( $pro_locked ); ?> />
