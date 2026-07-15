@@ -820,3 +820,51 @@ function wpsubs_render_modal( array $args ): void {
 	</div>
 	<?php
 }
+
+/**
+ * Render an inline help hint: a help icon that reveals text on hover.
+ *
+ * Thin wrapper over the canonical `wpsubs-tooltip` component
+ * (admin-components/tooltip.css): a help dashicon wrapped in a data-tip span.
+ * Returns the markup so it can be concatenated into a label; place it inside an
+ * overflow:visible container so the bubble is not clipped.
+ *
+ * @param string $text Hint text.
+ * @param array  $args Optional. 'placement' => 'top' (default)|'bottom'|'left'|'right';
+ *                     'align' => 'center' (default)|'start'|'end'; 'class' => extra trigger classes.
+ *
+ * @return string Escaped markup.
+ */
+function wpsubs_render_hint( string $text, array $args = array() ): string {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'placement' => 'top',
+			'align'     => 'center',
+			'class'     => '',
+		)
+	);
+
+	$classes = 'wpsubs-tooltip wpsubs-tooltip--hint';
+	if ( in_array( $args['placement'], array( 'bottom', 'left', 'right' ), true ) ) {
+		$classes .= ' wpsubs-tooltip--' . $args['placement'];
+	}
+	if ( in_array( $args['align'], array( 'start', 'end' ), true ) ) {
+		$classes .= ' wpsubs-tooltip--' . $args['align'];
+	}
+	if ( '' !== $args['class'] ) {
+		$classes .= ' ' . $args['class'];
+	}
+
+	// A <span> (not a <button>/<input>) is NOT a labelable element, so nesting
+	// it inside a <label> does not associate the label with it — hovering the
+	// label text therefore never reveals the tooltip, only hovering the icon
+	// does. The text is exposed to assistive tech via role="img" + aria-label.
+	return sprintf(
+		'<span class="%1$s" data-tip="%2$s" role="img" aria-label="%2$s">'
+			. '<span class="dashicons dashicons-editor-help wpsubs-tooltip__icon" aria-hidden="true"></span>'
+			. '</span>',
+		esc_attr( $classes ),
+		esc_attr( $text )
+	);
+}

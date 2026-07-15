@@ -154,7 +154,7 @@ class Assets {
 			'editlist',
 			'tabs',
 			'accordion',
-			'pagination',
+			'tooltip',
 		);
 		foreach ( $component_files as $component_file ) {
 			$handle                      = 'subscrpt_style_' . str_replace( '-', '_', $component_file );

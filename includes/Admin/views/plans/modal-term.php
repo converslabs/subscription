@@ -60,9 +60,20 @@ for ( $subscrpt_wd = 0; $subscrpt_wd < 7; $subscrpt_wd++ ) {
 
 // Match the onboarding "Subscription details" form-row styling.
 $label_style = 'display:block;font-size:13px;font-weight:500;color:var(--wpsubs-text);margin:0 0 6px;';
-$hint_style  = 'font-size:12px;color:var(--wpsubs-text-muted);margin:5px 0 0;line-height:1.4;';
 $row_style   = 'margin-bottom:16px;';
 $pair_style  = 'display:flex;gap:8px;align-items:center;';
+
+/**
+ * Render a field description as a hover tooltip beside the label, so the
+ * descriptions no longer clutter the form as paragraphs. Uses the shared
+ * wpsubs-tooltip component (via wpsubs_render_hint()).
+ *
+ * @param string $text Description text.
+ * @return string Hint markup (already escaped).
+ */
+$hint = function ( $text ) {
+	return wpsubs_render_hint( $text );
+};
 
 $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activated();
 $currency   = function_exists( 'get_woocommerce_currency_symbol' )
@@ -93,14 +104,13 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 
 			<!-- Plan name -->
 			<div style="<?php echo esc_attr( $row_style ); ?>">
-				<label style="<?php echo esc_attr( $label_style ); ?>" for="subscrpt-term-name"><?php esc_html_e( 'Plan Name', 'subscription' ); ?></label>
+				<label style="<?php echo esc_attr( $label_style ); ?>" for="subscrpt-term-name"><?php esc_html_e( 'Plan Name', 'subscription' ); ?><?php echo wp_kses_post( $hint( __( 'Shown to customers when they pick this plan.', 'subscription' ) ) ); ?></label>
 				<input type="text" id="subscrpt-term-name" class="wpsubs-input" value="" placeholder="<?php esc_attr_e( 'e.g. Monthly', 'subscription' ); ?>" data-subscrpt-field="title" />
-				<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'Shown to customers when they pick this plan.', 'subscription' ); ?></p>
 			</div>
 
 			<!-- Billing every -->
 			<div style="<?php echo esc_attr( $row_style ); ?>">
-				<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Billing every', 'subscription' ); ?></label>
+				<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Billing every', 'subscription' ); ?><?php echo wp_kses_post( $hint( __( 'How often the customer is charged, for example every 1 month.', 'subscription' ) ) ); ?></label>
 				<div style="<?php echo esc_attr( $pair_style ); ?>">
 					<input type="number" class="wpsubs-input" value="1" min="1" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="billing_frequency" aria-label="<?php esc_attr_e( 'Frequency', 'subscription' ); ?>" />
 					<?php
@@ -117,13 +127,12 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 					);
 					?>
 				</div>
-				<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'How often the customer is charged, for example every 1 month.', 'subscription' ); ?></p>
 			</div>
 
 			<!-- Free trial | Signup fee -->
 			<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;<?php echo ( $is_delivery || $is_installments ) ? esc_attr( $row_style ) : 'margin-bottom:0;'; ?>">
 				<div>
-					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Free trial', 'subscription' ); ?> <span style="color:var(--wpsubs-text-subtle);font-weight:400;">(<?php esc_html_e( 'optional', 'subscription' ); ?>)</span></label>
+					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Free trial', 'subscription' ); ?> <span style="color:var(--wpsubs-text-subtle);font-weight:400;">(<?php esc_html_e( 'optional', 'subscription' ); ?>)</span><?php echo wp_kses_post( $hint( __( 'Charge nothing until the trial ends.', 'subscription' ) ) ); ?></label>
 					<div style="<?php echo esc_attr( $pair_style ); ?>">
 						<input type="number" class="wpsubs-input" value="" min="0" placeholder="0" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="free_trial" aria-label="<?php esc_attr_e( 'Trial length', 'subscription' ); ?>" />
 						<?php
@@ -140,7 +149,6 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 						);
 						?>
 					</div>
-					<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'Charge nothing until the trial ends.', 'subscription' ); ?></p>
 				</div>
 
 				<div>
@@ -149,19 +157,19 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 						<?php if ( ! $pro_active ) : ?>
 							<span class="wpsubs-badge wpsubs-badge--pro" style="margin-left:6px;" title="<?php esc_attr_e( 'WPSubscription Pro required', 'subscription' ); ?>"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
 						<?php endif; ?>
+						<?php echo wp_kses_post( $hint( __( 'One-time fee on the first payment.', 'subscription' ) ) ); ?>
 					</label>
 					<div style="position:relative;">
 						<span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--wpsubs-text-muted);pointer-events:none;z-index:1;"><?php echo esc_html( $currency ); ?></span>
 						<input type="number" id="subscrpt-term-signup-fee" class="wpsubs-input" value="" min="0" step="0.01" placeholder="0.00" style="padding-left:26px!important;" data-subscrpt-field="signup_fee_amount" <?php disabled( ! $pro_active ); ?> />
 					</div>
-					<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'One-time fee on the first payment.', 'subscription' ); ?></p>
 				</div>
 			</div>
 
 			<?php if ( $is_delivery ) : ?>
 				<!-- Recurring Delivery extras -->
 				<div style="<?php echo esc_attr( $row_style ); ?>">
-					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Delivery schedule', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
+					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Delivery schedule', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?><?php echo wp_kses_post( $hint( __( 'How often the product ships. Leave empty to match the billing schedule.', 'subscription' ) ) ); ?></label>
 					<div style="<?php echo esc_attr( $pair_style ); ?>">
 						<input type="number" class="wpsubs-input" value="" min="1" placeholder="<?php esc_attr_e( 'Same as billing', 'subscription' ); ?>" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="delivery_frequency" aria-label="<?php esc_attr_e( 'Delivery frequency', 'subscription' ); ?>" <?php disabled( $pro_locked ); ?> />
 						<?php
@@ -178,17 +186,15 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 						);
 						?>
 					</div>
-					<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'How often the product ships. Leave empty to match the billing schedule.', 'subscription' ); ?></p>
 				</div>
 
 				<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-bottom:0;">
 					<div>
-						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Synchronize schedule', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
+						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Synchronize schedule', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?><?php echo wp_kses_post( $hint( __( 'Deliver everyone on the same weekday.', 'subscription' ) ) ); ?></label>
 						<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:8px;height:36px;<?php echo esc_attr( $adv_lock ); ?>">
 							<input type="checkbox" class="wpsubs-toggle" data-subscrpt-field="delivery_sync" <?php disabled( $pro_locked ); ?> />
 							<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
 						</label>
-						<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'Deliver everyone on the same weekday.', 'subscription' ); ?></p>
 					</div>
 					<div data-subscrpt-delivery-day style="opacity:0.55;pointer-events:none;">
 						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Delivery day', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
@@ -213,12 +219,11 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 				<!-- Split Payment extras -->
 				<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-bottom:0;">
 					<div>
-						<label style="<?php echo esc_attr( $label_style ); ?>" for="subscrpt-term-installments"><?php esc_html_e( 'Number of payments', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
+						<label style="<?php echo esc_attr( $label_style ); ?>" for="subscrpt-term-installments"><?php esc_html_e( 'Number of payments', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?><?php echo wp_kses_post( $hint( __( 'Total payments to collect (minimum 2).', 'subscription' ) ) ); ?></label>
 						<input type="number" id="subscrpt-term-installments" class="wpsubs-input" value="2" min="2" data-subscrpt-field="installment_count" <?php disabled( $pro_locked ); ?> />
-						<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'Total payments to collect (minimum 2).', 'subscription' ); ?></p>
 					</div>
 					<div>
-						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Access ends', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
+						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Access ends', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?><?php echo wp_kses_post( $hint( __( 'When the customer loses access after the payments finish.', 'subscription' ) ) ); ?></label>
 						<?php
 						wpsubs_render_adv_select(
 							array(
@@ -232,7 +237,6 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 							)
 						);
 						?>
-						<p style="<?php echo esc_attr( $hint_style ); ?>"><?php esc_html_e( 'When the customer loses access after the payments finish.', 'subscription' ); ?></p>
 					</div>
 				</div>
 
