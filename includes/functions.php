@@ -116,6 +116,23 @@ function subscrpt_product_has_plan( $product_id, $variation_id = 0 ): bool {
 }
 
 /**
+ * Truncate a string to a max length, appending an ellipsis when shortened.
+ *
+ * Multibyte-safe. Returns the text unchanged when it is within the limit, so
+ * callers can compare the result to the original to detect truncation (e.g. to
+ * add a title attribute with the full text).
+ *
+ * @param string $text   Text to truncate.
+ * @param int    $length Maximum length before truncation. Default 30.
+ *
+ * @return string
+ */
+function subscrpt_truncate_text( $text, $length = 30 ) {
+	$text = (string) $text;
+	return mb_strlen( $text ) > $length ? mb_substr( $text, 0, $length ) . '…' : $text;
+}
+
+/**
  * Get renewal process settings.
  *
  * @return bool

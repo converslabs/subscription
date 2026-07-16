@@ -70,9 +70,13 @@ use SpringDevs\Subscription\Admin\Plans;
 						?>
 						<tr class="wpsubs-plan-row" data-subscrpt-name="<?php echo esc_attr( strtolower( $plan['name'] ) ); ?>" data-plan-id="<?php echo esc_attr( $plan['id'] ); ?>" data-href="<?php echo esc_url( $detail_url ); ?>" style="cursor:pointer;">
 							<td>
-								<a href="<?php echo esc_url( $detail_url ); ?>" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;text-decoration:none;color:var(--wpsubs-text);">
-									<span class="dashicons <?php echo esc_attr( Plans::type_icon( $plan['type'] ) ); ?>" style="color:var(--wpsubs-text-subtle);"></span>
-									<?php echo esc_html( $plan['name'] ); ?>
+								<?php
+								$subscrpt_full  = $plan['name'];
+								$subscrpt_short = subscrpt_truncate_text( $subscrpt_full );
+								?>
+								<a href="<?php echo esc_url( $detail_url ); ?>" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;text-decoration:none;color:var(--wpsubs-text);"<?php echo $subscrpt_short !== $subscrpt_full ? ' title="' . esc_attr( $subscrpt_full ) . '"' : ''; ?>>
+									<span class="dashicons <?php echo esc_attr( Plans::type_icon( $plan['type'] ) ); ?>" style="flex:0 0 auto;color:var(--wpsubs-text-subtle);"></span>
+									<?php echo esc_html( $subscrpt_short ); ?>
 								</a>
 								<?php if ( 'draft' === $plan['status'] ) : ?>
 									<span class="wpsubs-badge wpsubs-badge--draft" style="margin-left:4px;"><?php esc_html_e( 'Draft', 'subscription' ); ?></span>

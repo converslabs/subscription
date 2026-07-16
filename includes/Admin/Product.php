@@ -1,4 +1,9 @@
 <?php
+/**
+ * Product editor integration (Subscription tab).
+ *
+ * @package SpringDevs\Subscription\Admin
+ */
 
 namespace SpringDevs\Subscription\Admin;
 
@@ -22,7 +27,6 @@ class Product {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_filter( 'woocommerce_product_data_tabs', array( $this, 'register_tab' ) );
 		add_action( 'woocommerce_product_data_panels', array( $this, 'subscription_forms' ) );
-		add_filter( 'product_type_options', array( $this, 'add_product_type_options' ) );
 		add_action( 'save_post_product', array( $this, 'save_subscrpt_data' ) );
 		add_filter( 'woocommerce_get_price_html', array( $this, 'change_price_html' ), 10, 2 );
 	}
@@ -62,6 +66,43 @@ class Product {
 	 */
 	public function enqueue_assets() {
 		wp_enqueue_script( 'sdevs_subscription_admin' );
+
+		// Plan view assets on the product editor. Enqueued whether or not Pro is
+		// active: with Pro off, free renders its own panel; with Pro on, the plan
+		// view mounts on Pro's `subscrpt_simple_plan_panel` hook.
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'product' !== $screen->id ) {
+			return;
+		}
+
+		wp_enqueue_style( 'subscrpt_admin_components' );
+		wp_enqueue_script( 'subscrpt_admin_components' );
+
+		wp_enqueue_script(
+			'subscrpt_product_plans_js',
+			SUBSCRPT_ASSETS . '/js/admin/product-plans.js',
+			array( 'subscrpt_admin_components' ),
+			SUBSCRPT_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'subscrpt_product_plans_js',
+			'subscrptProductPlans',
+			array(
+				'restUrl'  => esc_url_raw( rest_url( 'wpsubscription/v1/plans' ) ),
+				'nonce'    => wp_create_nonce( 'wp_rest' ),
+				'currency' => function_exists( 'get_woocommerce_currency_symbol' )
+					? html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' )
+					: '$',
+				'i18n'     => array(
+					'connectError'  => __( 'Could not connect the plan. Please try again.', 'subscription' ),
+					'pickPlan'      => __( 'Please select a plan.', 'subscription' ),
+					'confirmDetach' => __( 'Detach this product from the plan?', 'subscription' ),
+					'loading'       => __( 'Loading plans…', 'subscription' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -74,40 +115,13 @@ class Product {
 	public function register_tab( $tabs ) {
 		$tabs['sdevs_subscription'] = array(
 			'label'    => __( 'Subscription', 'subscription' ),
-			'class'    => array( 'show_if_simple', 'show_if_subscription' ),
+			// Always visible for simple products; the "Enable Subscriptions"
+			// checkbox now lives inside the tab's classic settings.
+			'class'    => array( 'show_if_simple' ),
 			'target'   => 'sdevs_subscription_options',
 			'priority' => 11,
 		);
 		return $tabs;
-	}
-
-	/**
-	 * Display Enable Subscription Checkbox on product data tab.
-	 *
-	 * @param array $product_type_options Product Type options on Data tab.
-	 *
-	 * @return array
-	 */
-	public function add_product_type_options( $product_type_options ) {
-		$screen = get_current_screen();
-		$value  = 'no';
-		if ( 'edit' === $screen->parent_base ) {
-			$product = wc_get_product( get_the_ID() );
-			if ( $product ) {
-				$value = $product->get_meta( '_subscrpt_enabled' ) ? 'yes' : 'no';
-			}
-		}
-
-		$wrapper_class                           = apply_filters( 'subscrpt_simple_enable_checkbox_classes', 'show_if_simple' );
-		$product_type_options['subscrpt_enable'] = array(
-			'id'            => 'subscrpt_enable',
-			'wrapper_class' => $wrapper_class,
-			'label'         => __( 'Subscription', 'subscription' ),
-			'description'   => __( 'Enable Subscriptions', 'subscription' ),
-			'default'       => $value,
-		);
-
-		return $product_type_options;
 	}
 
 	/**
@@ -131,20 +145,40 @@ class Product {
 				$subscrpt_cart_txt     = 'subscribe';
 				$subscrpt_user_cancell = 'yes';
 				$subscrpt_limit        = 'one';
+				$subscrpt_enabled      = false;
 
-				$screen = get_current_screen();
+				$subscrpt_product = null;
+				$screen           = get_current_screen();
 				if ( 'edit' === $screen->parent_base ) {
-					$product = wc_get_product( get_the_ID() );
-					if ( $product ) {
-						$subscrpt_timing       = $product->get_meta( '_subscrpt_timing_option' );
-						$subscrpt_trial_time   = $product->get_meta( '_subscrpt_trial_timing_per' );
-						$subscrpt_trial_timing = $product->get_meta( '_subscrpt_trial_timing_option' );
-						$subscrpt_cart_txt     = $product->get_meta( '_subscrpt_cart_btn_label' );
-						$subscrpt_user_cancell = $product->get_meta( '_subscrpt_user_cancel' );
-						$subscrpt_limit        = $product->get_meta( '_subscrpt_limit' );
+					$subscrpt_product = wc_get_product( get_the_ID() );
+					if ( $subscrpt_product ) {
+						$subscrpt_enabled      = (bool) $subscrpt_product->get_meta( '_subscrpt_enabled' );
+						$subscrpt_timing       = $subscrpt_product->get_meta( '_subscrpt_timing_option' );
+						$subscrpt_trial_time   = $subscrpt_product->get_meta( '_subscrpt_trial_timing_per' );
+						$subscrpt_trial_timing = $subscrpt_product->get_meta( '_subscrpt_trial_timing_option' );
+						$subscrpt_cart_txt     = $subscrpt_product->get_meta( '_subscrpt_cart_btn_label' );
+						$subscrpt_user_cancell = $subscrpt_product->get_meta( '_subscrpt_user_cancel' );
+						$subscrpt_limit        = $subscrpt_product->get_meta( '_subscrpt_limit' );
 					}
 				}
-				include 'views/product-form.php';
+
+				// Simple products: plan view (default) + hidden classic settings.
+				// Variable/other products keep the classic-only panel unchanged.
+				if ( $subscrpt_product && $subscrpt_product->is_type( 'simple' ) && class_exists( '\SpringDevs\Subscription\Admin\Product\Plans' ) ) {
+					?>
+					<div id="sdevs_subscription_options" class="panel woocommerce_options_panel option_group sdevs-form sdevs_panel show_if_simple" style="padding:10px;" data-subscrpt-product-plans data-product-id="<?php echo esc_attr( $subscrpt_product->get_id() ); ?>">
+						<?php Product\Plans::render_toolbar(); ?>
+						<div data-subscrpt-plan-view>
+							<?php Product\Plans::render_plan_view( $subscrpt_product ); ?>
+						</div>
+						<div data-subscrpt-classic-view style="display:none;">
+							<?php require __DIR__ . '/views/product-classic-fields.php'; ?>
+						</div>
+					</div>
+					<?php
+				} else {
+					include 'views/product-form.php';
+				}
 			}
 		}
 	}

@@ -239,9 +239,19 @@ class PlanPresenter {
 	}
 
 	/**
-	 * Build the short info chips for a term (free trial, signup fee, expiry).
+	 * The term meta parts (billing breakdown + chips) for display under a plan
+	 * name. Same set the Plans tab shows. Accepts a raw plan row.
 	 *
-	 * Each chip is a ready-to-print label; only the ones that apply are returned.
+	 * @param array $plan Plan term row (from PlanRepository::get_plans()).
+	 *
+	 * @return array<int,string>
+	 */
+	public static function term_meta( $plan ) {
+		return array_merge( array( self::breakdown( $plan ) ), self::term_chips( $plan ) );
+	}
+
+	/**
+	 * Build the short info chips for a term (free trial, signup fee, expiry).
 	 *
 	 * @param array $plan Plan term row.
 	 *

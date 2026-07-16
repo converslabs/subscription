@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin menu + shared admin header/breadcrumb renderer.
+ *
+ * @package SpringDevs\Subscription\Admin
+ */
 
 namespace SpringDevs\Subscription\Admin;
 
@@ -298,21 +303,26 @@ class Menu {
 
 		// Normalize to a single trail. Explicit breadcrumbs win; otherwise the
 		// legacy single $title segment is used.
+		// A long breadcrumb label is truncated for display; the full text is kept
+		// so the renderer can add it as a title attribute.
+		$make_crumb = static function ( $label, $url ) {
+			$label = (string) $label;
+			return [
+				'label' => subscrpt_truncate_text( $label ),
+				'full'  => $label,
+				'url'   => (string) $url,
+			];
+		};
+
 		$trail = [];
 		if ( ! empty( $breadcrumbs ) ) {
 			foreach ( $breadcrumbs as $crumb ) {
 				if ( is_array( $crumb ) && '' !== ( $crumb['label'] ?? '' ) ) {
-					$trail[] = [
-						'label' => (string) $crumb['label'],
-						'url'   => isset( $crumb['url'] ) ? (string) $crumb['url'] : '',
-					];
+					$trail[] = $make_crumb( $crumb['label'], $crumb['url'] ?? '' );
 				}
 			}
 		} elseif ( '' !== $title ) {
-			$trail[] = [
-				'label' => $title,
-				'url'   => '',
-			];
+			$trail[] = $make_crumb( $title, '' );
 		}
 
 		$last_index = count( $trail ) - 1;
@@ -326,10 +336,11 @@ class Menu {
 					</a>
 					<?php foreach ( $trail as $index => $crumb ) : ?>
 						<span class="wp-subscription-breadcrumb-sep" aria-hidden="true">/</span>
+						<?php $crumb_title = $crumb['full'] !== $crumb['label'] ? ' title="' . esc_attr( $crumb['full'] ) . '"' : ''; ?>
 						<?php if ( '' !== $crumb['url'] && $index < $last_index ) : ?>
-							<a href="<?php echo esc_url( $crumb['url'] ); ?>" class="wp-subscription-breadcrumb-link"><?php echo esc_html( $crumb['label'] ); ?></a>
+							<a href="<?php echo esc_url( $crumb['url'] ); ?>" class="wp-subscription-breadcrumb-link"<?php echo $crumb_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attribute pre-escaped. ?>><?php echo esc_html( $crumb['label'] ); ?></a>
 						<?php else : ?>
-							<span class="wp-subscription-breadcrumb-current"><?php echo esc_html( $crumb['label'] ); ?></span>
+							<span class="wp-subscription-breadcrumb-current"<?php echo $crumb_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attribute pre-escaped. ?>><?php echo esc_html( $crumb['label'] ); ?></span>
 						<?php endif; ?>
 					<?php endforeach; ?>
 				</nav>

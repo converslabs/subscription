@@ -41,6 +41,7 @@ class Admin {
 		if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 			new Menu();
 			new Plans();
+			new Product\Plans();
 			new Integrations();
 			new Product();
 			new Subscriptions();
