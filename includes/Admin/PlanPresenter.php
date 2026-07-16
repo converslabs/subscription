@@ -147,7 +147,17 @@ class PlanPresenter {
 		}
 		unset( $entry );
 
-		return array_values( $by_product );
+		$products = array_values( $by_product );
+
+		// Sort by product ID (newest first).
+		usort(
+			$products,
+			function ( $a, $b ) {
+				return (int) $b['id'] - (int) $a['id'];
+			}
+		);
+
+		return $products;
 	}
 
 	/**

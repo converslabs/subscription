@@ -113,6 +113,8 @@ class Plans {
 					'nameRequired'           => __( 'Please enter a name.', 'subscription' ),
 					'addTerm'                => __( 'Add Selling Plan', 'subscription' ),
 					'editTerm'               => __( 'Edit Selling Plan', 'subscription' ),
+					/* translators: %1$s: first item number, %2$s: last item number, %3$s: total. */
+					'showingRange'           => __( 'Showing %1-%2 of %3', 'subscription' ),
 				),
 			)
 		);

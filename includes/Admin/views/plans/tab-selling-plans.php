@@ -24,9 +24,54 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</button>
 		</div>
 	<?php else : ?>
-		<div style="display:flex;flex-direction:column;gap:10px;">
+		<div data-subscrpt-browse data-per-page="10">
+			<div class="wpsubs-toolbar" style="margin-bottom:14px;">
+				<div class="wpsubs-search">
+					<div class="wpsubs-input-wrap wpsubs-input-wrap--icon-l">
+						<svg class="wpsubs-input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+						<input type="search" class="wpsubs-input" placeholder="<?php esc_attr_e( 'Search selling plans...', 'subscription' ); ?>" data-subscrpt-browse-search />
+					</div>
+				</div>
+
+				<?php
+				wpsubs_render_adv_select(
+					array(
+						'name'    => 'subscrpt_plans_per_page',
+						'value'   => '10',
+						'options' => array(
+							array(
+								'value' => '10',
+								'label' => __( '10 / page', 'subscription' ),
+							),
+							array(
+								'value' => '25',
+								'label' => __( '25 / page', 'subscription' ),
+							),
+							array(
+								'value' => '50',
+								'label' => __( '50 / page', 'subscription' ),
+							),
+							array(
+								'value' => '100',
+								'label' => __( '100 / page', 'subscription' ),
+							),
+						),
+						'attrs'   => array( 'data-subscrpt-browse-perpage' => '1' ),
+					)
+				);
+				?>
+
+				<div class="wpsubs-toolbar__spacer"></div>
+
+				<button type="button" class="wpsubs-btn wpsubs-btn--outline" data-wpsubs-modal-open="subscrpt-term-modal" data-subscrpt-add-term>
+					<span class="dashicons dashicons-plus-alt2" style="font-size:16px;width:16px;height:16px;line-height:1;"></span>
+					<?php esc_html_e( 'Add Selling Plan', 'subscription' ); ?>
+				</button>
+			</div>
+
+			<div style="display:flex;flex-direction:column;gap:10px;">
 			<?php foreach ( $plan['terms'] as $selling_term ) : ?>
-				<div class="wpsubs-table-card" data-term-id="<?php echo esc_attr( $selling_term['id'] ); ?>" style="display:flex;align-items:center;gap:14px;padding:14px 16px;">
+				<div class="wpsubs-table-card" data-term-id="<?php echo esc_attr( $selling_term['id'] ); ?>" data-subscrpt-browse-item data-name="<?php echo esc_attr( strtolower( $selling_term['name'] ) ); ?>" style="display:flex;align-items:center;gap:14px;padding:14px 16px;">
 					<span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--wpsubs-radius);background:var(--wpsubs-brand-light);color:var(--wpsubs-brand);">
 						<span class="dashicons dashicons-calendar-alt"></span>
 					</span>
@@ -61,12 +106,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 				</div>
 			<?php endforeach; ?>
-		</div>
+			</div>
 
-		<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="margin-top:16px;" data-wpsubs-modal-open="subscrpt-term-modal" data-subscrpt-add-term>
-			<span class="dashicons dashicons-plus-alt2" style="font-size:16px;width:16px;height:16px;line-height:1;"></span>
-			<?php esc_html_e( 'Add Selling Plan', 'subscription' ); ?>
-		</button>
+			<p data-subscrpt-browse-empty style="display:none;padding:20px 4px;color:var(--wpsubs-text-subtle);font-size:13px;text-align:center;">
+				<?php esc_html_e( 'No selling plans match your search.', 'subscription' ); ?>
+			</p>
+
+			<div data-subscrpt-browse-pager style="margin-top:14px;"></div>
+		</div>
 	<?php endif; ?>
 
 </div>

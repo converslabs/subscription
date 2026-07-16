@@ -44,7 +44,7 @@ use SpringDevs\Subscription\Admin\Plans;
 		</div>
 
 		<div class="wpsubs-tabs" data-tabs-query="tab">
-			<div class="wpsubs-tabs__list" role="tablist" style="align-items:end;border-bottom:none;margin-top:-24px;">
+			<div class="wpsubs-tabs__list" role="tablist" style="align-items:end;border-bottom:none;margin-top:-24px;margin-bottom:8px;">
 				<span aria-hidden="true" style="flex:1 1 auto;border-top:1px dashed #d0d3d7;margin-right:8px;"></span>
 				<button class="wpsubs-tabs__tab" role="tab" id="subscrpt-tab-selling" data-tab-key="plans" aria-controls="subscrpt-panel-selling" aria-selected="true">
 					<?php esc_html_e( 'Plans', 'subscription' ); ?>

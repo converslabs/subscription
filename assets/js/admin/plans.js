@@ -637,9 +637,9 @@
 
     var li = document.createElement("li");
     li.style.cssText =
-      "display:flex;align-items:center;gap:10px;padding:8px 4px;padding-left:" +
+      "margin:0;display:flex;align-items:center;gap:10px;padding:8px 4px;padding-left:" +
       (opts.indent ? "36px" : "4px") +
-      ";border-bottom:1px solid var(--wpsubs-border);";
+      ";border-bottom:1px solid rgba(0,0,0,0.06);";
 
     var label = document.createElement("label");
     label.style.cssText = "display:flex;align-items:center;gap:10px;flex:1 1 auto;min-width:0;cursor:pointer;";
@@ -752,6 +752,11 @@
             list.appendChild(productRow(p, { indent: false, attached: attached }).li);
           }
         });
+
+        // No divider under the last row.
+        if (list.lastElementChild) {
+          list.lastElementChild.style.borderBottom = "none";
+        }
       })
       .catch(function () {
         list.innerHTML =
@@ -1092,4 +1097,161 @@
         window.alert(err.message || i18n.genericError);
       });
   });
+
+  /* ------------------------------------------------------------------ *
+   * Products tab: client-side search + pagination over the product list.
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Windowed page numbers with ellipses (first, last, current ±1).
+   *
+   * @param {number} current Current page.
+   * @param {number} total   Total pages.
+   * @return {Array<number|string>}
+   */
+  function pageRange(current, total) {
+    var out = [];
+    for (var i = 1; i <= total; i++) {
+      if (i === 1 || i === total || (i >= current - 1 && i <= current + 1)) {
+        out.push(i);
+      } else if (out[out.length - 1] !== "…") {
+        out.push("…");
+      }
+    }
+    return out;
+  }
+
+  function initBrowser(root) {
+    var perPage = parseInt(root.getAttribute("data-per-page"), 10) || 10;
+    var input = root.querySelector("[data-subscrpt-browse-search]");
+    var items = Array.prototype.slice.call(root.querySelectorAll("[data-subscrpt-browse-item]"));
+    var emptyMsg = root.querySelector("[data-subscrpt-browse-empty]");
+    var pager = root.querySelector("[data-subscrpt-browse-pager]");
+    var term = "";
+    var page = 1;
+
+    // Remember each item's own display so showing it restores that (e.g. cards
+    // set display:flex inline) instead of clearing it to the block default.
+    items.forEach(function (it) {
+      it._subscrptDisplay = it.style.display || "";
+    });
+
+    function match(item) {
+      if (!term) {
+        return true;
+      }
+      var name = (item.getAttribute("data-name") || "").indexOf(term) !== -1;
+      var pid = String(item.getAttribute("data-pid") || "").indexOf(term) !== -1;
+      return name || pid;
+    }
+
+    function render() {
+      var visible = items.filter(match);
+      var total = Math.max(1, Math.ceil(visible.length / perPage));
+      if (page > total) {
+        page = total;
+      }
+      var start = (page - 1) * perPage;
+      var pageItems = visible.slice(start, start + perPage);
+
+      items.forEach(function (it) {
+        it.style.display = "none";
+      });
+      pageItems.forEach(function (it) {
+        it.style.display = it._subscrptDisplay;
+      });
+
+      if (emptyMsg) {
+        emptyMsg.style.display = visible.length ? "none" : "";
+      }
+      renderPager(visible.length, total);
+    }
+
+    function renderPager(count, total) {
+      if (total <= 1) {
+        pager.innerHTML = "";
+        return;
+      }
+      var start = count ? (page - 1) * perPage + 1 : 0;
+      var end = Math.min(page * perPage, count);
+      var info = (i18n.showingRange || "Showing %1-%2 of %3")
+        .replace("%1", start)
+        .replace("%2", end)
+        .replace("%3", count);
+
+      var nav = "";
+      var chip = function (label, target, disabled, active) {
+        var cls = "wpsubs-pagination__btn";
+        if (disabled) {
+          cls += " wpsubs-pagination__btn--disabled";
+        }
+        if (active) {
+          cls += " wpsubs-pagination__btn--active";
+        }
+        if ("…" === label) {
+          return '<span class="wpsubs-pagination__btn wpsubs-pagination__btn--ellipsis" aria-hidden="true">…</span>';
+        }
+        return '<button type="button" class="' + cls + '" data-subscrpt-page="' + target + '">' + label + "</button>";
+      };
+
+      nav += chip("‹", page - 1, page <= 1, false);
+      pageRange(page, total).forEach(function (p) {
+        nav += "…" === p ? chip("…") : chip(p, p, false, p === page);
+      });
+      nav += chip("›", page + 1, page >= total, false);
+
+      pager.innerHTML =
+        '<div class="wpsubs-pagination" role="navigation">' +
+        '<span class="wpsubs-pagination__info">' +
+        info +
+        "</span>" +
+        '<span class="wpsubs-pagination__nav">' +
+        nav +
+        "</span></div>";
+    }
+
+    if (input) {
+      var timer;
+      input.addEventListener("input", function () {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function () {
+          term = input.value.trim().toLowerCase();
+          page = 1;
+          render();
+        }, 200);
+      });
+    }
+
+    // Per-page adv-select (fires wpsubs:select).
+    document.addEventListener("wpsubs:select", function (e) {
+      var sel = e.target.closest ? e.target.closest("[data-subscrpt-browse-perpage]") : null;
+      if (!sel || !root.contains(sel)) {
+        return;
+      }
+      perPage = parseInt(e.detail && e.detail.value, 10) || perPage;
+      page = 1;
+      render();
+    });
+
+    pager.addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-subscrpt-page]");
+      if (!btn) {
+        return;
+      }
+      page = parseInt(btn.getAttribute("data-subscrpt-page"), 10) || 1;
+      render();
+    });
+
+    render();
+  }
+
+  function initBrowsers() {
+    document.querySelectorAll("[data-subscrpt-browse]").forEach(initBrowser);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initBrowsers);
+  } else {
+    initBrowsers();
+  }
 })();

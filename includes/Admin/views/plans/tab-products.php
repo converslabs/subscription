@@ -169,10 +169,57 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 		};
 	?>
 
-		<div class="wpsubs-accordion" data-multi="1">
+		<div data-subscrpt-browse data-per-page="10">
+			<div class="wpsubs-toolbar" style="margin-bottom:14px;">
+				<div class="wpsubs-search">
+					<div class="wpsubs-input-wrap wpsubs-input-wrap--icon-l">
+						<svg class="wpsubs-input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+						<input type="search" class="wpsubs-input" placeholder="<?php esc_attr_e( 'Search products...', 'subscription' ); ?>" data-subscrpt-browse-search />
+					</div>
+				</div>
+
+				<?php
+				wpsubs_render_adv_select(
+					array(
+						'name'    => 'subscrpt_products_per_page',
+						'value'   => '10',
+						'options' => array(
+							array(
+								'value' => '10',
+								'label' => __( '10 / page', 'subscription' ),
+							),
+							array(
+								'value' => '25',
+								'label' => __( '25 / page', 'subscription' ),
+							),
+							array(
+								'value' => '50',
+								'label' => __( '50 / page', 'subscription' ),
+							),
+							array(
+								'value' => '100',
+								'label' => __( '100 / page', 'subscription' ),
+							),
+						),
+						'attrs'   => array( 'data-subscrpt-browse-perpage' => '1' ),
+					)
+				);
+				?>
+
+				<div class="wpsubs-toolbar__spacer"></div>
+
+				<?php if ( $pro_active ) : ?>
+					<button type="button" class="wpsubs-btn wpsubs-btn--outline" data-wpsubs-modal-open="subscrpt-add-product">
+						<span class="dashicons dashicons-edit" style="font-size:16px;width:16px;height:16px;line-height:1;"></span>
+						<?php esc_html_e( 'Manage Products', 'subscription' ); ?>
+					</button>
+				<?php endif; ?>
+			</div>
+
+			<div class="wpsubs-accordion" data-multi="1" data-subscrpt-product-list>
 			<?php foreach ( $plan['products'] as $product ) : ?>
 				<?php $subscrpt_panel_id = 'subscrpt-prod-' . (int) $product['id']; ?>
-				<div class="wpsubs-accordion__item">
+				<div class="wpsubs-accordion__item" data-subscrpt-browse-item data-name="<?php echo esc_attr( strtolower( $product['name'] ) ); ?>" data-pid="<?php echo esc_attr( $product['id'] ); ?>">
 					<div style="display:flex;align-items:stretch;background:var(--wpsubs-surface-muted,#f9fafb);">
 						<button type="button" class="wpsubs-accordion__header wpsubs-accordion__header--chevron-start" style="flex:1 1 auto;min-width:0;background:transparent;" aria-controls="<?php echo esc_attr( $subscrpt_panel_id ); ?>" aria-expanded="false">
 							<span style="display:flex;align-items:center;gap:10px;min-width:0;">
@@ -185,15 +232,18 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 								</span>
 								<span style="display:flex;flex-direction:column;min-width:0;line-height:1.35;">
 								<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo esc_html( $product['name'] ); ?></span>
-								<?php if ( ! empty( $product['is_variable'] ) ) : ?>
-									<span style="font-size:12px;font-weight:400;color:var(--wpsubs-text-muted);white-space:nowrap;">
-										<?php
+								<span style="font-size:12px;font-weight:400;color:var(--wpsubs-text-muted);white-space:nowrap;">
+									<?php
+									/* translators: %d: product ID. */
+									$subscrpt_desc = sprintf( __( 'ID: %d', 'subscription' ), (int) $product['id'] );
+									if ( ! empty( $product['is_variable'] ) ) {
 										$subscrpt_var_count = count( $product['variations'] );
 										/* translators: %d: number of variations. */
-										echo esc_html( sprintf( _n( '%d variation', '%d variations', $subscrpt_var_count, 'subscription' ), $subscrpt_var_count ) );
-										?>
-									</span>
-								<?php endif; ?>
+										$subscrpt_desc .= ' &middot; ' . sprintf( _n( '%d variation', '%d variations', $subscrpt_var_count, 'subscription' ), $subscrpt_var_count );
+									}
+									echo wp_kses_post( $subscrpt_desc );
+									?>
+								</span>
 								</span>
 							</span>
 						</button>
@@ -260,14 +310,14 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 					</div>
 				</div>
 			<?php endforeach; ?>
-		</div>
+			</div>
 
-		<?php if ( $pro_active ) : ?>
-			<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="margin-top:16px;" data-wpsubs-modal-open="subscrpt-add-product">
-				<span class="dashicons dashicons-plus-alt2" style="font-size:16px;width:16px;height:16px;line-height:1;"></span>
-				<?php esc_html_e( 'Add Products', 'subscription' ); ?>
-			</button>
-		<?php endif; ?>
+			<p data-subscrpt-browse-empty style="display:none;padding:20px 4px;color:var(--wpsubs-text-subtle);font-size:13px;text-align:center;">
+				<?php esc_html_e( 'No products match your search.', 'subscription' ); ?>
+			</p>
+
+			<div data-subscrpt-browse-pager style="margin-top:14px;"></div>
+		</div>
 
 	<?php endif; ?>
 
