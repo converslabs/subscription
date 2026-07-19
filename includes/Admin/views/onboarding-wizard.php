@@ -33,7 +33,7 @@ if ( $product_id > 0 ) {
 	$product = wc_get_product( $product_id );
 }
 ?>
-<div class="wpsubs-tw-root wpsubs-layout" id="subscrpt-onboarding-wizard">
+<div class="wpsubs-layout" id="subscrpt-onboarding-wizard">
 	<!-- Page 2+ only: stepper indicator -->
 	<div class="wpsubs-wizard-stepper" id="subscrpt-stepper" style="display:none;">
 		<div class="wpsubs-wizard-stepper__step active" data-step="1">
