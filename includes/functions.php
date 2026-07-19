@@ -5,22 +5,6 @@ use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 use SpringDevs\Subscription\Utils\Product;
 
 /**
- * Include tailwind CSS file
- *
- * * Add this class to the parent element to apply tailwind css styles:
- * * "`wpsubs-tw-root`"
- * *
- * * Use "`yarn build:tailwind`" to build the tailwind CSS file.
- * * Use "`yarn watch:tailwind`" to continuously build the tailwind CSS file.
- *
- * ? This stylesheet is added to the all admin pages of the plugin.
- * ? You can use this function to add the stylesheet on other pages if necessary.
- */
-function subscrpt_include_tailwind_css() {
-	wp_enqueue_style( 'wpsubs-tailwind', SUBSCRPT_ASSETS . '/css/tailwind/output.css', [], SUBSCRPT_VERSION );
-}
-
-/**
  * Generate URL for Subscription Action.
  *
  * @param string $action Action.
