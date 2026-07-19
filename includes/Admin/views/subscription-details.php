@@ -64,7 +64,7 @@ $customer_url   = $customer_id ? admin_url( 'user-edit.php?user_id=' . $customer
 // Page header: product title + meta description (badge · #id · email · next payment).
 $header_title = ( $product_name && '-' !== $product_name )
 	? $product_name
-	/* translators: %s: subscription ID */
+	/* translators: %s: Subscription ID */
 	: sprintf( __( 'Subscription #%s', 'subscription' ), $subscription_id );
 
 $next_payment_date = $subscription_data['next_date'] ?? '';

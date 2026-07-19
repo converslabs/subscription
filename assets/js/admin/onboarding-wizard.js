@@ -53,14 +53,14 @@
       // Page 2: product search
       $(document).on("focus", "#subscrpt-product-search-input", $.proxy(this.openProductSearch, this));
       $(document).on("input", "#subscrpt-product-search-input", $.proxy(this.filterProducts, this));
-      $(document).on("click", ".p2-product-search__item", $.proxy(this.onProductItemClick, this));
+      $(document).on("click", ".wpsubs-p2-product-search__item", $.proxy(this.onProductItemClick, this));
       $(document).on("click", function (e) {
-        if (!$(e.target).closest(".p2-product-search").length) {
+        if (!$(e.target).closest(".wpsubs-p2-product-search").length) {
           $("#subscrpt-product-search-dropdown").hide();
         }
       });
       $(document).on("click", "#subscrpt-btn-clear-product", $.proxy(this.clearProductSelection, this));
-      $(document).on("click", ".p2-variation-item", $.proxy(this.onVariationSelect, this));
+      $(document).on("click", ".wpsubs-p2-variation-item", $.proxy(this.onVariationSelect, this));
 
       // Page 2: navigation
       $(document).on("click", "#subscrpt-btn-back", $.proxy(this.goToPage1, this));
@@ -105,7 +105,7 @@
         $('.wpsubs-wizard-stepper__step[data-step="' + pageNum + '"]').addClass("active");
       }
 
-      $(".wizard-section").removeClass("active");
+      $(".wpsubs-wizard-section").removeClass("active");
       $("#subscrpt-section-" + pageNum).addClass("active");
     },
 
@@ -120,7 +120,7 @@
 
     showNewProduct: function (e) {
       e.preventDefault();
-      $(".p2-option-card, .product-toggle-btn").removeClass("active");
+      $(".wpsubs-p2-option-card, .product-toggle-btn").removeClass("active");
       $(e.currentTarget).addClass("active");
       $("#subscrpt-existing-product-fields").hide();
       // Restore name field editability
@@ -132,7 +132,7 @@
 
     showExistingProduct: function (e) {
       e.preventDefault();
-      $(".p2-option-card, .product-toggle-btn").removeClass("active");
+      $(".wpsubs-p2-option-card, .product-toggle-btn").removeClass("active");
       $(e.currentTarget).addClass("active");
       $("#subscrpt-existing-product-fields").show();
       $("#subscrpt-btn-save").html("Update product &rsaquo;");
@@ -144,8 +144,8 @@
     },
 
     openProductSearch: function () {
-      $(".p2-product-search__item").show();
-      $(".p2-product-search__empty").hide();
+      $(".wpsubs-p2-product-search__item").show();
+      $(".wpsubs-p2-product-search__empty").hide();
       $("#subscrpt-product-search-dropdown").show();
     },
 
@@ -153,7 +153,7 @@
       var q = $(e.target).val().toLowerCase().trim();
       $("#subscrpt-product-search-dropdown").show();
       var visible = 0;
-      $(".p2-product-search__item").each(function () {
+      $(".wpsubs-p2-product-search__item").each(function () {
         var name = $(this).data("name") ? $(this).data("name").toLowerCase() : "";
         var sku = $(this).data("sku") ? String($(this).data("sku")).toLowerCase() : "";
         if (!q || name.indexOf(q) >= 0 || sku.indexOf(q) >= 0) {
@@ -163,12 +163,12 @@
           $(this).hide();
         }
       });
-      $(".p2-product-search__empty").toggle(visible === 0);
+      $(".wpsubs-p2-product-search__empty").toggle(visible === 0);
     },
 
     onProductItemClick: function (e) {
       var item = $(e.currentTarget);
-      if (item.hasClass("p2-product-search__item--locked")) {
+      if (item.hasClass("wpsubs-p2-product-search__item--locked")) {
         return;
       }
       var id = String(item.data("id"));
@@ -224,7 +224,7 @@
 
       wrap.show();
       list.html(
-        '<p class="p2-variation-picker__loading">' +
+        '<p class="wpsubs-p2-variation-picker__loading">' +
           (window.subscrpt_wizard_i18n ? subscrpt_wizard_i18n.loading : "Loading variations…") +
           "</p>",
       );
@@ -251,8 +251,8 @@
     renderVariationPicker: function (variations) {
       var self = this;
       var symbol = (window.subscrpt_wizard && subscrpt_wizard.currency_symbol) || "$";
-      var html = '<p class="p2-variation-picker__label">Select a variation</p>';
-      html += '<div class="p2-variation-picker__list">';
+      var html = '<p class="wpsubs-p2-variation-picker__label">Select a variation</p>';
+      html += '<div class="wpsubs-p2-variation-picker__list">';
 
       variations.forEach(function (v) {
         var meta = v.sku ? "SKU " + v.sku : "";
@@ -260,7 +260,7 @@
           v.price !== "" && v.price !== null && v.price !== undefined ? symbol + parseFloat(v.price).toFixed(2) : "";
 
         html +=
-          '<div class="p2-variation-item"' +
+          '<div class="wpsubs-p2-variation-item"' +
           ' data-id="' +
           self.escAttr(String(v.id)) +
           '"' +
@@ -285,14 +285,16 @@
           ' data-signup-fee="' +
           self.escAttr(String(v.signup_fee || "")) +
           '">' +
-          '<div class="p2-variation-item__check">&#10003;</div>' +
-          '<div class="p2-variation-item__info">' +
-          '<p class="p2-variation-item__name">' +
+          '<div class="wpsubs-p2-variation-item__check">&#10003;</div>' +
+          '<div class="wpsubs-p2-variation-item__info">' +
+          '<p class="wpsubs-p2-variation-item__name">' +
           self.escHtml(v.label) +
           "</p>" +
-          (meta ? '<p class="p2-variation-item__meta">' + self.escHtml(meta) + "</p>" : "") +
+          (meta ? '<p class="wpsubs-p2-variation-item__meta">' + self.escHtml(meta) + "</p>" : "") +
           "</div>" +
-          (priceDisplay ? '<span class="p2-variation-item__price">' + self.escHtml(priceDisplay) + "</span>" : "") +
+          (priceDisplay
+            ? '<span class="wpsubs-p2-variation-item__price">' + self.escHtml(priceDisplay) + "</span>"
+            : "") +
           "</div>";
       });
 
@@ -303,7 +305,7 @@
 
     onVariationSelect: function (e) {
       var item = $(e.currentTarget);
-      $(".p2-variation-item").removeClass("selected");
+      $(".wpsubs-p2-variation-item").removeClass("selected");
       item.addClass("selected");
 
       $("#subscrpt-variation-id-hidden").val(String(item.data("id")));
@@ -381,8 +383,8 @@
     clearProductSelection: function () {
       $("#subscrpt-existing-product-hidden").val("");
       $("#subscrpt-product-search-input").val("");
-      $(".p2-product-search__item").show();
-      $(".p2-product-search__empty").hide();
+      $(".wpsubs-p2-product-search__item").show();
+      $(".wpsubs-p2-product-search__empty").hide();
       $("#subscrpt-product-search-dropdown").hide();
       $("#subscrpt-selected-product-chip").hide();
       $("#subscrpt-product-select-wrap").show();
@@ -403,7 +405,7 @@
         $("#subscrpt-existing-product-fields").show();
         var selectedId = $("#subscrpt-existing-product-hidden").val();
         if (selectedId) {
-          var item = $(".p2-product-search__item[data-id='" + selectedId + "']");
+          var item = $(".wpsubs-p2-product-search__item[data-id='" + selectedId + "']");
           if (item.length) {
             var name = item.data("name") || "";
             var price = item.data("price") != null ? String(item.data("price")) : "";

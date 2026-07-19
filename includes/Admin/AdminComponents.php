@@ -171,9 +171,8 @@ function wpsubs_render_pager( array $args ): void {
 	// source of truth.
 	$info_text = '';
 	if ( $show_info ) {
-		$info_format = '' !== $args['info_format']
-			? $args['info_format']
-			: __( 'Showing %1$s–%2$s of %3$s', 'subscription' );
+		// translators: Pagination: %1$s: first item, %2$s: last item, %3$s: total items
+		$info_format = '' !== $args['info_format'] ? $args['info_format'] : __( 'Showing %1$s–%2$s of %3$s', 'subscription' );
 		$info_text   = sprintf(
 			$info_format,
 			number_format_i18n( $start_item ),
