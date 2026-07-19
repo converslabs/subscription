@@ -34,7 +34,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</tr>
 		<?php
 		foreach ( $histories as $history ) :
-			$item                       = $order->get_item( $history->order_item_id );
+			$item = $order->get_item( $history->order_item_id );
+
+			// Skip if item is not found.
+			if ( ! $item ) {
+				continue;
+			}
+
 			$item_meta                  = wc_get_order_item_meta( $history->order_item_id, '_subscrpt_meta', true );
 			$subscription_id            = $history->subscription_id;
 			$subscription_status_object = get_post_status_object( get_post_status( $subscription_id ) );
