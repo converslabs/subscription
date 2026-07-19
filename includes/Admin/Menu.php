@@ -41,6 +41,14 @@ class Menu {
 			true
 		);
 
+		// Enqueue onboarding wizard styles.
+		wp_enqueue_style(
+			'subscrpt-onboarding-wizard',
+			SUBSCRPT_ASSETS . '/css/admin/onboarding-wizard.css',
+			array(),
+			SUBSCRPT_VERSION
+		);
+
 		// Enqueue onboarding wizard JS (loaded on wizard page)
 		wp_enqueue_script(
 			'subscrpt-onboarding-wizard',
