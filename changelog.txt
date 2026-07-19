@@ -1,5 +1,9 @@
 *** WPSubscription Changelog ***
 
+2026-07-19 - version 1.10.8
+* fix: Email error due to missing subscriptions.
+* fix: Incorrect subscription dates.
+
 2026-07-12 - version 1.10.7
 * fix: Add to cart validation.
 * fix: Admin table paginations.
