@@ -75,33 +75,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<td class="td"
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo wp_kses_post( SpringDevs\Subscription\Illuminate\Helper::format_price_with_order_item( $cost, $item->get_id() ) ); ?></td>
 			</tr>
-			<?php if ( ! $has_trial ) { ?>
-			<tr>
-				<th class="td" scope="row" colspan="2"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Next billing on', 'subscription' ); ?>
-					:
-				</th>
-				<td class="td"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo ! empty( $next_date ) ? esc_html( wp_date( 'F d, Y', $next_date ) ) : '-'; ?></td>
-			</tr>
-		<?php } else { ?>
-			<tr>
-				<th class="td" scope="row" colspan="2"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Trial', 'subscription' ); ?>
-					:
-				</th>
-				<td class="td"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo esc_html( $item_meta['trial'] ); ?></td>
-			</tr>
-			<tr>
-				<th class="td" scope="row" colspan="2"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'First billing on', 'subscription' ); ?>
-					:
-				</th>
-				<td class="td"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo ! empty( $start_date ) ? esc_html( wp_date( 'F d, Y', $start_date ) ) : '-'; ?></td>
-			</tr>
-		<?php } ?>
+
+			<?php if ( $has_trial ) : ?>
+				<tr>
+					<th class="td" scope="row" colspan="2"
+						style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'Trial', 'subscription' ); ?>
+					</th>
+					<td class="td"
+						style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo esc_html( $item_meta['trial'] ); ?></td>
+				</tr>
+				<tr>
+					<th class="td" scope="row" colspan="2"
+						style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php esc_html_e( 'First billing on', 'subscription' ); ?>
+					</th>
+					<td class="td"
+						style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo ! empty( $start_date ) ? esc_html( wp_date( 'F d, Y', $start_date ) ) : '-'; ?></td>
+				</tr>
+			<?php endif; ?>
+
 			<tr>
 				<th class="td" scope="row" colspan="3"
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left; padding-bottom: 30px;"></th>
