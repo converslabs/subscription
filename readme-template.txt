@@ -69,32 +69,27 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
 #### KEY FEATURES (FREE VERSION)
 
 1. **Simple Product Subscriptions**: Turn any product into a subscription in just a few clicks. Pick how often customers get billed, and you're done. No complicated setup needed — perfect if you're just getting started with WooCommerce subscriptions.
-
-[youtube https://www.youtube.com/watch?v=vU03jpaiq6E]
+    [youtube https://www.youtube.com/watch?v=vU03jpaiq6E]
 
 2. **Flexible Billing Cycles**: Charge customers daily, weekly, monthly, or yearly — whatever works for your business. Set it up once and payments process automatically on schedule. It's an easy way to keep cash flowing without chasing down payments.
 
 3. **Free Trial Support**: Offer customers a free trial before the first payment is charged. This helps build trust and gives users a chance to try your product or service without any upfront cost, increasing sign-up conversions.
 
 4. **Subscription Management for Admins**: Manage all subscriptions from one dashboard — view active plans, track payments, and make changes quickly. Everything's in one place, making it easy to run your subscription business without jumping between screens.
-
-[youtube https://www.youtube.com/watch?v=21e58x6yI2E]
+    [youtube https://www.youtube.com/watch?v=21e58x6yI2E]
 
 5. **Customer Subscription Dashboard**: Your customers get their own dashboard where they can manage everything themselves — check billing dates, update payment info, and pause or cancel subscriptions. Giving them control means fewer support requests for you.
-
-[youtube https://www.youtube.com/watch?v=LROx-KUbRho]
+    [youtube https://www.youtube.com/watch?v=LROx-KUbRho]
 
 6. **Guest Checkout**: Allow non-registered users to purchase subscription products through guest checkout, reducing friction at the point of sale and increasing overall conversion rates.
 
 #### PREMIUM FEATURES
 
 1. **Support for Simple and Variable Products**: Offer subscriptions on any WooCommerce product — whether it's a single item or one with options like size or color. Turn more of your catalog into recurring revenue without any extra hassle.
-
-[youtube https://www.youtube.com/watch?v=GGX80zs-uRA]
+    [youtube https://www.youtube.com/watch?v=GGX80zs-uRA]
 
 2. **Automatic Stripe Recurring Payments**: Payments process automatically at the start of each billing cycle — no manual charging required. Stripe handles everything securely, including failed payment retries and payment method updates, giving you steady cash flow and your customers a smooth experience.
-
-[youtube https://www.youtube.com/watch?v=fZMLPgZtB6A]
+    [youtube https://www.youtube.com/watch?v=fZMLPgZtB6A]
 
 3. **Advanced Product Customization**: Personalize subscription options for each individual product — set custom billing cycles, offer free trials, charge sign-up fees, or apply unique settings per product. Create tailored subscription plans that best fit your products and meet the needs of your customers.
 
@@ -119,6 +114,8 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
 13. **Grace Period**: Give customers [**extra time to update their payment details**](https://docs.converslabs.com/en/wpsubscription-grace-period) before their subscription is cancelled after a failed payment. This prevents accidental cancellations and helps you retain more subscribers by offering a flexible buffer period.
 
 14. **Subscription Recovery**: [**Win back cancelled subscribers automatically**](https://docs.converslabs.com/en/wpsubscription-subscription-recovery) with targeted email campaigns and smart discount offers. Create one-time, scheduled, or recurring campaigns to reach lapsed subscribers — offer percentage discounts, fixed-amount incentives, or WooCommerce coupons redeemable only through recovery emails. Track recovered MRR, reactivations, and campaign performance from a dedicated Recovery Report dashboard, all without any manual intervention.
+
+15. **Subscription Cancellation Survey**: [**Gather insights from customers**](https://docs.converslabs.com/en/subscription-cancellation-survey) who cancel their subscriptions to understand why they left and improve your service. Use targeted questions to identify pain points, reveal common cancellation reasons, and spot opportunities to enhance retention. This feedback helps refine your offerings, reduce churn, and create a better experience for future subscribers.
 
 [**Upgrade to Subscriptions for WooCommerce Pro**](https://wpsubscription.co/)
 
