@@ -16,6 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activated();
+// Products can only be attached once the plan group has at least one term.
+$has_terms = ! empty( $plan['terms'] );
 ?>
 <div style="padding-top:8px;">
 
@@ -23,7 +25,9 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 		<div class="wpsubs-empty">
 			<div class="wpsubs-empty__icon">📦</div>
 			<h3 class="wpsubs-empty__title"><?php esc_html_e( 'No products connected', 'subscription' ); ?></h3>
-			<?php if ( $pro_active ) : ?>
+			<?php if ( $pro_active && ! $has_terms ) : ?>
+				<p class="wpsubs-empty__desc"><?php esc_html_e( 'Add at least one plan on the Plans tab before attaching products.', 'subscription' ); ?></p>
+			<?php elseif ( $pro_active ) : ?>
 				<p class="wpsubs-empty__desc"><?php esc_html_e( 'Add products to this plan group and set their prices here, or connect a product from its own Subscription tab.', 'subscription' ); ?></p>
 				<button type="button" class="wpsubs-btn wpsubs-btn--primary" style="margin-top:20px;" data-wpsubs-modal-open="subscrpt-add-product">
 					<span class="dashicons dashicons-plus-alt2" style="font-size:16px;width:16px;height:16px;line-height:1;"></span>
@@ -208,7 +212,7 @@ $pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activa
 
 				<div class="wpsubs-toolbar__spacer"></div>
 
-				<?php if ( $pro_active ) : ?>
+				<?php if ( $pro_active && $has_terms ) : ?>
 					<button type="button" class="wpsubs-btn wpsubs-btn--outline" data-wpsubs-modal-open="subscrpt-add-product">
 						<span class="dashicons dashicons-edit" style="font-size:16px;width:16px;height:16px;line-height:1;"></span>
 						<?php esc_html_e( 'Manage Products', 'subscription' ); ?>

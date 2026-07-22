@@ -224,22 +224,28 @@ class Plans {
 				<?php foreach ( $available as $group ) : ?>
 					<?php $subscrpt_group_terms = PlanRepository::get_plans( (int) $group['id'] ); ?>
 					<div data-subscrpt-plan-card data-connect-block data-group-id="<?php echo esc_attr( $group['id'] ); ?>" style="display:none;margin-top:14px;">
-						<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-							<span style="flex:1 1 auto;"></span>
-							<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--wpsubs-text-muted);">
-								<input type="checkbox" class="wpsubs-toggle" data-subscrpt-onetime-toggle />
-								<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
-								<span><?php esc_html_e( 'One-time purchase', 'subscription' ); ?></span>
-							</label>
-							<span aria-hidden="true" style="width:2px;height:16px;background:var(--wpsubs-border,#e5e7eb);"></span>
-							<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-save-prices>
-								<span class="dashicons dashicons-yes" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
-								<?php esc_html_e( 'Connect', 'subscription' ); ?>
-							</button>
-						</div>
-						<div>
-							<?php self::render_price_table( $subscrpt_group_terms, array(), false, true ); ?>
-						</div>
+						<?php if ( empty( $subscrpt_group_terms ) ) : ?>
+							<p style="margin:0;padding:16px;text-align:center;color:var(--wpsubs-text-subtle);font-size:13px;">
+								<?php esc_html_e( 'This plan group has no plans yet. Add a plan to the group before connecting a product.', 'subscription' ); ?>
+							</p>
+						<?php else : ?>
+							<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+								<span style="flex:1 1 auto;"></span>
+								<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--wpsubs-text-muted);">
+									<input type="checkbox" class="wpsubs-toggle" data-subscrpt-onetime-toggle />
+									<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+									<span><?php esc_html_e( 'One-time purchase', 'subscription' ); ?></span>
+								</label>
+								<span aria-hidden="true" style="width:2px;height:16px;background:var(--wpsubs-border,#e5e7eb);"></span>
+								<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-save-prices>
+									<span class="dashicons dashicons-yes" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
+									<?php esc_html_e( 'Connect', 'subscription' ); ?>
+								</button>
+							</div>
+							<div>
+								<?php self::render_price_table( $subscrpt_group_terms, array(), false, true ); ?>
+							</div>
+						<?php endif; ?>
 					</div>
 				<?php endforeach; ?>
 			</div>
