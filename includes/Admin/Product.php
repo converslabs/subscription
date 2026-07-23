@@ -110,6 +110,7 @@ class Product {
 					'wizardNext'    => __( 'Continue', 'subscription' ),
 					'wizardBack'    => __( 'Back', 'subscription' ),
 					'wizardCreate'  => __( 'Create', 'subscription' ),
+					'addPlan'       => __( 'Add plan', 'subscription' ),
 				),
 			)
 		);

@@ -16,6 +16,10 @@
   // creates nothing.
   var pendingGroup = null;
 
+  // Set when adding a plan to an already-existing (empty) group, so the term
+  // modal creates a plan against it instead of running the new-group wizard.
+  var pendingExistingGroupId = "";
+
   /**
    * Call a plan REST endpoint.
    *
@@ -231,6 +235,7 @@
       return;
     }
     pendingGroup = null;
+    pendingExistingGroupId = "";
     var nameInput = document.getElementById("subscrpt-create-name");
     if (nameInput) {
       nameInput.value = "";
@@ -241,10 +246,53 @@
     }
   });
 
+  /**
+   * Show/hide the term modal's wizard chrome. In "wizard" mode it is step 2 of
+   * new-group creation (step badge + Back). In "single" mode it just adds a
+   * plan to an existing group (no step badge, no Back).
+   *
+   * @param {string} mode "wizard" | "single".
+   */
+  function setTermModalMode(mode) {
+    var term = document.getElementById("subscrpt-term-modal");
+    if (!term) {
+      return;
+    }
+    var wizard = mode === "wizard";
+    var step = term.querySelector(".subscrpt-wizard-step");
+    if (step) {
+      step.style.display = wizard ? "" : "none";
+    }
+    var back = term.querySelector("[data-subscrpt-wizard-back]");
+    if (back) {
+      back.style.display = wizard ? "" : "none";
+    }
+    var submit = term.querySelector("[data-subscrpt-term-submit]");
+    if (submit) {
+      submit.textContent = wizard ? i18n.wizardCreate || "Create" : i18n.addPlan || "Add plan";
+    }
+  }
+
+  // "Create plan" on an empty group: add a plan directly to that group.
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-create-plan-for]");
+    if (!btn) {
+      return;
+    }
+    pendingGroup = null;
+    pendingExistingGroupId = btn.getAttribute("data-subscrpt-create-plan-for");
+    setTermModalMode("single");
+    if (window.WPSubsPlanForms && window.WPSubsPlanForms.openTermModalForGroup) {
+      window.WPSubsPlanForms.openTermModalForGroup(pendingExistingGroupId, "recurring");
+    }
+  });
+
   // Step 1 submitted: stash the group details and advance to step 2 (the plan).
   document.addEventListener("subscrpt:group-step", function (e) {
     var d = e.detail || {};
     pendingGroup = { title: d.title, type: d.type || "recurring" };
+    pendingExistingGroupId = "";
+    setTermModalMode("wizard");
     if (window.WPSubsPlanForms && window.WPSubsPlanForms.openTermModalForGroup) {
       // Group id 0: it does not exist yet; created on step-2 submit below.
       window.WPSubsPlanForms.openTermModalForGroup(0, pendingGroup.type);
@@ -272,32 +320,50 @@
     }
   });
 
-  // Step 2 submitted: create the group, then its first plan, atomically.
+  // Step 2 submitted. New-group wizard: create the group, then its first plan,
+  // atomically. Existing empty group: just create the plan against it.
   document.addEventListener("subscrpt:term-step", function (e) {
     var payload = e.detail && e.detail.payload;
-    if (!payload || !pendingGroup) {
+    if (!payload) {
       return;
     }
-    var group = pendingGroup;
-    api("POST", "/groups", {
-      title: group.title,
-      type: group.type,
-      product_type: 1,
-      status: "active",
-    })
-      .then(function (created) {
-        pendingGroup = null;
-        var termBody = Object.assign({}, payload, {
-          plan_group_id: created.id,
-          type: group.type,
-        });
-        return api("POST", "/terms", termBody).then(function () {
-          refreshPlanView(String(created.id));
-        });
+
+    if (pendingGroup) {
+      var group = pendingGroup;
+      api("POST", "/groups", {
+        title: group.title,
+        type: group.type,
+        product_type: 1,
+        status: "active",
       })
-      .catch(function (err) {
-        window.alert((err && err.message) || i18n.connectError);
-      });
+        .then(function (created) {
+          pendingGroup = null;
+          var termBody = Object.assign({}, payload, {
+            plan_group_id: created.id,
+            type: group.type,
+          });
+          return api("POST", "/terms", termBody).then(function () {
+            refreshPlanView(String(created.id));
+          });
+        })
+        .catch(function (err) {
+          window.alert((err && err.message) || i18n.connectError);
+        });
+      return;
+    }
+
+    if (pendingExistingGroupId) {
+      var gid = pendingExistingGroupId;
+      pendingExistingGroupId = "";
+      var body = Object.assign({}, payload, { plan_group_id: parseInt(gid, 10) });
+      api("POST", "/terms", body)
+        .then(function () {
+          refreshPlanView(String(gid));
+        })
+        .catch(function (err) {
+          window.alert((err && err.message) || i18n.connectError);
+        });
+    }
   });
 
   /**

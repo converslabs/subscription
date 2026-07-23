@@ -86,7 +86,7 @@ class Plans {
 	public static function render_toolbar() {
 		?>
 		<div style="display:flex;align-items:center;gap:10px;margin:0 0 14px;">
-			<strong style="font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'Subscription', 'subscription' ); ?></strong>
+			<strong style="margin-left:3px;font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'Subscription', 'subscription' ); ?></strong>
 			<span style="flex:1 1 auto;"></span>
 			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-show-classic>
 				<?php esc_html_e( 'Switch to classic settings', 'subscription' ); ?>
@@ -161,6 +161,9 @@ class Plans {
 							<div style="flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px;">
 								<strong style="font-size:13.5px;color:var(--wpsubs-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo esc_html( $group['title'] ); ?></strong>
 								<span class="wpsubs-badge wpsubs-badge--active" style="font-weight:500;"><?php esc_html_e( 'Connected', 'subscription' ); ?></span>
+								<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription-plans&view=detail&plan=' . (int) $subscrpt_gid ) ); ?>" target="_blank" rel="noopener" title="<?php esc_attr_e( 'Manage this plan group', 'subscription' ); ?>" aria-label="<?php esc_attr_e( 'Manage this plan group', 'subscription' ); ?>" style="flex:0 0 auto;display:inline-flex;align-items:center;color:var(--wpsubs-text-subtle);text-decoration:none;">
+									<span class="dashicons dashicons-external" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
+								</a>
 							</div>
 							<div style="flex:0 0 auto;display:flex;align-items:center;gap:8px;">
 								<label class="wpsubs-settings-toggle-label subscrpt-edit-only" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--wpsubs-text-muted);">
@@ -281,9 +284,23 @@ class Plans {
 					<?php $subscrpt_group_terms = PlanRepository::get_plans( (int) $group['id'] ); ?>
 					<div data-subscrpt-plan-card data-connect-block data-group-id="<?php echo esc_attr( $group['id'] ); ?>" style="display:none;margin-top:14px;">
 						<?php if ( empty( $subscrpt_group_terms ) ) : ?>
-							<p style="margin:0;padding:16px;text-align:center;color:var(--wpsubs-text-subtle);font-size:13px;">
-								<?php esc_html_e( 'This plan group has no plans yet. Add a plan to the group before connecting a product.', 'subscription' ); ?>
-							</p>
+							<div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 16px;text-align:center;">
+								<p style="margin:0;color:var(--wpsubs-text-subtle);font-size:13px;">
+									<?php esc_html_e( 'This plan group has no plans yet. Add a plan before connecting this product.', 'subscription' ); ?>
+								</p>
+								<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
+									<?php if ( $pro_active ) : ?>
+										<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-create-plan-for="<?php echo esc_attr( $group['id'] ); ?>">
+											<span class="dashicons dashicons-plus-alt2" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
+											<?php esc_html_e( 'Create plan', 'subscription' ); ?>
+										</button>
+									<?php endif; ?>
+									<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription-plans&view=detail&plan=' . (int) $group['id'] ) ); ?>" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" target="_blank" rel="noopener">
+										<span class="dashicons dashicons-external" style="font-size:14px;width:14px;height:14px;line-height:1;"></span>
+										<?php esc_html_e( 'Manage plans', 'subscription' ); ?>
+									</a>
+								</div>
+							</div>
 						<?php else : ?>
 							<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
 								<span style="flex:1 1 auto;"></span>
