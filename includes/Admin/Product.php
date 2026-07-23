@@ -78,10 +78,15 @@ class Product {
 		wp_enqueue_style( 'subscrpt_admin_components' );
 		wp_enqueue_script( 'subscrpt_admin_components' );
 
+		// Shared plan-group + selling-plan modal logic. With Pro active the
+		// Subscription tab exposes "＋ New plan group", which drives these modals.
+		wp_enqueue_script( 'subscrpt_plan_forms_js' );
+		wp_localize_script( 'subscrpt_plan_forms_js', 'subscrptPlanForms', \SpringDevs\Subscription\Admin\Plans::plan_forms_config() );
+
 		wp_enqueue_script(
 			'subscrpt_product_plans_js',
 			SUBSCRPT_ASSETS . '/js/admin/product-plans.js',
-			array( 'subscrpt_admin_components' ),
+			array( 'subscrpt_admin_components', 'subscrpt_plan_forms_js' ),
 			SUBSCRPT_VERSION,
 			true
 		);
@@ -100,6 +105,11 @@ class Product {
 					'pickPlan'      => __( 'Please select a plan.', 'subscription' ),
 					'confirmDetach' => __( 'Detach this product from the plan?', 'subscription' ),
 					'loading'       => __( 'Loading plans…', 'subscription' ),
+					'step1'         => __( 'Step 1 of 2 · Plan group', 'subscription' ),
+					'step2'         => __( 'Step 2 of 2 · Plan', 'subscription' ),
+					'wizardNext'    => __( 'Continue', 'subscription' ),
+					'wizardBack'    => __( 'Back', 'subscription' ),
+					'wizardCreate'  => __( 'Create', 'subscription' ),
 				),
 			)
 		);

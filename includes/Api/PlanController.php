@@ -156,6 +156,25 @@ class PlanController {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::NS,
+			'/plans/product-view/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'product_plan_view' ),
+					'permission_callback' => $perm,
+					'args'                => array(
+						'id' => array(
+							'validate_callback' => function ( $value ) {
+								return is_numeric( $value );
+							},
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -473,6 +492,37 @@ class PlanController {
 				'id'      => $id,
 			)
 		);
+	}
+
+	/**
+	 * GET /plans/product-view/{id} - re-render the product-editor plan view.
+	 *
+	 * Used to refresh the Subscription tab's plan view in place (no page
+	 * reload) after a connect / detach or after creating a plan group + plan
+	 * from the product editor, so unsaved product edits are preserved. Returns
+	 * only the plan-view fragment; the modals live outside it.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function product_plan_view( WP_REST_Request $request ) {
+		$product_id = (int) $request->get_param( 'id' );
+		$product    = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
+
+		if ( ! $product || ! $product->is_type( 'simple' ) ) {
+			return new WP_Error(
+				'rest_invalid_product',
+				__( 'Plan view is available on simple products only.', 'subscription' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		ob_start();
+		\SpringDevs\Subscription\Admin\Product\Plans::render_plan_view( $product );
+		$html = ob_get_clean();
+
+		return rest_ensure_response( array( 'html' => $html ) );
 	}
 
 	/* ---- Product picker ---- */

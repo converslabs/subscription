@@ -84,10 +84,14 @@ class Plans {
 		wp_enqueue_style( 'subscrpt_admin_components' );
 		wp_enqueue_script( 'subscrpt_admin_components' );
 
+		// Shared plan-group + selling-plan modal logic.
+		wp_enqueue_script( 'subscrpt_plan_forms_js' );
+		wp_localize_script( 'subscrpt_plan_forms_js', 'subscrptPlanForms', self::plan_forms_config() );
+
 		wp_enqueue_script(
 			'subscrpt_admin_plans_js',
 			SUBSCRPT_ASSETS . '/js/admin/plans.js',
-			array( 'subscrpt_admin_components' ),
+			array( 'subscrpt_admin_components', 'subscrpt_plan_forms_js' ),
 			SUBSCRPT_VERSION,
 			true
 		);
@@ -117,6 +121,26 @@ class Plans {
 					'showingRange'           => __( 'Showing %1-%2 of %3', 'subscription' ),
 				),
 			)
+		);
+	}
+
+	/**
+	 * Config for the shared plan-forms.js module (create group + selling-plan
+	 * modals). Shared by the Plans screen and the product-editor Subscription
+	 * tab so the term payload contract is localized identically on both.
+	 *
+	 * @return array
+	 */
+	public static function plan_forms_config() {
+		return array(
+			'restUrl' => esc_url_raw( rest_url( 'wpsubscription/v1/plans' ) ),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
+			'i18n'    => array(
+				'genericError' => __( 'Something went wrong. Please try again.', 'subscription' ),
+				'nameRequired' => __( 'Please enter a name.', 'subscription' ),
+				'addTerm'      => __( 'Add Selling Plan', 'subscription' ),
+				'editTerm'     => __( 'Edit Selling Plan', 'subscription' ),
+			),
 		);
 	}
 

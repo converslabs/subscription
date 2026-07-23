@@ -1,4 +1,9 @@
 <?php
+/**
+ * Registers and enqueues admin/frontend scripts and styles.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription;
 
@@ -105,6 +110,13 @@ class Assets {
 			'subscrpt_admin_components' => array(
 				'src'       => false,
 				'deps'      => array_keys( $components ),
+				'in_footer' => true,
+			),
+			'subscrpt_plan_forms_js'    => array(
+				// Shared plan-group + selling-plan modal logic, used by both the
+				// Plans admin screen and the product-editor Subscription tab.
+				'src'       => $plugin_js_assets_path . 'admin/plan-forms.js',
+				'deps'      => array( 'subscrpt_admin_components' ),
 				'in_footer' => true,
 			),
 			'sdevs_installer'           => array(

@@ -52,6 +52,30 @@ class Plans {
 			</div>
 		</div>
 		<?php
+		self::render_modals();
+	}
+
+	/**
+	 * Render the Create-Plan-Group + Add-Selling-Plan modals once per page, so
+	 * merchants can build a new plan group + plan without leaving the product
+	 * editor. Pro-only: free's product editor is attach-only. The modals sit
+	 * outside the [data-subscrpt-plan-view] region so an in-place refresh never
+	 * duplicates them. Driven by the shared plan-forms.js module.
+	 *
+	 * @return void
+	 */
+	public static function render_modals() {
+		if ( ! function_exists( 'subscrpt_pro_activated' ) || ! subscrpt_pro_activated() ) {
+			return;
+		}
+		// modal-term.php expects a $plan (id + type); product-plans.js rewrites
+		// the modal's group id/type before opening it for a freshly made group.
+		$plan = array(
+			'id'   => 0,
+			'type' => 'recurring',
+		);
+		require __DIR__ . '/../views/plans/modal-create.php';
+		require __DIR__ . '/../views/plans/modal-term.php';
 	}
 
 	/**
@@ -89,6 +113,8 @@ class Plans {
 		$currency    = function_exists( 'get_woocommerce_currency_symbol' )
 			? html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' )
 			: '$';
+		// Pro adds "create plan group / plan" shortcuts here; free is attach-only.
+		$pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activated();
 		?>
 		<style>
 			/* Neutralise WooCommerce's floated-label layout inside our plan view. */
@@ -96,6 +122,14 @@ class Plans {
 				float: none;
 				width: auto;
 				margin: 0;
+			}
+			/* Compact adv-select triggers on this tab only (not the modals, which
+				are relocated to <body>). */
+			#sdevs_subscription_options [data-subscrpt-plan-view] .wpsubs-adv-select__trigger {
+				height: 30px;
+				min-height: 30px;
+				padding-top: 0;
+				padding-bottom: 0;
 			}
 			/* Keep the group picker a fixed width and ellipsis a long plan name. */
 			#sdevs_subscription_options [data-subscrpt-connect-group] {
@@ -182,10 +216,26 @@ class Plans {
 		<?php endif; ?>
 
 		<?php if ( empty( $available ) && empty( $connected ) ) : ?>
-			<p style="margin:0;font-size:13px;color:var(--wpsubs-text-muted);">
-				<?php esc_html_e( 'No plans available.', 'subscription' ); ?>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription-plans' ) ); ?>"><?php esc_html_e( 'Create a plan', 'subscription' ); ?></a>
-			</p>
+			<?php if ( $pro_active ) : ?>
+				<div class="wpsubs-table-card" style="padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+					<span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--wpsubs-radius,8px);background:var(--wpsubs-brand-light,#fff1eb);color:var(--wpsubs-brand,#ff4d00);">
+						<span class="dashicons dashicons-admin-links"></span>
+					</span>
+					<div style="flex:1 1 auto;min-width:140px;">
+						<div style="font-size:13.5px;font-weight:600;color:var(--wpsubs-text);line-height:1.3;"><?php esc_html_e( 'No plan groups yet', 'subscription' ); ?></div>
+						<div style="font-size:12px;color:var(--wpsubs-text-muted);line-height:1.4;"><?php esc_html_e( 'Create a plan group and its first plan, then connect this product to it.', 'subscription' ); ?></div>
+					</div>
+					<button type="button" class="wpsubs-btn wpsubs-btn--primary" data-wpsubs-modal-open="subscrpt-create-plan">
+						<span class="dashicons dashicons-plus-alt2" style="font-size:16px;width:16px;height:16px;line-height:1;"></span>
+						<?php esc_html_e( 'New plan group', 'subscription' ); ?>
+					</button>
+				</div>
+			<?php else : ?>
+				<p style="margin:0;font-size:13px;color:var(--wpsubs-text-muted);">
+					<?php esc_html_e( 'No plans available.', 'subscription' ); ?>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-subscription-plans' ) ); ?>"><?php esc_html_e( 'Create a plan', 'subscription' ); ?></a>
+				</p>
+			<?php endif; ?>
 		<?php elseif ( ! empty( $available ) ) : ?>
 			<div class="wpsubs-table-card" data-subscrpt-connect-card style="padding:14px;">
 				<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
@@ -196,7 +246,7 @@ class Plans {
 						<div style="font-size:13.5px;font-weight:600;color:var(--wpsubs-text);line-height:1.3;"><?php esc_html_e( 'Connect to a plan', 'subscription' ); ?></div>
 						<div style="font-size:12px;color:var(--wpsubs-text-muted);line-height:1.4;"><?php esc_html_e( 'Pick a plan group, then set the prices for each of its plans.', 'subscription' ); ?></div>
 					</div>
-					<div style="flex:0 0 auto;">
+					<div style="flex:0 0 auto;display:flex;align-items:center;gap:8px;">
 						<?php
 						$options = array();
 						foreach ( $available as $group ) {
@@ -215,6 +265,12 @@ class Plans {
 							)
 						);
 						?>
+						<?php if ( $pro_active ) : ?>
+							<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-wpsubs-modal-open="subscrpt-create-plan" title="<?php esc_attr_e( 'Create a new plan group', 'subscription' ); ?>">
+								<span class="dashicons dashicons-plus-alt2" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
+								<?php esc_html_e( 'New', 'subscription' ); ?>
+							</button>
+						<?php endif; ?>
 					</div>
 				</div>
 

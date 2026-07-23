@@ -11,6 +11,11 @@
   var cfg = window.subscrptProductPlans || {};
   var i18n = cfg.i18n || {};
 
+  // Step 1 group details captured while the wizard is open. The group is not
+  // created until step 2 (the plan) is submitted, so abandoning either step
+  // creates nothing.
+  var pendingGroup = null;
+
   /**
    * Call a plan REST endpoint.
    *
@@ -99,6 +104,25 @@
     if (el) {
       setView(el, false);
     }
+    detachModals();
+    setupWizard();
+  }
+
+  /**
+   * Move the plan modals out of the WooCommerce product panel to <body>.
+   *
+   * Rendered in place, they inherit `.woocommerce_options_panel` descendant
+   * styles (floated labels, fixed input widths) that break their layout. On
+   * the Plans page the same modals sit at top level; relocating here matches
+   * that so they render identically. IDs and delegated open/close still work.
+   */
+  function detachModals() {
+    ["subscrpt-create-plan", "subscrpt-term-modal"].forEach(function (id) {
+      var modal = document.getElementById(id);
+      if (modal && modal.parentNode !== document.body) {
+        document.body.appendChild(modal);
+      }
+    });
   }
 
   if (document.readyState === "loading") {
@@ -124,6 +148,220 @@
       divider.style.display = "0" === groupId ? "none" : "";
     }
   });
+
+  /* ------------------------------------------------------------------ *
+   * Two-step wizard: create a plan group + its first plan without leaving the
+   * editor (Pro). "＋ New" opens step 1 (group), which advances to step 2
+   * (plan). Neither is written until step 2 is submitted; then both are created
+   * atomically and the plan view refreshes in place (unsaved product edits
+   * survive). plan-forms.js owns the field markup + collection; the wizard
+   * chrome (steps, Back, deferral) is layered on here.
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Turn the shared modals into a two-step wizard: mark them deferred so
+   * plan-forms.js hands values back instead of writing, add a step badge, and
+   * relabel the primary buttons (plus a Back control on step 2).
+   */
+  function setupWizard() {
+    var create = document.getElementById("subscrpt-create-plan");
+    var term = document.getElementById("subscrpt-term-modal");
+
+    if (create && !create.hasAttribute("data-subscrpt-defer")) {
+      create.setAttribute("data-subscrpt-defer", "1");
+      injectStep(create, i18n.step1 || "Step 1 of 2");
+      var cbtn = create.querySelector("[data-subscrpt-create-plan]");
+      if (cbtn) {
+        cbtn.textContent = i18n.wizardNext || "Continue";
+      }
+    }
+
+    if (term && !term.hasAttribute("data-subscrpt-defer")) {
+      term.setAttribute("data-subscrpt-defer", "1");
+      injectStep(term, i18n.step2 || "Step 2 of 2");
+      var sbtn = term.querySelector("[data-subscrpt-term-submit]");
+      if (sbtn) {
+        sbtn.textContent = i18n.wizardCreate || "Create";
+        if (!term.querySelector("[data-subscrpt-wizard-back]")) {
+          var back = document.createElement("button");
+          back.type = "button";
+          back.className = "wpsubs-btn wpsubs-btn--outline";
+          back.setAttribute("data-subscrpt-wizard-back", "1");
+          back.textContent = i18n.wizardBack || "Back";
+          sbtn.parentNode.insertBefore(back, sbtn);
+        }
+      }
+    }
+  }
+
+  /**
+   * Prepend a "Step N of 2" badge above a modal's title.
+   *
+   * @param {HTMLElement} modal The modal element.
+   * @param {string}      text  Badge text.
+   */
+  function injectStep(modal, text) {
+    var title = modal.querySelector(".wpsubs-modal__title");
+    if (!title || (title.parentNode && title.parentNode.querySelector(".subscrpt-wizard-step"))) {
+      return;
+    }
+    var badge = document.createElement("div");
+    badge.className = "subscrpt-wizard-step";
+    badge.textContent = text;
+    badge.style.cssText =
+      "font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--wpsubs-brand,#ff4d00);margin:0 0 6px;";
+    var parent = title.parentNode;
+    if (parent && parent.classList.contains("wpsubs-modal__head")) {
+      // Term modal: the title sits directly in the head (a flex row). Wrap it so
+      // the badge can sit on its own line above the title.
+      var col = document.createElement("div");
+      parent.insertBefore(col, title);
+      col.appendChild(badge);
+      col.appendChild(title);
+    } else {
+      // Create modal: the title is already inside a text column.
+      parent.insertBefore(badge, parent.firstChild);
+    }
+  }
+
+  // Starting fresh via "＋ New": clear any stashed step-1 details and reset the
+  // create modal (Back uses a different control, so it keeps its values).
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest('[data-wpsubs-modal-open="subscrpt-create-plan"]')) {
+      return;
+    }
+    pendingGroup = null;
+    var nameInput = document.getElementById("subscrpt-create-name");
+    if (nameInput) {
+      nameInput.value = "";
+    }
+    var recurring = document.querySelector('.subscrpt-type-card[data-subscrpt-type="recurring"]');
+    if (recurring && !recurring.classList.contains("is-selected")) {
+      recurring.click();
+    }
+  });
+
+  // Step 1 submitted: stash the group details and advance to step 2 (the plan).
+  document.addEventListener("subscrpt:group-step", function (e) {
+    var d = e.detail || {};
+    pendingGroup = { title: d.title, type: d.type || "recurring" };
+    if (window.WPSubsPlanForms && window.WPSubsPlanForms.openTermModalForGroup) {
+      // Group id 0: it does not exist yet; created on step-2 submit below.
+      window.WPSubsPlanForms.openTermModalForGroup(0, pendingGroup.type);
+    }
+  });
+
+  // Back on step 2: return to step 1 with the entered group details restored.
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest("[data-subscrpt-wizard-back]")) {
+      return;
+    }
+    if (window.WPSubsPlanForms) {
+      window.WPSubsPlanForms.closeModal("subscrpt-term-modal");
+      window.WPSubsPlanForms.openModal("subscrpt-create-plan");
+    }
+    if (pendingGroup) {
+      var nameInput = document.getElementById("subscrpt-create-name");
+      if (nameInput) {
+        nameInput.value = pendingGroup.title || "";
+      }
+      var card = document.querySelector('.subscrpt-type-card[data-subscrpt-type="' + pendingGroup.type + '"]');
+      if (card && !card.classList.contains("is-selected")) {
+        card.click();
+      }
+    }
+  });
+
+  // Step 2 submitted: create the group, then its first plan, atomically.
+  document.addEventListener("subscrpt:term-step", function (e) {
+    var payload = e.detail && e.detail.payload;
+    if (!payload || !pendingGroup) {
+      return;
+    }
+    var group = pendingGroup;
+    api("POST", "/groups", {
+      title: group.title,
+      type: group.type,
+      product_type: 1,
+      status: "active",
+    })
+      .then(function (created) {
+        pendingGroup = null;
+        var termBody = Object.assign({}, payload, {
+          plan_group_id: created.id,
+          type: group.type,
+        });
+        return api("POST", "/terms", termBody).then(function () {
+          refreshPlanView(String(created.id));
+        });
+      })
+      .catch(function (err) {
+        window.alert((err && err.message) || i18n.connectError);
+      });
+  });
+
+  /**
+   * Re-fetch the server-rendered plan view and swap it in place, then re-init
+   * the injected adv-selects and (optionally) select a connect group.
+   *
+   * @param {string} [selectGroupId] Group to auto-select after refresh.
+   */
+  function refreshPlanView(selectGroupId) {
+    var wrap = root();
+    if (!wrap) {
+      return;
+    }
+    var view = wrap.querySelector("[data-subscrpt-plan-view]");
+    var productId = parseInt(wrap.getAttribute("data-product-id"), 10);
+    if (!view || !productId) {
+      return;
+    }
+    api("GET", "/product-view/" + productId)
+      .then(function (res) {
+        view.innerHTML = res.html || "";
+        if (window.WPSubsAdvSelect && window.WPSubsAdvSelect.init) {
+          window.WPSubsAdvSelect.init(view);
+        }
+        if (selectGroupId) {
+          selectConnectGroup(view, selectGroupId);
+        }
+      })
+      .catch(function (err) {
+        window.alert((err && err.message) || i18n.connectError);
+      });
+  }
+
+  /**
+   * Select a connect group in the refreshed view and reveal its price table.
+   *
+   * @param {HTMLElement} scope   The plan-view container.
+   * @param {string}      groupId Group id to select.
+   */
+  function selectConnectGroup(scope, groupId) {
+    var card = scope.querySelector("[data-subscrpt-connect-card]");
+    if (!card) {
+      return;
+    }
+    var sel = card.querySelector("[data-subscrpt-connect-group]");
+    if (sel) {
+      var hidden = sel.querySelector('input[type="hidden"]');
+      if (hidden) {
+        hidden.value = groupId;
+      }
+      var label = sel.querySelector(".wpsubs-adv-select__label");
+      var item = sel.querySelector('.wpsubs-adv-select__item[data-value="' + groupId + '"]');
+      if (label && item) {
+        label.textContent = item.textContent.trim();
+      }
+    }
+    card.querySelectorAll("[data-connect-block]").forEach(function (block) {
+      block.style.display = block.getAttribute("data-group-id") === String(groupId) ? "block" : "none";
+    });
+    var divider = card.querySelector("[data-subscrpt-connect-divider]");
+    if (divider) {
+      divider.style.display = "";
+    }
+  }
 
   // Detach the product from a plan group (delete all its relations).
   document.addEventListener("click", function (e) {
