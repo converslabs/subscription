@@ -126,9 +126,10 @@ class Product {
 	public function register_tab( $tabs ) {
 		$tabs['sdevs_subscription'] = array(
 			'label'    => __( 'Subscription', 'subscription' ),
-			// Always visible for simple products; the "Enable Subscriptions"
-			// checkbox now lives inside the tab's classic settings.
-			'class'    => array( 'show_if_simple' ),
+			// Shown for simple and variable products. The panel content differs
+			// by type (see subscription_forms): simple renders here in free;
+			// variable is filled by Pro via `subscrpt_variable_subscription_panel`.
+			'class'    => array( 'show_if_simple', 'show_if_variable' ),
 			'target'   => 'sdevs_subscription_options',
 			'priority' => 11,
 		);
@@ -139,6 +140,33 @@ class Product {
 	 * Display forms on product create/edit.
 	 */
 	public function subscription_forms() {
+		$screen           = get_current_screen();
+		$subscrpt_current = ( $screen && 'edit' === $screen->parent_base ) ? wc_get_product( get_the_ID() ) : null;
+
+		// Variable products: free renders the panel shell; the content is filled
+		// by Pro (per-variation sections) via the action below. Free itself is
+		// simple-only, so with Pro inactive it shows an upgrade note.
+		if ( $subscrpt_current && $subscrpt_current->is_type( 'variable' ) ) {
+			?>
+			<div id="sdevs_subscription_options" class="panel woocommerce_options_panel option_group sdevs-form sdevs_panel show_if_variable" style="padding:10px;">
+				<?php
+				/**
+				 * Fires inside the Subscription tab for a variable product. Pro
+				 * hooks this to render its per-variation subscription sections.
+				 *
+				 * @param \WC_Product $subscrpt_current Variable product being edited.
+				 */
+				do_action( 'subscrpt_variable_subscription_panel', $subscrpt_current );
+
+				if ( ! has_action( 'subscrpt_variable_subscription_panel' ) ) {
+					echo '<p style="padding:0 12px;">' . esc_html__( 'Variable product subscriptions are available with WPSubscription Pro.', 'subscription' ) . '</p>';
+				}
+				?>
+			</div>
+			<?php
+			return;
+		}
+
 		if ( function_exists( 'subscrpt_pro_activated' ) ) {
 			if ( subscrpt_pro_activated() ) {
 				do_action( 'subscrpt_simple_pro_fields', get_the_ID() );

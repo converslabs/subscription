@@ -29,11 +29,6 @@
   color: var(--wpsubs-text, #374151);
   text-align: left;
   cursor: pointer;
-  transition: background 0.12s;
-}
-
-.wpsubs-accordion__header:hover {
-  background: var(--wpsubs-brand-light, #fff1eb);
 }
 
 .wpsubs-accordion__header:focus-visible {
