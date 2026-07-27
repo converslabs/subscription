@@ -551,7 +551,7 @@ if ( $product_id > 0 ) {
 
 			<p class="wpsubs-p3-help-text">
 				<?php esc_html_e( 'Need help? Check the', 'subscription' ); ?>
-				<a href="https://docs.converslabs.com/en" target="_blank" rel="noopener" class="wpsubs-p3-help-link"><?php esc_html_e( 'setup guide', 'subscription' ); ?></a>
+				<a href="https://docs.wpsubscription.co/en" target="_blank" rel="noopener" class="wpsubs-p3-help-link"><?php esc_html_e( 'setup guide', 'subscription' ); ?></a>
 				<?php esc_html_e( 'or', 'subscription' ); ?>
 				<a href="https://wordpress.org/support/plugin/subscription/" target="_blank" rel="noopener" class="wpsubs-p3-help-link"><?php esc_html_e( 'contact support', 'subscription' ); ?></a>.
 			</p>
