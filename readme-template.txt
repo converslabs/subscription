@@ -18,7 +18,7 @@ WPSubscription maximizes recurring revenue on WooCommerce. Set flexible subscrip
 
 Effortlessly turn any WooCommerce product into a subscription with flexible billing cycles — daily, weekly, monthly, or yearly — while ensuring a seamless checkout experience for your customers. [**Upgrade to Pro**](https://wpsubscription.co/) for advanced payment gateways, installment plans, subscription health monitoring, subscription recovery campaigns, recurring coupons, and CRM integrations.
 
-Need help? [Read our full documentation and setup guide.](https://docs.converslabs.com/en) Want to connect your favorite tools? Browse all [WPSubscription integrations.](https://docs.converslabs.com/en/category/integrations)
+Need help? [Read our full documentation and setup guide.](https://docs.wpsubscription.co/en) Want to connect your favorite tools? Browse all [WPSubscription integrations.](https://docs.wpsubscription.co/en/category/integrations)
 
 ### Key Benefits:
 
@@ -36,7 +36,7 @@ Need help? [Read our full documentation and setup guide.](https://docs.conversla
 
 - **Growth-Oriented**: Free trials, sign-up fees, recurring coupons, and upgrade/downgrade options are all designed to boost conversions and build predictable revenue.
 
-Need help? [Read our full documentation and setup guide here.](https://docs.converslabs.com/en)
+Need help? [Read our full documentation and setup guide here.](https://docs.wpsubscription.co/en)
 
 ### Start Earning with Subscriptions for WooCommerce - Recurring Payment Plugin
 
@@ -97,7 +97,7 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
 
 5. **Pending Cancellation / Scheduled Cancellations**: Let customers cancel at the end of their billing period instead of immediately. This gives them more control, prevents sudden drop-offs, and ensures you still get paid for the current billing cycle — a win-win for store owners and subscribers alike.
 
-6. **Installment Plans & Split Payments**: Let customers pay for products in [**easy installments**](https://docs.converslabs.com/en/wpsubscription-split-pay-installment) instead of all at once, making expensive items more accessible and affordable. Set fully custom payment schedules — weekly, monthly, or any custom interval — to boost sales and improve cash flow.
+6. **Installment Plans & Split Payments**: Let customers pay for products in [**easy installments**](https://docs.wpsubscription.co/en/wpsubscription-split-pay-installment) instead of all at once, making expensive items more accessible and affordable. Set fully custom payment schedules — weekly, monthly, or any custom interval — to boost sales and improve cash flow.
 
 7. **Subscription Pause**: Let customers temporarily pause their subscription instead of cancelling outright. This significantly reduces churn by keeping subscribers in your ecosystem until they're ready to resume, rather than losing them permanently.
 
@@ -111,22 +111,22 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
 
 12. **Role-Based Product Visibility**: Show or hide specific subscription products based on user roles, perfect for creating exclusive member-only offers. Control who sees what in your store and easily create targeted subscription plans for different customer segments.
 
-13. **Grace Period**: Give customers [**extra time to update their payment details**](https://docs.converslabs.com/en/wpsubscription-grace-period) before their subscription is cancelled after a failed payment. This prevents accidental cancellations and helps you retain more subscribers by offering a flexible buffer period.
+13. **Grace Period**: Give customers [**extra time to update their payment details**](https://docs.wpsubscription.co/en/wpsubscription-grace-period) before their subscription is cancelled after a failed payment. This prevents accidental cancellations and helps you retain more subscribers by offering a flexible buffer period.
 
-14. **Subscription Recovery**: [**Win back cancelled subscribers automatically**](https://docs.converslabs.com/en/wpsubscription-subscription-recovery) with targeted email campaigns and smart discount offers. Create one-time, scheduled, or recurring campaigns to reach lapsed subscribers — offer percentage discounts, fixed-amount incentives, or WooCommerce coupons redeemable only through recovery emails. Track recovered MRR, reactivations, and campaign performance from a dedicated Recovery Report dashboard, all without any manual intervention.
+14. **Subscription Recovery**: [**Win back cancelled subscribers automatically**](https://docs.wpsubscription.co/en/wpsubscription-subscription-recovery) with targeted email campaigns and smart discount offers. Create one-time, scheduled, or recurring campaigns to reach lapsed subscribers — offer percentage discounts, fixed-amount incentives, or WooCommerce coupons redeemable only through recovery emails. Track recovered MRR, reactivations, and campaign performance from a dedicated Recovery Report dashboard, all without any manual intervention.
 
-15. **Subscription Cancellation Survey**: [**Gather insights from customers**](https://docs.converslabs.com/en/subscription-cancellation-survey) who cancel their subscriptions to understand why they left and improve your service. Use targeted questions to identify pain points, reveal common cancellation reasons, and spot opportunities to enhance retention. This feedback helps refine your offerings, reduce churn, and create a better experience for future subscribers.
+15. **Subscription Cancellation Survey**: [**Gather insights from customers**](https://docs.wpsubscription.co/en/subscription-cancellation-survey) who cancel their subscriptions to understand why they left and improve your service. Use targeted questions to identify pain points, reveal common cancellation reasons, and spot opportunities to enhance retention. This feedback helps refine your offerings, reduce churn, and create a better experience for future subscribers.
 
 [**Upgrade to Subscriptions for WooCommerce Pro**](https://wpsubscription.co/)
 
 ### Additional Features:
 
-- [**Action Hooks & Filters**](https://docs.converslabs.com/en/wpsubscription-action-hooks-filters)
-- [**Digital File Access Control**](https://docs.converslabs.com/en/wpsubscription-digital-file-access)
-- [**REST API Integration**](https://docs.converslabs.com/en/wpsubscription-rest-api-integration)
-- [**Subscription Activities & Logs**](https://docs.converslabs.com/en/wpsubscription-configuration-settings)
-- [**Delivery Schedules**](https://docs.converslabs.com/en/wpsubscription-delivery-schedule)
-- [**Synchronize Delivery Schedules**](https://docs.converslabs.com/en/wpsubscription-synchronize-schedule)
+- [**Action Hooks & Filters**](https://docs.wpsubscription.co/en/wpsubscription-action-hooks-filters)
+- [**Digital File Access Control**](https://docs.wpsubscription.co/en/wpsubscription-digital-file-access)
+- [**REST API Integration**](https://docs.wpsubscription.co/en/wpsubscription-rest-api-integration)
+- [**Subscription Activities & Logs**](https://docs.wpsubscription.co/en/wpsubscription-configuration-settings)
+- [**Delivery Schedules**](https://docs.wpsubscription.co/en/wpsubscription-delivery-schedule)
+- [**Synchronize Delivery Schedules**](https://docs.wpsubscription.co/en/wpsubscription-synchronize-schedule)
 - Automated Payment Failure Handling & Smart Retry Logic
 - Order History & Renewal Tracking
 - Manage Delivery Status
@@ -139,9 +139,9 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
 ### Integrations
 
 #### Learning Management Systems (LMS)
-- [**Tutor LMS**](https://docs.converslabs.com/en/wpsubscription-tutor-lms)
-- [**LearnPress**](https://docs.converslabs.com/en/wpsubscription-learnpress-lms)
-- [**LearnDash**](https://docs.converslabs.com/en/wpsubscription-learndash-lms)
+- [**Tutor LMS**](https://docs.wpsubscription.co/en/wpsubscription-tutor-lms)
+- [**LearnPress**](https://docs.wpsubscription.co/en/wpsubscription-learnpress-lms)
+- [**LearnDash**](https://docs.wpsubscription.co/en/wpsubscription-learndash-lms)
 - [**Academy LMS**](https://wordpress.org/plugins/academy/)
 
 #### License Management
@@ -154,17 +154,17 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
 - [**AutomatorWP**](https://wordpress.org/plugins/automatorwp/)
 
 #### Email Marketing & CRM
-- [**MailPoet**](https://docs.converslabs.com/en/wpsubscription-mailpoet)
-- [**FluentCRM**](https://docs.converslabs.com/en/wpsubscription-fluent-crm)
+- [**MailPoet**](https://docs.wpsubscription.co/en/wpsubscription-mailpoet)
+- [**FluentCRM**](https://docs.wpsubscription.co/en/wpsubscription-fluent-crm)
 - [**WP Fusion**](https://wpfusion.com/)
 
 #### Payment Gateways
-- [**Stripe**](https://docs.converslabs.com/en/wpsubscription-payment-with-stripe)
-- [**PayPal**](https://docs.converslabs.com/en/wpsubscription-payment-with-paypal)
-- [**Paddle**](https://docs.converslabs.com/en/wpsubscription-payment-with-paddle)
-- [**Mollie**](https://docs.converslabs.com/en/wpsubscription-payment-with-mollie)
-- [**Razorpay**](https://docs.converslabs.com/en/wpsubscription-payment-with-razorpay)
-- [**Xendit**](https://docs.converslabs.com/en/wpsubscription-payment-with-xendit)
+- [**Stripe**](https://docs.wpsubscription.co/en/wpsubscription-payment-with-stripe)
+- [**PayPal**](https://docs.wpsubscription.co/en/wpsubscription-payment-with-paypal)
+- [**Paddle**](https://docs.wpsubscription.co/en/wpsubscription-payment-with-paddle)
+- [**Mollie**](https://docs.wpsubscription.co/en/wpsubscription-payment-with-mollie)
+- [**Razorpay**](https://docs.wpsubscription.co/en/wpsubscription-payment-with-razorpay)
+- [**Xendit**](https://docs.wpsubscription.co/en/wpsubscription-payment-with-xendit)
 - WooEpay
 
 ### Why Choose this Subscription for WooCommerce Plugin?
@@ -259,7 +259,7 @@ Yes, the plugin supports recurring coupons — apply percentage or fixed-amount 
 Yes, customers can pause their subscription instead of cancelling. This reduces churn by keeping subscribers in your ecosystem until they're ready to resume.
 
 =Where can I find the full documentation and setup steps?=
-You can find the complete guide, configuration tutorials, and troubleshooting help in our [Subscriptions for WooCommerce Docs](https://docs.converslabs.com/en) section.
+You can find the complete guide, configuration tutorials, and troubleshooting help in our [Subscriptions for WooCommerce Docs](https://docs.wpsubscription.co/en) section.
 
 =What makes this a good choice for WooCommerce subscriptions?=
 It is designed to be fast, reliable, and full-featured, with support for auto-renewals, variable products, free trials, recurring coupons, subscription health monitoring, and multiple payment gateways including Stripe, PayPal, Mollie, Razorpay, Paddle, and Xendit.

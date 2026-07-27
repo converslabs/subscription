@@ -154,12 +154,12 @@ $other_plugins = array(
 					</div>
 					<div>
 						<div style="font-size:14px;font-weight:700;color:var(--wpsubs-text);line-height:1.2;"><?php esc_html_e( 'Documentation', 'subscription' ); ?></div>
-						<div style="font-size:11px;color:#0369a1;font-weight:500;margin-top:2px;"><?php esc_html_e( 'docs.converslabs.com', 'subscription' ); ?></div>
+						<div style="font-size:11px;color:#0369a1;font-weight:500;margin-top:2px;"><?php esc_html_e( 'docs.wpsubscription.co', 'subscription' ); ?></div>
 					</div>
 				</div>
 				<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.6;flex:1;"><?php esc_html_e( 'Step-by-step setup guides, configuration references, shortcode docs, and migration instructions.', 'subscription' ); ?></p>
 				<div style="border-top:1px solid var(--wpsubs-border);margin:0 -20px;"></div>
-				<a href="https://docs.converslabs.com/en" target="_blank" rel="noopener noreferrer" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" style="align-self:flex-start;">
+				<a href="https://docs.wpsubscription.co/en" target="_blank" rel="noopener noreferrer" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" style="align-self:flex-start;">
 					<?php esc_html_e( 'Browse Docs', 'subscription' ); ?>
 					<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
 				</a>
@@ -172,12 +172,12 @@ $other_plugins = array(
 					</div>
 					<div>
 						<div style="font-size:14px;font-weight:700;color:var(--wpsubs-text);line-height:1.2;"><?php esc_html_e( 'Payment Gateways', 'subscription' ); ?></div>
-						<div style="font-size:11px;color:#6d28d9;font-weight:500;margin-top:2px;"><?php esc_html_e( 'docs.converslabs.com', 'subscription' ); ?></div>
+						<div style="font-size:11px;color:#6d28d9;font-weight:500;margin-top:2px;"><?php esc_html_e( 'docs.wpsubscription.co', 'subscription' ); ?></div>
 					</div>
 				</div>
 				<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.6;flex:1;"><?php esc_html_e( 'Setup guides for Stripe, PayPal, Mollie, Razorpay, Xendit, and other supported payment gateways.', 'subscription' ); ?></p>
 				<div style="border-top:1px solid var(--wpsubs-border);margin:0 -20px;"></div>
-				<a href="https://docs.converslabs.com/en/category/payments" target="_blank" rel="noopener noreferrer" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" style="align-self:flex-start;">
+				<a href="https://docs.wpsubscription.co/en/category/payments" target="_blank" rel="noopener noreferrer" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" style="align-self:flex-start;">
 					<?php esc_html_e( 'View Guides', 'subscription' ); ?>
 					<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
 				</a>
@@ -190,12 +190,12 @@ $other_plugins = array(
 					</div>
 					<div>
 						<div style="font-size:14px;font-weight:700;color:var(--wpsubs-text);line-height:1.2;"><?php esc_html_e( '3rd Party Integrations', 'subscription' ); ?></div>
-						<div style="font-size:11px;color:#9d174d;font-weight:500;margin-top:2px;"><?php esc_html_e( 'docs.converslabs.com', 'subscription' ); ?></div>
+						<div style="font-size:11px;color:#9d174d;font-weight:500;margin-top:2px;"><?php esc_html_e( 'docs.wpsubscription.co', 'subscription' ); ?></div>
 					</div>
 				</div>
 				<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.6;flex:1;"><?php esc_html_e( 'Integration guides for LMS, CRM, automation, email marketing, and license management plugins.', 'subscription' ); ?></p>
 				<div style="border-top:1px solid var(--wpsubs-border);margin:0 -20px;"></div>
-				<a href="https://docs.converslabs.com/en/category/integrations" target="_blank" rel="noopener noreferrer" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" style="align-self:flex-start;">
+				<a href="https://docs.wpsubscription.co/en/category/integrations" target="_blank" rel="noopener noreferrer" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" style="align-self:flex-start;">
 					<?php esc_html_e( 'View Guides', 'subscription' ); ?>
 					<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
 				</a>

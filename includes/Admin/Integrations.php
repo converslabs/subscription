@@ -318,7 +318,7 @@ class Integrations {
 					[
 						'label' => 'More Details',
 						'type'  => 'external_link',
-						'url'   => 'https://docs.converslabs.com/en/wpsubscription-payment-with-mollie',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-mollie',
 					],
 				],
 			],
@@ -348,7 +348,7 @@ class Integrations {
 					[
 						'label' => 'More Details',
 						'type'  => 'external_link',
-						'url'   => 'https://docs.converslabs.com/en/wpsubscription-payment-with-razorpay',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-razorpay',
 					],
 				],
 			],
@@ -378,7 +378,7 @@ class Integrations {
 					[
 						'label' => 'More Details',
 						'type'  => 'external_link',
-						'url'   => 'https://docs.converslabs.com/en/wpsubscription-payment-with-xendit',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-xendit',
 					],
 				],
 			],
@@ -406,7 +406,7 @@ class Integrations {
 					[
 						'label' => __( 'Learn More', 'subscription' ),
 						'type'  => 'external_link',
-						'url'   => 'https://docs.converslabs.com/en/wpsubscription-tutor-lms',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-tutor-lms',
 					],
 				],
 			],
@@ -429,7 +429,7 @@ class Integrations {
 					[
 						'label' => __( 'Learn More', 'subscription' ),
 						'type'  => 'external_link',
-						'url'   => 'https://docs.converslabs.com/en/wpsubscription-learnpress-lms',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-learnpress-lms',
 					],
 				],
 			],
@@ -452,7 +452,7 @@ class Integrations {
 					[
 						'label' => __( 'Learn More', 'subscription' ),
 						'type'  => 'external_link',
-						'url'   => 'https://docs.converslabs.com/en/wpsubscription-learndash-lms',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-learndash-lms',
 					],
 				],
 			],
@@ -476,7 +476,7 @@ class Integrations {
 					[
 						'label' => __( 'Learn More', 'subscription' ),
 						'type'  => 'external_link',
-						'url'   => 'https://docs.converslabs.com/en/wpsubscription-fluent-crm',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-fluent-crm',
 					],
 				],
 			],
@@ -500,7 +500,7 @@ class Integrations {
 					// [
 					// 'label' => __( 'Learn More', 'subscription' ),
 					// 'type'  => 'external_link',
-					// 'url'   => 'https://docs.converslabs.com/en/',
+					// 'url'   => 'https://docs.wpsubscription.co/en/',
 					// ],
 				],
 			],
@@ -523,7 +523,7 @@ class Integrations {
 					// [
 					// 'label' => __( 'Learn More', 'subscription' ),
 					// 'type'  => 'external_link',
-					// 'url'   => 'https://docs.converslabs.com/en/',
+					// 'url'   => 'https://docs.wpsubscription.co/en/',
 					// ],
 				],
 			],
@@ -547,7 +547,7 @@ class Integrations {
 					[
 						'label' => __( 'Learn More', 'subscription' ),
 						'type'  => 'external_link',
-						'url'   => 'https://docs.converslabs.com/en/wpsubscription-mailpoet',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-mailpoet',
 					],
 				],
 			],
@@ -571,7 +571,7 @@ class Integrations {
 					// [
 					// 'label' => __( 'Learn More', 'subscription' ),
 					// 'type'  => 'external_link',
-					// 'url'   => 'https://docs.converslabs.com/en/',
+					// 'url'   => 'https://docs.wpsubscription.co/en/',
 					// ],
 				],
 			],
@@ -594,7 +594,7 @@ class Integrations {
 					// [
 					// 'label' => __( 'Learn More', 'subscription' ),
 					// 'type'  => 'external_link',
-					// 'url'   => 'https://docs.converslabs.com/en/',
+					// 'url'   => 'https://docs.wpsubscription.co/en/',
 					// ],
 				],
 			],
