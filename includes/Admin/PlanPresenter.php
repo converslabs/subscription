@@ -104,6 +104,11 @@ class PlanPresenter {
 						'is_variable' => $is_variable,
 						// Variable parents have no single price - the variations carry it.
 						'base_price'  => ( $product && ! $is_variable ) ? self::money( (float) $product->get_price() ) : '',
+						// One-time purchase: enabled flag (product meta) + the native
+						// WooCommerce price (regular = one-time price, sale = offer).
+						'one_time_on' => $product ? ( 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' ) ) : false,
+						'ot_regular'  => ( $product && ! $is_variable ) ? (string) $product->get_regular_price() : '',
+						'ot_offer'    => ( $product && ! $is_variable ) ? (string) $product->get_sale_price() : '',
 						'edit_url'    => get_edit_post_link( $oid, 'raw' ),
 						'view_url'    => get_permalink( $oid ),
 						'rows'        => array(),
@@ -120,6 +125,9 @@ class PlanPresenter {
 							'vid'        => $vid,
 							'name'       => self::variation_name( $variation, $by_product[ $oid ]['name'] ),
 							'base_price' => $variation ? self::money( (float) $variation->get_price() ) : '-',
+							// Native prices used as this variation's one-time price/offer.
+							'ot_regular' => $variation ? (string) $variation->get_regular_price() : '',
+							'ot_offer'   => $variation ? (string) $variation->get_sale_price() : '',
 							'rows'       => array(),
 						);
 					}
@@ -195,23 +203,15 @@ class PlanPresenter {
 		$selling        = isset( $data['sale_price'] ) ? (string) $data['sale_price'] : '';
 		$discount_type  = $data['discount_type'] ?? 'percentage';
 		$discount_value = isset( $data['discount_value'] ) ? (string) $data['discount_value'] : '0';
-		$one_time       = ! empty( $data['one_time'] );
-		$one_time_price = isset( $data['one_time_price'] ) ? (string) $data['one_time_price'] : '';
-		$one_time_offer = isset( $data['one_time_offer'] ) ? (string) $data['one_time_offer'] : '';
 
 		return array(
-			'relation_id'         => (int) $relation['id'],
-			'term'                => $plan['title'],
-			'regular'             => '' !== $regular ? self::money( (float) $regular ) : '-',
-			'offer'               => self::money( self::offer_price( $regular, $selling, $discount_type, $discount_value ) ),
-			'regular_raw'         => $regular,
-			'offer_raw'           => $selling,
-			'one_time'            => $one_time,
-			'one_time_price'      => $one_time_price,
-			'one_time_disp'       => '' !== $one_time_price ? self::money( (float) $one_time_price ) : '',
-			'one_time_offer'      => $one_time_offer,
-			'one_time_offer_disp' => '' !== $one_time_offer ? self::money( (float) $one_time_offer ) : '',
-			'exclude'             => ! empty( $relation['exclude'] ),
+			'relation_id' => (int) $relation['id'],
+			'term'        => $plan['title'],
+			'regular'     => '' !== $regular ? self::money( (float) $regular ) : '-',
+			'offer'       => self::money( self::offer_price( $regular, $selling, $discount_type, $discount_value ) ),
+			'regular_raw' => $regular,
+			'offer_raw'   => $selling,
+			'exclude'     => ! empty( $relation['exclude'] ),
 		);
 	}
 

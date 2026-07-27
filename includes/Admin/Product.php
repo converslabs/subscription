@@ -159,7 +159,23 @@ class Product {
 				do_action( 'subscrpt_variable_subscription_panel', $subscrpt_current );
 
 				if ( ! has_action( 'subscrpt_variable_subscription_panel' ) ) {
-					echo '<p style="padding:0 12px;">' . esc_html__( 'Variable product subscriptions are available with WPSubscription Pro.', 'subscription' ) . '</p>';
+					?>
+					<div style="text-align:center;padding:30px 20px;">
+						<span style="display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:var(--wpsubs-brand-light,#fff1eb);color:var(--wpsubs-brand,#ff4d00);">
+							<span class="dashicons dashicons-lock" style="font-size:24px;width:24px;height:24px;"></span>
+						</span>
+						<h3 style="margin:14px 0 6px;font-size:15px;color:var(--wpsubs-text,#1d2327);display:flex;align-items:center;justify-content:center;gap:8px;">
+							<?php esc_html_e( 'Variable product subscriptions', 'subscription' ); ?>
+							<span class="wpsubs-badge wpsubs-badge--pro"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
+						</h3>
+						<p style="margin:0 auto;max-width:380px;font-size:13px;line-height:1.6;color:var(--wpsubs-text-muted,#646970);">
+							<?php esc_html_e( 'Sell each variation as its own subscription, with per-variation billing, trials and sign-up fees.', 'subscription' ); ?>
+						</p>
+						<a href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" target="_blank" rel="noopener noreferrer" class="wpsubs-btn wpsubs-btn--primary" style="margin-top:16px;">
+							<?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?>
+						</a>
+					</div>
+					<?php
 				}
 				?>
 			</div>

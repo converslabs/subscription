@@ -159,6 +159,18 @@ class PlanController {
 
 		register_rest_route(
 			self::NS,
+			'/plans/product-onetime/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'save_product_onetime' ),
+					'permission_callback' => $perm,
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NS,
 			'/plans/product-view/(?P<id>\d+)',
 			array(
 				array(
@@ -492,6 +504,71 @@ class PlanController {
 				'id'      => $id,
 			)
 		);
+	}
+
+	/**
+	 * PUT /plans/product-onetime/{id} - save a product's one-time purchase.
+	 *
+	 * One-time purchase is product-specific: its price is the product's native
+	 * WooCommerce price (regular = one-time price, sale = one-time offer), and a
+	 * single enabled flag lives in product meta. For a variable product each
+	 * variation's native price is written.
+	 *
+	 * Body: { enabled: bool, price?: string, offer?: string,
+	 *         variations?: { <vid>: { price, offer } } }.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function save_product_onetime( WP_REST_Request $request ) {
+		$product_id = (int) $request['id'];
+		$product    = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
+
+		if ( ! $product ) {
+			return $this->not_found();
+		}
+
+		$params  = $this->read_params( $request );
+		$enabled = ! empty( $params['enabled'] );
+
+		$product->update_meta_data( '_subscrpt_one_time_enabled', $enabled ? 'yes' : '' );
+
+		if ( $product->is_type( 'variable' ) ) {
+			$variations = isset( $params['variations'] ) && is_array( $params['variations'] ) ? $params['variations'] : array();
+			foreach ( $variations as $vid => $prices ) {
+				$variation = wc_get_product( (int) $vid );
+				if ( ! $variation || 'variation' !== $variation->get_type() || (int) $variation->get_parent_id() !== $product_id ) {
+					continue;
+				}
+				$this->set_native_prices( $variation, $prices );
+				$variation->save();
+			}
+		} else {
+			$this->set_native_prices( $product, $params );
+		}
+
+		$product->save();
+
+		return rest_ensure_response( array( 'enabled' => $enabled ) );
+	}
+
+	/**
+	 * Write a product/variation's native regular + sale price from a one-time
+	 * price payload ({ price, offer }). Empty values clear the price.
+	 *
+	 * @param \WC_Product $product Product or variation.
+	 * @param array       $prices  { price, offer } values.
+	 *
+	 * @return void
+	 */
+	protected function set_native_prices( $product, $prices ) {
+		$regular = ( isset( $prices['price'] ) && '' !== $prices['price'] ) ? wc_format_decimal( $prices['price'] ) : '';
+		$offer   = ( isset( $prices['offer'] ) && '' !== $prices['offer'] ) ? wc_format_decimal( $prices['offer'] ) : '';
+
+		$product->set_regular_price( $regular );
+		$product->set_sale_price( $offer );
+		$product->set_price( '' !== $offer ? $offer : $regular );
 	}
 
 	/**

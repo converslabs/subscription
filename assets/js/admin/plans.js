@@ -603,18 +603,6 @@
    * @param {HTMLElement} card    The [data-subscrpt-price-card] element.
    * @param {boolean}     editing Desired mode.
    */
-  /**
-   * Show or hide a price card's one-time column.
-   *
-   * @param {HTMLElement} card The [data-subscrpt-price-card] element.
-   * @param {boolean}     show Whether the column is visible.
-   */
-  function setOneTimeColumn(card, show) {
-    card.querySelectorAll(".subscrpt-onetime-col").forEach(function (cell) {
-      cell.style.display = show ? "" : "none";
-    });
-  }
-
   function priceCardMode(card, editing) {
     card.querySelectorAll(".subscrpt-pe-view").forEach(function (el) {
       el.style.display = editing ? "none" : "";
@@ -631,12 +619,6 @@
     toggle("[data-subscrpt-edit-prices]", !editing);
     toggle("[data-subscrpt-cancel-prices]", editing);
     toggle("[data-subscrpt-save-prices]", editing);
-
-    // The one-time toggle is only interactive while editing.
-    var one = card.querySelector("[data-subscrpt-onetime-toggle]");
-    if (one) {
-      one.disabled = !editing;
-    }
   }
 
   // Enter edit mode (snapshot current values for cancel).
@@ -649,23 +631,7 @@
     card.querySelectorAll("[data-field]").forEach(function (field) {
       field.dataset.orig = "checkbox" === field.type ? (field.checked ? "1" : "") : field.value;
     });
-    var one = card.querySelector("[data-subscrpt-onetime-toggle]");
-    if (one) {
-      one.dataset.orig = one.checked ? "1" : "";
-    }
     priceCardMode(card, true);
-  });
-
-  // Toggling one-time purchase reveals / hides the one-time price column.
-  document.addEventListener("change", function (e) {
-    var toggle = e.target.closest("[data-subscrpt-onetime-toggle]");
-    if (!toggle) {
-      return;
-    }
-    var card = toggle.closest("[data-subscrpt-price-card]");
-    if (card) {
-      setOneTimeColumn(card, toggle.checked);
-    }
   });
 
   // Cancel: restore snapshot, back to read mode.
@@ -682,15 +648,10 @@
         field.value = field.dataset.orig || "";
       }
     });
-    var one = card.querySelector("[data-subscrpt-onetime-toggle]");
-    if (one) {
-      one.checked = "1" === one.dataset.orig;
-      setOneTimeColumn(card, one.checked);
-    }
     priceCardMode(card, false);
   });
 
-  // Save: PUT each row's regular / offer / one-time to its relation.
+  // Save: PUT each row's regular / offer price + enabled state to its relation.
   document.addEventListener("click", function (e) {
     var btn = e.target.closest("[data-subscrpt-save-prices]");
     if (!btn) {
@@ -698,17 +659,12 @@
     }
     var card = btn.closest("[data-subscrpt-price-card]");
     var rows = card.querySelectorAll("[data-subscrpt-relation]");
-    // One-time purchase is a card-level flag applied to every plan row.
-    var cardToggle = card.querySelector("[data-subscrpt-onetime-toggle]");
-    var oneTimeOn = cardToggle ? cardToggle.checked : false;
 
     setLoading(btn, true);
     var calls = Array.prototype.map.call(rows, function (row) {
       var id = row.getAttribute("data-subscrpt-relation");
       var reg = row.querySelector('[data-field="regular_price"]');
       var sale = row.querySelector('[data-field="sale_price"]');
-      var onePrice = row.querySelector('[data-field="one_time_price"]');
-      var oneOffer = row.querySelector('[data-field="one_time_offer"]');
       var enabled = row.querySelector('[data-field="enabled"]');
       return api("PUT", "/relations/" + id, {
         exclude: enabled ? !enabled.checked : false,
@@ -716,14 +672,70 @@
           regular_price: reg ? reg.value : "",
           sale_price: sale ? sale.value : "",
           discount_value: 0,
-          one_time: oneTimeOn,
-          one_time_price: onePrice ? onePrice.value : "",
-          one_time_offer: oneOffer ? oneOffer.value : "",
         },
       });
     });
 
     Promise.all(calls)
+      .then(function () {
+        window.location.reload();
+      })
+      .catch(function (err) {
+        setLoading(btn, false);
+        window.alert(err.message || i18n.genericError);
+      });
+  });
+
+  /* ------------------------------------------------------------------ *
+   * Products tab (Pro): product one-time purchase section.
+   * One-time is product-specific — its price is the product's native WC price.
+   * ------------------------------------------------------------------ */
+
+  // Toggle reveals / hides the one-time price inputs.
+  document.addEventListener("change", function (e) {
+    var toggle = e.target.closest("[data-subscrpt-onetime-enable]");
+    if (!toggle) {
+      return;
+    }
+    var card = toggle.closest("[data-subscrpt-onetime-card]");
+    var body = card && card.querySelector("[data-subscrpt-onetime-body]");
+    if (body) {
+      body.style.display = toggle.checked ? "" : "none";
+    }
+  });
+
+  // Save: write the enabled flag + native prices for the product / variations.
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-onetime-save]");
+    if (!btn) {
+      return;
+    }
+    var card = btn.closest("[data-subscrpt-onetime-card]");
+    var pid = card.getAttribute("data-product-id");
+    var enable = card.querySelector("[data-subscrpt-onetime-enable]");
+    var payload = { enabled: enable ? enable.checked : false };
+
+    var variations = card.querySelectorAll("[data-subscrpt-onetime-variation]");
+    if (variations.length) {
+      payload.variations = {};
+      Array.prototype.forEach.call(variations, function (row) {
+        var vid = row.getAttribute("data-subscrpt-onetime-variation");
+        var price = row.querySelector('[data-ot-field="price"]');
+        var offer = row.querySelector('[data-ot-field="offer"]');
+        payload.variations[vid] = {
+          price: price ? price.value : "",
+          offer: offer ? offer.value : "",
+        };
+      });
+    } else {
+      var price = card.querySelector('[data-ot-field="price"]');
+      var offer = card.querySelector('[data-ot-field="offer"]');
+      payload.price = price ? price.value : "";
+      payload.offer = offer ? offer.value : "";
+    }
+
+    setLoading(btn, true);
+    api("PUT", "/product-onetime/" + pid, payload)
       .then(function () {
         window.location.reload();
       })
