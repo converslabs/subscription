@@ -151,6 +151,12 @@
     if (divider) {
       divider.style.display = "0" === groupId ? "none" : "";
     }
+    // Reveal the one-time purchase card alongside the picked group's prices
+    // (simple products: it sits above the connect card while not yet connected).
+    var wrap = document.querySelector("[data-subscrpt-onetime-wrap]");
+    if (wrap) {
+      wrap.style.display = "0" === groupId ? "none" : "";
+    }
   });
 
   /* ------------------------------------------------------------------ *
@@ -495,6 +501,39 @@
     toggle("[data-subscrpt-save-prices]", editing);
   }
 
+  /** The product-level one-time purchase card (single, product-specific). */
+  function oneTimeCard() {
+    var wrap = root();
+    return wrap ? wrap.querySelector("[data-subscrpt-onetime-card]") : null;
+  }
+
+  /**
+   * Unlock (snapshot) or re-lock + revert the one-time card's inputs. Only acts
+   * when the card is edit-gated (connected + Pro), mirroring the plan card's
+   * edit mode; in the connect flow the inputs are already editable.
+   *
+   * @param {boolean} editing Desired mode.
+   */
+  function setOneTimeEditing(editing) {
+    var ot = oneTimeCard();
+    if (!ot || !ot.hasAttribute("data-subscrpt-ot-editgated")) {
+      return;
+    }
+    ot.querySelectorAll("[data-subscrpt-onetime-enable], [data-ot-field]").forEach(function (el) {
+      if (editing) {
+        el.dataset.orig = "checkbox" === el.type ? (el.checked ? "1" : "") : el.value;
+        el.disabled = false;
+      } else {
+        if ("checkbox" === el.type) {
+          el.checked = "1" === el.dataset.orig;
+        } else {
+          el.value = el.dataset.orig || "";
+        }
+        el.disabled = true;
+      }
+    });
+  }
+
   /** Enabled/dim a term row's price inputs from its offer toggle. */
   function syncTermRow(row) {
     var on = row.querySelector("[data-subscrpt-term-toggle]");
@@ -522,6 +561,7 @@
       }
       syncTermRow(row);
     });
+    setOneTimeEditing(true);
     cardMode(card, true);
   });
 
@@ -534,6 +574,19 @@
     var row = toggle.closest("[data-subscrpt-term-row]");
     if (row) {
       syncTermRow(row);
+    }
+  });
+
+  // The "Allow one-time purchase" toggle shows / hides its price inputs.
+  document.addEventListener("change", function (e) {
+    var toggle = e.target.closest("[data-subscrpt-onetime-enable]");
+    if (!toggle) {
+      return;
+    }
+    var card = toggle.closest("[data-subscrpt-onetime-card]");
+    var body = card && card.querySelector("[data-subscrpt-onetime-body]");
+    if (body) {
+      body.style.display = toggle.checked ? "" : "none";
     }
   });
 
@@ -553,6 +606,7 @@
         on.checked = "1" === on.dataset.orig;
       }
     });
+    setOneTimeEditing(false);
     cardMode(card, false);
   });
 
@@ -603,6 +657,25 @@
       }
     });
 
+    // One-time purchase (product-specific native price) saves with the plan
+    // Save/Connect — no separate button. Only when its inputs are active
+    // (Pro edit mode or the connect flow), never when locked/non-Pro.
+    var ot = oneTimeCard();
+    if (ot) {
+      var otEnable = ot.querySelector("[data-subscrpt-onetime-enable]");
+      if (otEnable && !otEnable.disabled) {
+        var otPrice = ot.querySelector('[data-ot-field="price"]');
+        var otOffer = ot.querySelector('[data-ot-field="offer"]');
+        calls.push(
+          api("PUT", "/product-onetime/" + productId, {
+            enabled: otEnable.checked,
+            price: otPrice ? otPrice.value : "",
+            offer: otOffer ? otOffer.value : "",
+          }),
+        );
+      }
+    }
+
     btn.disabled = true;
     Promise.all(calls)
       .then(function () {
@@ -611,50 +684,6 @@
       .catch(function (err) {
         btn.disabled = false;
         window.alert(err.message || i18n.connectError);
-      });
-  });
-
-  /* ------------------------------------------------------------------ *
-   * Product one-time purchase (product-specific — writes native WC price).
-   * ------------------------------------------------------------------ */
-
-  // Toggle reveals / hides the one-time price inputs.
-  document.addEventListener("change", function (e) {
-    var toggle = e.target.closest("[data-subscrpt-onetime-enable]");
-    if (!toggle) {
-      return;
-    }
-    var card = toggle.closest("[data-subscrpt-onetime-card]");
-    var body = card && card.querySelector("[data-subscrpt-onetime-body]");
-    if (body) {
-      body.style.display = toggle.checked ? "" : "none";
-    }
-  });
-
-  // Save: write the enabled flag + the product's native price via REST.
-  document.addEventListener("click", function (e) {
-    var btn = e.target.closest("[data-subscrpt-onetime-save]");
-    if (!btn) {
-      return;
-    }
-    var card = btn.closest("[data-subscrpt-onetime-card]");
-    var pid = card.getAttribute("data-product-id");
-    var enable = card.querySelector("[data-subscrpt-onetime-enable]");
-    var price = card.querySelector('[data-ot-field="price"]');
-    var offer = card.querySelector('[data-ot-field="offer"]');
-
-    btn.disabled = true;
-    api("PUT", "/product-onetime/" + pid, {
-      enabled: enable ? enable.checked : false,
-      price: price ? price.value : "",
-      offer: offer ? offer.value : "",
-    })
-      .then(function () {
-        window.location.reload();
-      })
-      .catch(function (err) {
-        btn.disabled = false;
-        window.alert((err && err.message) || i18n.connectError);
       });
   });
 })();
