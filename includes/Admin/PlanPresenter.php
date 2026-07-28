@@ -122,13 +122,15 @@ class PlanPresenter {
 					if ( ! isset( $by_product[ $oid ]['variations'][ $vid ] ) ) {
 						$variation                                = function_exists( 'wc_get_product' ) ? wc_get_product( $vid ) : null;
 						$by_product[ $oid ]['variations'][ $vid ] = array(
-							'vid'        => $vid,
-							'name'       => self::variation_name( $variation, $by_product[ $oid ]['name'] ),
-							'base_price' => $variation ? self::money( (float) $variation->get_price() ) : '-',
-							// Native prices used as this variation's one-time price/offer.
-							'ot_regular' => $variation ? (string) $variation->get_regular_price() : '',
-							'ot_offer'   => $variation ? (string) $variation->get_sale_price() : '',
-							'rows'       => array(),
+							'vid'         => $vid,
+							'name'        => self::variation_name( $variation, $by_product[ $oid ]['name'] ),
+							'base_price'  => $variation ? self::money( (float) $variation->get_price() ) : '-',
+							// One-time purchase is per-variation: enabled flag (variation
+							// meta) + the native price used as its one-time price/offer.
+							'one_time_on' => $variation ? ( 'yes' === $variation->get_meta( '_subscrpt_one_time_enabled' ) ) : false,
+							'ot_regular'  => $variation ? (string) $variation->get_regular_price() : '',
+							'ot_offer'    => $variation ? (string) $variation->get_sale_price() : '',
+							'rows'        => array(),
 						);
 					}
 

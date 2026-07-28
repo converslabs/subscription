@@ -676,6 +676,27 @@
       });
     });
 
+    // One-time purchase row (product-specific native price) shares this Save.
+    var otRow = card.querySelector("[data-subscrpt-onetime-row]");
+    var pid = card.getAttribute("data-product-id");
+    if (otRow && pid) {
+      var vid = card.getAttribute("data-variation-id");
+      var enable = otRow.querySelector("[data-subscrpt-onetime-enable]");
+      var otPrice = otRow.querySelector('[data-ot-field="price"]');
+      var otOffer = otRow.querySelector('[data-ot-field="offer"]');
+      var otVals = {
+        enabled: enable ? enable.checked : false,
+        price: otPrice ? otPrice.value : "",
+        offer: otOffer ? otOffer.value : "",
+      };
+      var otPayload = otVals;
+      if (vid) {
+        otPayload = { variations: {} };
+        otPayload.variations[vid] = otVals;
+      }
+      calls.push(api("PUT", "/product-onetime/" + pid, otPayload));
+    }
+
     Promise.all(calls)
       .then(function () {
         window.location.reload();
@@ -687,24 +708,28 @@
   });
 
   /* ------------------------------------------------------------------ *
-   * Products tab (Pro): product one-time purchase section.
-   * One-time is product-specific — its price is the product's native WC price.
+   * Products tab (Pro): simple product one-time purchase card.
+   * Variable products handle one-time per variation via the card Save above;
+   * simple products use this standalone card + its own toggle/Save.
    * ------------------------------------------------------------------ */
 
-  // Toggle reveals / hides the one-time price inputs.
+  // Toggle reveals / hides the one-time price inputs (simple card only).
   document.addEventListener("change", function (e) {
     var toggle = e.target.closest("[data-subscrpt-onetime-enable]");
     if (!toggle) {
       return;
     }
     var card = toggle.closest("[data-subscrpt-onetime-card]");
-    var body = card && card.querySelector("[data-subscrpt-onetime-body]");
+    if (!card) {
+      return;
+    }
+    var body = card.querySelector("[data-subscrpt-onetime-body]");
     if (body) {
       body.style.display = toggle.checked ? "" : "none";
     }
   });
 
-  // Save: write the enabled flag + native prices for the product / variations.
+  // Save the simple card's one-time (enabled flag + native price).
   document.addEventListener("click", function (e) {
     var btn = e.target.closest("[data-subscrpt-onetime-save]");
     if (!btn) {
@@ -713,29 +738,15 @@
     var card = btn.closest("[data-subscrpt-onetime-card]");
     var pid = card.getAttribute("data-product-id");
     var enable = card.querySelector("[data-subscrpt-onetime-enable]");
-    var payload = { enabled: enable ? enable.checked : false };
-
-    var variations = card.querySelectorAll("[data-subscrpt-onetime-variation]");
-    if (variations.length) {
-      payload.variations = {};
-      Array.prototype.forEach.call(variations, function (row) {
-        var vid = row.getAttribute("data-subscrpt-onetime-variation");
-        var price = row.querySelector('[data-ot-field="price"]');
-        var offer = row.querySelector('[data-ot-field="offer"]');
-        payload.variations[vid] = {
-          price: price ? price.value : "",
-          offer: offer ? offer.value : "",
-        };
-      });
-    } else {
-      var price = card.querySelector('[data-ot-field="price"]');
-      var offer = card.querySelector('[data-ot-field="offer"]');
-      payload.price = price ? price.value : "";
-      payload.offer = offer ? offer.value : "";
-    }
+    var price = card.querySelector('[data-ot-field="price"]');
+    var offer = card.querySelector('[data-ot-field="offer"]');
 
     setLoading(btn, true);
-    api("PUT", "/product-onetime/" + pid, payload)
+    api("PUT", "/product-onetime/" + pid, {
+      enabled: enable ? enable.checked : false,
+      price: price ? price.value : "",
+      offer: offer ? offer.value : "",
+    })
       .then(function () {
         window.location.reload();
       })

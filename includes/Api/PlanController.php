@@ -510,12 +510,13 @@ class PlanController {
 	 * PUT /plans/product-onetime/{id} - save a product's one-time purchase.
 	 *
 	 * One-time purchase is product-specific: its price is the product's native
-	 * WooCommerce price (regular = one-time price, sale = one-time offer), and a
-	 * single enabled flag lives in product meta. For a variable product each
-	 * variation's native price is written.
+	 * WooCommerce price (regular = one-time price, sale = one-time offer). A
+	 * simple product has a single enabled flag; a variable product enables it
+	 * per variation (each variation stores its own flag + native price, and the
+	 * parent flag mirrors "any variation enabled").
 	 *
-	 * Body: { enabled: bool, price?: string, offer?: string,
-	 *         variations?: { <vid>: { price, offer } } }.
+	 * Body (simple): { enabled: bool, price?: string, offer?: string }.
+	 * Body (variable): { variations: { <vid>: { enabled: bool, price?, offer? } } }.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 *
@@ -529,28 +530,41 @@ class PlanController {
 			return $this->not_found();
 		}
 
-		$params  = $this->read_params( $request );
-		$enabled = ! empty( $params['enabled'] );
-
-		$product->update_meta_data( '_subscrpt_one_time_enabled', $enabled ? 'yes' : '' );
+		$params = $this->read_params( $request );
 
 		if ( $product->is_type( 'variable' ) ) {
+			// Per-variation one-time: each variation carries its own enabled flag
+			// + native price. Saves may be partial (one variation at a time).
 			$variations = isset( $params['variations'] ) && is_array( $params['variations'] ) ? $params['variations'] : array();
-			foreach ( $variations as $vid => $prices ) {
+			foreach ( $variations as $vid => $vals ) {
 				$variation = wc_get_product( (int) $vid );
 				if ( ! $variation || 'variation' !== $variation->get_type() || (int) $variation->get_parent_id() !== $product_id ) {
 					continue;
 				}
-				$this->set_native_prices( $variation, $prices );
+				$variation->update_meta_data( '_subscrpt_one_time_enabled', empty( $vals['enabled'] ) ? '' : 'yes' );
+				$this->set_native_prices( $variation, is_array( $vals ) ? $vals : array() );
 				$variation->save();
 			}
+
+			// Parent flag mirrors "any variation enabled" — recomputed from all
+			// children so a partial save never clears it for other variations.
+			$any_enabled = false;
+			foreach ( $product->get_children() as $child_id ) {
+				if ( 'yes' === get_post_meta( (int) $child_id, '_subscrpt_one_time_enabled', true ) ) {
+					$any_enabled = true;
+					break;
+				}
+			}
+			$product->update_meta_data( '_subscrpt_one_time_enabled', $any_enabled ? 'yes' : '' );
 		} else {
+			$enabled = ! empty( $params['enabled'] );
+			$product->update_meta_data( '_subscrpt_one_time_enabled', $enabled ? 'yes' : '' );
 			$this->set_native_prices( $product, $params );
 		}
 
 		$product->save();
 
-		return rest_ensure_response( array( 'enabled' => $enabled ) );
+		return rest_ensure_response( array( 'saved' => true ) );
 	}
 
 	/**
