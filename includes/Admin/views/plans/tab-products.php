@@ -142,7 +142,7 @@ $has_terms = ! empty( $plan['terms'] );
 			?>
 			<div style="width:90%;border-top:1px dashed var(--wpsubs-border-strong,#d1d5db);margin:16px auto 0;"></div>
 			<div data-subscrpt-onetime-card data-product-id="<?php echo esc_attr( $product['id'] ); ?>" style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);margin-top:14px;">
-				<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--wpsubs-border,#e5e7eb);">
+				<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;">
 					<span class="dashicons dashicons-cart" style="flex:0 0 auto;font-size:16px;width:16px;height:16px;color:var(--wpsubs-text-subtle);"></span>
 					<strong style="font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'One-time purchase', 'subscription' ); ?></strong>
 					<?php echo wp_kses_post( wpsubs_render_hint( __( 'This is the product’s regular WooCommerce price, charged when a customer buys it once instead of subscribing.', 'subscription' ) ) ); ?>
@@ -157,7 +157,7 @@ $has_terms = ! empty( $plan['terms'] );
 					</label>
 					<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-onetime-save <?php disabled( ! $pro_active ); ?>><?php esc_html_e( 'Save', 'subscription' ); ?></button>
 				</div>
-				<div data-subscrpt-onetime-body style="padding:12px 14px;<?php echo $subscrpt_show_body ? '' : 'display:none;'; ?>">
+				<div data-subscrpt-onetime-body style="padding:12px 14px;border-top:1px solid var(--wpsubs-border,#e5e7eb);<?php echo $subscrpt_show_body ? '' : 'display:none;'; ?>">
 					<?php if ( ! empty( $product['is_variable'] ) ) : ?>
 						<table class="wpsubs-table">
 							<thead>
