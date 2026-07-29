@@ -75,7 +75,8 @@ $has_terms = ! empty( $plan['terms'] );
 				</thead>
 				<tbody>
 					<?php foreach ( $rows as $row ) : ?>
-						<tr data-subscrpt-relation="<?php echo esc_attr( $row['relation_id'] ); ?>">
+						<tr data-subscrpt-relation="<?php echo esc_attr( $row['relation_id'] ); ?>" data-plan-id="<?php echo esc_attr( isset( $row['plan_id'] ) ? $row['plan_id'] : '' ); ?>">
+
 							<td><?php echo esc_html( $row['term'] ); ?></td>
 							<td>
 								<span class="subscrpt-pe-view"><?php echo esc_html( $row['regular'] ); ?></span>
@@ -345,17 +346,6 @@ $has_terms = ! empty( $plan['terms'] );
 										?>
 									</div>
 								<?php endforeach; ?>
-								<?php if ( ! empty( $product['rows'] ) ) : ?>
-									<div data-subscrpt-price-card style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);">
-										<?php if ( $pro_active ) : ?>
-											<div style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--wpsubs-border,#e5e7eb);">
-												<span class="wpsubs-toolbar__spacer"></span>
-												<?php $subscrpt_price_actions(); ?>
-											</div>
-										<?php endif; ?>
-										<?php $subscrpt_render_rows( $product['rows'] ); ?>
-									</div>
-								<?php endif; ?>
 							</div>
 						<?php else : ?>
 							<div data-subscrpt-price-card data-product-id="<?php echo esc_attr( $product['id'] ); ?>" style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);">

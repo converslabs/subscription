@@ -22,15 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 <input name="_subscript_nonce" type="hidden" value="<?php echo esc_attr( wp_create_nonce( '_subscript_edit_product_nonce' ) ); ?>"/>
 <strong style="margin: 10px;"><?php esc_html_e( 'Subscription Settings', 'subscription' ); ?></strong>
 <?php
-woocommerce_wp_checkbox(
-	array(
-		'id'          => 'subscrpt_enable',
-		'label'       => __( 'Enable Subscriptions', 'subscription' ),
-		'value'       => ! empty( $subscrpt_enabled ) ? 'yes' : 'no',
-		'description' => __( 'Sell this product as a classic subscription using the settings below.', 'subscription' ),
-	)
-);
-
+// The "Enable subscription" toggle lives in the shared toolbar above (see
+// Admin\Product\Plans::render_toolbar), so it is not repeated here.
 woocommerce_wp_select(
 	array(
 		'id'          => 'subscrpt_timing',

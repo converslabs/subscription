@@ -478,14 +478,14 @@
    * @param {boolean}     editing Desired mode.
    */
   function cardMode(card, editing) {
-    var view = card.querySelector(".subscrpt-pe-view");
-    var edit = card.querySelector(".subscrpt-pe-edit");
-    if (view) {
+    // A simple product has one view/edit pair; a variable product has one edit
+    // table per variation (all toggled together), and no chip view.
+    card.querySelectorAll(".subscrpt-pe-view").forEach(function (view) {
       view.style.display = editing ? "none" : "flex";
-    }
-    if (edit) {
+    });
+    card.querySelectorAll(".subscrpt-pe-edit").forEach(function (edit) {
       edit.style.display = editing ? "block" : "none";
-    }
+    });
     card.querySelectorAll(".subscrpt-edit-only").forEach(function (el) {
       el.style.display = editing ? "inline-flex" : "none";
     });
@@ -628,6 +628,7 @@
     var calls = [];
     card.querySelectorAll("[data-subscrpt-term-row]").forEach(function (row) {
       var planId = parseInt(row.getAttribute("data-plan-id"), 10);
+      var vid = parseInt(row.getAttribute("data-vid"), 10) || 0;
       var relId = row.getAttribute("data-relation-id");
       var on = row.querySelector("[data-subscrpt-term-toggle]").checked;
 
@@ -647,7 +648,7 @@
           api("POST", "/relations", {
             plan_id: planId,
             oid: productId,
-            vid: 0,
+            vid: vid,
             type: 1,
             status: "active",
             exclude: false,

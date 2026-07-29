@@ -222,7 +222,7 @@ class Product {
 				if ( $subscrpt_product && $subscrpt_product->is_type( 'simple' ) && class_exists( '\SpringDevs\Subscription\Admin\Product\Plans' ) ) {
 					?>
 					<div id="sdevs_subscription_options" class="panel woocommerce_options_panel option_group sdevs-form sdevs_panel show_if_simple" style="padding:10px;" data-subscrpt-product-plans data-product-id="<?php echo esc_attr( $subscrpt_product->get_id() ); ?>">
-						<?php Product\Plans::render_toolbar(); ?>
+						<?php Product\Plans::render_toolbar( $subscrpt_product ); ?>
 						<div data-subscrpt-plan-view>
 							<?php Product\Plans::render_plan_view( $subscrpt_product ); ?>
 						</div>

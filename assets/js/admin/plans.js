@@ -659,20 +659,38 @@
     }
     var card = btn.closest("[data-subscrpt-price-card]");
     var rows = card.querySelectorAll("[data-subscrpt-relation]");
+    // The card carries the product id, and (for a variable product) the
+    // variation id — a variation row seeded from the product-level price has
+    // no relation of its own yet, so Save creates one for that variation.
+    var cardPid = card.getAttribute("data-product-id");
+    var cardVid = parseInt(card.getAttribute("data-variation-id"), 10) || 0;
 
     setLoading(btn, true);
     var calls = Array.prototype.map.call(rows, function (row) {
-      var id = row.getAttribute("data-subscrpt-relation");
+      var id = parseInt(row.getAttribute("data-subscrpt-relation"), 10) || 0;
       var reg = row.querySelector('[data-field="regular_price"]');
       var sale = row.querySelector('[data-field="sale_price"]');
       var enabled = row.querySelector('[data-field="enabled"]');
-      return api("PUT", "/relations/" + id, {
+      var data = {
+        regular_price: reg ? reg.value : "",
+        sale_price: sale ? sale.value : "",
+        discount_value: 0,
+      };
+      if (id) {
+        return api("PUT", "/relations/" + id, {
+          exclude: enabled ? !enabled.checked : false,
+          data: data,
+        });
+      }
+      // No relation yet (seeded variation price) → create one for this variation.
+      return api("POST", "/relations", {
+        plan_id: parseInt(row.getAttribute("data-plan-id"), 10) || 0,
+        oid: parseInt(cardPid, 10) || 0,
+        vid: cardVid,
+        type: 1,
+        status: "active",
         exclude: enabled ? !enabled.checked : false,
-        data: {
-          regular_price: reg ? reg.value : "",
-          sale_price: sale ? sale.value : "",
-          discount_value: 0,
-        },
+        data: data,
       });
     });
 

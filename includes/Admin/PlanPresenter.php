@@ -83,6 +83,8 @@ class PlanPresenter {
 	protected static function products( $tree, $type_key ) {
 		$by_product = array();
 
+		// First pass: register each connected product + index its relations by
+		// [vid][plan_id] (vid 0 = the product-level / seed connection).
 		foreach ( $tree['plans'] as $plan ) {
 			foreach ( $plan['relations'] as $relation ) {
 				if ( PlanRepository::REL_PRODUCT !== (int) $relation['type'] ) {
@@ -102,10 +104,7 @@ class PlanPresenter {
 						'name'        => $product ? $product->get_name() : sprintf( '#%d', $oid ),
 						'image'       => $image_id ? wp_get_attachment_image_url( $image_id, array( 88, 88 ) ) : '',
 						'is_variable' => $is_variable,
-						// Variable parents have no single price - the variations carry it.
 						'base_price'  => ( $product && ! $is_variable ) ? self::money( (float) $product->get_price() ) : '',
-						// One-time purchase: enabled flag (product meta) + the native
-						// WooCommerce price (regular = one-time price, sale = offer).
 						'one_time_on' => $product ? ( 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' ) ) : false,
 						'ot_regular'  => ( $product && ! $is_variable ) ? (string) $product->get_regular_price() : '',
 						'ot_offer'    => ( $product && ! $is_variable ) ? (string) $product->get_sale_price() : '',
@@ -113,47 +112,65 @@ class PlanPresenter {
 						'view_url'    => get_permalink( $oid ),
 						'rows'        => array(),
 						'variations'  => array(),
-						'_seen'       => array(),
+						'_rel'        => array(),
 					);
 				}
 
-				if ( $vid > 0 ) {
-					// Per-variation group under the parent.
-					if ( ! isset( $by_product[ $oid ]['variations'][ $vid ] ) ) {
-						$variation                                = function_exists( 'wc_get_product' ) ? wc_get_product( $vid ) : null;
-						$by_product[ $oid ]['variations'][ $vid ] = array(
-							'vid'         => $vid,
-							'name'        => self::variation_name( $variation, $by_product[ $oid ]['name'] ),
-							'base_price'  => $variation ? self::money( (float) $variation->get_price() ) : '-',
-							// One-time purchase is per-variation: enabled flag (variation
-							// meta) + the native price used as its one-time price/offer.
-							'one_time_on' => $variation ? ( 'yes' === $variation->get_meta( '_subscrpt_one_time_enabled' ) ) : false,
-							'ot_regular'  => $variation ? (string) $variation->get_regular_price() : '',
-							'ot_offer'    => $variation ? (string) $variation->get_sale_price() : '',
-							'rows'        => array(),
-						);
-					}
-
-					// One row per selling plan (term) - guard against duplicates.
-					if ( isset( $by_product[ $oid ]['_seen'][ $vid ][ $plan_id ] ) ) {
-						continue;
-					}
-					$by_product[ $oid ]['_seen'][ $vid ][ $plan_id ]    = true;
-					$by_product[ $oid ]['variations'][ $vid ]['rows'][] = self::row( $plan, $relation, $type_key );
-				} else {
-					// Simple product (or a parent-level relation): rows at product level.
-					if ( isset( $by_product[ $oid ]['_seen'][0][ $plan_id ] ) ) {
-						continue;
-					}
-					$by_product[ $oid ]['_seen'][0][ $plan_id ] = true;
-					$by_product[ $oid ]['rows'][]               = self::row( $plan, $relation, $type_key );
-				}
+				$by_product[ $oid ]['_rel'][ $vid ][ $plan_id ] = $relation;
 			}
 		}
 
-		foreach ( $by_product as &$entry ) {
-			unset( $entry['_seen'] );
-			$entry['variations'] = array_values( $entry['variations'] );
+		// Second pass: build the price cards.
+		foreach ( $by_product as $oid => &$entry ) {
+			$rel = $entry['_rel'];
+
+			if ( $entry['is_variable'] ) {
+				// One card per real variation. Each (variation × plan) price uses
+				// the variation's own relation, falling back to the product-level
+				// (vid 0) seed; editing seeds a per-variation relation.
+				$product  = function_exists( 'wc_get_product' ) ? wc_get_product( $oid ) : null;
+				$children = $product ? $product->get_children() : array();
+
+				foreach ( $children as $cvid ) {
+					$cvid = (int) $cvid;
+					$rows = array();
+					foreach ( $tree['plans'] as $plan ) {
+						$plan_id  = (int) $plan['id'];
+						$vid_rel  = isset( $rel[ $cvid ][ $plan_id ] ) ? $rel[ $cvid ][ $plan_id ] : null;
+						$seed_rel = isset( $rel[0][ $plan_id ] ) ? $rel[0][ $plan_id ] : null;
+						$use      = $vid_rel ? $vid_rel : $seed_rel;
+						if ( ! $use ) {
+							continue;
+						}
+						// relation_id 0 → not saved for this variation yet (seeded).
+						$rows[] = self::row( $plan, $use, $type_key, $vid_rel ? (int) $vid_rel['id'] : 0, $cvid );
+					}
+					if ( empty( $rows ) ) {
+						continue;
+					}
+					$variation             = function_exists( 'wc_get_product' ) ? wc_get_product( $cvid ) : null;
+					$entry['variations'][] = array(
+						'vid'         => $cvid,
+						'name'        => self::variation_name( $variation, $entry['name'] ),
+						'base_price'  => $variation ? self::money( (float) $variation->get_price() ) : '-',
+						'one_time_on' => $variation ? ( 'yes' === $variation->get_meta( '_subscrpt_one_time_enabled' ) ) : false,
+						'ot_regular'  => $variation ? (string) $variation->get_regular_price() : '',
+						'ot_offer'    => $variation ? (string) $variation->get_sale_price() : '',
+						'rows'        => $rows,
+					);
+				}
+			} else {
+				// Simple product: one card from the vid 0 relations.
+				foreach ( $tree['plans'] as $plan ) {
+					$plan_id = (int) $plan['id'];
+					if ( ! isset( $rel[0][ $plan_id ] ) ) {
+						continue;
+					}
+					$entry['rows'][] = self::row( $plan, $rel[0][ $plan_id ], $type_key, (int) $rel[0][ $plan_id ]['id'], 0 );
+				}
+			}
+
+			unset( $entry['_rel'] );
 		}
 		unset( $entry );
 
@@ -192,13 +209,17 @@ class PlanPresenter {
 	/**
 	 * Build one read-only price row for a (plan term × product) relation.
 	 *
-	 * @param array  $plan     Plan term row.
-	 * @param array  $relation Relation row.
-	 * @param string $type_key Plan type key.
+	 * @param array    $plan        Plan term row.
+	 * @param array    $relation    Relation row (or the seed relation for a
+	 *                              not-yet-saved variation price).
+	 * @param string   $type_key    Plan type key.
+	 * @param int|null $relation_id Relation id to save against; 0 = new (seeded),
+	 *                              null = use the relation's own id.
+	 * @param int      $vid         Variation id this row targets (0 = product).
 	 *
 	 * @return array
 	 */
-	protected static function row( $plan, $relation, $type_key ) {
+	protected static function row( $plan, $relation, $type_key, $relation_id = null, $vid = 0 ) {
 		$data = $relation['data'];
 
 		$regular        = isset( $data['regular_price'] ) ? (string) $data['regular_price'] : '';
@@ -207,7 +228,9 @@ class PlanPresenter {
 		$discount_value = isset( $data['discount_value'] ) ? (string) $data['discount_value'] : '0';
 
 		return array(
-			'relation_id' => (int) $relation['id'],
+			'relation_id' => null === $relation_id ? (int) $relation['id'] : (int) $relation_id,
+			'plan_id'     => (int) $plan['id'],
+			'vid'         => (int) $vid,
 			'term'        => $plan['title'],
 			'regular'     => '' !== $regular ? self::money( (float) $regular ) : '-',
 			'offer'       => self::money( self::offer_price( $regular, $selling, $discount_type, $discount_value ) ),

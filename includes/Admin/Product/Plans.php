@@ -1,12 +1,16 @@
 <?php
 /**
- * Product-editor plan view (free, simple products only).
+ * Product-editor plan view (free).
  *
  * Renders, on the product editor Subscription tab, the plan(s) this product is
  * connected to plus a connect control to attach it to a Recurring plan group at
  * a per-product price. The classic `_subscrpt_*` meta inputs stay in the DOM
  * (hidden) behind a "Switch to classic settings" toggle. Writes go through the
  * wpsubscription/v1 REST API (see assets/js/admin/product-plans.js).
+ *
+ * Free mounts this for simple products; Pro also reuses render_toolbar() /
+ * render_plan_view() / render_modals() for variable products (product-level
+ * plan connection), with the per-variation classic fields behind the toggle.
  *
  * @package SpringDevs\Subscription\Admin\Product
  */
@@ -46,7 +50,7 @@ class Plans {
 		}
 		?>
 		<div data-subscrpt-product-plans data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" style="margin-bottom:16px;">
-			<?php self::render_toolbar(); ?>
+			<?php self::render_toolbar( $product ); ?>
 			<div data-subscrpt-plan-view>
 				<?php self::render_plan_view( $product ); ?>
 			</div>
@@ -81,12 +85,20 @@ class Plans {
 	/**
 	 * Render the view toggle bar (plan view ⇄ classic settings).
 	 *
+	 * @param \WC_Product|null $product Product being edited (null when no product context).
+	 *
 	 * @return void
 	 */
-	public static function render_toolbar() {
+	public static function render_toolbar( $product = null ) {
+		$subscrpt_enabled = $product ? (bool) $product->get_meta( '_subscrpt_enabled' ) : false;
 		?>
-		<div style="display:flex;align-items:center;gap:10px;margin:0 0 14px;">
-			<strong style="margin-left:3px;font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'Subscription', 'subscription' ); ?></strong>
+		<div data-subscrpt-plan-toolbar style="display:flex;align-items:center;gap:12px;margin:0 0 14px;flex-wrap:wrap;">
+			<strong style="margin-left:10px;font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'Subscription', 'subscription' ); ?></strong>
+			<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--wpsubs-text-muted);" title="<?php esc_attr_e( 'Sell this product as a subscription', 'subscription' ); ?>">
+				<input type="checkbox" class="wpsubs-toggle" id="subscrpt_enable" name="subscrpt_enable" value="yes" <?php checked( $subscrpt_enabled ); ?> />
+				<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+				<span><?php esc_html_e( 'Enable subscription', 'subscription' ); ?></span>
+			</label>
 			<span style="flex:1 1 auto;"></span>
 			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-show-classic>
 				<?php esc_html_e( 'Switch to classic settings', 'subscription' ); ?>
@@ -117,7 +129,9 @@ class Plans {
 		$pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activated();
 		?>
 		<style>
-			/* Neutralise WooCommerce's floated-label layout inside our plan view. */
+			/* Neutralise WooCommerce's floated-label layout inside the toolbar +
+				plan view (not the classic fields, which keep the native layout). */
+			#sdevs_subscription_options [data-subscrpt-plan-toolbar] label,
 			#sdevs_subscription_options [data-subscrpt-plan-view] label {
 				float: none;
 				width: auto;
@@ -165,40 +179,49 @@ class Plans {
 								</a>
 							</div>
 							<div style="flex:0 0 auto;display:flex;align-items:center;gap:8px;">
-								<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-edit-prices>
-									<span class="dashicons dashicons-edit" style="font-size:14px;width:14px;height:14px;line-height:1;"></span>
-									<?php esc_html_e( 'Edit plans', 'subscription' ); ?>
-								</button>
-								<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-cancel-prices style="display:none;"><?php esc_html_e( 'Cancel', 'subscription' ); ?></button>
-								<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-save-prices style="display:none;"><?php esc_html_e( 'Save', 'subscription' ); ?></button>
+								<?php if ( ! $product->is_type( 'variable' ) ) : ?>
+									<?php // Simple: one Edit/Save for the whole card. Variable edits per variation (buttons live on each variation sub-card). ?>
+									<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-edit-prices>
+										<span class="dashicons dashicons-edit" style="font-size:14px;width:14px;height:14px;line-height:1;"></span>
+										<?php esc_html_e( 'Edit plans', 'subscription' ); ?>
+									</button>
+									<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-cancel-prices style="display:none;"><?php esc_html_e( 'Cancel', 'subscription' ); ?></button>
+									<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-save-prices style="display:none;"><?php esc_html_e( 'Save', 'subscription' ); ?></button>
+								<?php endif; ?>
 								<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm wpsubs-btn--danger" data-subscrpt-detach data-relation-ids="<?php echo esc_attr( implode( ',', $group['relation_ids'] ) ); ?>">
 									<?php esc_html_e( 'Detach', 'subscription' ); ?>
 								</button>
 							</div>
 						</div>
 
-						<!-- Read view: offered plans as chips. -->
-						<div class="subscrpt-pe-view" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
-							<?php
-							foreach ( $group['terms'] as $term ) :
-								$subscrpt_off = ! empty( $term['excluded'] );
-								?>
-								<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;background:var(--wpsubs-surface-muted,#f9fafb);border:1px solid var(--wpsubs-border,#e5e7eb);font-size:11.5px;color:var(--wpsubs-text-muted);<?php echo $subscrpt_off ? 'opacity:0.55;' : ''; ?>">
-									<?php echo esc_html( $term['title'] ); ?>
-									<?php if ( '' !== $term['price'] ) : ?>
-										<span style="color:var(--wpsubs-text);font-weight:600;"><?php echo esc_html( $currency . number_format_i18n( (float) $term['price'], 2 ) ); ?></span>
-									<?php endif; ?>
-									<?php if ( $subscrpt_off ) : ?>
-										<span style="font-style:italic;">(<?php esc_html_e( 'off', 'subscription' ); ?>)</span>
-									<?php endif; ?>
-								</span>
-							<?php endforeach; ?>
-						</div>
+						<?php if ( $product->is_type( 'variable' ) ) : ?>
+							<div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+								<?php self::render_variation_price_cards( $product, $all_terms, $group['term_map_by_vid'], false ); ?>
+							</div>
+						<?php else : ?>
+							<!-- Read view: offered plans as chips. -->
+							<div class="subscrpt-pe-view" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+								<?php
+								foreach ( $group['terms'] as $term ) :
+									$subscrpt_off = ! empty( $term['excluded'] );
+									?>
+									<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;background:var(--wpsubs-surface-muted,#f9fafb);border:1px solid var(--wpsubs-border,#e5e7eb);font-size:11.5px;color:var(--wpsubs-text-muted);<?php echo $subscrpt_off ? 'opacity:0.55;' : ''; ?>">
+										<?php echo esc_html( $term['title'] ); ?>
+										<?php if ( '' !== $term['price'] ) : ?>
+											<span style="color:var(--wpsubs-text);font-weight:600;"><?php echo esc_html( $currency . number_format_i18n( (float) $term['price'], 2 ) ); ?></span>
+										<?php endif; ?>
+										<?php if ( $subscrpt_off ) : ?>
+											<span style="font-style:italic;">(<?php esc_html_e( 'off', 'subscription' ); ?>)</span>
+										<?php endif; ?>
+									</span>
+								<?php endforeach; ?>
+							</div>
 
-						<!-- Edit view: full price table per term (mirrors the Plans page). -->
-						<div class="subscrpt-pe-edit" style="display:none;margin-top:12px;">
-							<?php self::render_price_table( $all_terms, $group['term_map'], false ); ?>
-						</div>
+							<!-- Edit view: full price table per term (mirrors the Plans page). -->
+							<div class="subscrpt-pe-edit" style="display:none;margin-top:12px;">
+								<?php self::render_price_table( $all_terms, $group['term_map'], false ); ?>
+							</div>
+						<?php endif; ?>
 					</div>
 				<?php endforeach; ?>
 			</div>
@@ -302,16 +325,22 @@ class Plans {
 									<?php esc_html_e( 'Connect', 'subscription' ); ?>
 								</button>
 							</div>
-							<div>
-								<?php self::render_price_table( $subscrpt_group_terms, array(), true ); ?>
-							</div>
+							<?php if ( $product->is_type( 'variable' ) ) : ?>
+								<div style="display:flex;flex-direction:column;gap:10px;">
+									<?php self::render_variation_price_cards( $product, $subscrpt_group_terms, array(), true ); ?>
+								</div>
+							<?php else : ?>
+								<div>
+									<?php self::render_price_table( $subscrpt_group_terms, array(), true ); ?>
+								</div>
+							<?php endif; ?>
 						<?php endif; ?>
 					</div>
 				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>
 
-		<?php if ( ! empty( $connected ) || ! empty( $available ) ) : ?>
+		<?php if ( ( ! empty( $connected ) || ! empty( $available ) ) && ! $product->is_type( 'variable' ) ) : ?>
 			<?php
 			$subscrpt_ot_on  = $pro_active && 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' );
 			$subscrpt_ot_reg = (string) $product->get_regular_price();
@@ -378,10 +407,11 @@ class Plans {
 	 * @param array $all_terms All terms of the group (from PlanRepository::get_plans()).
 	 * @param array $term_map  Map plan_id => relation values (empty for the connect view).
 	 * @param bool  $connect   Connect view: no relation ids, every term enabled by default.
+	 * @param int   $vid       Variation id these rows price (0 = the product itself).
 	 *
 	 * @return void
 	 */
-	protected static function render_price_table( $all_terms, $term_map, $connect ) {
+	protected static function render_price_table( $all_terms, $term_map, $connect, $vid = 0 ) {
 		?>
 		<table class="wpsubs-table">
 			<thead>
@@ -410,7 +440,7 @@ class Plans {
 						'offer'   => '',
 					);
 					?>
-					<tr data-subscrpt-term-row data-plan-id="<?php echo esc_attr( $subscrpt_tid ); ?>" data-relation-id="<?php echo esc_attr( $subscrpt_relid ); ?>">
+					<tr data-subscrpt-term-row data-plan-id="<?php echo esc_attr( $subscrpt_tid ); ?>" data-vid="<?php echo esc_attr( $vid ); ?>" data-relation-id="<?php echo esc_attr( $subscrpt_relid ); ?>">
 						<td>
 							<div style="font-size:12.5px;color:var(--wpsubs-text);"><?php echo esc_html( $subscrpt_term['title'] ); ?></div>
 							<?php $subscrpt_meta = \SpringDevs\Subscription\Admin\PlanPresenter::term_meta( $subscrpt_term ); ?>
@@ -436,6 +466,95 @@ class Plans {
 	}
 
 	/**
+	 * Render one price sub-card per variation for a variable product, so each
+	 * variation can carry its own plan prices under a single connected group
+	 * ("one group, price per variation"). A variation with no relation of its
+	 * own inherits the product-level (vid 0) seed values; Save then creates that
+	 * variation's own relation instead of editing the shared seed.
+	 *
+	 * @param \WC_Product $product    Variable product being edited.
+	 * @param array       $all_terms  All terms of the group.
+	 * @param array       $map_by_vid Relation values keyed [vid][plan_id].
+	 * @param bool        $connect    Connect flow: tables shown immediately, no
+	 *                                relation ids yet.
+	 *
+	 * @return void
+	 */
+	protected static function render_variation_price_cards( $product, $all_terms, $map_by_vid, $connect ) {
+		$seed = isset( $map_by_vid[0] ) ? $map_by_vid[0] : array();
+
+		foreach ( $product->get_children() as $subscrpt_child_id ) {
+			$subscrpt_vid       = (int) $subscrpt_child_id;
+			$subscrpt_variation = function_exists( 'wc_get_product' ) ? wc_get_product( $subscrpt_vid ) : null;
+			if ( ! $subscrpt_variation ) {
+				continue;
+			}
+
+			// Per-variation term map: the variation's own relations, falling back to
+			// the product-level seed (with a blank relation id so Save creates this
+			// variation's relation instead of editing the shared seed).
+			$subscrpt_vmap = array();
+			if ( ! $connect ) {
+				$subscrpt_own = isset( $map_by_vid[ $subscrpt_vid ] ) ? $map_by_vid[ $subscrpt_vid ] : array();
+				foreach ( $all_terms as $subscrpt_term ) {
+					$subscrpt_pid = (int) $subscrpt_term['id'];
+					if ( isset( $subscrpt_own[ $subscrpt_pid ] ) ) {
+						$subscrpt_vmap[ $subscrpt_pid ] = $subscrpt_own[ $subscrpt_pid ];
+					} elseif ( isset( $seed[ $subscrpt_pid ] ) ) {
+						$subscrpt_seed_row                = $seed[ $subscrpt_pid ];
+						$subscrpt_seed_row['relation_id'] = '';
+						$subscrpt_vmap[ $subscrpt_pid ]   = $subscrpt_seed_row;
+					}
+				}
+			}
+			?>
+			<div data-subscrpt-variation-card <?php echo $connect ? '' : 'data-subscrpt-plan-card'; ?> style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);">
+				<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
+					<span class="dashicons dashicons-image-filter" style="flex:0 0 auto;font-size:15px;width:15px;height:15px;color:var(--wpsubs-text-subtle);"></span>
+					<strong style="font-size:12.5px;color:var(--wpsubs-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo esc_html( self::variation_display_name( $subscrpt_variation, $product->get_name() ) ); ?></strong>
+					<?php if ( ! $connect ) : ?>
+						<span style="flex:1 1 auto;"></span>
+						<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-edit-prices>
+							<span class="dashicons dashicons-edit" style="font-size:14px;width:14px;height:14px;line-height:1;"></span>
+							<?php esc_html_e( 'Edit prices', 'subscription' ); ?>
+						</button>
+						<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-cancel-prices style="display:none;"><?php esc_html_e( 'Cancel', 'subscription' ); ?></button>
+						<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-save-prices style="display:none;"><?php esc_html_e( 'Save', 'subscription' ); ?></button>
+					<?php endif; ?>
+				</div>
+				<?php if ( $connect ) : ?>
+					<div style="padding:2px 0;border-top:1px solid var(--wpsubs-border,#e5e7eb);">
+						<?php self::render_price_table( $all_terms, array(), true, $subscrpt_vid ); ?>
+					</div>
+				<?php else : ?>
+					<div class="subscrpt-pe-edit" style="display:none;padding:2px 0;border-top:1px solid var(--wpsubs-border,#e5e7eb);">
+						<?php self::render_price_table( $all_terms, $subscrpt_vmap, false, $subscrpt_vid ); ?>
+					</div>
+				<?php endif; ?>
+			</div>
+			<?php
+		}
+	}
+
+	/**
+	 * Human label for a variation (its attribute values, e.g. "Large, Red"),
+	 * falling back to the WC formatted name or the parent name.
+	 *
+	 * @param \WC_Product $variation   Variation product.
+	 * @param string      $parent_name Parent product name.
+	 *
+	 * @return string
+	 */
+	protected static function variation_display_name( $variation, $parent_name ) {
+		$attributes = array_filter( array_values( $variation->get_variation_attributes() ) );
+		if ( $attributes ) {
+			return implode( ', ', $attributes );
+		}
+		$name = $variation->get_name();
+		return $name ? $name : $parent_name;
+	}
+
+	/**
 	 * Group flat relation rows by plan group.
 	 *
 	 * @param array $connections Rows from PlanRepository::get_product_connections().
@@ -450,29 +569,38 @@ class Plans {
 
 			if ( ! isset( $by_group[ $gid ] ) ) {
 				$by_group[ $gid ] = array(
-					'title'        => $row['group_title'],
-					'terms'        => array(),
-					'relation_ids' => array(),
-					'term_map'     => array(),
+					'title'           => $row['group_title'],
+					'terms'           => array(),
+					'relation_ids'    => array(),
+					'term_map'        => array(),
+					'term_map_by_vid' => array(),
 				);
 			}
 
+			$vid                                = (int) $row['vid'];
 			$data                               = is_array( $row['relation_data'] ) ? $row['relation_data'] : array();
 			$price                              = isset( $data['regular_price'] ) ? (string) $data['regular_price'] : '';
 			$excluded                           = ! empty( $row['exclude'] );
-			$by_group[ $gid ]['terms'][]        = array(
-				'title'       => $row['plan_title'],
-				'price'       => $price,
-				'relation_id' => (int) $row['relation_id'],
-				'excluded'    => $excluded,
-			);
-			$by_group[ $gid ]['relation_ids'][] = (int) $row['relation_id'];
-			$by_group[ $gid ]['term_map'][ (int) $row['plan_id'] ] = array(
+			$entry                              = array(
 				'relation_id' => (int) $row['relation_id'],
 				'excluded'    => $excluded,
 				'regular'     => $price,
 				'offer'       => isset( $data['sale_price'] ) ? (string) $data['sale_price'] : '',
 			);
+			$by_group[ $gid ]['relation_ids'][] = (int) $row['relation_id'];
+			$by_group[ $gid ]['term_map_by_vid'][ $vid ][ (int) $row['plan_id'] ] = $entry;
+
+			// Product-level (vid 0) rows drive the simple-product table + the read
+			// summary chips; variation rows are consumed through term_map_by_vid.
+			if ( 0 === $vid ) {
+				$by_group[ $gid ]['terms'][]                           = array(
+					'title'       => $row['plan_title'],
+					'price'       => $price,
+					'relation_id' => (int) $row['relation_id'],
+					'excluded'    => $excluded,
+				);
+				$by_group[ $gid ]['term_map'][ (int) $row['plan_id'] ] = $entry;
+			}
 		}
 
 		return $by_group;
