@@ -512,11 +512,24 @@
    * when the card is edit-gated (connected + Pro), mirroring the plan card's
    * edit mode; in the connect flow the inputs are already editable.
    *
+   * While connected the whole card is hidden and only revealed here on "Edit
+   * prices", so the read view shows just the plan chips.
+   *
    * @param {boolean} editing Desired mode.
    */
   function setOneTimeEditing(editing) {
     var ot = oneTimeCard();
-    if (!ot || !ot.hasAttribute("data-subscrpt-ot-editgated")) {
+    if (!ot) {
+      return;
+    }
+    // Reveal / hide the whole card with edit mode (Pro editable, non-Pro upsell).
+    var wrap = ot.closest("[data-subscrpt-onetime-wrap]");
+    if (wrap) {
+      wrap.style.display = editing ? "" : "none";
+    }
+    // Only the connected + Pro card unlocks its inputs; connect-flow inputs are
+    // already editable, non-Pro stays a locked upsell.
+    if (!ot.hasAttribute("data-subscrpt-ot-editgated")) {
       return;
     }
     ot.querySelectorAll("[data-subscrpt-onetime-enable], [data-ot-field]").forEach(function (el) {
@@ -561,6 +574,11 @@
       }
       syncTermRow(row);
     });
+    var ven = card.querySelector("[data-subscrpt-var-enable]");
+    if (ven) {
+      ven.dataset.orig = ven.checked ? "1" : "";
+      ven.disabled = false;
+    }
     setOneTimeEditing(true);
     cardMode(card, true);
   });
@@ -606,6 +624,11 @@
         on.checked = "1" === on.dataset.orig;
       }
     });
+    var ven = card.querySelector("[data-subscrpt-var-enable]");
+    if (ven) {
+      ven.checked = "1" === ven.dataset.orig;
+      ven.disabled = true;
+    }
     setOneTimeEditing(false);
     cardMode(card, false);
   });
@@ -632,6 +655,12 @@
       var relId = row.getAttribute("data-relation-id");
       var on = row.querySelector("[data-subscrpt-term-toggle]").checked;
 
+      // "Enable subscription" is per variation: read the owning variation
+      // card's toggle so the relation save can flip _subscrpt_enabled for it.
+      var vcard = row.closest("[data-subscrpt-variation-card]");
+      var venEl = vcard ? vcard.querySelector("[data-subscrpt-var-enable]") : null;
+      var enabled = venEl ? venEl.checked : true;
+
       var data = {
         regular_price: fieldVal(row, "regular_price"),
         sale_price: fieldVal(row, "sale_price"),
@@ -641,7 +670,13 @@
       if (relId) {
         // Existing relation: enable/disable via exclude (never delete here, so
         // it stays consistent with the Plans page). Detach removes everything.
-        calls.push(api("PUT", "/relations/" + relId, { exclude: !on, data: data }));
+        calls.push(
+          api("PUT", "/relations/" + relId, {
+            exclude: !on,
+            data: data,
+            enabled: enabled,
+          }),
+        );
       } else if (on) {
         // Not connected yet and enabled: create the relation.
         calls.push(
@@ -653,6 +688,7 @@
             status: "active",
             exclude: false,
             data: data,
+            enabled: enabled,
           }),
         );
       }
@@ -672,6 +708,35 @@
             enabled: otEnable.checked,
             price: otPrice ? otPrice.value : "",
             offer: otOffer ? otOffer.value : "",
+          }),
+        );
+      }
+    }
+
+    // Variable products carry a per-variation one-time row inside each
+    // variation's price table (data-vid on the row). Collect them into a
+    // variations map and save in one call alongside the plan prices.
+    var otRows = card.querySelectorAll("[data-subscrpt-onetime-row]");
+    if (otRows.length) {
+      var variations = {};
+      otRows.forEach(function (row) {
+        var otVid = parseInt(row.getAttribute("data-vid"), 10) || 0;
+        if (!otVid) {
+          return;
+        }
+        var en = row.querySelector("[data-subscrpt-onetime-enable]");
+        var pr = row.querySelector('[data-ot-field="price"]');
+        var of = row.querySelector('[data-ot-field="offer"]');
+        variations[otVid] = {
+          enabled: en ? en.checked : false,
+          price: pr ? pr.value : "",
+          offer: of ? of.value : "",
+        };
+      });
+      if (Object.keys(variations).length) {
+        calls.push(
+          api("PUT", "/product-onetime/" + productId, {
+            variations: variations,
           }),
         );
       }

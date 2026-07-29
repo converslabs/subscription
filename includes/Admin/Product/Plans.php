@@ -94,11 +94,14 @@ class Plans {
 		?>
 		<div data-subscrpt-plan-toolbar style="display:flex;align-items:center;gap:12px;margin:0 0 14px;flex-wrap:wrap;">
 			<strong style="margin-left:10px;font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'Subscription', 'subscription' ); ?></strong>
-			<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--wpsubs-text-muted);" title="<?php esc_attr_e( 'Sell this product as a subscription', 'subscription' ); ?>">
-				<input type="checkbox" class="wpsubs-toggle" id="subscrpt_enable" name="subscrpt_enable" value="yes" <?php checked( $subscrpt_enabled ); ?> />
-				<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
-				<span><?php esc_html_e( 'Enable subscription', 'subscription' ); ?></span>
-			</label>
+			<?php // Variable products enable per variation (toggle lives on each variation card); simple products enable at the product level here. ?>
+			<?php if ( ! ( $product && $product->is_type( 'variable' ) ) ) : ?>
+				<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--wpsubs-text-muted);" title="<?php esc_attr_e( 'Sell this product as a subscription', 'subscription' ); ?>">
+					<input type="checkbox" class="wpsubs-toggle" id="subscrpt_enable" name="subscrpt_enable" value="yes" <?php checked( $subscrpt_enabled ); ?> />
+					<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+					<span><?php esc_html_e( 'Enable subscription', 'subscription' ); ?></span>
+				</label>
+			<?php endif; ?>
 			<span style="flex:1 1 auto;"></span>
 			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-show-classic>
 				<?php esc_html_e( 'Switch to classic settings', 'subscription' ); ?>
@@ -122,9 +125,6 @@ class Plans {
 		$connections = PlanRepository::get_product_connections( $product->get_id() );
 		$connected   = self::group_connections( $connections );
 		$available   = self::available_groups( array_keys( $connected ) );
-		$currency    = function_exists( 'get_woocommerce_currency_symbol' )
-			? html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' )
-			: '$';
 		// Pro adds "create plan group / plan" shortcuts here; free is attach-only.
 		$pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activated();
 		?>
@@ -183,7 +183,7 @@ class Plans {
 									<?php // Simple: one Edit/Save for the whole card. Variable edits per variation (buttons live on each variation sub-card). ?>
 									<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-edit-prices>
 										<span class="dashicons dashicons-edit" style="font-size:14px;width:14px;height:14px;line-height:1;"></span>
-										<?php esc_html_e( 'Edit plans', 'subscription' ); ?>
+										<?php esc_html_e( 'Edit prices', 'subscription' ); ?>
 									</button>
 									<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-cancel-prices style="display:none;"><?php esc_html_e( 'Cancel', 'subscription' ); ?></button>
 									<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-save-prices style="display:none;"><?php esc_html_e( 'Save', 'subscription' ); ?></button>
@@ -199,22 +199,16 @@ class Plans {
 								<?php self::render_variation_price_cards( $product, $all_terms, $group['term_map_by_vid'], false ); ?>
 							</div>
 						<?php else : ?>
-							<!-- Read view: offered plans as chips. -->
+							<!-- Read view: offered plans + one-time as chips. -->
+							<?php
+							$subscrpt_simple_ot = array(
+								'enabled' => 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' ),
+								'regular' => (string) $product->get_regular_price(),
+								'offer'   => (string) $product->get_sale_price(),
+							);
+							?>
 							<div class="subscrpt-pe-view" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
-								<?php
-								foreach ( $group['terms'] as $term ) :
-									$subscrpt_off = ! empty( $term['excluded'] );
-									?>
-									<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;background:var(--wpsubs-surface-muted,#f9fafb);border:1px solid var(--wpsubs-border,#e5e7eb);font-size:11.5px;color:var(--wpsubs-text-muted);<?php echo $subscrpt_off ? 'opacity:0.55;' : ''; ?>">
-										<?php echo esc_html( $term['title'] ); ?>
-										<?php if ( '' !== $term['price'] ) : ?>
-											<span style="color:var(--wpsubs-text);font-weight:600;"><?php echo esc_html( $currency . number_format_i18n( (float) $term['price'], 2 ) ); ?></span>
-										<?php endif; ?>
-										<?php if ( $subscrpt_off ) : ?>
-											<span style="font-style:italic;">(<?php esc_html_e( 'off', 'subscription' ); ?>)</span>
-										<?php endif; ?>
-									</span>
-								<?php endforeach; ?>
+								<?php self::render_variation_summary( $all_terms, $group['term_map'], $subscrpt_simple_ot ); ?>
 							</div>
 
 							<!-- Edit view: full price table per term (mirrors the Plans page). -->
@@ -345,14 +339,14 @@ class Plans {
 			$subscrpt_ot_on  = $pro_active && 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' );
 			$subscrpt_ot_reg = (string) $product->get_regular_price();
 			$subscrpt_ot_off = (string) $product->get_sale_price();
-			// One-time is edit-gated like the plan prices: while connected it is
-			// locked until "Edit plans" unlocks it and the card Save persists it.
-			// During the connect flow (not yet connected) it is editable straight
-			// away. Non-Pro: always locked (upsell).
+			// One-time is edit-gated like the plan prices: while connected the whole
+			// card stays hidden until "Edit prices" reveals + unlocks it, and the
+			// card Save persists it. During the connect flow (not yet connected) it
+			// appears editable once a plan group is picked. Non-Pro: locked (upsell).
 			$subscrpt_ot_editgate = $pro_active && ! empty( $connected );
 			$subscrpt_ot_disabled = ! ( $pro_active && empty( $connected ) );
 			?>
-			<div data-subscrpt-onetime-wrap style="<?php echo empty( $connected ) ? 'display:none;' : ''; ?>">
+			<div data-subscrpt-onetime-wrap style="display:none;">
 			<div style="width:90%;border-top:1px dashed var(--wpsubs-border-strong,#d1d5db);margin:0 auto 18px;"></div>
 			<div class="wpsubs-table-card" data-subscrpt-onetime-card data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo $subscrpt_ot_editgate ? 'data-subscrpt-ot-editgated="1"' : ''; ?> style="padding:12px 14px;margin-bottom:18px;">
 				<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
@@ -404,14 +398,17 @@ class Plans {
 	 * shared by the edit and connect views. One-time purchase is product-level
 	 * (its own section), not part of this per-plan table.
 	 *
-	 * @param array $all_terms All terms of the group (from PlanRepository::get_plans()).
-	 * @param array $term_map  Map plan_id => relation values (empty for the connect view).
-	 * @param bool  $connect   Connect view: no relation ids, every term enabled by default.
-	 * @param int   $vid       Variation id these rows price (0 = the product itself).
+	 * @param array      $all_terms All terms of the group (from PlanRepository::get_plans()).
+	 * @param array      $term_map  Map plan_id => relation values (empty for the connect view).
+	 * @param bool       $connect   Connect view: no relation ids, every term enabled by default.
+	 * @param int        $vid       Variation id these rows price (0 = the product itself).
+	 * @param array|null $one_time  One-time purchase values for this variation
+	 *                              (enabled, regular, offer) — appended as a row;
+	 *                              null omits it (simple products use a separate card).
 	 *
 	 * @return void
 	 */
-	protected static function render_price_table( $all_terms, $term_map, $connect, $vid = 0 ) {
+	protected static function render_price_table( $all_terms, $term_map, $connect, $vid = 0, $one_time = null ) {
 		?>
 		<table class="wpsubs-table">
 			<thead>
@@ -460,6 +457,25 @@ class Plans {
 						</td>
 					</tr>
 				<?php endforeach; ?>
+				<?php if ( is_array( $one_time ) ) : ?>
+					<tr data-subscrpt-onetime-row data-vid="<?php echo esc_attr( $vid ); ?>" style="border-top:2px solid var(--wpsubs-border,#e5e7eb);background:var(--wpsubs-surface-muted,#f6f7f7);">
+						<td>
+							<span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--wpsubs-text);">
+								<span class="dashicons dashicons-cart" style="flex:0 0 auto;font-size:15px;width:15px;height:15px;color:var(--wpsubs-text-subtle);"></span>
+								<?php esc_html_e( 'One-time purchase', 'subscription' ); ?>
+								<?php echo wp_kses_post( wpsubs_render_hint( __( 'A single, non-recurring purchase at the variation’s regular WooCommerce price.', 'subscription' ) ) ); ?>
+							</span>
+						</td>
+						<td><input type="number" min="0" step="0.01" class="wpsubs-input" data-ot-field="price" value="<?php echo esc_attr( $one_time['regular'] ); ?>" placeholder="0.00" style="max-width:110px;" /></td>
+						<td><input type="number" min="0" step="0.01" class="wpsubs-input" data-ot-field="offer" value="<?php echo esc_attr( $one_time['offer'] ); ?>" placeholder="<?php esc_attr_e( 'No offer', 'subscription' ); ?>" style="max-width:110px;" /></td>
+						<td>
+							<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;" title="<?php esc_attr_e( 'Offer this variation for one-time purchase', 'subscription' ); ?>">
+								<input type="checkbox" class="wpsubs-toggle" data-subscrpt-onetime-enable <?php checked( ! empty( $one_time['enabled'] ) ); ?> />
+								<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+							</label>
+						</td>
+					</tr>
+				<?php endif; ?>
 			</tbody>
 		</table>
 		<?php
@@ -507,13 +523,32 @@ class Plans {
 					}
 				}
 			}
+
+			// One-time purchase is the variation's own native WooCommerce price
+			// (regular = one-time, sale = offer) + an enabled flag, saved with this
+			// variation's plan prices on Save.
+			$subscrpt_one_time = array(
+				'enabled' => 'yes' === $subscrpt_variation->get_meta( '_subscrpt_one_time_enabled' ),
+				'regular' => (string) $subscrpt_variation->get_regular_price(),
+				'offer'   => (string) $subscrpt_variation->get_sale_price(),
+			);
+
+			// "Enable subscription" is per variation. Connecting a plan group turns
+			// it on by default (the connect toggle starts checked and Save persists
+			// the variation's _subscrpt_enabled meta).
+			$subscrpt_var_on = $connect ? true : (bool) $subscrpt_variation->get_meta( '_subscrpt_enabled' );
 			?>
-			<div data-subscrpt-variation-card <?php echo $connect ? '' : 'data-subscrpt-plan-card'; ?> style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);">
+			<div data-subscrpt-variation-card data-variation-id="<?php echo esc_attr( $subscrpt_vid ); ?>" <?php echo $connect ? '' : 'data-subscrpt-plan-card'; ?> style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);">
 				<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
 					<span class="dashicons dashicons-image-filter" style="flex:0 0 auto;font-size:15px;width:15px;height:15px;color:var(--wpsubs-text-subtle);"></span>
 					<strong style="font-size:12.5px;color:var(--wpsubs-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo esc_html( self::variation_display_name( $subscrpt_variation, $product->get_name() ) ); ?></strong>
+					<label class="wpsubs-settings-toggle-label" style="flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--wpsubs-text-muted);" title="<?php esc_attr_e( 'Sell this variation as a subscription', 'subscription' ); ?>">
+						<input type="checkbox" class="wpsubs-toggle" data-subscrpt-var-enable <?php checked( $subscrpt_var_on ); ?> <?php disabled( ! $connect ); ?> />
+						<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+						<span><?php esc_html_e( 'Enable subscription', 'subscription' ); ?></span>
+					</label>
+					<span style="flex:1 1 auto;"></span>
 					<?php if ( ! $connect ) : ?>
-						<span style="flex:1 1 auto;"></span>
 						<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-edit-prices>
 							<span class="dashicons dashicons-edit" style="font-size:14px;width:14px;height:14px;line-height:1;"></span>
 							<?php esc_html_e( 'Edit prices', 'subscription' ); ?>
@@ -524,16 +559,84 @@ class Plans {
 				</div>
 				<?php if ( $connect ) : ?>
 					<div style="padding:2px 0;border-top:1px solid var(--wpsubs-border,#e5e7eb);">
-						<?php self::render_price_table( $all_terms, array(), true, $subscrpt_vid ); ?>
+						<?php self::render_price_table( $all_terms, array(), true, $subscrpt_vid, $subscrpt_one_time ); ?>
 					</div>
 				<?php else : ?>
+					<div class="subscrpt-pe-view" style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px 12px;border-top:1px solid var(--wpsubs-border,#e5e7eb);">
+						<?php self::render_variation_summary( $all_terms, $subscrpt_vmap, $subscrpt_one_time ); ?>
+					</div>
 					<div class="subscrpt-pe-edit" style="display:none;padding:2px 0;border-top:1px solid var(--wpsubs-border,#e5e7eb);">
-						<?php self::render_price_table( $all_terms, $subscrpt_vmap, false, $subscrpt_vid ); ?>
+						<?php self::render_price_table( $all_terms, $subscrpt_vmap, false, $subscrpt_vid, $subscrpt_one_time ); ?>
 					</div>
 				<?php endif; ?>
 			</div>
 			<?php
 		}
+	}
+
+	/**
+	 * Render the read-mode price summary chips for one variation (each plan term
+	 * with its price, plus a one-time chip when enabled), mirroring the simple
+	 * product's connected-card chips.
+	 *
+	 * @param array      $all_terms All terms of the group.
+	 * @param array      $vmap      This variation's plan_id => relation values.
+	 * @param array|null $one_time  One-time values (enabled, regular, offer).
+	 *
+	 * @return void
+	 */
+	protected static function render_variation_summary( $all_terms, $vmap, $one_time ) {
+		foreach ( $all_terms as $subscrpt_term ) :
+			$subscrpt_tid   = (int) $subscrpt_term['id'];
+			$subscrpt_row   = isset( $vmap[ $subscrpt_tid ] ) ? $vmap[ $subscrpt_tid ] : null;
+			$subscrpt_off   = ! $subscrpt_row || ! empty( $subscrpt_row['excluded'] );
+			$subscrpt_reg   = $subscrpt_row ? (string) $subscrpt_row['regular'] : '';
+			$subscrpt_offer = $subscrpt_row ? (string) $subscrpt_row['offer'] : '';
+			?>
+			<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;background:var(--wpsubs-surface-muted,#f9fafb);border:1px solid var(--wpsubs-border,#e5e7eb);font-size:11.5px;color:var(--wpsubs-text-muted);<?php echo $subscrpt_off ? 'opacity:0.55;' : ''; ?>">
+				<?php echo esc_html( $subscrpt_term['title'] ); ?>
+				<?php self::price_pair( $subscrpt_reg, $subscrpt_offer ); ?>
+				<?php if ( $subscrpt_off ) : ?>
+					<span style="font-style:italic;">(<?php esc_html_e( 'off', 'subscription' ); ?>)</span>
+				<?php endif; ?>
+			</span>
+			<?php
+		endforeach;
+
+		if ( is_array( $one_time ) && ! empty( $one_time['enabled'] ) ) :
+			?>
+			<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;background:var(--wpsubs-surface-muted,#f9fafb);border:1px solid var(--wpsubs-border,#e5e7eb);font-size:11.5px;color:var(--wpsubs-text-muted);">
+				<span class="dashicons dashicons-cart" style="font-size:13px;width:13px;height:13px;line-height:1;color:var(--wpsubs-text-subtle);"></span>
+				<?php esc_html_e( 'One-time', 'subscription' ); ?>
+				<?php self::price_pair( (string) $one_time['regular'], (string) $one_time['offer'] ); ?>
+			</span>
+			<?php
+		endif;
+	}
+
+	/**
+	 * Echo a price for a summary chip: the offer price when one is set (with the
+	 * regular price shown struck-through beside it), otherwise the regular price.
+	 *
+	 * @param string $regular Regular price (raw).
+	 * @param string $offer   Offer / sale price (raw, '' when none).
+	 *
+	 * @return void
+	 */
+	protected static function price_pair( $regular, $offer ) {
+		$money = '\SpringDevs\Subscription\Admin\PlanPresenter';
+		if ( '' !== $offer ) :
+			?>
+			<?php if ( '' !== $regular ) : ?>
+				<span style="text-decoration:line-through;opacity:0.7;"><?php echo esc_html( $money::money( (float) $regular ) ); ?></span>
+			<?php endif; ?>
+			<span style="color:var(--wpsubs-text);font-weight:600;"><?php echo esc_html( $money::money( (float) $offer ) ); ?></span>
+			<?php
+		elseif ( '' !== $regular ) :
+			?>
+			<span style="color:var(--wpsubs-text);font-weight:600;"><?php echo esc_html( $money::money( (float) $regular ) ); ?></span>
+			<?php
+		endif;
 	}
 
 	/**
