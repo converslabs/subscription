@@ -1,4 +1,9 @@
 <?php
+/**
+ * Cart handling for subscription products.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Frontend;
 
@@ -88,7 +93,8 @@ class Cart {
 
 		$error_notice = null;
 		$failed       = false;
-		$enabled      = $product->is_enabled();
+		// A tied plan counts as a subscription even without classic `_subscrpt_enabled`.
+		$enabled = $product->is_enabled() || subscrpt_product_has_plan( $product_id );
 
 		foreach ( $cart_items as $key => $cart_item ) {
 			if ( isset( $cart_item['subscription'] ) ) {
@@ -183,6 +189,14 @@ class Cart {
 		$cart_items = WC()->cart->cart_contents;
 		if ( is_array( $cart_items ) ) {
 			foreach ( $cart_items as $key => $value ) {
+				// Plan items were validated against the plan by the resolver at
+				// add-to-cart; their `subscription` snapshot intentionally differs
+				// from the product's classic meta, so skip the classic re-check
+				// (which would otherwise drop them from the cart).
+				if ( ! empty( $value['subscrpt_plan_id'] ) ) {
+					continue;
+				}
+
 				/**
 				 * Product Object.
 				 *
@@ -418,6 +432,13 @@ class Cart {
 		if ( ! $product->is_type( 'simple' ) ) {
 			return $cart_item_data;
 		}
+		// Plan products stamp their subscription snapshot in the plan checkout
+		// (Frontend\PlanCheckout / Pro), gated on the chosen plan id — so a One-Time
+		// purchase of a plan product is not wrongly tagged as a subscription here
+		// (which would show a cadence + list it under "Recurring totals").
+		if ( subscrpt_product_has_plan( $product_id ) ) {
+			return $cart_item_data;
+		}
 		if ( $product->is_enabled() ) :
 			$subscription_data          = array();
 			$subscription_data['time']  = null;
@@ -462,7 +483,10 @@ class Cart {
 			return $price;
 		}
 
-		if ( $product->is_enabled() ) {
+		// A tied plan makes it a subscription even without classic `_subscrpt_enabled`;
+		// get_price_html() already resolves to the plan line (Frontend\Plans), so this
+		// shows the plan cadence on the cart line without doubling.
+		if ( $product->is_enabled() || subscrpt_product_has_plan( $product->get_id() ) ) {
 			return $product->get_price_html();
 		}
 

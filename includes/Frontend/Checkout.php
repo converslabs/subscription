@@ -68,7 +68,10 @@ class Checkout {
 		foreach ( $order_items as $order_item ) {
 			$product = Subscription::get_subs_product( $order_item['product_id'] );
 
-			if ( $product->is_type( 'simple' ) && ! subscrpt_pro_activated() ) {
+			// Plan items are created by Frontend\PlanCheckout on `subscrpt_product_checkout`
+			// below (resolution order: tied plan first, else classic meta). Skipping
+			// them here keeps the classic path from creating a second subscription.
+			if ( $product->is_type( 'simple' ) && ! subscrpt_pro_activated() && ! $order_item->get_meta( '_subscrpt_plan_id' ) ) {
 				if ( $product->is_enabled() ) {
 					$is_renew = isset( $order_item['renew_subscrpt'] );
 

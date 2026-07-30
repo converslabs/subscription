@@ -1,4 +1,9 @@
 <?php
+/**
+ * Storefront product handling for subscriptions.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Frontend;
 
@@ -77,6 +82,13 @@ class Product {
 		$product = Subscription::get_subs_product( $product );
 		if ( ! $product->is_type( 'simple' ) ) {
 			return $button;
+		}
+
+		// Plan products carry their plan id only on the single-product form, so the
+		// shop-loop "add to cart" would add them at the raw price with no plan.
+		// Drop the loop button to force the product page (Frontend\Plans).
+		if ( subscrpt_product_has_plan( $product->get_id() ) ) {
+			return;
 		}
 
 		if ( $product->is_enabled() ) {

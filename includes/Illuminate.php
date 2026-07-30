@@ -1,8 +1,14 @@
 <?php
+/**
+ * Service container bootstrap.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription;
 
 use SpringDevs\Subscription\Frontend\Checkout;
+use SpringDevs\Subscription\Frontend\PlanCheckout;
 use SpringDevs\Subscription\Illuminate\AutoRenewal;
 use SpringDevs\Subscription\Illuminate\Block;
 use SpringDevs\Subscription\Illuminate\Cancellation;
@@ -37,6 +43,13 @@ class Illuminate {
 		new Post();
 		new Block();
 		new Checkout();
+		// Pro ships a superset plan checkout (Subscribe & Save, Installments,
+		// variable / per-variation) on the same hooks and priorities, so free's
+		// Recurring-simple checkout runs only when Pro is absent — otherwise the two
+		// would create the subscription twice.
+		if ( ! subscrpt_pro_activated() ) {
+			new PlanCheckout();
+		}
 		new GuestCheckout();
 		new AutoRenewal();
 		new Email();
