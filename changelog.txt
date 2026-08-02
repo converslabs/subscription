@@ -1,5 +1,8 @@
 *** WPSubscription Changelog ***
 
+2026-08-02 - version 1.10.9
+* fix: Stripe renewal error while adding payment information.
+
 2026-07-19 - version 1.10.8
 * fix: Email error due to missing subscriptions.
 * fix: Incorrect subscription dates.
