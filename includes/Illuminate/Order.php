@@ -72,7 +72,7 @@ class Order {
 				delete_post_meta( $subscription_id, '_subscrpt_trial_ended' );
 			}
 
-			$next_date = sdevs_wp_strtotime( $recurr_timing, time() );
+			$next_date = $this->get_anchored_next_date( $subscription_id, $recurr_timing, (int) $subscription_history->order_id );
 
 		} elseif ( 'early-renew' === $subscription_history->type ) {
 			if ( $trial ) {
@@ -103,6 +103,67 @@ class Order {
 		$next_date = apply_filters( 'subscrpt_subscription_next_date', $next_date, $subscription_id, $recurr_timing, $subscription_history->type );
 
 		update_post_meta( $subscription_id, '_subscrpt_next_date', $next_date );
+	}
+
+	/**
+	 * Calculate a renewal's next payment date, anchored to the previous due date.
+	 *
+	 * Computing from time() instead makes every cycle inherit however late the
+	 * renewal was actually processed — with an hourly cron a due date of 02:00:05
+	 * is missed by the 02:00:03 run and lands at 03:00, and that hour is carried
+	 * into every following cycle until a whole billing period is skipped. Anchoring
+	 * to the stored due date keeps the billing time-of-day stable instead.
+	 *
+	 * When payment arrives more than one period late (manual renewal, cron outage),
+	 * the anchor is stepped forward period by period so the returned date is always
+	 * in the future — otherwise the subscription would be due again immediately.
+	 *
+	 * Because this runs on every activating status transition of the same renewal
+	 * order (pending → processing → completed), the order that last moved the date
+	 * is recorded so repeat transitions do not advance the cycle again.
+	 *
+	 * @param int    $subscription_id Subscription ID.
+	 * @param string $recurr_timing   Recurring timing string (e.g. "1 month").
+	 * @param int    $renewal_order_id Renewal order driving this activation.
+	 *
+	 * @return int Next payment timestamp.
+	 */
+	private function get_anchored_next_date( $subscription_id, $recurr_timing, $renewal_order_id = 0 ) {
+		$now    = time();
+		$anchor = (int) get_post_meta( $subscription_id, '_subscrpt_next_date', true );
+
+		if ( $anchor <= 0 ) {
+			return sdevs_wp_strtotime( $recurr_timing, $now );
+		}
+
+		// This renewal order already advanced the date; keep it where it is.
+		$dated_by = (int) get_post_meta( $subscription_id, '_subscrpt_next_date_set_by_order', true );
+		if ( $renewal_order_id && $renewal_order_id === $dated_by ) {
+			return $anchor;
+		}
+
+		if ( $renewal_order_id ) {
+			update_post_meta( $subscription_id, '_subscrpt_next_date_set_by_order', $renewal_order_id );
+		}
+
+		$next_date = sdevs_wp_strtotime( $recurr_timing, $anchor );
+
+		// Step forward until the date is in the future. Bail out if the timing string does not advance.
+		$guard = 0;
+		while ( $next_date <= $now && $guard < 1000 ) {
+			$stepped = sdevs_wp_strtotime( $recurr_timing, $next_date );
+			if ( $stepped <= $next_date ) {
+				break;
+			}
+			$next_date = $stepped;
+			++$guard;
+		}
+
+		if ( $next_date <= $now ) {
+			return sdevs_wp_strtotime( $recurr_timing, $now );
+		}
+
+		return $next_date;
 	}
 
 	/**
