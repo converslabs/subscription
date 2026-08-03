@@ -458,7 +458,7 @@
       }),
     )
       .then(function () {
-        window.location.reload();
+        refreshPlanView();
       })
       .catch(function (err) {
         btn.disabled = false;
@@ -633,13 +633,15 @@
     cardMode(card, false);
   });
 
-  // Save: add / update / remove each term's relation with all its prices.
-  document.addEventListener("click", function (e) {
-    var btn = e.target.closest("[data-subscrpt-save-prices]");
-    if (!btn) {
-      return;
-    }
-    var card = btn.closest("[data-subscrpt-plan-card]");
+  /**
+   * Collect the REST calls that persist one plan card's edits (relations +
+   * one-time). Shared by the card's own Save button and the product
+   * Update/Publish flow so plan edits save through both.
+   *
+   * @param {HTMLElement} card The [data-subscrpt-plan-card] element.
+   * @return {Array<Promise>}
+   */
+  function collectCardCalls(card) {
     var wrap = root();
     var productId = wrap ? parseInt(wrap.getAttribute("data-product-id"), 10) : 0;
 
@@ -726,14 +728,129 @@
       }
     }
 
+    return calls;
+  }
+
+  // Save: persist this card's plan prices, then refresh the plan view in place
+  // (no full page reload).
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-save-prices]");
+    if (!btn) {
+      return;
+    }
+    var card = btn.closest("[data-subscrpt-plan-card]");
+
     btn.disabled = true;
-    Promise.all(calls)
+    Promise.all(collectCardCalls(card))
       .then(function () {
-        window.location.reload();
+        refreshPlanView();
       })
       .catch(function (err) {
         btn.disabled = false;
         window.alert(err.message || i18n.connectError);
       });
   });
+
+  /**
+   * When the plan view is the active view, copy each variation's plan-view
+   * enable toggle into its classic `subscrpt_var[<vid>][enabled]` checkbox so the
+   * product's native save persists the plan-mode enable. No-op when the classic
+   * view is active (its own checkboxes are authoritative) or for simple products.
+   *
+   * @param {HTMLElement} wrap The [data-subscrpt-product-plans] wrapper.
+   */
+  function mirrorPlanEnables(wrap) {
+    var planView = wrap.querySelector("[data-subscrpt-plan-view]");
+    // Plan view hidden → classic (simple) mode is active; leave classic fields.
+    if (!planView || "none" === planView.style.display) {
+      return;
+    }
+    planView.querySelectorAll("[data-subscrpt-variation-card][data-variation-id]").forEach(function (card) {
+      var vid = card.getAttribute("data-variation-id");
+      var toggle = card.querySelector("[data-subscrpt-var-enable]");
+      if (!vid || !toggle) {
+        return;
+      }
+      var classicBox = document.querySelector('input[name="subscrpt_var[' + vid + '][enabled]"]');
+      if (classicBox) {
+        classicBox.checked = toggle.checked;
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Save plan edits with the product's Update/Publish button too, so the
+   * merchant does not have to use the plan card's own Save. Any card with an
+   * active Save control (a connected card in edit mode, or a picked connect
+   * group) is persisted via REST before the product form submits.
+   * ------------------------------------------------------------------ */
+  (function () {
+    var postForm = document.getElementById("post");
+    if (!postForm) {
+      return;
+    }
+
+    var lastSubmitBtn = null;
+    var bypass = false;
+
+    // Remember which submit button was used so we can replay it after the async
+    // plan save (a programmatic form.submit() would drop the button's name/value).
+    document.addEventListener(
+      "click",
+      function (e) {
+        var b = e.target.closest("#publish, #save-post");
+        if (b) {
+          lastSubmitBtn = b;
+        }
+      },
+      true,
+    );
+
+    postForm.addEventListener("submit", function (e) {
+      if (bypass) {
+        return;
+      }
+      var wrap = root();
+      if (!wrap) {
+        return;
+      }
+
+      // Enable is mode-aware: when the plan view is the ACTIVE view, mirror each
+      // variation's plan-view enable toggle into its classic
+      // subscrpt_var[<vid>][enabled] checkbox, so the product's own save persists
+      // the enable the admin set in plan view. When the classic (simple) view is
+      // active we leave the classic checkboxes untouched — they win. Either way
+      // per-variation enable is respected without the two sources clobbering.
+      mirrorPlanEnables(wrap);
+
+      // Cards with a currently-visible Save control have pending plan edits.
+      var cards = Array.prototype.filter.call(wrap.querySelectorAll("[data-subscrpt-plan-card]"), function (card) {
+        var save = card.querySelector("[data-subscrpt-save-prices]");
+        return save && null !== save.offsetParent;
+      });
+      if (!cards.length) {
+        return;
+      }
+
+      e.preventDefault();
+
+      var calls = [];
+      cards.forEach(function (card) {
+        calls = calls.concat(collectCardCalls(card));
+      });
+
+      Promise.all(calls)
+        .then(function () {
+          bypass = true;
+          if (lastSubmitBtn) {
+            lastSubmitBtn.click();
+          } else {
+            postForm.submit();
+          }
+        })
+        .catch(function (err) {
+          window.alert(err.message || i18n.connectError);
+        });
+    });
+  })();
 })();

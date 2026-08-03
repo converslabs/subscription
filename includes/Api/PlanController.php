@@ -601,10 +601,12 @@ class PlanController {
 		$product_id = (int) $request->get_param( 'id' );
 		$product    = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
 
-		if ( ! $product || ! $product->is_type( 'simple' ) ) {
+		// render_plan_view() supports simple products (free) and variable products
+		// (Pro reuses it for the variation plan view), so both can refresh in place.
+		if ( ! $product || ! ( $product->is_type( 'simple' ) || $product->is_type( 'variable' ) ) ) {
 			return new WP_Error(
 				'rest_invalid_product',
-				__( 'Plan view is available on simple products only.', 'subscription' ),
+				__( 'Plan view is not available for this product type.', 'subscription' ),
 				array( 'status' => 400 )
 			);
 		}

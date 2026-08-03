@@ -100,6 +100,29 @@ function subscrpt_product_has_plan( $product_id, $variation_id = 0 ): bool {
 }
 
 /**
+ * Whether a product / variation is actually offered as a subscription on the
+ * storefront: it must be tied to a plan AND be subscription-enabled
+ * (`_subscrpt_enabled`) on the exact entity — the variation when a variation id
+ * is given, otherwise the product. Storefront surfaces (plan selector, plan
+ * price, variation visibility) branch on this so a plan-tied but disabled
+ * product / variation shows no subscription UI at all.
+ *
+ * @param int $product_id   Product (parent) id.
+ * @param int $variation_id Variation id, or 0 for simple products.
+ *
+ * @return bool
+ */
+function subscrpt_plan_offered( $product_id, $variation_id = 0 ): bool {
+	if ( ! subscrpt_product_has_plan( $product_id, $variation_id ) ) {
+		return false;
+	}
+
+	$entity_id = $variation_id ? (int) $variation_id : (int) $product_id;
+
+	return ! empty( get_post_meta( $entity_id, '_subscrpt_enabled', true ) );
+}
+
+/**
  * Truncate a string to a max length, appending an ellipsis when shortened.
  *
  * Multibyte-safe. Returns the text unchanged when it is within the limit, so

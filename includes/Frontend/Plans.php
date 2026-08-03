@@ -52,7 +52,7 @@ class Plans {
 		}
 
 		$product_id = $product->get_id();
-		if ( ! subscrpt_product_has_plan( $product_id ) ) {
+		if ( ! subscrpt_plan_offered( $product_id ) ) {
 			return null;
 		}
 

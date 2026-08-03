@@ -94,7 +94,7 @@ class Cart {
 		$error_notice = null;
 		$failed       = false;
 		// A tied plan counts as a subscription even without classic `_subscrpt_enabled`.
-		$enabled = $product->is_enabled() || subscrpt_product_has_plan( $product_id );
+		$enabled = $product->is_enabled() || subscrpt_plan_offered( $product_id );
 
 		foreach ( $cart_items as $key => $cart_item ) {
 			if ( isset( $cart_item['subscription'] ) ) {
@@ -486,7 +486,7 @@ class Cart {
 		// A tied plan makes it a subscription even without classic `_subscrpt_enabled`;
 		// get_price_html() already resolves to the plan line (Frontend\Plans), so this
 		// shows the plan cadence on the cart line without doubling.
-		if ( $product->is_enabled() || subscrpt_product_has_plan( $product->get_id() ) ) {
+		if ( $product->is_enabled() || subscrpt_plan_offered( $product->get_id() ) ) {
 			return $product->get_price_html();
 		}
 
