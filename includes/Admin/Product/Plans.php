@@ -104,7 +104,7 @@ class Plans {
 			<?php endif; ?>
 			<span style="flex:1 1 auto;"></span>
 			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-show-classic>
-				<?php esc_html_e( 'Switch to classic settings', 'subscription' ); ?>
+				<?php esc_html_e( 'Switch to simple mode', 'subscription' ); ?>
 			</button>
 			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-show-plan style="display:none;">
 				<span class="dashicons dashicons-arrow-left-alt2" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
