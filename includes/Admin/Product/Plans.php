@@ -127,6 +127,17 @@ class Plans {
 		$available   = self::available_groups( array_keys( $connected ) );
 		// Pro adds "create plan group / plan" shortcuts here; free is attach-only.
 		$pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activated();
+
+		// One-time purchase (Pro, simple products): the product's native WooCommerce
+		// price + an enabled flag, rendered as a row after the plan rows (matching
+		// the variable-product layout), not a separate card. Null hides the row.
+		$subscrpt_simple_ot = ( $pro_active && ! $product->is_type( 'variable' ) )
+			? array(
+				'enabled' => 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' ),
+				'regular' => (string) $product->get_regular_price(),
+				'offer'   => (string) $product->get_sale_price(),
+			)
+			: null;
 		?>
 		<style>
 			/* Neutralise WooCommerce's floated-label layout inside the toolbar +
@@ -200,20 +211,13 @@ class Plans {
 							</div>
 						<?php else : ?>
 							<!-- Read view: offered plans + one-time as chips. -->
-							<?php
-							$subscrpt_simple_ot = array(
-								'enabled' => 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' ),
-								'regular' => (string) $product->get_regular_price(),
-								'offer'   => (string) $product->get_sale_price(),
-							);
-							?>
 							<div class="subscrpt-pe-view" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
 								<?php self::render_variation_summary( $all_terms, $group['term_map'], $subscrpt_simple_ot ); ?>
 							</div>
 
-							<!-- Edit view: full price table per term (mirrors the Plans page). -->
+							<!-- Edit view: plan rows + the one-time row (mirrors the Plans page). -->
 							<div class="subscrpt-pe-edit" style="display:none;margin-top:12px;">
-								<?php self::render_price_table( $all_terms, $group['term_map'], false ); ?>
+								<?php self::render_price_table( $all_terms, $group['term_map'], false, 0, $subscrpt_simple_ot ); ?>
 							</div>
 						<?php endif; ?>
 					</div>
@@ -316,7 +320,7 @@ class Plans {
 								<span style="flex:1 1 auto;"></span>
 								<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-save-prices>
 									<span class="dashicons dashicons-yes" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
-									<?php esc_html_e( 'Connect', 'subscription' ); ?>
+									<?php esc_html_e( 'Save', 'subscription' ); ?>
 								</button>
 							</div>
 							<?php if ( $product->is_type( 'variable' ) ) : ?>
@@ -325,59 +329,12 @@ class Plans {
 								</div>
 							<?php else : ?>
 								<div>
-									<?php self::render_price_table( $subscrpt_group_terms, array(), true ); ?>
+									<?php self::render_price_table( $subscrpt_group_terms, array(), true, 0, $subscrpt_simple_ot ); ?>
 								</div>
 							<?php endif; ?>
 						<?php endif; ?>
 					</div>
 				<?php endforeach; ?>
-			</div>
-		<?php endif; ?>
-
-		<?php if ( ( ! empty( $connected ) || ! empty( $available ) ) && ! $product->is_type( 'variable' ) ) : ?>
-			<?php
-			$subscrpt_ot_on  = $pro_active && 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' );
-			$subscrpt_ot_reg = (string) $product->get_regular_price();
-			$subscrpt_ot_off = (string) $product->get_sale_price();
-			// One-time is edit-gated like the plan prices: while connected the whole
-			// card stays hidden until "Edit prices" reveals + unlocks it, and the
-			// card Save persists it. During the connect flow (not yet connected) it
-			// appears editable once a plan group is picked. Non-Pro: locked (upsell).
-			$subscrpt_ot_editgate = $pro_active && ! empty( $connected );
-			$subscrpt_ot_disabled = ! ( $pro_active && empty( $connected ) );
-			?>
-			<div data-subscrpt-onetime-wrap style="display:none;">
-			<div style="width:90%;border-top:1px dashed var(--wpsubs-border-strong,#d1d5db);margin:0 auto 18px;"></div>
-			<div class="wpsubs-table-card" data-subscrpt-onetime-card data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo $subscrpt_ot_editgate ? 'data-subscrpt-ot-editgated="1"' : ''; ?> style="padding:12px 14px;margin-bottom:18px;">
-				<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-					<span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:var(--wpsubs-radius,8px);background:var(--wpsubs-brand-light,#fff1eb);color:var(--wpsubs-brand,#ff4d00);">
-						<span class="dashicons dashicons-cart"></span>
-					</span>
-					<strong style="flex:0 0 auto;font-size:13.5px;color:var(--wpsubs-text);"><?php esc_html_e( 'One-time purchase', 'subscription' ); ?></strong>
-					<?php echo wp_kses_post( wpsubs_render_hint( __( 'This is the product’s regular WooCommerce price, charged when a customer buys it once instead of subscribing.', 'subscription' ) ) ); ?>
-					<?php if ( ! $pro_active ) : ?>
-						<span class="wpsubs-badge wpsubs-badge--pro" title="<?php esc_attr_e( 'WPSubscription Pro required', 'subscription' ); ?>"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
-					<?php endif; ?>
-					<span style="flex:1 1 auto;"></span>
-					<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--wpsubs-text-muted);<?php echo $pro_active ? '' : 'opacity:0.6;'; ?>">
-						<input type="checkbox" class="wpsubs-toggle" data-subscrpt-onetime-enable <?php checked( $subscrpt_ot_on ); ?> <?php disabled( $subscrpt_ot_disabled ); ?> />
-						<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
-						<span><?php esc_html_e( 'Allow one-time purchase', 'subscription' ); ?></span>
-					</label>
-				</div>
-				<div data-subscrpt-onetime-body style="margin-top:12px;<?php echo $subscrpt_ot_on ? '' : 'display:none;'; ?>">
-					<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;max-width:460px;">
-						<label style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--wpsubs-text-muted);">
-							<?php esc_html_e( 'Regular Price', 'subscription' ); ?>
-							<input type="number" min="0" step="0.01" class="wpsubs-input" data-ot-field="price" value="<?php echo esc_attr( $subscrpt_ot_reg ); ?>" placeholder="0.00" style="width:100%;box-sizing:border-box;" <?php disabled( $subscrpt_ot_disabled ); ?> />
-						</label>
-						<label style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--wpsubs-text-muted);">
-							<?php esc_html_e( 'Offer Price', 'subscription' ); ?>
-							<input type="number" min="0" step="0.01" class="wpsubs-input" data-ot-field="offer" value="<?php echo esc_attr( $subscrpt_ot_off ); ?>" placeholder="<?php esc_attr_e( 'No offer', 'subscription' ); ?>" style="width:100%;box-sizing:border-box;" <?php disabled( $subscrpt_ot_disabled ); ?> />
-						</label>
-					</div>
-				</div>
-			</div>
 			</div>
 		<?php endif; ?>
 

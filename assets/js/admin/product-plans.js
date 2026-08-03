@@ -694,51 +694,35 @@
       }
     });
 
-    // One-time purchase (product-specific native price) saves with the plan
-    // Save/Connect — no separate button. Only when its inputs are active
-    // (Pro edit mode or the connect flow), never when locked/non-Pro.
-    var ot = oneTimeCard();
-    if (ot) {
-      var otEnable = ot.querySelector("[data-subscrpt-onetime-enable]");
-      if (otEnable && !otEnable.disabled) {
-        var otPrice = ot.querySelector('[data-ot-field="price"]');
-        var otOffer = ot.querySelector('[data-ot-field="offer"]');
-        calls.push(
-          api("PUT", "/product-onetime/" + productId, {
-            enabled: otEnable.checked,
-            price: otPrice ? otPrice.value : "",
-            offer: otOffer ? otOffer.value : "",
-          }),
-        );
-      }
-    }
-
-    // Variable products carry a per-variation one-time row inside each
-    // variation's price table (data-vid on the row). Collect them into a
-    // variations map and save in one call alongside the plan prices.
+    // One-time purchase saves with the plan Save/Connect — no separate button.
+    // It is a row in the price table (data-vid on the row): the simple product's
+    // row is vid 0 (saved with the product-level payload), and each variable
+    // product variation's row is its vid (collected into a variations map).
     var otRows = card.querySelectorAll("[data-subscrpt-onetime-row]");
     if (otRows.length) {
       var variations = {};
+      var simpleOt = null;
       otRows.forEach(function (row) {
         var otVid = parseInt(row.getAttribute("data-vid"), 10) || 0;
-        if (!otVid) {
-          return;
-        }
         var en = row.querySelector("[data-subscrpt-onetime-enable]");
         var pr = row.querySelector('[data-ot-field="price"]');
         var of = row.querySelector('[data-ot-field="offer"]');
-        variations[otVid] = {
+        var vals = {
           enabled: en ? en.checked : false,
           price: pr ? pr.value : "",
           offer: of ? of.value : "",
         };
+        if (otVid) {
+          variations[otVid] = vals;
+        } else {
+          simpleOt = vals;
+        }
       });
       if (Object.keys(variations).length) {
-        calls.push(
-          api("PUT", "/product-onetime/" + productId, {
-            variations: variations,
-          }),
-        );
+        calls.push(api("PUT", "/product-onetime/" + productId, { variations: variations }));
+      }
+      if (simpleOt) {
+        calls.push(api("PUT", "/product-onetime/" + productId, simpleOt));
       }
     }
 
