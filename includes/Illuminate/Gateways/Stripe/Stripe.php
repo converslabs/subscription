@@ -384,12 +384,16 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	/**
 	 * Add metadata to stripe payment.
 	 *
-	 * @param array     $metadata Metadata.
-	 * @param \WC_Order $order Order.
+	 * @param mixed          $metadata Metadata.
+	 * @param \WC_Order|null $order Order, null when no order exists yet.
 	 *
-	 * @return array
+	 * @return mixed
 	 */
-	public function add_payment_metadata( array $metadata, \WC_Order $order ): array {
+	public function add_payment_metadata( $metadata, $order = null ) {
+		// Note: Stripe's Checkout Session AJAX handler applies this filter before an order exists, passing null. Bail out in that case.
+		if ( ! is_array( $metadata ) || ! $order instanceof \WC_Order ) {
+			return $metadata;
+		}
 
 		if ( ! subscrpt_is_auto_renew_enabled() ) {
 			return $metadata;
@@ -497,6 +501,10 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	 * @param object    $prepared_source The source that is used for the payment.
 	 */
 	public function modify_create_intent_request_for_subscriptions( $request, $order, $prepared_source ) {
+		if ( ! $order instanceof \WC_Order ) {
+			return $request;
+		}
+
 		$is_subscription_order = $this->order_has_subscription_relation( $order->get_id() );
 		$is_renewal_order      = $this->is_subscription_renewal_order( $order->get_id() );
 

@@ -488,7 +488,17 @@ if ( ! function_exists( 'wps_subscription_is_wc_order_hpos_enabled' ) ) {
 
 if ( ! function_exists( 'sdevs_wp_strtotime' ) ) {
 	/**
-	 * Get strtotime with WordPress timezone config.
+	 * Resolve a relative date string against a base timestamp, in site timezone.
+	 *
+	 * The relative interval is applied to the site-local wall clock (so "+1 month"
+	 * keeps the same local time across DST changes), and a real UTC timestamp is
+	 * returned.
+	 *
+	 * Do not reimplement this as strtotime( wp_date( ... ) ): wp_date() renders the
+	 * site-local wall clock while strtotime() parses it as UTC (WP sets PHP's default
+	 * timezone to UTC), so the site's UTC offset gets added on every call. For
+	 * recurring dates that compounds — a daily subscription on a UTC+7 site renews
+	 * every 31 hours and skips a calendar day every few renewals.
 	 *
 	 * @param string   $str string.
 	 * @param int|null $base_timestamp base timestamp.
@@ -496,7 +506,21 @@ if ( ! function_exists( 'sdevs_wp_strtotime' ) ) {
 	 * @return int
 	 */
 	function sdevs_wp_strtotime( $str, $base_timestamp = null ) {
-		return strtotime( wp_date( 'Y-m-d H:i:s', strtotime( $str, $base_timestamp ) ) );
+		$base = null === $base_timestamp ? time() : (int) $base_timestamp;
+
+		try {
+			$date     = new DateTime( '@' . $base );
+			$modified = $date->setTimezone( wp_timezone() )->modify( $str );
+
+			if ( $modified instanceof DateTime ) {
+				return $modified->getTimestamp();
+			}
+		} catch ( Exception $e ) {
+			// Unparsable string — fall through to strtotime().
+			return strtotime( $str, $base );
+		}
+
+		return strtotime( $str, $base );
 	}
 }
 

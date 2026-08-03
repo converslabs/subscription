@@ -281,7 +281,7 @@ class Menu {
 			<div style="margin-top:6px;">
 				<a href="https://wpsubscription.co/contact" target="_blank" style="color:#2563eb;text-decoration:none;">Support</a>
 				&nbsp;/&nbsp;
-				<a href="https://docs.converslabs.com/en" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
+				<a href="https://docs.wpsubscription.co/en" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
 			</div>
 		</div>
 		<?php
@@ -563,7 +563,7 @@ class Menu {
 			<div style="margin-top:6px;">
 				<a href="https://wpsubscription.co/contact" target="_blank" style="color:#2563eb;text-decoration:none;">Support</a>
 				&nbsp;/&nbsp;
-				<a href="https://docs.converslabs.com/en" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
+				<a href="https://docs.wpsubscription.co/en" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
 			</div>
 		</div>
 		<?php
