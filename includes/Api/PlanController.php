@@ -691,15 +691,37 @@ class PlanController {
 			? ''
 			: html_entity_decode( wp_strip_all_tags( wc_price( $price ) ), ENT_QUOTES, 'UTF-8' );
 
+		// The plan group this product is attached to (0 = none). A product belongs
+		// to a single group; the picker disables rows already in another group.
+		// Variations share their parent's connection (relations use the parent oid),
+		// cached per owner so a product's variations don't each re-query.
+		static $group_cache = array();
+
+		$owner_id = $product->get_parent_id() ? (int) $product->get_parent_id() : (int) $product->get_id();
+		if ( ! isset( $group_cache[ $owner_id ] ) ) {
+			$conns                    = PlanRepository::get_product_connections( $owner_id );
+			$group_cache[ $owner_id ] = ! empty( $conns )
+				? array(
+					'id'   => (int) $conns[0]['plan_group_id'],
+					'name' => (string) $conns[0]['group_title'],
+				)
+				: array(
+					'id'   => 0,
+					'name' => '',
+				);
+		}
+
 		return array(
-			'id'         => $product->get_id(),
-			'name'       => '' !== $name_over ? $name_over : $product->get_name(),
-			'type'       => $product->get_type(),
-			'image'      => $image_id ? wp_get_attachment_image_url( $image_id, array( 48, 48 ) ) : '',
-			'price'      => $price,
-			'price_html' => $price_html,
-			'is_virtual' => $product->is_virtual(),
-			'variations' => array(),
+			'id'              => $product->get_id(),
+			'name'            => '' !== $name_over ? $name_over : $product->get_name(),
+			'type'            => $product->get_type(),
+			'image'           => $image_id ? wp_get_attachment_image_url( $image_id, array( 48, 48 ) ) : '',
+			'price'           => $price,
+			'price_html'      => $price_html,
+			'is_virtual'      => $product->is_virtual(),
+			'plan_group_id'   => $group_cache[ $owner_id ]['id'],
+			'plan_group_name' => $group_cache[ $owner_id ]['name'],
+			'variations'      => array(),
 		);
 	}
 

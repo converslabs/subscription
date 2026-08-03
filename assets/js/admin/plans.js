@@ -279,17 +279,24 @@
     var label = document.createElement("label");
     label.style.cssText = "display:flex;align-items:center;gap:10px;flex:1 1 auto;min-width:0;cursor:pointer;";
 
+    // A product already attached to a DIFFERENT plan group can't be selected — a
+    // product belongs to a single group.
+    var inOtherGroup = p.plan_group_id && String(p.plan_group_id) !== String(opts.currentGroup || "");
+
     var cb = document.createElement("input");
     cb.type = "checkbox";
     cb.className = "wpsubs-checkbox";
+    if (inOtherGroup) {
+      cb.disabled = true;
+    }
     if (!opts.control) {
       var oid = opts.parentId ? opts.parentId : p.id;
       var vid = opts.parentId ? p.id : 0;
       cb.setAttribute("data-oid", oid);
       cb.setAttribute("data-vid", vid);
       cb.setAttribute("data-price", p.price || "");
-      // Pre-check rows already attached to the group.
-      if (opts.attached && opts.attached.has(oid + ":" + vid)) {
+      // Pre-check rows already attached to this group (never one locked to another).
+      if (!inOtherGroup && opts.attached && opts.attached.has(oid + ":" + vid)) {
         cb.checked = true;
       }
     }
@@ -315,6 +322,16 @@
     name.style.cssText = "font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
     label.appendChild(name);
 
+    if (inOtherGroup) {
+      li.style.opacity = "0.55";
+      label.style.cursor = "not-allowed";
+      li.title = (i18n.usedInPlan || "This product is being used in '%s'").replace("%s", p.plan_group_name || "");
+      var note = document.createElement("span");
+      note.textContent = i18n.inOtherPlan || "In another plan group";
+      note.style.cssText = "flex:0 0 auto;font-size:11px;font-style:italic;color:var(--wpsubs-text-subtle);";
+      label.appendChild(note);
+    }
+
     var price = document.createElement("span");
     price.style.cssText = "color:var(--wpsubs-text-muted);font-size:13px;flex:0 0 auto;";
     price.textContent = p.price_html || "";
@@ -337,6 +354,7 @@
       return;
     }
     var attached = modal._attached || new Set();
+    var currentGroup = modal.getAttribute("data-group-id") || "";
     list.innerHTML =
       '<li style="padding:10px 4px;color:var(--wpsubs-text-subtle);font-size:13px;">' +
       (i18n.loading || "Loading…") +
@@ -358,12 +376,17 @@
           if (variations.length) {
             // Variable product: parent row is a select-all control (no own
             // relation), variations are the attachable rows offset beneath it.
-            var parent = productRow(p, { indent: false, control: true });
+            var parent = productRow(p, { indent: false, control: true, currentGroup: currentGroup });
             list.appendChild(parent.li);
 
             var childBoxes = [];
             variations.forEach(function (v) {
-              var child = productRow(v, { indent: true, parentId: p.id, attached: attached });
+              var child = productRow(v, {
+                indent: true,
+                parentId: p.id,
+                attached: attached,
+                currentGroup: currentGroup,
+              });
               childBoxes.push(child.cb);
               list.appendChild(child.li);
             });
@@ -384,7 +407,7 @@
               });
             });
           } else {
-            list.appendChild(productRow(p, { indent: false, attached: attached }).li);
+            list.appendChild(productRow(p, { indent: false, attached: attached, currentGroup: currentGroup }).li);
           }
         });
 
