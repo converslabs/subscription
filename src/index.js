@@ -7,7 +7,6 @@ import { formatPrice, getCurrencyFromPriceResponse } from "@woocommerce/price-fo
 // import { useStoreCart } from "@woocommerce/base-context/hooks";
 
 const modifyCartItemPrice = (defaultValue, extensions, args, validation) => {
-  const { sdevs_subscription } = extensions;
   const { cartItem } = args;
   const { totals } = cartItem;
 
@@ -17,17 +16,8 @@ const modifyCartItemPrice = (defaultValue, extensions, args, validation) => {
   if (totals.line_total === "0") {
     return `<price/> ${__("Due Today", "subscription")}`;
   }
-  if (sdevs_subscription && sdevs_subscription.type) {
-    // Capitalize the first letter to match product page display
-    const capitalizedType = sdevs_subscription.type.charAt(0).toUpperCase() + sdevs_subscription.type.slice(1);
-
-    // Check max_no_payment - handle string, number, null, undefined
-    const maxPayments = parseInt(sdevs_subscription.max_no_payment, 10);
-    const paymentInfo = !isNaN(maxPayments) && maxPayments > 0 ? ` x ${maxPayments}` : "";
-    return `<price/> / ${
-      sdevs_subscription.time && sdevs_subscription.time > 1 ? " " + sdevs_subscription.time + "-" : ""
-    }${capitalizedType}${paymentInfo}`;
-  }
+  // The per-unit price shows no cadence — the recurring cadence appears on the
+  // line total (subtotalPriceFormat) and the "Recurring totals" summary.
   return defaultValue;
 };
 
