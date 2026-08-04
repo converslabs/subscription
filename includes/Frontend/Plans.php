@@ -83,6 +83,12 @@ class Plans {
 		$dvalue  = isset( $data['discount_value'] ) ? (string) $data['discount_value'] : '0';
 		$price   = PlanPresenter::offer_price( $regular, $sale, $dtype, $dvalue );
 
+		// Show the regular price struck-through beside the offer when discounted.
+		$regular_num = '' !== $regular ? (float) $regular : null;
+		$price_html  = ( null !== $regular_num && $price < $regular_num )
+			? '<del aria-hidden="true">' . wc_price( $regular_num ) . '</del> <ins>' . wc_price( $price ) . '</ins>'
+			: wc_price( $price );
+
 		$frequency = max( 1, (int) $row['billing_frequency'] );
 		$interval  = PlanRepository::interval_to_option( (int) $row['billing_interval'] );
 		$word      = subscrpt_get_typos( $frequency, $interval );
@@ -104,7 +110,7 @@ class Plans {
 		return wc_get_template_html(
 			'product/plan-selector.php',
 			array(
-				'price_html'   => wc_price( $price ),
+				'price_html'   => $price_html,
 				'period_label' => $period,
 				'trial_html'   => $trial_html,
 				'plan_id'      => (int) $row['plan_id'],
