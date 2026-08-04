@@ -1,4 +1,9 @@
 <?php
+/**
+ * Subscription helper utilities.
+ *
+ * @package SpringDevs\Subscription\Illuminate
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 
@@ -509,7 +514,8 @@ class Helper {
 			)
 		);
 		// Check if this is a split payment subscription
-		$payment_type = $product->get_meta( '_subscrpt_payment_type' ) ?: 'recurring';
+		$payment_type = $product->get_meta( '_subscrpt_payment_type' );
+		$payment_type = $payment_type ? $payment_type : 'recurring';
 		$max_payments = $product->get_meta( '_subscrpt_max_no_payment' );
 
 		$comment_content = '';
@@ -574,7 +580,10 @@ class Helper {
 			$product = $cart_item['data'];
 			if ( $product->is_type( 'simple' ) && isset( $cart_item['subscription'] ) ) {
 				$cart_subscription = $cart_item['subscription'];
-				$type              = ucfirst( $cart_subscription['type'] );
+				// Cadence word must respect the frequency (plan items store the raw
+				// plural interval, e.g. "months"): singular for 1, plural + count above.
+				$sub_time = max( 1, (int) ( $cart_subscription['time'] ?? 1 ) );
+				$type     = ( 1 === $sub_time ? '' : $sub_time . ' ' ) . ucfirst( self::get_typos( $sub_time, $cart_subscription['type'] ) );
 
 				// Total amount with tax
 				$quantity     = (int) $cart_item['quantity'];

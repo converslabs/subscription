@@ -410,6 +410,14 @@ class Cart {
 			$item_data = $cart_item['subscription'];
 			unset( $item_data['per_cost'] );
 			$item_data['cost'] = (float) $cart_item['subscription']['per_cost'] * $cart_item['quantity'];
+
+			// Normalise the cadence word to singular/plural by frequency for the
+			// blocks (Store API) cart — plan items store the raw plural interval
+			// (e.g. "months"), which the block would otherwise render as-is.
+			if ( ! empty( $item_data['type'] ) ) {
+				$sub_time          = max( 1, (int) ( $item_data['time'] ?? 1 ) );
+				$item_data['type'] = Helper::get_typos( $sub_time, $item_data['type'] );
+			}
 		}
 		if ( ! subscrpt_pro_activated() ) {
 			$item_data['time']       = null;
