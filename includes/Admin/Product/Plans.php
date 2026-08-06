@@ -150,7 +150,7 @@ class Plans {
 			</button>
 			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-show-plan style="display:none;">
 				<span class="dashicons dashicons-arrow-left-alt2" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
-				<?php esc_html_e( 'Back to plan view', 'subscription' ); ?>
+				<?php esc_html_e( 'Back to plan mode', 'subscription' ); ?>
 			</button>
 		</div>
 		<?php
