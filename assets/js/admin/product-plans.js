@@ -102,11 +102,12 @@
     }
   });
 
-  // On load, default to the plan view (hide the classic pane).
+  // On load, default to the plan view — unless the product carries legacy
+  // classic settings (data-subscrpt-default-classic), then open classic mode.
   function init() {
     var el = root();
     if (el) {
-      setView(el, false);
+      setView(el, el.hasAttribute("data-subscrpt-default-classic"));
     }
     detachModals();
     setupWizard();

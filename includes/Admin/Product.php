@@ -221,7 +221,7 @@ class Product {
 				// Variable/other products keep the classic-only panel unchanged.
 				if ( $subscrpt_product && $subscrpt_product->is_type( 'simple' ) && class_exists( '\SpringDevs\Subscription\Admin\Product\Plans' ) ) {
 					?>
-					<div id="sdevs_subscription_options" class="panel woocommerce_options_panel option_group sdevs-form sdevs_panel show_if_simple" style="padding:10px;" data-subscrpt-product-plans data-product-id="<?php echo esc_attr( $subscrpt_product->get_id() ); ?>">
+					<div id="sdevs_subscription_options" class="panel woocommerce_options_panel option_group sdevs-form sdevs_panel show_if_simple" style="padding:10px;" data-subscrpt-product-plans data-product-id="<?php echo esc_attr( $subscrpt_product->get_id() ); ?>"<?php echo Product\Plans::should_default_classic( $subscrpt_product ) ? ' data-subscrpt-default-classic="1"' : ''; ?>>
 						<?php Product\Plans::render_toolbar( $subscrpt_product ); ?>
 						<div data-subscrpt-plan-view>
 							<?php Product\Plans::render_plan_view( $subscrpt_product ); ?>

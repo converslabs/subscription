@@ -49,7 +49,7 @@ class Plans {
 			return;
 		}
 		?>
-		<div data-subscrpt-product-plans data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" style="margin-bottom:16px;">
+		<div data-subscrpt-product-plans data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"<?php echo self::should_default_classic( $product ) ? ' data-subscrpt-default-classic="1"' : ''; ?> style="margin-bottom:16px;">
 			<?php self::render_toolbar( $product ); ?>
 			<div data-subscrpt-plan-view>
 				<?php self::render_plan_view( $product ); ?>
@@ -80,6 +80,48 @@ class Plans {
 		);
 		require __DIR__ . '/../views/plans/modal-create.php';
 		require __DIR__ . '/../views/plans/modal-term.php';
+	}
+
+	/**
+	 * Whether the editor should open in classic (simple) mode by default.
+	 *
+	 * A product carrying legacy classic subscription settings but not tied to any
+	 * plan is an "old" product — open it in the classic view it was configured in.
+	 * Fresh products (and plan-connected ones) default to the plan view.
+	 *
+	 * @param \WC_Product|null $product Product being edited.
+	 *
+	 * @return bool
+	 */
+	public static function should_default_classic( $product = null ) {
+		if ( ! $product ) {
+			return false;
+		}
+
+		// Variable products: inspect each variation. Any variation tied to a plan
+		// means a plan-era product (plan view). Otherwise, any variation carrying
+		// legacy classic meta means an "old" product (classic view).
+		if ( $product->is_type( 'variable' ) ) {
+			$has_classic = false;
+			foreach ( $product->get_children() as $variation_id ) {
+				if ( function_exists( 'subscrpt_product_has_plan' ) && subscrpt_product_has_plan( $product->get_id(), $variation_id ) ) {
+					return false;
+				}
+				if ( ! $has_classic ) {
+					$variation = wc_get_product( $variation_id );
+					if ( $variation && ( (bool) $variation->get_meta( '_subscrpt_enabled' ) || '' !== (string) $variation->get_meta( '_subscrpt_timing_option' ) ) ) {
+						$has_classic = true;
+					}
+				}
+			}
+			return $has_classic;
+		}
+
+		if ( function_exists( 'subscrpt_product_has_plan' ) && subscrpt_product_has_plan( $product->get_id() ) ) {
+			return false;
+		}
+		return (bool) $product->get_meta( '_subscrpt_enabled' )
+			|| '' !== (string) $product->get_meta( '_subscrpt_timing_option' );
 	}
 
 	/**
