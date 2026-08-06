@@ -101,16 +101,17 @@ class Product {
 					? html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' )
 					: '$',
 				'i18n'     => array(
-					'connectError'  => __( 'Could not connect the plan. Please try again.', 'subscription' ),
-					'pickPlan'      => __( 'Please select a plan.', 'subscription' ),
-					'confirmDetach' => __( 'Detach this product from the plan?', 'subscription' ),
-					'loading'       => __( 'Loading plans…', 'subscription' ),
-					'step1'         => __( 'Step 1 of 2 · Plan group', 'subscription' ),
-					'step2'         => __( 'Step 2 of 2 · Plan', 'subscription' ),
-					'wizardNext'    => __( 'Continue', 'subscription' ),
-					'wizardBack'    => __( 'Back', 'subscription' ),
-					'wizardCreate'  => __( 'Create', 'subscription' ),
-					'addPlan'       => __( 'Add plan', 'subscription' ),
+					'connectError'   => __( 'Could not connect the plan. Please try again.', 'subscription' ),
+					'pickPlan'       => __( 'Please select a plan.', 'subscription' ),
+					'confirmDetach'  => __( 'Detach this product from the plan?', 'subscription' ),
+					'loading'        => __( 'Loading plans…', 'subscription' ),
+					'step1'          => __( 'Step 1 of 2 · Plan group', 'subscription' ),
+					'step2'          => __( 'Step 2 of 2 · Plan', 'subscription' ),
+					'wizardNext'     => __( 'Continue', 'subscription' ),
+					'wizardBack'     => __( 'Back', 'subscription' ),
+					'wizardCreate'   => __( 'Create', 'subscription' ),
+					'addPlan'        => __( 'Add plan', 'subscription' ),
+					'copyLinkPrompt' => __( 'Copy this direct checkout link:', 'subscription' ),
 				),
 			)
 		);
@@ -231,6 +232,7 @@ class Product {
 						</div>
 					</div>
 					<?php
+					Product\Plans::render_checkout_link_modal( $subscrpt_product );
 				} else {
 					include 'views/product-form.php';
 				}

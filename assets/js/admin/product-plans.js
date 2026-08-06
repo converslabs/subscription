@@ -102,6 +102,165 @@
     }
   });
 
+  /**
+   * Wire the "Generate Checkout Link" modal: read the adv-select choices (link
+   * type / variation / plan), live-preview the composed link, and copy it. Plan
+   * options are one adv-select per variation; only the active one is shown.
+   */
+  function setupCheckoutLink() {
+    var modal = document.getElementById("subscrpt-checkout-link");
+    if (!modal) {
+      return;
+    }
+    var data;
+    try {
+      data = JSON.parse(modal.getAttribute("data-subscrpt-checkout-data") || "{}");
+    } catch (err) {
+      return;
+    }
+    if (!data.contexts || !data.contexts.length) {
+      return;
+    }
+
+    // Ensure adv-selects inside the (relocated) modal are initialised.
+    if (window.WPSubsAdvSelect) {
+      window.WPSubsAdvSelect.init(modal);
+    }
+
+    var typeInput = modal.querySelector("[data-subscrpt-checkout-type] input[type=hidden]");
+    var varAdv = modal.querySelector("[data-subscrpt-checkout-variation]");
+    var varInput = varAdv ? varAdv.querySelector("input[type=hidden]") : null;
+    var planWraps = modal.querySelectorAll("[data-subscrpt-checkout-plan-wrap]");
+    var preview = modal.querySelector("[data-subscrpt-checkout-preview]");
+    var warning = modal.querySelector("[data-subscrpt-checkout-warning]");
+    var copyBtns = modal.querySelectorAll("[data-subscrpt-checkout-copy]");
+
+    function activeVid() {
+      if (varInput && varInput.value !== "") {
+        return varInput.value;
+      }
+      return String(data.contexts[0].vid);
+    }
+
+    function contextByVid(vid) {
+      for (var i = 0; i < data.contexts.length; i++) {
+        if (String(data.contexts[i].vid) === String(vid)) {
+          return data.contexts[i];
+        }
+      }
+      return data.contexts[0];
+    }
+
+    function activePlanValue() {
+      var vid = activeVid();
+      var value = "";
+      planWraps.forEach(function (w) {
+        if (String(w.getAttribute("data-vid")) === String(vid)) {
+          var input = w.querySelector("input[type=hidden]");
+          value = input ? input.value : "";
+        }
+      });
+      return value;
+    }
+
+    function showActivePlanWrap() {
+      var vid = activeVid();
+      planWraps.forEach(function (w) {
+        w.hidden = String(w.getAttribute("data-vid")) !== String(vid);
+      });
+    }
+
+    function append(base, params) {
+      return base + (base.indexOf("?") === -1 ? "?" : "&") + params.join("&");
+    }
+
+    function buildLink() {
+      var ctx = contextByVid(activeVid());
+      var plan = activePlanValue();
+      var planParam = plan !== "" && plan !== "onetime" ? "subscrpt_plan_id=" + encodeURIComponent(plan) : "";
+
+      if (typeInput && typeInput.value === "checkout") {
+        // Native WooCommerce checkout-link: /checkout-link/?products=ID:QTY .
+        // For variations the target is the variation id itself.
+        var target = data.type === "variable" ? ctx.vid : data.productId;
+        var checkoutParams = ["products=" + encodeURIComponent(target + ":1")];
+        if (planParam) {
+          checkoutParams.push(planParam);
+        }
+        return append(data.checkoutLinkBase, checkoutParams);
+      }
+
+      // Classic add-to-cart link on the site root.
+      var params = ["add-to-cart=" + encodeURIComponent(data.productId)];
+      if (data.type === "variable") {
+        params.push("variation_id=" + encodeURIComponent(ctx.vid));
+        var attrs = ctx.attrs || {};
+        Object.keys(attrs).forEach(function (k) {
+          params.push(encodeURIComponent(k) + "=" + encodeURIComponent(attrs[k]));
+        });
+      }
+      if (planParam) {
+        params.push(planParam);
+      }
+      return append(data.cartBase, params);
+    }
+
+    function refresh() {
+      var ctx = contextByVid(activeVid());
+      var isCheckout = typeInput && typeInput.value === "checkout";
+      if (warning) {
+        warning.hidden = !(isCheckout && ctx && ctx.hasAny);
+      }
+      if (preview) {
+        preview.value = buildLink();
+      }
+    }
+
+    showActivePlanWrap();
+    refresh();
+
+    // adv-selects fire a bubbling "wpsubs:select" — recompute on any choice, and
+    // re-toggle the plan adv-selects when the variation changes.
+    modal.addEventListener("wpsubs:select", function (e) {
+      if (varAdv && varAdv.contains(e.target)) {
+        showActivePlanWrap();
+      }
+      refresh();
+    });
+
+    copyBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var link = preview ? preview.value : "";
+        if (!link) {
+          return;
+        }
+        var done = function () {
+          var label = btn.querySelector(".dashicons");
+          if (label) {
+            var prev = label.className;
+            label.className = "dashicons dashicons-yes";
+            setTimeout(function () {
+              label.className = prev;
+            }, 1500);
+          }
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(link).then(done, function () {
+            if (preview) {
+              preview.select();
+            }
+            window.prompt(i18n.copyLinkPrompt || "Copy this link:", link);
+          });
+        } else {
+          if (preview) {
+            preview.select();
+          }
+          window.prompt(i18n.copyLinkPrompt || "Copy this link:", link);
+        }
+      });
+    });
+  }
+
   // On load, default to the plan view — unless the product carries legacy
   // classic settings (data-subscrpt-default-classic), then open classic mode.
   function init() {
@@ -110,6 +269,7 @@
       setView(el, el.hasAttribute("data-subscrpt-default-classic"));
     }
     detachModals();
+    setupCheckoutLink();
     setupWizard();
   }
 
@@ -122,7 +282,7 @@
    * that so they render identically. IDs and delegated open/close still work.
    */
   function detachModals() {
-    ["subscrpt-create-plan", "subscrpt-term-modal"].forEach(function (id) {
+    ["subscrpt-create-plan", "subscrpt-term-modal", "subscrpt-checkout-link"].forEach(function (id) {
       var modal = document.getElementById(id);
       if (modal && modal.parentNode !== document.body) {
         document.body.appendChild(modal);

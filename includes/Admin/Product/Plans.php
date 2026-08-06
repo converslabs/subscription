@@ -56,6 +56,7 @@ class Plans {
 			</div>
 		</div>
 		<?php
+		self::render_checkout_link_modal( $product );
 		self::render_modals();
 	}
 
@@ -80,6 +81,238 @@ class Plans {
 		);
 		require __DIR__ . '/../views/plans/modal-create.php';
 		require __DIR__ . '/../views/plans/modal-term.php';
+	}
+
+	/**
+	 * Render the "Generate Checkout Link" modal for a plan-connected product.
+	 *
+	 * Builds a per-context (product / per-variation) list of the plans the product
+	 * offers — plus a "One-time purchase" option when enabled — and embeds it as a
+	 * JSON blob the modal JS uses to compose a direct add-to-cart or checkout link.
+	 * The link carries `subscrpt_plan_id` (the term id) so PlanCheckout resolves the
+	 * chosen plan; the empty id (one-time) omits it and relies on the bare-link
+	 * fallback. Renders nothing when the product has no plan connections.
+	 *
+	 * @param \WC_Product|null $product Product being edited.
+	 *
+	 * @return void
+	 */
+	public static function render_checkout_link_modal( $product ) {
+		if ( ! $product || empty( PlanRepository::get_product_connections( $product->get_id() ) ) ) {
+			return;
+		}
+
+		$is_variable = $product->is_type( 'variable' );
+		$product_id  = $product->get_id();
+
+		// Plans a context offers, in the same order (and with the same ids) the
+		// storefront resolver / generated link will use. One-time first when on.
+		// One-time uses the sentinel value "onetime" (JS omits subscrpt_plan_id for
+		// it) so the adv-select still resolves a non-empty default label.
+		$build_plans = static function ( $vid, $one_time_enabled ) use ( $product_id ) {
+			$plans = array();
+			if ( $one_time_enabled ) {
+				$plans[] = array(
+					'value' => 'onetime',
+					'label' => __( 'One-time purchase', 'subscription' ),
+				);
+			}
+			foreach ( PlanRepository::resolve_for_product( $product_id, $vid ) as $subscrpt_row ) {
+				$plans[] = array(
+					'value' => (string) (int) $subscrpt_row['plan_id'],
+					'label' => $subscrpt_row['group_title'] . ' · ' . $subscrpt_row['plan_title'],
+				);
+			}
+			return $plans;
+		};
+
+		$contexts = array();
+		if ( $is_variable ) {
+			foreach ( $product->get_children() as $subscrpt_child_id ) {
+				$subscrpt_variation = wc_get_product( $subscrpt_child_id );
+				if ( ! $subscrpt_variation ) {
+					continue;
+				}
+				$subscrpt_vid   = (int) $subscrpt_child_id;
+				$subscrpt_plans = $build_plans( $subscrpt_vid, 'yes' === $subscrpt_variation->get_meta( '_subscrpt_one_time_enabled' ) );
+				if ( empty( $subscrpt_plans ) ) {
+					continue;
+				}
+				// An "Any …" attribute stores an empty value; such a variation can't
+				// be resolved by id alone, so the checkout-link endpoint can't add it.
+				$subscrpt_attrs   = $subscrpt_variation->get_variation_attributes();
+				$subscrpt_has_any = in_array( '', array_map( 'strval', $subscrpt_attrs ), true );
+				$contexts[]       = array(
+					'vid'    => $subscrpt_vid,
+					'label'  => self::variation_display_name( $subscrpt_variation, $product->get_name() ),
+					'attrs'  => (object) $subscrpt_attrs,
+					'hasAny' => $subscrpt_has_any,
+					'plans'  => $subscrpt_plans,
+				);
+			}
+		} else {
+			$subscrpt_plans = $build_plans( 0, 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' ) );
+			if ( ! empty( $subscrpt_plans ) ) {
+				$contexts[] = array(
+					'vid'   => 0,
+					'label' => '',
+					'attrs' => (object) array(),
+					'plans' => $subscrpt_plans,
+				);
+			}
+		}
+
+		if ( empty( $contexts ) ) {
+			return;
+		}
+
+		// JS only needs the ids/attributes to compose the link; plans are rendered
+		// as adv-selects below, so keep the blob slim.
+		$subscrpt_ctx_data = array();
+		foreach ( $contexts as $subscrpt_ctx ) {
+			$subscrpt_ctx_data[] = array(
+				'vid'    => $subscrpt_ctx['vid'],
+				'attrs'  => $subscrpt_ctx['attrs'],
+				'hasAny' => ! empty( $subscrpt_ctx['hasAny'] ),
+			);
+		}
+
+		// Checkout link: WooCommerce Blocks' native checkout-link endpoint, which
+		// empties the cart, adds `products=ID:QTY`, and redirects to checkout. It
+		// resolves via the pretty path `/checkout-link/` when permalinks are on,
+		// or the registered `?checkout-link=true` query var when they are plain.
+		$subscrpt_checkout_base = get_option( 'permalink_structure' )
+			? home_url( 'checkout-link/' )
+			: add_query_arg( 'checkout-link', 'true', home_url( '/' ) );
+
+		$subscrpt_data = array(
+			'productId'        => $product_id,
+			'type'             => $is_variable ? 'variable' : 'simple',
+			// Add-to-cart link: WooCommerce's classic `?add-to-cart=` on the site root.
+			'cartBase'         => home_url( '/' ),
+			'checkoutLinkBase' => $subscrpt_checkout_base,
+			'contexts'         => $subscrpt_ctx_data,
+		);
+
+		$subscrpt_field       = 'display:flex;flex-direction:column;gap:6px;';
+		$subscrpt_field_l     = 'font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--wpsubs-text-muted);';
+		$subscrpt_default_vid = (int) $contexts[0]['vid'];
+		?>
+		<div class="wpsubs-modal" id="subscrpt-checkout-link" hidden data-subscrpt-checkout-data="<?php echo esc_attr( wp_json_encode( $subscrpt_data ) ); ?>">
+			<div class="wpsubs-modal__backdrop" data-wpsubs-modal-close></div>
+			<div class="wpsubs-modal__dialog" style="max-width:520px;">
+				<div class="wpsubs-modal__head">
+					<h2 class="wpsubs-modal__title" style="display:flex;align-items:center;gap:8px;">
+						<span class="dashicons dashicons-admin-links" style="color:var(--wpsubs-brand,#ff4d00);font-size:18px;width:18px;height:18px;line-height:1;"></span>
+						<?php esc_html_e( 'Generate Checkout Link', 'subscription' ); ?>
+					</h2>
+					<button type="button" class="wpsubs-modal__close" data-wpsubs-modal-close aria-label="<?php esc_attr_e( 'Close', 'subscription' ); ?>">&times;</button>
+				</div>
+				<div class="wpsubs-modal__body" style="display:flex;flex-direction:column;gap:18px;">
+					<p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--wpsubs-text-muted);">
+						<?php esc_html_e( 'Share a link that drops this product into a customer’s cart with the chosen plan already selected.', 'subscription' ); ?>
+					</p>
+
+					<div style="display:grid;grid-template-columns:<?php echo $is_variable ? '1fr 1fr' : '1fr'; ?>;gap:14px;">
+						<div style="<?php echo esc_attr( $subscrpt_field ); ?>">
+							<span style="<?php echo esc_attr( $subscrpt_field_l ); ?>"><?php esc_html_e( 'Link type', 'subscription' ); ?></span>
+							<?php
+							wpsubs_render_adv_select(
+								array(
+									'name'    => 'subscrpt_checkout_type',
+									'value'   => 'cart',
+									'options' => array(
+										array(
+											'value' => 'cart',
+											'label' => __( 'Add to cart', 'subscription' ),
+										),
+										array(
+											'value' => 'checkout',
+											'label' => __( 'Checkout', 'subscription' ),
+										),
+									),
+									'attrs'   => array(
+										'data-subscrpt-checkout-type' => '1',
+										'style' => 'width:100%;',
+									),
+								)
+							);
+							?>
+						</div>
+
+						<?php if ( $is_variable ) : ?>
+							<div style="<?php echo esc_attr( $subscrpt_field ); ?>">
+								<span style="<?php echo esc_attr( $subscrpt_field_l ); ?>"><?php esc_html_e( 'Variation', 'subscription' ); ?></span>
+								<?php
+								$subscrpt_var_opts = array();
+								foreach ( $contexts as $subscrpt_ctx ) {
+									$subscrpt_var_opts[] = array(
+										'value' => (string) $subscrpt_ctx['vid'],
+										'label' => $subscrpt_ctx['label'],
+									);
+								}
+								wpsubs_render_adv_select(
+									array(
+										'name'    => 'subscrpt_checkout_variation',
+										'value'   => (string) $subscrpt_default_vid,
+										'options' => $subscrpt_var_opts,
+										'attrs'   => array(
+											'data-subscrpt-checkout-variation' => '1',
+											'style' => 'width:100%;',
+										),
+									)
+								);
+								?>
+							</div>
+						<?php endif; ?>
+					</div>
+
+					<div style="<?php echo esc_attr( $subscrpt_field ); ?>">
+						<span style="<?php echo esc_attr( $subscrpt_field_l ); ?>"><?php esc_html_e( 'Plan', 'subscription' ); ?></span>
+						<?php foreach ( $contexts as $subscrpt_ctx ) : ?>
+							<div data-subscrpt-checkout-plan-wrap data-vid="<?php echo esc_attr( $subscrpt_ctx['vid'] ); ?>" <?php echo (int) $subscrpt_ctx['vid'] === $subscrpt_default_vid ? '' : 'hidden'; ?>>
+								<?php
+								wpsubs_render_adv_select(
+									array(
+										'name'    => 'subscrpt_checkout_plan_' . $subscrpt_ctx['vid'],
+										'value'   => isset( $subscrpt_ctx['plans'][0]['value'] ) ? $subscrpt_ctx['plans'][0]['value'] : '',
+										'options' => $subscrpt_ctx['plans'],
+										'attrs'   => array(
+											'data-subscrpt-checkout-plan' => '1',
+											'style' => 'width:100%;',
+										),
+									)
+								);
+								?>
+							</div>
+						<?php endforeach; ?>
+					</div>
+
+					<div style="<?php echo esc_attr( $subscrpt_field ); ?>">
+						<span style="<?php echo esc_attr( $subscrpt_field_l ); ?>"><?php esc_html_e( 'Link preview', 'subscription' ); ?></span>
+						<div style="display:flex;align-items:stretch;gap:0;border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:var(--wpsubs-radius,8px);overflow:hidden;background:var(--wpsubs-surface-muted,#f6f7f7);">
+							<input type="text" data-subscrpt-checkout-preview readonly style="flex:1 1 auto;min-width:0;border:0;background:transparent;padding:9px 11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--wpsubs-text);outline:none;" />
+							<button type="button" data-subscrpt-checkout-copy title="<?php esc_attr_e( 'Copy link', 'subscription' ); ?>" style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;border:0;border-left:1px solid var(--wpsubs-border,#e5e7eb);background:transparent;color:var(--wpsubs-text-muted);cursor:pointer;padding:0 12px;align-self:stretch;">
+								<span class="dashicons dashicons-admin-page" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
+							</button>
+						</div>
+					</div>
+
+					<div data-subscrpt-checkout-warning hidden style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:var(--wpsubs-radius,8px);background:#fcf3d9;border:1px solid #f0d98a;font-size:12px;line-height:1.55;color:#8a6d1a;">
+						<span class="dashicons dashicons-warning" style="flex:0 0 auto;font-size:16px;width:16px;height:16px;color:#b9902a;"></span>
+						<span><?php esc_html_e( 'This variation uses an “Any” attribute, so the checkout link can’t pre-select it. Use the “Add to cart” link type instead.', 'subscription' ); ?></span>
+					</div>
+				</div>
+				<div class="wpsubs-modal__footer">
+					<button type="button" class="wpsubs-btn wpsubs-btn--outline" data-wpsubs-modal-close><?php esc_html_e( 'Close', 'subscription' ); ?></button>
+					<button type="button" class="wpsubs-btn wpsubs-btn--primary" data-subscrpt-checkout-copy>
+						<span class="dashicons dashicons-admin-page" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
+						<?php esc_html_e( 'Copy link', 'subscription' ); ?>
+					</button>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
@@ -133,6 +366,8 @@ class Plans {
 	 */
 	public static function render_toolbar( $product = null ) {
 		$subscrpt_enabled = $product ? (bool) $product->get_meta( '_subscrpt_enabled' ) : false;
+		// Show the checkout-link generator only when the product is tied to a plan.
+		$subscrpt_has_plans = $product && ! empty( PlanRepository::get_product_connections( $product->get_id() ) );
 		?>
 		<div data-subscrpt-plan-toolbar style="display:flex;align-items:center;gap:12px;margin:0 0 14px;flex-wrap:wrap;">
 			<strong style="margin-left:10px;font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'Subscription', 'subscription' ); ?></strong>
@@ -145,6 +380,12 @@ class Plans {
 				</label>
 			<?php endif; ?>
 			<span style="flex:1 1 auto;"></span>
+			<?php if ( $subscrpt_has_plans ) : ?>
+				<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-wpsubs-modal-open="subscrpt-checkout-link">
+					<span class="dashicons dashicons-admin-links" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
+					<?php esc_html_e( 'Generate Checkout Link', 'subscription' ); ?>
+				</button>
+			<?php endif; ?>
 			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-show-classic>
 				<?php esc_html_e( 'Switch to simple mode', 'subscription' ); ?>
 			</button>

@@ -67,6 +67,34 @@ class PlanCheckout {
 	}
 
 	/**
+	 * Resolve a fallback plan for a bare add-to-cart — a direct link with no plan
+	 * chosen (`?add-to-cart=ID`). One-time purchase wins when enabled: the item
+	 * stays a plain one-time line at the native price (returns 0). Otherwise the
+	 * product's first plan is selected, matching the on-page selector's default.
+	 *
+	 * @param int $product_id Product id.
+	 *
+	 * @return int Plan-term id, or 0 to leave the item untouched.
+	 */
+	private function fallback_plan_id( $product_id ) {
+		if ( ! function_exists( 'subscrpt_product_has_plan' ) || ! subscrpt_product_has_plan( $product_id ) ) {
+			return 0;
+		}
+
+		// One-time enabled → keep it a one-time line at the native price.
+		if ( 'yes' === get_post_meta( $product_id, '_subscrpt_one_time_enabled', true ) ) {
+			return 0;
+		}
+
+		// Default to the product's first plan (same order the selector defaults to).
+		foreach ( PlanRepository::resolve_for_product( $product_id ) as $row ) {
+			return (int) $row['plan_id'];
+		}
+
+		return 0;
+	}
+
+	/**
 	 * Map a resolved plan row to its Recurring billing terms.
 	 *
 	 * @param array $row Resolved plan row.
@@ -107,10 +135,17 @@ class PlanCheckout {
 	 * @return array
 	 */
 	public function add_plan_to_cart( $cart_item_data, $product_id ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce verifies the add-to-cart request; we only read a plan id.
-		$plan_id = isset( $_POST['subscrpt_plan_id'] ) ? absint( wp_unslash( $_POST['subscrpt_plan_id'] ) ) : 0;
+		// Read from the request so both the product-page form (POST) and direct
+		// checkout links (`?add-to-cart=ID&subscrpt_plan_id=TERM`, GET) select a plan.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce verifies the add-to-cart request; we only read a plan id.
+		$plan_id = isset( $_REQUEST['subscrpt_plan_id'] ) ? absint( wp_unslash( $_REQUEST['subscrpt_plan_id'] ) ) : 0;
 		if ( ! $plan_id ) {
-			return $cart_item_data;
+			// Bare add-to-cart (direct link, no plan chosen): fall back to one-time
+			// when enabled, otherwise the product's first plan.
+			$plan_id = $this->fallback_plan_id( $product_id );
+			if ( ! $plan_id ) {
+				return $cart_item_data;
+			}
 		}
 
 		$row = $this->resolve_chosen( $product_id, $plan_id );
