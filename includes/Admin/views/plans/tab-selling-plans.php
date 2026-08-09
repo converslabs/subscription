@@ -63,6 +63,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<?php endif; ?>
 						<?php $subscrpt_meta_parts = array_merge( array( $selling_term['breakdown'] ), $selling_term['chips'] ); ?>
 						<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--wpsubs-text-muted);">
+							<span title="<?php esc_attr_e( 'Plan ID', 'subscription' ); ?>">#<?php echo esc_html( $selling_term['id'] ); ?></span>
+							<span style="color:var(--wpsubs-text-subtle);">&middot;</span>
 							<?php foreach ( $subscrpt_meta_parts as $subscrpt_i => $subscrpt_part ) : ?>
 								<?php
 								if ( $subscrpt_i > 0 ) :
