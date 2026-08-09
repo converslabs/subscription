@@ -236,29 +236,10 @@ $has_terms = ! empty( $plan['terms'] );
 				</div>
 
 				<?php
-				wpsubs_render_adv_select(
+				wpsubs_render_per_page_select(
 					array(
-						'name'    => 'subscrpt_products_per_page',
-						'value'   => '10',
-						'options' => array(
-							array(
-								'value' => '10',
-								'label' => __( '10 / page', 'subscription' ),
-							),
-							array(
-								'value' => '25',
-								'label' => __( '25 / page', 'subscription' ),
-							),
-							array(
-								'value' => '50',
-								'label' => __( '50 / page', 'subscription' ),
-							),
-							array(
-								'value' => '100',
-								'label' => __( '100 / page', 'subscription' ),
-							),
-						),
-						'attrs'   => array( 'data-subscrpt-browse-perpage' => '1' ),
+						'name'  => 'subscrpt_products_per_page',
+						'attrs' => array( 'data-subscrpt-browse-perpage' => '1' ),
 					)
 				);
 				?>

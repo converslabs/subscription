@@ -55,29 +55,11 @@ use SpringDevs\Subscription\Admin\Plans;
 				</div>
 				<span style="flex:1 1 auto;"></span>
 				<?php
-				wpsubs_render_adv_select(
+				wpsubs_render_per_page_select(
 					array(
-						'name'    => 'subscrpt_groups_per_page',
-						'value'   => '20',
-						'options' => array(
-							array(
-								'value' => '10',
-								'label' => __( '10 / page', 'subscription' ),
-							),
-							array(
-								'value' => '20',
-								'label' => __( '20 / page', 'subscription' ),
-							),
-							array(
-								'value' => '50',
-								'label' => __( '50 / page', 'subscription' ),
-							),
-							array(
-								'value' => '100',
-								'label' => __( '100 / page', 'subscription' ),
-							),
-						),
-						'attrs'   => array( 'data-subscrpt-browse-perpage' => '1' ),
+						'name'  => 'subscrpt_groups_per_page',
+						'value' => '20',
+						'attrs' => array( 'data-subscrpt-browse-perpage' => '1' ),
 					)
 				);
 				wpsubs_render_adv_select(

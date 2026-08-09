@@ -277,30 +277,11 @@ $subscrpt_render_table_tools = function () {
 				),
 			)
 		);
-		wpsubs_render_adv_select(
+		wpsubs_render_per_page_select(
 			array(
-				'name'    => 'subscrpt_per_page',
-				'value'   => '10',
-				'align'   => 'right',
-				'class'   => 'subscrpt-filter-perpage',
-				'options' => array(
-					array(
-						'value' => '10',
-						'label' => __( '10 / page', 'subscription' ),
-					),
-					array(
-						'value' => '20',
-						'label' => __( '20 / page', 'subscription' ),
-					),
-					array(
-						'value' => '50',
-						'label' => __( '50 / page', 'subscription' ),
-					),
-					array(
-						'value' => '100',
-						'label' => __( '100 / page', 'subscription' ),
-					),
-				),
+				'name'  => 'subscrpt_per_page',
+				'align' => 'right',
+				'class' => 'subscrpt-filter-perpage',
 			)
 		);
 		?>

@@ -116,30 +116,12 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 			<?php
 			$current_per_page = isset( $_GET['per_page'] ) ? intval( wp_unslash( $_GET['per_page'] ) ) : 20;
-			wpsubs_render_adv_select(
+			wpsubs_render_per_page_select(
 				array(
-					'name'    => 'per_page',
-					'value'   => (string) $current_per_page,
-					'options' => array(
-						array(
-							'value' => '10',
-							'label' => __( '10 / page', 'subscription' ),
-						),
-						array(
-							'value' => '20',
-							'label' => __( '20 / page', 'subscription' ),
-						),
-						array(
-							'value' => '50',
-							'label' => __( '50 / page', 'subscription' ),
-						),
-						array(
-							'value' => '100',
-							'label' => __( '100 / page', 'subscription' ),
-						),
-					),
-					'align'   => 'right',
-					'id'      => 'wpsubs-per-page-select',
+					'name'  => 'per_page',
+					'value' => (string) $current_per_page,
+					'align' => 'right',
+					'id'    => 'wpsubs-per-page-select',
 				)
 			);
 			?>
