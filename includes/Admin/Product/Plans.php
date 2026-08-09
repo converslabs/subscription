@@ -201,18 +201,20 @@ class Plans {
 		<div class="wpsubs-modal" id="subscrpt-checkout-link" hidden data-subscrpt-checkout-data="<?php echo esc_attr( wp_json_encode( $subscrpt_data ) ); ?>">
 			<div class="wpsubs-modal__backdrop" data-wpsubs-modal-close></div>
 			<div class="wpsubs-modal__dialog" style="max-width:520px;">
-				<div class="wpsubs-modal__head">
-					<h2 class="wpsubs-modal__title" style="display:flex;align-items:center;gap:8px;">
-						<span class="dashicons dashicons-admin-links" style="color:var(--wpsubs-brand,#ff4d00);font-size:18px;width:18px;height:18px;line-height:1;"></span>
-						<?php esc_html_e( 'Generate Checkout Link', 'subscription' ); ?>
-					</h2>
-					<button type="button" class="wpsubs-modal__close" data-wpsubs-modal-close aria-label="<?php esc_attr_e( 'Close', 'subscription' ); ?>">&times;</button>
+				<div class="wpsubs-modal__head" style="align-items:flex-start;">
+					<div style="display:flex;flex-direction:column;gap:8px;min-width:0;">
+						<h2 class="wpsubs-modal__title" style="display:flex;align-items:center;gap:8px;margin:0;">
+							<span class="dashicons dashicons-admin-links" style="color:var(--wpsubs-brand,#ff4d00);font-size:18px;width:18px;height:18px;line-height:1;"></span>
+							<?php esc_html_e( 'Generate Checkout Link', 'subscription' ); ?>
+						</h2>
+						<p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--wpsubs-text-muted);">
+							<?php esc_html_e( 'Share a link that drops this product into a customer’s cart with the chosen plan already selected.', 'subscription' ); ?>
+						</p>
+					</div>
+					<button type="button" class="wpsubs-modal__close" data-wpsubs-modal-close aria-label="<?php esc_attr_e( 'Close', 'subscription' ); ?>" style="flex:0 0 auto;">&times;</button>
 				</div>
-				<div class="wpsubs-modal__body" style="display:flex;flex-direction:column;gap:18px;">
-					<p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--wpsubs-text-muted);">
-						<?php esc_html_e( 'Share a link that drops this product into a customer’s cart with the chosen plan already selected.', 'subscription' ); ?>
-					</p>
-
+				<?php // overflow:visible lets the adv-select dropdowns escape the body (short modal, no scroll needed). ?>
+				<div class="wpsubs-modal__body" style="display:flex;flex-direction:column;gap:18px;overflow:visible;">
 					<div style="display:grid;grid-template-columns:<?php echo $is_variable ? '1fr 1fr' : '1fr'; ?>;gap:14px;">
 						<div style="<?php echo esc_attr( $subscrpt_field ); ?>">
 							<span style="<?php echo esc_attr( $subscrpt_field_l ); ?>"><?php esc_html_e( 'Link type', 'subscription' ); ?></span>
@@ -269,14 +271,36 @@ class Plans {
 
 					<div style="<?php echo esc_attr( $subscrpt_field ); ?>">
 						<span style="<?php echo esc_attr( $subscrpt_field_l ); ?>"><?php esc_html_e( 'Plan', 'subscription' ); ?></span>
-						<?php foreach ( $contexts as $subscrpt_ctx ) : ?>
+						<?php
+						foreach ( $contexts as $subscrpt_ctx ) :
+							// Separate one-time from recurring with a divider so the two
+							// read as distinct sets (one-time is always listed first).
+							$subscrpt_onetime   = array();
+							$subscrpt_recurring = array();
+							foreach ( $subscrpt_ctx['plans'] as $subscrpt_p ) {
+								if ( 'onetime' === $subscrpt_p['value'] ) {
+									$subscrpt_onetime[] = $subscrpt_p;
+								} else {
+									$subscrpt_recurring[] = $subscrpt_p;
+								}
+							}
+							$subscrpt_plan_opts = $subscrpt_onetime;
+							foreach ( $subscrpt_recurring as $subscrpt_i => $subscrpt_p ) {
+								// Divider before the first recurring plan when a one-time exists.
+								if ( 0 === $subscrpt_i && ! empty( $subscrpt_onetime ) ) {
+									$subscrpt_p['divider'] = true;
+								}
+								$subscrpt_plan_opts[] = $subscrpt_p;
+							}
+							$subscrpt_plan_default = isset( $subscrpt_ctx['plans'][0]['value'] ) ? $subscrpt_ctx['plans'][0]['value'] : '';
+							?>
 							<div data-subscrpt-checkout-plan-wrap data-vid="<?php echo esc_attr( $subscrpt_ctx['vid'] ); ?>" <?php echo (int) $subscrpt_ctx['vid'] === $subscrpt_default_vid ? '' : 'hidden'; ?>>
 								<?php
 								wpsubs_render_adv_select(
 									array(
 										'name'    => 'subscrpt_checkout_plan_' . $subscrpt_ctx['vid'],
-										'value'   => isset( $subscrpt_ctx['plans'][0]['value'] ) ? $subscrpt_ctx['plans'][0]['value'] : '',
-										'options' => $subscrpt_ctx['plans'],
+										'value'   => $subscrpt_plan_default,
+										'options' => $subscrpt_plan_opts,
 										'attrs'   => array(
 											'data-subscrpt-checkout-plan' => '1',
 											'style' => 'width:100%;',
@@ -296,9 +320,12 @@ class Plans {
 								<span class="dashicons dashicons-admin-page" style="font-size:15px;width:15px;height:15px;line-height:1;"></span>
 							</button>
 						</div>
+						<?php // URL structure reference for the selected link type (JS toggles). ?>
+						<span data-subscrpt-checkout-ref="cart" style="font-size:10.5px;line-height:1.5;color:var(--wpsubs-text-subtle,#8a8f98);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;"><strong style="font-family:inherit;"><?php esc_html_e( 'Ref.', 'subscription' ); ?></strong> /?add-to-cart=PRODUCT_ID&amp;subscrpt_plan_id=PLAN_ID</span>
+						<span data-subscrpt-checkout-ref="checkout" hidden style="font-size:10.5px;line-height:1.5;color:var(--wpsubs-text-subtle,#8a8f98);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;"><strong style="font-family:inherit;"><?php esc_html_e( 'Ref.', 'subscription' ); ?></strong> /checkout-link/?products=PRODUCT_ID:QTY&amp;subscrpt_plan_id=PLAN_ID</span>
 					</div>
 
-					<div data-subscrpt-checkout-warning hidden style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:var(--wpsubs-radius,8px);background:#fcf3d9;border:1px solid #f0d98a;font-size:12px;line-height:1.55;color:#8a6d1a;">
+					<div data-subscrpt-checkout-warning style="display:none;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:var(--wpsubs-radius,8px);background:#fcf3d9;border:1px solid #f0d98a;font-size:12px;line-height:1.55;color:#8a6d1a;">
 						<span class="dashicons dashicons-warning" style="flex:0 0 auto;font-size:16px;width:16px;height:16px;color:#b9902a;"></span>
 						<span><?php esc_html_e( 'This variation uses an “Any” attribute, so the checkout link can’t pre-select it. Use the “Add to cart” link type instead.', 'subscription' ); ?></span>
 					</div>

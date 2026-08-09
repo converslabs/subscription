@@ -133,6 +133,8 @@
     var planWraps = modal.querySelectorAll("[data-subscrpt-checkout-plan-wrap]");
     var preview = modal.querySelector("[data-subscrpt-checkout-preview]");
     var warning = modal.querySelector("[data-subscrpt-checkout-warning]");
+    var refCart = modal.querySelector('[data-subscrpt-checkout-ref="cart"]');
+    var refCheckout = modal.querySelector('[data-subscrpt-checkout-ref="checkout"]');
     var copyBtns = modal.querySelectorAll("[data-subscrpt-checkout-copy]");
 
     function activeVid() {
@@ -209,7 +211,13 @@
       var ctx = contextByVid(activeVid());
       var isCheckout = typeInput && typeInput.value === "checkout";
       if (warning) {
-        warning.hidden = !(isCheckout && ctx && ctx.hasAny);
+        warning.style.display = isCheckout && ctx && ctx.hasAny ? "flex" : "none";
+      }
+      if (refCart) {
+        refCart.hidden = isCheckout;
+      }
+      if (refCheckout) {
+        refCheckout.hidden = !isCheckout;
       }
       if (preview) {
         preview.value = buildLink();

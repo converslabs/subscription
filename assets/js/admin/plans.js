@@ -96,24 +96,11 @@
     });
   }
 
-  document.addEventListener("input", function (e) {
-    var input = e.target.closest("[data-subscrpt-filter]");
-    if (!input) {
-      return;
-    }
-    var rowSelector = input.getAttribute("data-subscrpt-filter") || "wpsubs-plan-row";
-    var term = input.value.toLowerCase().trim();
-    document.querySelectorAll("." + rowSelector).forEach(function (row) {
-      var name = row.getAttribute("data-subscrpt-name") || "";
-      row.style.display = name.indexOf(term) !== -1 ? "" : "none";
-    });
-  });
-
   // Whole plan-group row opens its detail page — except clicks on a link,
   // button, or the actions menu, which keep their own behaviour.
   document.addEventListener("click", function (e) {
     var row = e.target.closest(".wpsubs-plan-row[data-href]");
-    if (!row || e.target.closest("a, button, .wpsubs-row-actions")) {
+    if (!row || e.target.closest("a, button, input, label, .wpsubs-row-actions, .wpsubs-col--check")) {
       return;
     }
     window.location.href = row.getAttribute("data-href");
@@ -165,6 +152,126 @@
         window.alert(err.message || i18n.genericError);
       });
   });
+
+  /* ------------------------------------------------------------------ *
+   * Bulk actions on plan groups (select-all + per-row + Apply).
+   * ------------------------------------------------------------------ */
+
+  /**
+   * The per-row checkboxes currently visible (search + pagination hide rows via
+   * display:none). Bulk actions and select-all operate on the visible set only,
+   * so a filtered-out row is never silently deleted.
+   *
+   * @return {HTMLElement[]}
+   */
+  function bulkRowChecks() {
+    return Array.prototype.slice.call(document.querySelectorAll(".wpsubs-row-check")).filter(function (cb) {
+      var tr = cb.closest("tr");
+      return tr && "none" !== tr.style.display;
+    });
+  }
+
+  /** @return {HTMLElement[]} The checked (and visible) per-row checkboxes. */
+  function bulkChecked() {
+    return bulkRowChecks().filter(function (cb) {
+      return cb.checked;
+    });
+  }
+
+  /** Sync the select-all checkbox (checked / indeterminate) with the visible rows. */
+  function bulkSync() {
+    var all = bulkRowChecks();
+    var checked = bulkChecked();
+    var selectAll = document.querySelector("[data-subscrpt-select-all]");
+    if (selectAll) {
+      selectAll.checked = all.length > 0 && checked.length === all.length;
+      selectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+    }
+  }
+
+  /** Reset the bulk-action adv-select back to its placeholder. */
+  function bulkResetSelect() {
+    var root = document.querySelector("[data-subscrpt-bulk-select]");
+    if (!root) {
+      return;
+    }
+    var input = root.querySelector('input[type="hidden"]');
+    var label = root.querySelector(".wpsubs-adv-select__label");
+    if (input) {
+      input.value = root.dataset.defaultValue || "";
+    }
+    if (label) {
+      label.textContent = root.dataset.placeholder || "";
+    }
+  }
+
+  /**
+   * Run a bulk action over the currently-checked plan groups.
+   *
+   * @param {string} action The chosen action value (e.g. "delete").
+   */
+  function bulkRun(action) {
+    if (!action) {
+      return;
+    }
+    var ids = bulkChecked().map(function (cb) {
+      return cb.value;
+    });
+    if (!ids.length) {
+      window.alert(i18n.selectPlans || i18n.genericError);
+      return;
+    }
+
+    if ("delete" === action) {
+      var msg = (i18n.confirmBulkDelete || "").replace("%d", ids.length);
+      if (!window.confirm(msg)) {
+        return;
+      }
+      Promise.all(
+        ids.map(function (id) {
+          return api("DELETE", "/groups/" + id);
+        }),
+      )
+        .then(function () {
+          window.location.reload();
+        })
+        .catch(function (err) {
+          window.alert(err.message || i18n.genericError);
+        });
+    }
+  }
+
+  // Select-all toggles every row checkbox.
+  document.addEventListener("change", function (e) {
+    if (!e.target.closest("[data-subscrpt-select-all]")) {
+      return;
+    }
+    var on = e.target.checked;
+    bulkRowChecks().forEach(function (cb) {
+      cb.checked = on;
+    });
+    bulkSync();
+  });
+
+  // A single row checkbox changed.
+  document.addEventListener("change", function (e) {
+    if (e.target.classList && e.target.classList.contains("wpsubs-row-check")) {
+      bulkSync();
+    }
+  });
+
+  // Picking an option from the bulk-action dropdown runs it immediately, then
+  // resets the dropdown back to its placeholder.
+  document.addEventListener("wpsubs:select", function (e) {
+    if (!e.target.closest || !e.target.closest("[data-subscrpt-bulk-select]")) {
+      return;
+    }
+    var action = e.detail && e.detail.value;
+    bulkResetSelect();
+    bulkRun(action);
+  });
+
+  bulkSync();
 
   /* ------------------------------------------------------------------ *
    * Selling plans (terms): create / edit / delete / toggle.

@@ -110,6 +110,9 @@ class Plans {
 					'saved'                  => __( 'Saved.', 'subscription' ),
 					'deleted'                => __( 'Deleted.', 'subscription' ),
 					'confirmPlan'            => __( 'Delete this plan group and all its selling plans? This cannot be undone.', 'subscription' ),
+					/* translators: %d: number of selected plan groups. */
+					'confirmBulkDelete'      => __( 'Delete %d selected plan group(s) and all their selling plans? This cannot be undone.', 'subscription' ),
+					'selectPlans'            => __( 'Please select at least one plan group.', 'subscription' ),
 					'confirmTerm'            => __( 'Delete this selling plan?', 'subscription' ),
 					'confirmRemoveProduct'   => __( 'Remove this product from the plan group? It will be detached from every selling plan.', 'subscription' ),
 					'confirmRemoveVariation' => __( 'Remove this variation from the plan group? It will be detached from every selling plan.', 'subscription' ),
