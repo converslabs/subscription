@@ -215,7 +215,6 @@ class Plans {
 				</div>
 				<?php // overflow:visible lets the adv-select dropdowns escape the body (short modal, no scroll needed). ?>
 				<div class="wpsubs-modal__body" style="display:flex;flex-direction:column;gap:18px;overflow:visible;">
-					<div style="display:grid;grid-template-columns:<?php echo $is_variable ? '1fr 1fr' : '1fr'; ?>;gap:14px;">
 						<div style="<?php echo esc_attr( $subscrpt_field ); ?>">
 							<span style="<?php echo esc_attr( $subscrpt_field_l ); ?>"><?php esc_html_e( 'Link type', 'subscription' ); ?></span>
 							<?php
@@ -242,6 +241,7 @@ class Plans {
 							?>
 						</div>
 
+					<div style="display:grid;grid-template-columns:<?php echo $is_variable ? '1fr 1fr' : '1fr'; ?>;gap:14px;align-items:start;">
 						<?php if ( $is_variable ) : ?>
 							<div style="<?php echo esc_attr( $subscrpt_field ); ?>">
 								<span style="<?php echo esc_attr( $subscrpt_field_l ); ?>"><?php esc_html_e( 'Variation', 'subscription' ); ?></span>
@@ -267,7 +267,6 @@ class Plans {
 								?>
 							</div>
 						<?php endif; ?>
-					</div>
 
 					<div style="<?php echo esc_attr( $subscrpt_field ); ?>">
 						<span style="<?php echo esc_attr( $subscrpt_field_l ); ?>"><?php esc_html_e( 'Plan', 'subscription' ); ?></span>
@@ -310,6 +309,7 @@ class Plans {
 								?>
 							</div>
 						<?php endforeach; ?>
+					</div>
 					</div>
 
 					<div style="<?php echo esc_attr( $subscrpt_field ); ?>">
