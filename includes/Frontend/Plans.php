@@ -1,17 +1,18 @@
 <?php
 /**
- * Storefront plan display (free).
+ * Storefront plan selector (free).
  *
- * Renders the single-line plan display on a simple product that is tied to a
- * Recurring plan, and carries the resolved plan id onto the add-to-cart
- * request. Everything is guarded by `subscrpt_product_has_plan()`: when a
- * product has no tied plan this class does nothing and the classic
- * `subscrpt_simple_price_html` suffix (Frontend\Product) renders instead — the
- * two never render together for one product.
+ * Renders the plan selector — a radio card per plan group, with the group's
+ * terms as buttons — on a simple product tied to a plan, and carries the chosen
+ * plan-term id onto the add-to-cart request. Guarded by `subscrpt_plan_offered()`:
+ * with no tied plan this class does nothing and the classic price suffix stands.
+ *
+ * Runs only when Pro is inactive (see Frontend::__construct). Pro ships a superset
+ * on the same hooks — One-Time card, discount badges, variable products and the
+ * Subscribe & Save / Installments plan types.
  *
  * The storefront never calls REST; plan data is read directly through
- * `PlanRepository::resolve_for_product()` (object cache → DB). Pro layers its
- * multi-plan selector / per-variation swap on top via its own hooks.
+ * `PlanRepository::resolve_for_product()` (object cache → DB).
  *
  * @package SpringDevs\Subscription
  */
@@ -22,7 +23,7 @@ use SpringDevs\Subscription\Admin\PlanPresenter;
 use SpringDevs\Subscription\Illuminate\Plans\PlanRepository;
 
 /**
- * Frontend plan display for simple products.
+ * Frontend plan selector for simple products.
  */
 class Plans {
 
@@ -30,40 +31,75 @@ class Plans {
 	 * Register storefront hooks.
 	 */
 	public function __construct() {
-		// Runs after Frontend\Product::change_price_html (priority 10) so the
-		// plan line replaces the classic suffix rather than appending to it.
+		// Runs after Frontend\Product::change_price_html (priority 10) so the plan
+		// price replaces the classic suffix rather than appending to it.
 		add_filter( 'woocommerce_get_price_html', array( $this, 'plan_price_html' ), 20, 2 );
-		add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'add_to_cart_plan_field' ) );
+		add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'render_selector' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
 	/**
-	 * Resolve the single (first/only) plan term tied to a simple product.
+	 * Whether the plan selector should render on this request.
 	 *
-	 * Free is single-plan: `resolve_for_product()` may return several terms, but
-	 * the free storefront shows only the first. Pro renders the full selector.
-	 *
-	 * @param \WC_Product|mixed $product Product.
-	 *
-	 * @return array|null Resolved plan row, or null when no plan is tied.
+	 * @return bool
 	 */
-	protected function plan_row( $product ) {
-		if ( ! $product instanceof \WC_Product || ! $product->is_type( 'simple' ) ) {
-			return null;
-		}
-
-		$product_id = $product->get_id();
-		if ( ! subscrpt_plan_offered( $product_id ) ) {
-			return null;
-		}
-
-		$rows = PlanRepository::resolve_for_product( $product_id );
-
-		return empty( $rows ) ? null : $rows[0];
+	private function should_render() {
+		return function_exists( 'is_product' ) && is_product();
 	}
 
 	/**
-	 * Replace the price HTML with the single-line plan display when a plan is
-	 * tied; otherwise return the price unchanged (classic suffix stands).
+	 * Whether a simple product offers a subscription: tied to a plan AND
+	 * subscription-enabled. Free is simple-only.
+	 *
+	 * @param mixed $product Product object.
+	 *
+	 * @return bool
+	 */
+	private function product_has_plans( $product ) {
+		return $product instanceof \WC_Product
+			&& $product->is_type( 'simple' )
+			&& subscrpt_plan_offered( $product->get_id() );
+	}
+
+	/**
+	 * Enqueue selector assets on product pages that expose plans.
+	 *
+	 * @return void
+	 */
+	public function enqueue_assets() {
+		if ( ! $this->should_render() ) {
+			return;
+		}
+
+		// global $product is not set yet at wp_enqueue_scripts; resolve from the query.
+		$product = wc_get_product( get_queried_object_id() );
+		if ( ! $this->product_has_plans( $product ) ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'subscrpt_plans_selector_css',
+			SUBSCRPT_ASSETS . '/css/frontend/plans.css',
+			array(),
+			SUBSCRPT_VERSION
+		);
+
+		wp_enqueue_script(
+			'subscrpt_plans_selector_js',
+			SUBSCRPT_ASSETS . '/js/frontend/plans.js',
+			array(),
+			SUBSCRPT_VERSION,
+			true
+		);
+	}
+
+	/**
+	 * Replace the price HTML with the resolved plan price when a plan is tied;
+	 * otherwise return the price unchanged (classic suffix stands).
+	 *
+	 * A single tied plan shows the offer price (regular struck-through when
+	 * discounted); multiple plans show a "min – max" range across every term. No
+	 * cadence — the selector below lists each term's cadence.
 	 *
 	 * @param string            $price_html Price HTML.
 	 * @param \WC_Product|mixed $product    Product.
@@ -71,72 +107,172 @@ class Plans {
 	 * @return string
 	 */
 	public function plan_price_html( $price_html, $product ) {
-		$row = $this->plan_row( $product );
-		if ( null === $row ) {
+		if ( ! $this->product_has_plans( $product ) ) {
 			return $price_html;
 		}
 
-		$data    = is_array( $row['relation_data'] ) ? $row['relation_data'] : array();
-		$regular = isset( $data['regular_price'] ) ? (string) $data['regular_price'] : '';
-		$sale    = isset( $data['sale_price'] ) ? (string) $data['sale_price'] : '';
-		$dtype   = isset( $data['discount_type'] ) ? (string) $data['discount_type'] : 'percentage';
-		$dvalue  = isset( $data['discount_value'] ) ? (string) $data['discount_value'] : '0';
-		$price   = PlanPresenter::offer_price( $regular, $sale, $dtype, $dvalue );
-
-		// Show the regular price struck-through beside the offer when discounted.
-		$regular_num = '' !== $regular ? (float) $regular : null;
-		$price_html  = ( null !== $regular_num && $price < $regular_num )
-			? '<del aria-hidden="true">' . wc_price( $regular_num ) . '</del> <ins>' . wc_price( $price ) . '</ins>'
-			: wc_price( $price );
-
-		$frequency = max( 1, (int) $row['billing_frequency'] );
-		$interval  = PlanRepository::interval_to_option( (int) $row['billing_interval'] );
-		$word      = subscrpt_get_typos( $frequency, $interval );
-		$period    = $frequency > 1 ? $frequency . ' ' . strtolower( $word ) : strtolower( $word );
-
-		$trial_html = '';
-		$trial_num  = (int) ( $row['free_trial'] ?? 0 );
-		if ( $trial_num > 0 ) {
-			$trial_unit = isset( $row['plan_data']['free_trial_interval'] ) ? (string) $row['plan_data']['free_trial_interval'] : 'days';
-			$trial_word = strtolower( subscrpt_get_typos( $trial_num, $trial_unit ) );
-			$trial_html = '<small class="wpsubs-plan-trial"> + ' . sprintf(
-				/* translators: 1: number, 2: unit (day/week/month/year). */
-				esc_html__( '%1$d %2$s free trial', 'subscription' ),
-				$trial_num,
-				esc_html( $trial_word )
-			) . '</small>';
+		$rows = PlanRepository::resolve_for_product( $product->get_id() );
+		if ( empty( $rows ) ) {
+			return $price_html;
 		}
 
-		return wc_get_template_html(
+		// Single plan: offer price, with the regular struck-through when discounted.
+		if ( 1 === count( $rows ) ) {
+			$row     = $rows[0];
+			$data    = is_array( $row['relation_data'] ) ? $row['relation_data'] : array();
+			$regular = isset( $data['regular_price'] ) && '' !== $data['regular_price'] ? (float) $data['regular_price'] : null;
+			$offer   = $this->term_price( $row );
+
+			return ( null !== $regular && $offer < $regular )
+				? '<del aria-hidden="true">' . wc_price( $regular ) . '</del> <ins>' . wc_price( $offer ) . '</ins>'
+				: wc_price( $offer );
+		}
+
+		// Multiple plans: a min–max range across every attached term.
+		$prices = array();
+		foreach ( $rows as $row ) {
+			$prices[] = $this->term_price( $row );
+		}
+
+		$min = min( $prices );
+		$max = max( $prices );
+
+		return $min === $max
+			? wc_price( $min )
+			: wc_price( $min ) . ' &ndash; ' . wc_price( $max );
+	}
+
+	/**
+	 * Render the plan selector inside the add-to-cart form.
+	 *
+	 * @return void
+	 */
+	public function render_selector() {
+		if ( ! $this->should_render() ) {
+			return;
+		}
+
+		global $product;
+		if ( ! $this->product_has_plans( $product ) ) {
+			return;
+		}
+
+		$groups = $this->build_groups( $product );
+		if ( empty( $groups ) ) {
+			return;
+		}
+
+		wc_get_template(
 			'product/plan-selector.php',
-			array(
-				'price_html'   => $price_html,
-				'period_label' => $period,
-				'trial_html'   => $trial_html,
-				'plan_id'      => (int) $row['plan_id'],
-			),
+			array( 'groups' => $groups ),
 			'subscription',
 			SUBSCRPT_TEMPLATES
 		);
 	}
 
 	/**
-	 * Output the hidden plan-id field inside the add-to-cart form so the chosen
-	 * plan travels on the add-to-cart request. Checkout consumption reads it.
+	 * Build the selector groups for a simple product from resolved plan data.
 	 *
-	 * @return void
+	 * One entry per plan group, each with its terms (id, label, price, note).
+	 * No One-Time card and no discount badge — those are Pro-only.
+	 *
+	 * @param \WC_Product $product Simple product.
+	 *
+	 * @return array
 	 */
-	public function add_to_cart_plan_field() {
-		global $product;
-
-		$row = $this->plan_row( $product );
-		if ( null === $row ) {
-			return;
+	private function build_groups( $product ) {
+		$resolved = PlanRepository::resolve_for_product( $product->get_id() );
+		if ( empty( $resolved ) ) {
+			return array();
 		}
 
-		printf(
-			'<input type="hidden" name="subscrpt_plan_id" value="%d" />',
-			(int) $row['plan_id']
+		$groups = array();
+		foreach ( $resolved as $row ) {
+			$gid = (int) $row['plan_group_id'];
+
+			if ( ! isset( $groups[ $gid ] ) ) {
+				$groups[ $gid ] = array(
+					'id'    => 'grp_' . $gid,
+					'type'  => PlanRepository::type_to_string( (int) $row['group_type'] ),
+					'label' => $row['group_title'],
+					'price' => '',
+					'terms' => array(),
+				);
+			}
+
+			$price_num = $this->term_price( $row );
+
+			$groups[ $gid ]['terms'][] = array(
+				'id'    => (int) $row['plan_id'],
+				'label' => $row['plan_title'],
+				'price' => wc_price( $price_num ),
+				'note'  => $this->term_note( $row, $price_num ),
+			);
+		}
+
+		// Card header price = the first term of each group.
+		foreach ( $groups as &$group ) {
+			$group['price'] = $group['terms'][0]['price'];
+		}
+		unset( $group );
+
+		return array_values( $groups );
+	}
+
+	/**
+	 * Compute the numeric offer price for a resolved plan term.
+	 *
+	 * @param array $row Resolved plan row.
+	 *
+	 * @return float
+	 */
+	private function term_price( $row ) {
+		$data    = is_array( $row['relation_data'] ) ? $row['relation_data'] : array();
+		$regular = isset( $data['regular_price'] ) ? (string) $data['regular_price'] : '';
+		$selling = isset( $data['sale_price'] ) ? (string) $data['sale_price'] : '';
+		$dtype   = isset( $data['discount_type'] ) ? (string) $data['discount_type'] : 'percentage';
+		$dvalue  = isset( $data['discount_value'] ) ? (string) $data['discount_value'] : '0';
+
+		return (float) PlanPresenter::offer_price( $regular, $selling, $dtype, $dvalue );
+	}
+
+	/**
+	 * Build the billing-cadence note shown under a term ("Billed $10 / month").
+	 *
+	 * @param array $row       Resolved plan row.
+	 * @param float $price_num Computed term price.
+	 *
+	 * @return string
+	 */
+	private function term_note( $row, $price_num ) {
+		$interval = PlanPresenter::interval_label( (int) $row['billing_interval'] );
+		$freq     = max( 1, (int) $row['billing_frequency'] );
+		$every    = 1 === $freq ? strtolower( $interval ) : $freq . ' ' . strtolower( $interval ) . 's';
+
+		$data    = is_array( $row['relation_data'] ) ? $row['relation_data'] : array();
+		$regular = isset( $data['regular_price'] ) && '' !== $data['regular_price'] ? (float) $data['regular_price'] : null;
+
+		$price_disp = ( null !== $regular && $price_num < $regular )
+			? '<del>' . $this->price_text( $regular ) . '</del> ' . $this->price_text( $price_num )
+			: $this->price_text( $price_num );
+
+		return sprintf(
+			/* translators: 1: price (may include a struck-through regular price), 2: billing interval. */
+			__( 'Billed %1$s / %2$s', 'subscription' ),
+			$price_disp,
+			$every
 		);
+	}
+
+	/**
+	 * Plain-text formatted price (currency symbol as a real character, not an
+	 * HTML entity) so it renders cleanly inside the note / data attributes.
+	 *
+	 * @param float $amount Amount.
+	 *
+	 * @return string
+	 */
+	private function price_text( $amount ) {
+		return html_entity_decode( wp_strip_all_tags( wc_price( (float) $amount ) ), ENT_QUOTES, 'UTF-8' );
 	}
 }
