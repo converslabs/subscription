@@ -1,15 +1,16 @@
 <?php
 /**
- * Storefront plan selector (free) — simple products.
+ * Storefront plan selector — shared base template.
  *
- * Renders each plan group tied to the product as a selectable radio card; a
- * group's terms render as buttons beneath its billing note. The chosen plan-term
- * id posts via the hidden field. Pro layers One-Time, discount badges and
- * variable-product support on top.
+ * A radio card per plan group; a group's terms render as buttons beneath its
+ * billing note; the chosen plan-term id posts via the hidden field. This is the
+ * base template shipped by the free plugin and reused by Pro — the discount
+ * badge and the One-Time card only render when Pro supplies that data (a `badge`
+ * on a group / a group of type `one_time`); free never sets them.
  *
  * Override by copying to <your_theme>/subscription/product/plan-selector.php
  *
- * @var array $groups Plan groups (id, type, label, price, terms[]).
+ * @var array $groups Plan groups (id, type, label, price, old_price, badge, terms[]).
  *
  * @package SpringDevs\Subscription
  */
@@ -17,7 +18,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // The first card is pre-selected; seed the posted plan id from its first term
-// so the submitted value always matches the visible selection.
+// so the submitted value always matches the visible selection (One-Time = empty).
 $default_plan_id = '';
 if ( ! empty( $groups[0]['terms'] ) ) {
 	$default_plan_id = $groups[0]['terms'][0]['id'];
@@ -32,9 +33,21 @@ if ( ! empty( $groups[0]['terms'] ) ) {
 		$has_terms = ! empty( $group['terms'] );
 		?>
 		<label class="subscrpt-buybox__card <?php echo $is_first ? 'is-selected' : ''; ?>" for="<?php echo esc_attr( $gid ); ?>" data-subscrpt-card<?php echo ( $has_terms && 1 === count( $group['terms'] ) ) ? ' data-subscrpt-single-term="' . esc_attr( $group['terms'][0]['id'] ) . '"' : ''; ?>>
+			<?php if ( ! empty( $group['badge'] ) ) : ?>
+				<span class="subscrpt-buybox__badge"><?php echo esc_html( $group['badge'] ); ?></span>
+			<?php endif; ?>
 			<span class="subscrpt-buybox__head">
 				<input type="radio" class="subscrpt-buybox__radio" id="<?php echo esc_attr( $gid ); ?>" name="subscrpt_plan_group" value="<?php echo esc_attr( $group['id'] ); ?>" <?php checked( $is_first ); ?> />
-				<?php if ( $has_terms ) : ?>
+				<?php // Name + price beside the radio; the term options render as buttons below. ?>
+				<?php if ( 'one_time' === $group['type'] ) : ?>
+					<span class="subscrpt-buybox__label"><?php echo esc_html( $group['label'] ); ?></span>
+					<span class="subscrpt-buybox__price">
+						<?php if ( ! empty( $group['old_price'] ) ) : ?>
+							<del><?php echo wp_kses_post( $group['old_price'] ); ?></del>
+						<?php endif; ?>
+						<ins data-subscrpt-card-price><?php echo wp_kses_post( $group['price'] ); ?></ins>
+					</span>
+				<?php elseif ( $has_terms ) : ?>
 					<span class="subscrpt-buybox__label"><?php echo esc_html( $group['label'] ); ?></span>
 				<?php endif; ?>
 			</span>
