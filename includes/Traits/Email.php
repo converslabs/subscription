@@ -180,7 +180,9 @@ trait Email {
 
 		$this->product_name = $order_item->get_name();
 		$this->qty          = $order_item->get_quantity();
-		$this->amount       = Helper::format_price_with_order_item( get_post_meta( $this->subscription_id, '_subscrpt_price', true ), $order_item->get_id() );
+
+		// Text form, not the struck-through markup: every one of these emails renders in plain text too.
+		$this->amount = Helper::get_subscription_recurring_price_text( $this->subscription_id, $order_item );
 	}
 
 	/**

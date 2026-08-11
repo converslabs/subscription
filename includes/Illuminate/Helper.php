@@ -737,22 +737,42 @@ class Helper {
 			'exhausted' => false,
 		);
 
+		// Memoized per request: list views and the single view each resolve the same
+		// subscription two or three times, and a coupon'd subscription costs a query.
+		static $cache = array();
+
+		$cache_key = $subscription_id . '|' . ( $order_item ? $order_item->get_id() : 0 );
+
+		if ( isset( $cache[ $cache_key ] ) ) {
+			return $cache[ $cache_key ];
+		}
+
 		if ( ! $order ) {
 			$order_item_id = get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
 			$order         = $order_item_id ? wc_get_order( wc_get_order_id_by_order_item_id( $order_item_id ) ) : null;
 		}
 
 		if ( ! $order ) {
+			$cache[ $cache_key ] = $result;
 			return $result;
 		}
 
 		$coupon_lines = $order->get_items( 'coupon' );
 		if ( empty( $coupon_lines ) ) {
+			$cache[ $cache_key ] = $result;
 			return $result;
 		}
 
-		$paid_orders = count( self::get_related_orders( (int) $subscription_id ) );
-		$limits      = array();
+		/*
+		 * Position the next renewal will take in this subscription's order sequence.
+		 *
+		 * Note this is deliberately one more than the current order count, and so is NOT the
+		 * same expression pro's Coupon::maybe_add_coupon_to_renewal_order() evaluates: that
+		 * runs after the new order's relation row is already inserted, so its count includes
+		 * the order being created. Both mean "is this order still within the limit".
+		 */
+		$next_order_position = count( self::get_related_orders( (int) $subscription_id ) ) + 1;
+		$limits              = array();
 
 		foreach ( $coupon_lines as $coupon_line ) {
 			$coupon = new \WC_Coupon( $coupon_line->get_code() );
@@ -768,8 +788,8 @@ class Helper {
 			if ( $limit > 0 ) {
 				$limits[] = $limit;
 
-				// Same condition the pro plugin uses when deciding to skip a renewal coupon.
-				if ( $paid_orders >= $limit ) {
+				// The next renewal is past the limit, so it will be charged full price.
+				if ( $next_order_position > $limit ) {
 					$result['exhausted'] = true;
 					continue;
 				}
@@ -787,6 +807,8 @@ class Helper {
 		if ( $result['amount'] > 0 && $discounted_subtotal > 0 && abs( $discounted_subtotal - $recurring_subtotal ) > 0.01 ) {
 			$result['amount'] = $result['amount'] * ( $recurring_subtotal / $discounted_subtotal );
 		}
+
+		$cache[ $cache_key ] = $result;
 
 		return $result;
 	}
@@ -830,44 +852,105 @@ class Helper {
 	}
 
 	/**
-	 * Formatted recurring amount for a subscription, striking the original when a discount recurs.
-	 *
-	 * Produces the same `<del>` / `<ins>` shape the cart's recurring totals use, so a customer
-	 * sees one consistent treatment of a recurring discount from cart through to order details.
+	 * Resolve the pieces every recurring-amount display needs.
 	 *
 	 * @param int                 $subscription_id Subscription ID.
 	 * @param \WC_Order_Item|null $order_item      Source order item.
-	 * @param string              $del_style       Inline style for the struck-through amount. Email clients
-	 *                                             strip stylesheets, so email callers must pass one.
 	 *
-	 * @return string|false Formatted price, or false when the order item has no subscription meta.
+	 * @return array|false {discounted:string,full:string,has_discount:bool}, or false when the
+	 *                     order item is missing or carries no subscription meta.
 	 */
-	public static function get_subscription_recurring_price_html( $subscription_id, $order_item = null, $del_style = '' ) {
+	protected static function get_subscription_recurring_price_parts( $subscription_id, $order_item = null ) {
 		if ( ! $order_item ) {
 			return false;
 		}
 
 		$totals     = self::get_subscription_display_totals( $subscription_id, $order_item );
-		$price_html = self::format_price_with_order_item( $totals['total'], $order_item->get_id() );
+		$discounted = self::format_price_with_order_item( $totals['total'], $order_item->get_id() );
 
-		if ( ! $price_html || ! $totals['has_discount'] ) {
-			return $price_html;
+		if ( ! $discounted ) {
+			return false;
 		}
 
 		// Undiscounted amount including its own tax.
 		$full  = $totals['full_excl'] + $totals['tax'] + $totals['discount_tax'];
 		$order = wc_get_order( $order_item->get_order_id() );
 
-		$full_html = wc_price(
-			$full,
-			array(
-				'currency' => $order ? $order->get_currency() : '',
-			)
+		return array(
+			'discounted'   => $discounted,
+			'full'         => wc_price(
+				$full,
+				array(
+					'currency' => $order ? $order->get_currency() : '',
+				)
+			),
+			'has_discount' => $totals['has_discount'],
 		);
+	}
 
+	/**
+	 * Formatted recurring amount for a subscription, striking the original when a discount recurs.
+	 *
+	 * Produces the same `<del>` / `<ins>` shape the cart's recurring totals use, so a customer
+	 * sees one consistent treatment of a recurring discount from cart through to order details.
+	 * Use `get_subscription_recurring_price_text()` anywhere the output may reach a plain-text
+	 * context, such as an email that renders in both HTML and plain.
+	 *
+	 * @param int                 $subscription_id Subscription ID.
+	 * @param \WC_Order_Item|null $order_item      Source order item.
+	 * @param array               $args            Optional. 'del_style' is an inline style for the struck-through
+	 *                                             amount — email clients strip stylesheets, so email callers
+	 *                                             must pass one.
+	 *
+	 * @return string|false Formatted price, or false when the order item has no subscription meta.
+	 */
+	public static function get_subscription_recurring_price_html( $subscription_id, $order_item = null, $args = array() ) {
+		$parts = self::get_subscription_recurring_price_parts( $subscription_id, $order_item );
+
+		if ( ! $parts ) {
+			return false;
+		}
+
+		if ( ! $parts['has_discount'] ) {
+			return $parts['discounted'];
+		}
+
+		$del_style      = $args['del_style'] ?? '';
 		$del_attributes = $del_style ? ' style="' . esc_attr( $del_style ) . '"' : '';
 
-		return '<del aria-hidden="true"' . $del_attributes . '>' . $full_html . '</del> <ins>' . $price_html . '</ins>';
+		return '<del aria-hidden="true"' . $del_attributes . '>' . $parts['full'] . '</del> <ins>' . $parts['discounted'] . '</ins>';
+	}
+
+	/**
+	 * Formatted recurring amount for a subscription, as markup-free text.
+	 *
+	 * For contexts that cannot render `<del>` — plain-text emails above all, where stripping the
+	 * tags would leave two bare amounts side by side and no way to tell which is charged.
+	 *
+	 * @param int                 $subscription_id Subscription ID.
+	 * @param \WC_Order_Item|null $order_item      Source order item.
+	 *
+	 * @return string|false Formatted price, or false when the order item has no subscription meta.
+	 */
+	public static function get_subscription_recurring_price_text( $subscription_id, $order_item = null ) {
+		$parts = self::get_subscription_recurring_price_parts( $subscription_id, $order_item );
+
+		if ( ! $parts ) {
+			return false;
+		}
+
+		$discounted = wp_strip_all_tags( $parts['discounted'] );
+
+		if ( ! $parts['has_discount'] ) {
+			return $discounted;
+		}
+
+		return sprintf(
+			// translators: 1: discounted recurring amount, 2: original amount before the discount.
+			__( '%1$s (discounted from %2$s)', 'subscription' ),
+			$discounted,
+			wp_strip_all_tags( $parts['full'] )
+		);
 	}
 
 	/**

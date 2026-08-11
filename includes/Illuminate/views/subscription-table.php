@@ -79,7 +79,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						SpringDevs\Subscription\Illuminate\Helper::get_subscription_recurring_price_html(
 							$subscription_id,
 							$item,
-							'color: #999999;'
+							[ 'del_style' => 'color: #999999;' ]
 						)
 					);
 					?>

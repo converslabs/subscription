@@ -108,7 +108,18 @@ if ( $order && isset( $subscription_data['price'] ) && '' !== $subscription_data
 			: ucfirst( $timing_option );
 	}
 
-	$recurring_value = wc_price( (float) $subscription_data['price'], array( 'currency' => $order->get_currency() ) );
+	// Net of any discount that carries into renewals, with the original struck through.
+	$recurring_totals = Helper::get_subscription_display_totals( $subscription_id, $order_item );
+	$recurring_full   = $recurring_totals['full_excl'] + $recurring_totals['tax'] + $recurring_totals['discount_tax'];
+
+	$recurring_value = wc_price( (float) $recurring_totals['total'], array( 'currency' => $order->get_currency() ) );
+
+	if ( $recurring_totals['has_discount'] ) {
+		$recurring_value = '<del aria-hidden="true" class="subscrpt-summary__was">'
+			. wc_price( $recurring_full, array( 'currency' => $order->get_currency() ) )
+			. '</del> ' . $recurring_value;
+	}
+
 	if ( $period_label ) {
 		$recurring_value .= '<span class="subscrpt-summary__unit"> / ' . esc_html( $period_label ) . '</span>';
 	}
@@ -813,6 +824,12 @@ $subscrpt_details_ctx = array(
 	font-size: 13px;
 	font-weight: 500;
 	color: var(--wpsubs-text-muted);
+}
+.subscrpt-summary__value .subscrpt-summary__was {
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--wpsubs-text-muted);
+	margin-right: 4px;
 }
 
 .subscrpt-detail-grid {

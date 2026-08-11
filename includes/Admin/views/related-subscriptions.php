@@ -48,15 +48,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$next_date = $subscription_data['next_date'] ?? '';
 			$next_date = ! empty( $next_date ) ? wp_date( 'F j, Y - g:i A', strtotime( $next_date ) ) : '-';
 
-			$quantity       = (int) $order_item->get_quantity();
-			$price          = (float) ( $subscription_data['price'] ?? 0 ) * max( 1, $quantity );
-			$price_excl_tax = (float) $order_item->get_total();
-			$tax_amount     = (float) $order_item->get_total_tax();
-
-			if ( $tax_amount > 0 ) {
-				$price = $price_excl_tax + $tax_amount;
-				$price = number_format( (float) $price, 2, '.', '' );
-			}
+			// Strikes the original amount when a discount carries into renewals.
+			$price_html = SpringDevs\Subscription\Illuminate\Helper::get_subscription_recurring_price_html( $subscription_id, $order_item );
 
 			$is_grace_period = isset( $subscription_data['grace_period'] );
 			$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
@@ -69,7 +62,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<?php echo esc_html( $order_item->get_name() ); ?>
 					</td>
 					<td>
-						<?php echo wp_kses_post( SpringDevs\Subscription\Illuminate\Helper::format_price_with_order_item( $price, $order_item->get_id() ) ); ?>
+						<?php echo wp_kses_post( $price_html ); ?>
 					</td>
 					<td>
 						<?php echo esc_html( $start_date ); ?>
