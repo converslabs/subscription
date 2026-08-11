@@ -80,9 +80,33 @@ const RecurringTotals = ({ cart, extensions }) => {
             // Capitalize the first letter to match product page display
             const capitalizedType = recurring.type.charAt(0).toUpperCase() + recurring.type.slice(1);
 
+            const priceFormatArgs = {
+              currency: currency.code,
+              currency_symbol: currency.symbol,
+              decimal_separator: currency.decimalSeparator,
+              thousand_separator: currency.thousandSeparator,
+              precision: currency.minorUnit,
+              price_format: currency.priceFormat,
+            };
+
+            /**
+             * Format an amount the same way the surrounding totals are formatted.
+             *
+             * @param {number} amount Amount in major units.
+             * @return {string} Formatted price.
+             */
+            const format = (amount) => formatPrice(Math.round(amount * multiplier), priceFormatArgs);
+
+            const recurringLimit = parseInt(recurring.recurring_limit, 10) || 0;
+
             return (
               <div style={{ margin: "20px 0", float: "right" }}>
                 <div style={{ fontSize: "18px" }}>
+                  {recurring.has_recurring_discount && (
+                    <del aria-hidden="true" style={{ marginRight: "6px", opacity: 0.6 }}>
+                      {format(recurring.full_price)}
+                    </del>
+                  )}
                   <FormattedMonetaryAmount currency={currency} value={Math.round(recurring.price * multiplier)} />
                   <span class="wpsubs-subscription-timing">
                     &nbsp;/&nbsp;
@@ -92,6 +116,38 @@ const RecurringTotals = ({ cart, extensions }) => {
                   </span>
                 </div>
                 <small>{recurring.description}</small>
+                {recurring.has_one_time_discount && (
+                  <>
+                    <br />
+                    <small>
+                      {sprintf(
+                        // translators: 1: amount paid today, 2: amount charged on each renewal.
+                        __("You pay %1$s today. %2$s will be charged from the next renewal.", "subscription"),
+                        format(recurring.first_price),
+                        format(recurring.price),
+                      )}
+                    </small>
+                  </>
+                )}
+                {recurring.has_recurring_discount && recurringLimit > 0 && (
+                  <>
+                    <br />
+                    <small>
+                      {recurringLimit === 1
+                        ? sprintf(
+                            // translators: %s: full price charged from the second payment onwards.
+                            __("Discounted for the first payment, then %s.", "subscription"),
+                            format(recurring.full_price),
+                          )
+                        : sprintf(
+                            // translators: 1: number of discounted payments, 2: full price charged afterwards.
+                            __("Discounted for the first %1$s payments, then %2$s.", "subscription"),
+                            recurringLimit,
+                            format(recurring.full_price),
+                          )}
+                    </small>
+                  </>
+                )}
                 {recurring.can_user_cancel === "yes" &&
                   (recurring.max_no_payment === "" || parseInt(recurring.max_no_payment) === 0) && (
                     <>
@@ -110,14 +166,7 @@ const RecurringTotals = ({ cart, extensions }) => {
                           "subscription",
                         ),
                         recurring.max_no_payment,
-                        formatPrice(Math.round(recurring.price * multiplier * parseInt(recurring.max_no_payment)), {
-                          currency: currency.code,
-                          currency_symbol: currency.symbol,
-                          decimal_separator: currency.decimalSeparator,
-                          thousand_separator: currency.thousandSeparator,
-                          precision: currency.minorUnit,
-                          price_format: currency.priceFormat,
-                        }),
+                        format(recurring.price * parseInt(recurring.max_no_payment)),
                       )}
                     </small>
                   </>

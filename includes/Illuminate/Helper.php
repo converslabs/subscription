@@ -562,6 +562,156 @@ class Helper {
 	}
 
 	/**
+	 * Resolve applied coupon discounts for a single cart item, split by whether they recur.
+	 *
+	 * WooCommerce computes a per-coupon, per-item discount breakdown while calculating cart
+	 * totals but never persists it — only the aggregated per-coupon and per-item sums survive.
+	 * Replaying the coupons through a fresh WC_Discounts instance recovers that breakdown,
+	 * which is what lets recurring and one-time discounts be told apart for one cart line.
+	 *
+	 * Amounts are returned in the same space WC_Discounts works in, i.e. `get_price() * qty`,
+	 * so they are tax-inclusive only when the store's prices include tax.
+	 *
+	 * @param string $cart_item_key Cart item key.
+	 *
+	 * @return array{recurring:float,non_recurring:float,total:float,recurring_limit:int}
+	 */
+	public static function get_cart_item_coupon_discounts( $cart_item_key ) {
+		$empty = array(
+			'recurring'       => 0.0,
+			'non_recurring'   => 0.0,
+			'total'           => 0.0,
+			'recurring_limit' => 0,
+		);
+
+		if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+			return $empty;
+		}
+
+		$coupons = WC()->cart->get_coupons();
+		if ( empty( $coupons ) ) {
+			return $empty;
+		}
+
+		// Memoized per cart state: recurring totals are read several times per request, and
+		// replaying coupons re-runs coupon validation, which hits the database.
+		static $cache = array();
+
+		$cache_key = md5( WC()->cart->get_cart_hash() . '|' . implode( ',', array_keys( $coupons ) ) );
+
+		if ( ! isset( $cache[ $cache_key ] ) ) {
+			// Replay in cart order so stacked coupons resolve exactly as WC_Cart_Totals resolved them.
+			$discounts = new \WC_Discounts( WC()->cart );
+			foreach ( $coupons as $coupon ) {
+				$discounts->apply_coupon( $coupon );
+			}
+			$cache[ $cache_key ] = $discounts->get_discounts();
+		}
+
+		$result = $empty;
+		$limits = array();
+
+		foreach ( $cache[ $cache_key ] as $coupon_code => $item_discounts ) {
+			$amount = (float) ( $item_discounts[ $cart_item_key ] ?? 0 );
+			if ( 0 >= $amount ) {
+				continue;
+			}
+
+			$coupon = $coupons[ $coupon_code ] ?? new \WC_Coupon( $coupon_code );
+
+			/**
+			 * Filters whether a coupon's discount also applies to subscription renewals.
+			 *
+			 * The free plugin has no recurring-coupon concept, so discounts apply to the
+			 * first payment only unless an extension — the pro plugin — says otherwise.
+			 *
+			 * @param bool       $is_recurring  Whether the discount recurs. Default false.
+			 * @param \WC_Coupon $coupon        Coupon object.
+			 * @param string     $cart_item_key Cart item key the discount applies to.
+			 */
+			$is_recurring = (bool) apply_filters( 'subscrpt_coupon_is_recurring', false, $coupon, $cart_item_key );
+
+			if ( ! $is_recurring ) {
+				$result['non_recurring'] += $amount;
+				continue;
+			}
+
+			$result['recurring'] += $amount;
+
+			/**
+			 * Filters how many payments a recurring coupon's discount covers.
+			 *
+			 * @param int        $limit         Number of payments, including the initial one. 0 means unlimited.
+			 * @param \WC_Coupon $coupon        Coupon object.
+			 * @param string     $cart_item_key Cart item key the discount applies to.
+			 */
+			$limit = (int) apply_filters( 'subscrpt_coupon_recurring_limit', 0, $coupon, $cart_item_key );
+			if ( $limit > 0 ) {
+				$limits[] = $limit;
+			}
+		}
+
+		$result['total'] = $result['recurring'] + $result['non_recurring'];
+
+		// The earliest limit to expire is when the discounted figure stops being true.
+		$result['recurring_limit'] = empty( $limits ) ? 0 : min( $limits );
+
+		return $result;
+	}
+
+	/**
+	 * Build the discount-aware recurring price figures and markup for one cart item.
+	 *
+	 * A recurring coupon lowers what every renewal costs, so it is folded into the recurring
+	 * figures. A one-time coupon lowers only what is paid today, so the recurring figures keep
+	 * the full price and the caller discloses the first-payment amount separately.
+	 *
+	 * Discounts come back from WC_Discounts in `get_price() * qty` space, so they are converted
+	 * to the tax-inclusive display space by ratio rather than by re-deriving tax.
+	 *
+	 * @param array  $cart_item     Cart item.
+	 * @param string $cart_item_key Cart item key.
+	 * @param string $type_label    Human readable timing label, e.g. "Month".
+	 *
+	 * @return array
+	 */
+	public static function build_cart_recurring_price_data( $cart_item, $cart_item_key, $type_label ) {
+		$product  = $cart_item['data'];
+		$quantity = (int) $cart_item['quantity'];
+		$per_cost = (float) ( $cart_item['subscription']['per_cost'] ?? 0 );
+
+		$full_total = (float) wc_get_price_including_tax( $product, [ 'qty' => $quantity ] );
+		$discounts  = self::get_cart_item_coupon_discounts( $cart_item_key );
+
+		// Same basis WC_Discounts used, so the discount and the basis are directly comparable.
+		$basis           = (float) $product->get_price() * $quantity;
+		$recurring_ratio = $basis > 0 ? ( $basis - $discounts['recurring'] ) / $basis : 1.0;
+		$first_ratio     = $basis > 0 ? ( $basis - $discounts['total'] ) / $basis : 1.0;
+
+		$total       = $full_total * $recurring_ratio;
+		$timing_html = "<span class='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type_label}</span>";
+
+		$has_recurring_discount = $discounts['recurring'] > 0;
+		$full_price_html        = wc_price( $full_total ) . $timing_html;
+		$price_html             = $has_recurring_discount
+			? '<del aria-hidden="true">' . wc_price( $full_total ) . '</del> <ins>' . wc_price( $total ) . '</ins>' . $timing_html
+			: $full_price_html;
+
+		return array(
+			'price_html'             => $price_html,
+			'full_price_html'        => $full_price_html,
+			'price'                  => $per_cost * $recurring_ratio,
+			'full_price'             => $per_cost,
+			'total'                  => $total,
+			'full_total'             => $full_total,
+			'first_total'            => $full_total * $first_ratio,
+			'has_recurring_discount' => $has_recurring_discount,
+			'has_one_time_discount'  => $discounts['non_recurring'] > 0,
+			'recurring_limit'        => $discounts['recurring_limit'],
+		);
+	}
+
+	/**
 	 * Get recurrings items from cart items.
 	 *
 	 * @param array $cart_items Cart items.
@@ -575,22 +725,18 @@ class Helper {
 			if ( $product->is_type( 'simple' ) && isset( $cart_item['subscription'] ) ) {
 				$cart_subscription = $cart_item['subscription'];
 				$type              = ucfirst( $cart_subscription['type'] );
+				$price_data        = self::build_cart_recurring_price_data( $cart_item, $key, $type );
 
-				// Total amount with tax
-				$quantity     = (int) $cart_item['quantity'];
-				$total_amount = wc_get_price_including_tax( $product, [ 'qty' => $quantity ] );
-				$timing_html  = "<span class='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type}</span>";
-				$price_html   = wc_price( (float) $total_amount ) . $timing_html;
-
-				$recurrs[ $key ] = array(
-					'trial_status'    => ! is_null( $cart_subscription['trial'] ),
-					'price_html'      => $price_html,
-					'start_date'      => self::start_date( $cart_subscription['trial'] ),
-					'next_date'       => self::next_date( ( $cart_subscription['time'] ?? 1 ) . ' ' . $cart_subscription['type'], $cart_subscription['trial'] ),
-					'can_user_cancel' => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
-					'max_no_payment'  => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
-					'price'           => (float) $cart_subscription['per_cost'],
-					'quantity'        => (int) $cart_item['quantity'],
+				$recurrs[ $key ] = array_merge(
+					$price_data,
+					array(
+						'trial_status'    => ! is_null( $cart_subscription['trial'] ),
+						'start_date'      => self::start_date( $cart_subscription['trial'] ),
+						'next_date'       => self::next_date( ( $cart_subscription['time'] ?? 1 ) . ' ' . $cart_subscription['type'], $cart_subscription['trial'] ),
+						'can_user_cancel' => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
+						'max_no_payment'  => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+						'quantity'        => (int) $cart_item['quantity'],
+					)
 				);
 			}
 		}
