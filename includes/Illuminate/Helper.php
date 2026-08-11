@@ -712,6 +712,165 @@ class Helper {
 	}
 
 	/**
+	 * Resolve the discount that still applies to a subscription's future renewals.
+	 *
+	 * Only coupons flagged as recurring survive into renewal orders, and only while their
+	 * recurring limit holds — this mirrors the skip conditions in the pro plugin's
+	 * `Coupon::maybe_add_coupon_to_renewal_order()`, so what is displayed matches what the
+	 * next renewal order will actually be charged.
+	 *
+	 * A subscription order always holds exactly one line item (enforced by
+	 * `Frontend\Cart::validate_cart_items()`), so each coupon line's whole discount belongs
+	 * to that item.
+	 *
+	 * @param int                 $subscription_id Subscription ID.
+	 * @param \WC_Order|null      $order           Source order. Resolved from the subscription when omitted.
+	 * @param \WC_Order_Item|null $order_item      Source order item. Used to rebase the discount when the
+	 *                                             recurring price has since drifted, e.g. after a switch.
+	 *
+	 * @return array{amount:float,limit:int,exhausted:bool}
+	 */
+	public static function get_subscription_recurring_discount( $subscription_id, $order = null, $order_item = null ) {
+		$result = array(
+			'amount'    => 0.0,
+			'limit'     => 0,
+			'exhausted' => false,
+		);
+
+		if ( ! $order ) {
+			$order_item_id = get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
+			$order         = $order_item_id ? wc_get_order( wc_get_order_id_by_order_item_id( $order_item_id ) ) : null;
+		}
+
+		if ( ! $order ) {
+			return $result;
+		}
+
+		$coupon_lines = $order->get_items( 'coupon' );
+		if ( empty( $coupon_lines ) ) {
+			return $result;
+		}
+
+		$paid_orders = count( self::get_related_orders( (int) $subscription_id ) );
+		$limits      = array();
+
+		foreach ( $coupon_lines as $coupon_line ) {
+			$coupon = new \WC_Coupon( $coupon_line->get_code() );
+
+			/** This filter is documented in includes/Illuminate/Helper.php */
+			if ( ! apply_filters( 'subscrpt_coupon_is_recurring', false, $coupon, '' ) ) {
+				continue;
+			}
+
+			/** This filter is documented in includes/Illuminate/Helper.php */
+			$limit = (int) apply_filters( 'subscrpt_coupon_recurring_limit', 0, $coupon, '' );
+
+			if ( $limit > 0 ) {
+				$limits[] = $limit;
+
+				// Same condition the pro plugin uses when deciding to skip a renewal coupon.
+				if ( $paid_orders >= $limit ) {
+					$result['exhausted'] = true;
+					continue;
+				}
+			}
+
+			$result['amount'] += (float) $coupon_line->get_discount();
+		}
+
+		$result['limit'] = empty( $limits ) ? 0 : min( $limits );
+
+		// Rebase onto the current recurring price when it no longer matches what was discounted.
+		$discounted_subtotal = $order_item ? (float) $order_item->get_subtotal() : 0.0;
+		$recurring_subtotal  = $order_item ? (float) self::get_subscription_total( $subscription_id ) * max( 1, (int) $order_item->get_quantity() ) : 0.0;
+
+		if ( $result['amount'] > 0 && $discounted_subtotal > 0 && abs( $discounted_subtotal - $recurring_subtotal ) > 0.01 ) {
+			$result['amount'] = $result['amount'] * ( $recurring_subtotal / $discounted_subtotal );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Build the figures the My Account subscription views display.
+	 *
+	 * The recurring price in `_subscrpt_price` is always the undiscounted product price, so the
+	 * renewal figure has to be derived: full price, minus whatever discount recurs, plus tax on
+	 * the discounted amount. Tax is scaled from the order item's own tax ratio rather than
+	 * recalculated, which keeps the figures consistent with the order they came from.
+	 *
+	 * @param int                 $subscription_id Subscription ID.
+	 * @param \WC_Order_Item|null $order_item      Source order item.
+	 *
+	 * @return array{full_excl:float,discount:float,discount_tax:float,tax:float,total:float,has_discount:bool}
+	 */
+	public static function get_subscription_display_totals( $subscription_id, $order_item = null ) {
+		$quantity  = $order_item ? max( 1, (int) $order_item->get_quantity() ) : 1;
+		$full_excl = (float) self::get_subscription_total( $subscription_id ) * $quantity;
+
+		$item_subtotal = $order_item ? (float) $order_item->get_subtotal() : 0.0;
+		$item_tax      = $order_item ? (float) $order_item->get_subtotal_tax() : 0.0;
+		$tax_ratio     = $item_subtotal > 0 ? $item_tax / $item_subtotal : 0.0;
+
+		$order    = $order_item ? wc_get_order( $order_item->get_order_id() ) : null;
+		$discount = self::get_subscription_recurring_discount( $subscription_id, $order, $order_item );
+		$discount = min( (float) $discount['amount'], $full_excl );
+
+		$discount_tax = $discount * $tax_ratio;
+		$tax          = ( $full_excl * $tax_ratio ) - $discount_tax;
+
+		return array(
+			'full_excl'    => $full_excl,
+			'discount'     => $discount,
+			'discount_tax' => $discount_tax,
+			'tax'          => $tax,
+			'total'        => $full_excl - $discount + $tax,
+			'has_discount' => $discount > 0,
+		);
+	}
+
+	/**
+	 * Formatted recurring amount for a subscription, striking the original when a discount recurs.
+	 *
+	 * Produces the same `<del>` / `<ins>` shape the cart's recurring totals use, so a customer
+	 * sees one consistent treatment of a recurring discount from cart through to order details.
+	 *
+	 * @param int                 $subscription_id Subscription ID.
+	 * @param \WC_Order_Item|null $order_item      Source order item.
+	 * @param string              $del_style       Inline style for the struck-through amount. Email clients
+	 *                                             strip stylesheets, so email callers must pass one.
+	 *
+	 * @return string|false Formatted price, or false when the order item has no subscription meta.
+	 */
+	public static function get_subscription_recurring_price_html( $subscription_id, $order_item = null, $del_style = '' ) {
+		if ( ! $order_item ) {
+			return false;
+		}
+
+		$totals     = self::get_subscription_display_totals( $subscription_id, $order_item );
+		$price_html = self::format_price_with_order_item( $totals['total'], $order_item->get_id() );
+
+		if ( ! $price_html || ! $totals['has_discount'] ) {
+			return $price_html;
+		}
+
+		// Undiscounted amount including its own tax.
+		$full  = $totals['full_excl'] + $totals['tax'] + $totals['discount_tax'];
+		$order = wc_get_order( $order_item->get_order_id() );
+
+		$full_html = wc_price(
+			$full,
+			array(
+				'currency' => $order ? $order->get_currency() : '',
+			)
+		);
+
+		$del_attributes = $del_style ? ' style="' . esc_attr( $del_style ) . '"' : '';
+
+		return '<del aria-hidden="true"' . $del_attributes . '>' . $full_html . '</del> <ins>' . $price_html . '</ins>';
+	}
+
+	/**
 	 * Get recurrings items from cart items.
 	 *
 	 * @param array $cart_items Cart items.
