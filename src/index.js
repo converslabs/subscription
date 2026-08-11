@@ -99,6 +99,10 @@ const RecurringTotals = ({ cart, extensions }) => {
 
             const recurringLimit = parseInt(recurring.recurring_limit, 10) || 0;
 
+            // Billing period as plain text, so notes can quote a price the same way the row does.
+            const periodLabel =
+              recurring.time && recurring.time > 1 ? `${recurring.time}-${capitalizedType}` : capitalizedType;
+
             return (
               <div style={{ margin: "20px 0", float: "right" }}>
                 <div style={{ fontSize: "18px" }}>
@@ -129,22 +133,16 @@ const RecurringTotals = ({ cart, extensions }) => {
                     </small>
                   </>
                 )}
-                {recurring.has_recurring_discount && recurringLimit > 0 && (
+                {recurring.has_recurring_discount && recurringLimit > 1 && (
                   <>
                     <br />
                     <small>
-                      {recurringLimit === 1
-                        ? sprintf(
-                            // translators: %s: full price charged from the second payment onwards.
-                            __("Discounted for the first payment, then %s.", "subscription"),
-                            format(recurring.full_price),
-                          )
-                        : sprintf(
-                            // translators: 1: number of discounted payments, 2: full price charged afterwards.
-                            __("Discounted for the first %1$s payments, then %2$s.", "subscription"),
-                            recurringLimit,
-                            format(recurring.full_price),
-                          )}
+                      {sprintf(
+                        // translators: 1: number of discounted payments, 2: full price charged afterwards.
+                        __("Discount applies to your first %1$s payments. After that, %2$s.", "subscription"),
+                        recurringLimit,
+                        `${format(recurring.full_price)} / ${periodLabel}`,
+                      )}
                     </small>
                   </>
                 )}

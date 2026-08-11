@@ -636,8 +636,6 @@ class Helper {
 				continue;
 			}
 
-			$result['recurring'] += $amount;
-
 			/**
 			 * Filters how many payments a recurring coupon's discount covers.
 			 *
@@ -646,6 +644,16 @@ class Helper {
 			 * @param string     $cart_item_key Cart item key the discount applies to.
 			 */
 			$limit = (int) apply_filters( 'subscrpt_coupon_recurring_limit', 0, $coupon, $cart_item_key );
+
+			// A limit of one covers the initial payment only, so it never reaches a renewal —
+			// whatever the coupon is flagged as, its effect here is a one-time discount.
+			if ( 1 === $limit ) {
+				$result['non_recurring'] += $amount;
+				continue;
+			}
+
+			$result['recurring'] += $amount;
+
 			if ( $limit > 0 ) {
 				$limits[] = $limit;
 			}

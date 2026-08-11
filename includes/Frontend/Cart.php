@@ -547,24 +547,17 @@ class Cart {
 							</small>
 						<?php endif; ?>
 
-						<?php if ( ! empty( $recurr['has_recurring_discount'] ) && (int) ( $recurr['recurring_limit'] ?? 0 ) > 0 ) : ?>
+						<?php if ( ! empty( $recurr['has_recurring_discount'] ) && (int) ( $recurr['recurring_limit'] ?? 0 ) > 1 ) : ?>
 							<br />
 							<small>
 								<?php
-								$limit = (int) $recurr['recurring_limit'];
 								echo wp_kses_post(
-									1 === $limit
-										? sprintf(
-											// translators: %s: full price charged from the second payment onwards.
-											__( 'Discounted for the first payment, then %s.', 'subscription' ),
-											$recurr['full_price_html'] ?? ''
-										)
-										: sprintf(
-											// translators: 1: number of discounted payments, 2: full price charged afterwards.
-											__( 'Discounted for the first %1$s payments, then %2$s.', 'subscription' ),
-											number_format_i18n( $limit ),
-											$recurr['full_price_html'] ?? ''
-										)
+									sprintf(
+										// translators: 1: number of discounted payments, 2: full price charged afterwards.
+										__( 'Discount applies to your first %1$s payments. After that, %2$s.', 'subscription' ),
+										number_format_i18n( (int) $recurr['recurring_limit'] ),
+										$recurr['full_price_html'] ?? ''
+									)
 								);
 								?>
 							</small>
