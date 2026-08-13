@@ -221,7 +221,7 @@ class Plans {
 							wpsubs_render_adv_select(
 								array(
 									'name'    => 'subscrpt_checkout_type',
-									'value'   => 'cart',
+									'value'   => 'checkout',
 									'options' => array(
 										array(
 											'value' => 'cart',
