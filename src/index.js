@@ -1,4 +1,9 @@
-import { ExperimentalOrderMeta, registerCheckoutFilters, TotalsItem } from "@woocommerce/blocks-checkout";
+import {
+  ExperimentalOrderMeta,
+  registerCheckoutFilters,
+  TotalsItem,
+  TotalsWrapper,
+} from "@woocommerce/blocks-checkout";
 import { FormattedMonetaryAmount } from "@woocommerce/blocks-components";
 import { __, sprintf } from "@wordpress/i18n";
 import { registerPlugin } from "@wordpress/plugins";
@@ -61,63 +66,65 @@ const RecurringTotals = ({ cart, extensions }) => {
   const multiplier = Math.pow(10, currency.minorUnit);
 
   return (
-    <TotalsItem
-      className="wc-block-components-totals-footer-item"
-      label={__("Recurring totals", "subscription")}
-      description={
-        <div style={{ display: "grid" }}>
-          {recurrings.map((recurring) => {
-            // Capitalize the first letter to match product page display
-            const capitalizedType = recurring.type.charAt(0).toUpperCase() + recurring.type.slice(1);
+    <TotalsWrapper>
+      <TotalsItem
+        className="wc-block-components-totals-footer-item"
+        label={__("Recurring totals", "subscription")}
+        description={
+          <div style={{ display: "grid" }}>
+            {recurrings.map((recurring) => {
+              // Capitalize the first letter to match product page display
+              const capitalizedType = recurring.type.charAt(0).toUpperCase() + recurring.type.slice(1);
 
-            return (
-              <div style={{ margin: "20px 0", float: "right" }}>
-                <div style={{ fontSize: "18px" }}>
-                  <FormattedMonetaryAmount currency={currency} value={Math.round(recurring.price * multiplier)} />
-                  <span class="wpsubs-subscription-timing">
-                    &nbsp;/&nbsp;
-                    {recurring.time && recurring.time > 1
-                      ? `${recurring.time + "-" + capitalizedType} `
-                      : capitalizedType}
-                  </span>
-                </div>
-                <small>{recurring.description}</small>
-                {recurring.can_user_cancel === "yes" &&
-                  (recurring.max_no_payment === "" || parseInt(recurring.max_no_payment) === 0) && (
+              return (
+                <div style={{ marginTop: "8px", float: "right" }}>
+                  <div style={{ fontSize: "18px" }}>
+                    <FormattedMonetaryAmount currency={currency} value={Math.round(recurring.price * multiplier)} />
+                    <span class="wpsubs-subscription-timing">
+                      &nbsp;/&nbsp;
+                      {recurring.time && recurring.time > 1
+                        ? `${recurring.time + "-" + capitalizedType} `
+                        : capitalizedType}
+                    </span>
+                  </div>
+                  <small>{recurring.description}</small>
+                  {recurring.can_user_cancel === "yes" &&
+                    (recurring.max_no_payment === "" || parseInt(recurring.max_no_payment) === 0) && (
+                      <>
+                        <br />
+                        <small>{__("You can cancel subscription at any time!", "subscription")} </small>
+                      </>
+                    )}
+                  {parseInt(recurring.max_no_payment) > 0 && (
                     <>
                       <br />
-                      <small>{__("You can cancel subscription at any time!", "subscription")} </small>
+                      <small>
+                        {sprintf(
+                          // translators: 1: number of installments, 2: total amount.
+                          __(
+                            "This subscription will be billed in %1$s installments, for a total of %2$s.",
+                            "subscription",
+                          ),
+                          recurring.max_no_payment,
+                          formatPrice(Math.round(recurring.price * multiplier * parseInt(recurring.max_no_payment)), {
+                            currency: currency.code,
+                            currency_symbol: currency.symbol,
+                            decimal_separator: currency.decimalSeparator,
+                            thousand_separator: currency.thousandSeparator,
+                            precision: currency.minorUnit,
+                            price_format: currency.priceFormat,
+                          }),
+                        )}
+                      </small>
                     </>
                   )}
-                {parseInt(recurring.max_no_payment) > 0 && (
-                  <>
-                    <br />
-                    <small>
-                      {sprintf(
-                        // translators: 1: number of installments, 2: total amount.
-                        __(
-                          "This subscription will be billed in %1$s installments, for a total of %2$s.",
-                          "subscription",
-                        ),
-                        recurring.max_no_payment,
-                        formatPrice(Math.round(recurring.price * multiplier * parseInt(recurring.max_no_payment)), {
-                          currency: currency.code,
-                          currency_symbol: currency.symbol,
-                          decimal_separator: currency.decimalSeparator,
-                          thousand_separator: currency.thousandSeparator,
-                          precision: currency.minorUnit,
-                          price_format: currency.priceFormat,
-                        }),
-                      )}
-                    </small>
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      }
-    ></TotalsItem>
+                </div>
+              );
+            })}
+          </div>
+        }
+      ></TotalsItem>
+    </TotalsWrapper>
   );
 };
 
