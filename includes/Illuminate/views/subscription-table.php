@@ -44,7 +44,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$item_meta                  = wc_get_order_item_meta( $history->order_item_id, '_subscrpt_meta', true );
 			$subscription_id            = $history->subscription_id;
 			$subscription_status_object = get_post_status_object( get_post_status( $subscription_id ) );
-			$cost                       = get_post_meta( $subscription_id, '_subscrpt_price', true );
 			$has_trial                  = isset( $item_meta['trial'] ) && strlen( $item_meta['trial'] ) > 2;
 			$start_date                 = get_post_meta( $subscription_id, '_subscrpt_start_date', true );
 			$next_date                  = get_post_meta( $subscription_id, '_subscrpt_next_date', true );
@@ -73,7 +72,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;">
 					<?php esc_html_e( 'Recurring amount', 'subscription' ); ?> </th>
 				<td class="td"
-					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;"><?php echo wp_kses_post( SpringDevs\Subscription\Illuminate\Helper::format_price_with_order_item( $cost, $item->get_id() ) ); ?></td>
+					style="color: #636363; border: 1px solid #e5e5e5; vertical-align: middle; padding: 12px; text-align: left;">
+					<?php
+					// Strikes the original amount when a discount carries into renewals.
+					echo wp_kses_post(
+						SpringDevs\Subscription\Illuminate\Helper::get_subscription_recurring_price_html(
+							$subscription_id,
+							$item,
+							[ 'del_style' => 'color: #999999;' ]
+						)
+					);
+					?>
+				</td>
 			</tr>
 
 			<?php if ( $has_trial ) : ?>

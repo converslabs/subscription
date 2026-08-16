@@ -17,6 +17,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @var array $action_buttons
  * @var bool $is_grace_period
  * @var int $grace_remaining
+ * @var float $price Renewal total, after any discount that recurs.
+ * @var float $price_excl_tax Renewal subtotal before discount and tax.
+ * @var float $tax Tax on the discounted renewal amount.
+ * @var float $discount Discount that applies to each renewal. 0 when none recurs.
  *
  * This template can be overridden by copying it to <your_theme>/subscription/myaccount/single.php
  *
@@ -318,6 +322,22 @@ do_action( 'before_single_subscrpt_content', $id );
 				</span>
 			</td>
 		</tr>
+
+		<?php if ( ! empty( $discount ) && $discount > 0 ) : ?>
+		<tr class="subscrpt-recurring-discount">
+			<th scope="row"><?php esc_html_e( 'Discount', 'subscription' ); ?>:</th>
+			<td>
+				<span class="woocommerce-Price-amount amount">
+					<?php
+					printf(
+						'-%s',
+						wp_kses_post( wc_price( $discount, array( 'currency' => $order->get_currency() ) ) )
+					);
+					?>
+				</span>
+			</td>
+		</tr>
+		<?php endif; ?>
 
 		<?php if ( $tax > 0 ) : ?>
 		<tr>

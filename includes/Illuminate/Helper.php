@@ -562,6 +562,406 @@ class Helper {
 	}
 
 	/**
+	 * Resolve applied coupon discounts for a single cart item, split by whether they recur.
+	 *
+	 * WooCommerce computes a per-coupon, per-item discount breakdown while calculating cart
+	 * totals but never persists it — only the aggregated per-coupon and per-item sums survive.
+	 * Replaying the coupons through a fresh WC_Discounts instance recovers that breakdown,
+	 * which is what lets recurring and one-time discounts be told apart for one cart line.
+	 *
+	 * Amounts are returned in the same space WC_Discounts works in, i.e. `get_price() * qty`,
+	 * so they are tax-inclusive only when the store's prices include tax.
+	 *
+	 * @param string $cart_item_key Cart item key.
+	 *
+	 * @return array{recurring:float,non_recurring:float,total:float,recurring_limit:int}
+	 */
+	public static function get_cart_item_coupon_discounts( $cart_item_key ) {
+		$empty = array(
+			'recurring'       => 0.0,
+			'non_recurring'   => 0.0,
+			'total'           => 0.0,
+			'recurring_limit' => 0,
+		);
+
+		if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+			return $empty;
+		}
+
+		$coupons = WC()->cart->get_coupons();
+		if ( empty( $coupons ) ) {
+			return $empty;
+		}
+
+		// Memoized per cart state: recurring totals are read several times per request, and
+		// replaying coupons re-runs coupon validation, which hits the database.
+		static $cache = array();
+
+		$cache_key = md5( WC()->cart->get_cart_hash() . '|' . implode( ',', array_keys( $coupons ) ) );
+
+		if ( ! isset( $cache[ $cache_key ] ) ) {
+			// Replay in cart order so stacked coupons resolve exactly as WC_Cart_Totals resolved them.
+			$discounts = new \WC_Discounts( WC()->cart );
+			foreach ( $coupons as $coupon ) {
+				$discounts->apply_coupon( $coupon );
+			}
+			$cache[ $cache_key ] = $discounts->get_discounts();
+		}
+
+		$result = $empty;
+		$limits = array();
+
+		foreach ( $cache[ $cache_key ] as $coupon_code => $item_discounts ) {
+			$amount = (float) ( $item_discounts[ $cart_item_key ] ?? 0 );
+			if ( 0 >= $amount ) {
+				continue;
+			}
+
+			$coupon = $coupons[ $coupon_code ] ?? new \WC_Coupon( $coupon_code );
+
+			/**
+			 * Filters whether a coupon's discount also applies to subscription renewals.
+			 *
+			 * The free plugin has no recurring-coupon concept, so discounts apply to the
+			 * first payment only unless an extension — the pro plugin — says otherwise.
+			 *
+			 * @param bool       $is_recurring  Whether the discount recurs. Default false.
+			 * @param \WC_Coupon $coupon        Coupon object.
+			 * @param string     $cart_item_key Cart item key the discount applies to.
+			 */
+			$is_recurring = (bool) apply_filters( 'subscrpt_coupon_is_recurring', false, $coupon, $cart_item_key );
+
+			if ( ! $is_recurring ) {
+				$result['non_recurring'] += $amount;
+				continue;
+			}
+
+			/**
+			 * Filters how many payments a recurring coupon's discount covers.
+			 *
+			 * @param int        $limit         Number of payments, including the initial one. 0 means unlimited.
+			 * @param \WC_Coupon $coupon        Coupon object.
+			 * @param string     $cart_item_key Cart item key the discount applies to.
+			 */
+			$limit = (int) apply_filters( 'subscrpt_coupon_recurring_limit', 0, $coupon, $cart_item_key );
+
+			// A limit of one covers the initial payment only, so it never reaches a renewal —
+			// whatever the coupon is flagged as, its effect here is a one-time discount.
+			if ( 1 === $limit ) {
+				$result['non_recurring'] += $amount;
+				continue;
+			}
+
+			$result['recurring'] += $amount;
+
+			if ( $limit > 0 ) {
+				$limits[] = $limit;
+			}
+		}
+
+		$result['total'] = $result['recurring'] + $result['non_recurring'];
+
+		// The earliest limit to expire is when the discounted figure stops being true.
+		$result['recurring_limit'] = empty( $limits ) ? 0 : min( $limits );
+
+		return $result;
+	}
+
+	/**
+	 * Build the discount-aware recurring price figures and markup for one cart item.
+	 *
+	 * A recurring coupon lowers what every renewal costs, so it is folded into the recurring
+	 * figures. A one-time coupon lowers only what is paid today, so the recurring figures keep
+	 * the full price and the caller discloses the first-payment amount separately.
+	 *
+	 * Discounts come back from WC_Discounts in `get_price() * qty` space, so they are converted
+	 * to the tax-inclusive display space by ratio rather than by re-deriving tax.
+	 *
+	 * @param array  $cart_item     Cart item.
+	 * @param string $cart_item_key Cart item key.
+	 * @param string $type_label    Human readable timing label, e.g. "Month".
+	 *
+	 * @return array
+	 */
+	public static function build_cart_recurring_price_data( $cart_item, $cart_item_key, $type_label ) {
+		$product  = $cart_item['data'];
+		$quantity = (int) $cart_item['quantity'];
+		$per_cost = (float) ( $cart_item['subscription']['per_cost'] ?? 0 );
+
+		$full_total = (float) wc_get_price_including_tax( $product, [ 'qty' => $quantity ] );
+		$discounts  = self::get_cart_item_coupon_discounts( $cart_item_key );
+
+		// Same basis WC_Discounts used, so the discount and the basis are directly comparable.
+		$basis           = (float) $product->get_price() * $quantity;
+		$recurring_ratio = $basis > 0 ? ( $basis - $discounts['recurring'] ) / $basis : 1.0;
+		$first_ratio     = $basis > 0 ? ( $basis - $discounts['total'] ) / $basis : 1.0;
+
+		$total       = $full_total * $recurring_ratio;
+		$timing_html = "<span class='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type_label}</span>";
+
+		$has_recurring_discount = $discounts['recurring'] > 0;
+		$full_price_html        = wc_price( $full_total ) . $timing_html;
+		$price_html             = $has_recurring_discount
+			? '<del aria-hidden="true">' . wc_price( $full_total ) . '</del> <ins>' . wc_price( $total ) . '</ins>' . $timing_html
+			: $full_price_html;
+
+		return array(
+			'price_html'             => $price_html,
+			'full_price_html'        => $full_price_html,
+			'price'                  => $per_cost * $recurring_ratio,
+			'full_price'             => $per_cost,
+			'total'                  => $total,
+			'full_total'             => $full_total,
+			'first_total'            => $full_total * $first_ratio,
+			'has_recurring_discount' => $has_recurring_discount,
+			'has_one_time_discount'  => $discounts['non_recurring'] > 0,
+			'recurring_limit'        => $discounts['recurring_limit'],
+		);
+	}
+
+	/**
+	 * Resolve the discount that still applies to a subscription's future renewals.
+	 *
+	 * Only coupons flagged as recurring survive into renewal orders, and only while their
+	 * recurring limit holds — this mirrors the skip conditions in the pro plugin's
+	 * `Coupon::maybe_add_coupon_to_renewal_order()`, so what is displayed matches what the
+	 * next renewal order will actually be charged.
+	 *
+	 * A subscription order always holds exactly one line item (enforced by
+	 * `Frontend\Cart::validate_cart_items()`), so each coupon line's whole discount belongs
+	 * to that item.
+	 *
+	 * @param int                 $subscription_id Subscription ID.
+	 * @param \WC_Order|null      $order           Source order. Resolved from the subscription when omitted.
+	 * @param \WC_Order_Item|null $order_item      Source order item. Used to rebase the discount when the
+	 *                                             recurring price has since drifted, e.g. after a switch.
+	 *
+	 * @return array{amount:float,limit:int,exhausted:bool}
+	 */
+	public static function get_subscription_recurring_discount( $subscription_id, $order = null, $order_item = null ) {
+		$result = array(
+			'amount'    => 0.0,
+			'limit'     => 0,
+			'exhausted' => false,
+		);
+
+		// Memoized per request: list views and the single view each resolve the same
+		// subscription two or three times, and a coupon'd subscription costs a query.
+		static $cache = array();
+
+		$cache_key = $subscription_id . '|' . ( $order_item ? $order_item->get_id() : 0 );
+
+		if ( isset( $cache[ $cache_key ] ) ) {
+			return $cache[ $cache_key ];
+		}
+
+		if ( ! $order ) {
+			$order_item_id = get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
+			$order         = $order_item_id ? wc_get_order( wc_get_order_id_by_order_item_id( $order_item_id ) ) : null;
+		}
+
+		if ( ! $order ) {
+			$cache[ $cache_key ] = $result;
+			return $result;
+		}
+
+		$coupon_lines = $order->get_items( 'coupon' );
+		if ( empty( $coupon_lines ) ) {
+			$cache[ $cache_key ] = $result;
+			return $result;
+		}
+
+		/*
+		 * Position the next renewal will take in this subscription's order sequence.
+		 *
+		 * Note this is deliberately one more than the current order count, and so is NOT the
+		 * same expression pro's Coupon::maybe_add_coupon_to_renewal_order() evaluates: that
+		 * runs after the new order's relation row is already inserted, so its count includes
+		 * the order being created. Both mean "is this order still within the limit".
+		 */
+		$next_order_position = count( self::get_related_orders( (int) $subscription_id ) ) + 1;
+		$limits              = array();
+
+		foreach ( $coupon_lines as $coupon_line ) {
+			$coupon = new \WC_Coupon( $coupon_line->get_code() );
+
+			/** This filter is documented in includes/Illuminate/Helper.php */
+			if ( ! apply_filters( 'subscrpt_coupon_is_recurring', false, $coupon, '' ) ) {
+				continue;
+			}
+
+			/** This filter is documented in includes/Illuminate/Helper.php */
+			$limit = (int) apply_filters( 'subscrpt_coupon_recurring_limit', 0, $coupon, '' );
+
+			if ( $limit > 0 ) {
+				$limits[] = $limit;
+
+				// The next renewal is past the limit, so it will be charged full price.
+				if ( $next_order_position > $limit ) {
+					$result['exhausted'] = true;
+					continue;
+				}
+			}
+
+			$result['amount'] += (float) $coupon_line->get_discount();
+		}
+
+		$result['limit'] = empty( $limits ) ? 0 : min( $limits );
+
+		// Rebase onto the current recurring price when it no longer matches what was discounted.
+		$discounted_subtotal = $order_item ? (float) $order_item->get_subtotal() : 0.0;
+		$recurring_subtotal  = $order_item ? (float) self::get_subscription_total( $subscription_id ) * max( 1, (int) $order_item->get_quantity() ) : 0.0;
+
+		if ( $result['amount'] > 0 && $discounted_subtotal > 0 && abs( $discounted_subtotal - $recurring_subtotal ) > 0.01 ) {
+			$result['amount'] = $result['amount'] * ( $recurring_subtotal / $discounted_subtotal );
+		}
+
+		$cache[ $cache_key ] = $result;
+
+		return $result;
+	}
+
+	/**
+	 * Build the figures the My Account subscription views display.
+	 *
+	 * The recurring price in `_subscrpt_price` is always the undiscounted product price, so the
+	 * renewal figure has to be derived: full price, minus whatever discount recurs, plus tax on
+	 * the discounted amount. Tax is scaled from the order item's own tax ratio rather than
+	 * recalculated, which keeps the figures consistent with the order they came from.
+	 *
+	 * @param int                 $subscription_id Subscription ID.
+	 * @param \WC_Order_Item|null $order_item      Source order item.
+	 *
+	 * @return array{full_excl:float,discount:float,discount_tax:float,tax:float,total:float,has_discount:bool}
+	 */
+	public static function get_subscription_display_totals( $subscription_id, $order_item = null ) {
+		$quantity  = $order_item ? max( 1, (int) $order_item->get_quantity() ) : 1;
+		$full_excl = (float) self::get_subscription_total( $subscription_id ) * $quantity;
+
+		$item_subtotal = $order_item ? (float) $order_item->get_subtotal() : 0.0;
+		$item_tax      = $order_item ? (float) $order_item->get_subtotal_tax() : 0.0;
+		$tax_ratio     = $item_subtotal > 0 ? $item_tax / $item_subtotal : 0.0;
+
+		$order    = $order_item ? wc_get_order( $order_item->get_order_id() ) : null;
+		$discount = self::get_subscription_recurring_discount( $subscription_id, $order, $order_item );
+		$discount = min( (float) $discount['amount'], $full_excl );
+
+		$discount_tax = $discount * $tax_ratio;
+		$tax          = ( $full_excl * $tax_ratio ) - $discount_tax;
+
+		return array(
+			'full_excl'    => $full_excl,
+			'discount'     => $discount,
+			'discount_tax' => $discount_tax,
+			'tax'          => $tax,
+			'total'        => $full_excl - $discount + $tax,
+			'has_discount' => $discount > 0,
+		);
+	}
+
+	/**
+	 * Resolve the pieces every recurring-amount display needs.
+	 *
+	 * @param int                 $subscription_id Subscription ID.
+	 * @param \WC_Order_Item|null $order_item      Source order item.
+	 *
+	 * @return array|false {discounted:string,full:string,has_discount:bool}, or false when the
+	 *                     order item is missing or carries no subscription meta.
+	 */
+	protected static function get_subscription_recurring_price_parts( $subscription_id, $order_item = null ) {
+		if ( ! $order_item ) {
+			return false;
+		}
+
+		$totals     = self::get_subscription_display_totals( $subscription_id, $order_item );
+		$discounted = self::format_price_with_order_item( $totals['total'], $order_item->get_id() );
+
+		if ( ! $discounted ) {
+			return false;
+		}
+
+		// Undiscounted amount including its own tax.
+		$full  = $totals['full_excl'] + $totals['tax'] + $totals['discount_tax'];
+		$order = wc_get_order( $order_item->get_order_id() );
+
+		return array(
+			'discounted'   => $discounted,
+			'full'         => wc_price(
+				$full,
+				array(
+					'currency' => $order ? $order->get_currency() : '',
+				)
+			),
+			'has_discount' => $totals['has_discount'],
+		);
+	}
+
+	/**
+	 * Formatted recurring amount for a subscription, striking the original when a discount recurs.
+	 *
+	 * Produces the same `<del>` / `<ins>` shape the cart's recurring totals use, so a customer
+	 * sees one consistent treatment of a recurring discount from cart through to order details.
+	 * Use `get_subscription_recurring_price_text()` anywhere the output may reach a plain-text
+	 * context, such as an email that renders in both HTML and plain.
+	 *
+	 * @param int                 $subscription_id Subscription ID.
+	 * @param \WC_Order_Item|null $order_item      Source order item.
+	 * @param array               $args            Optional. 'del_style' is an inline style for the struck-through
+	 *                                             amount — email clients strip stylesheets, so email callers
+	 *                                             must pass one.
+	 *
+	 * @return string|false Formatted price, or false when the order item has no subscription meta.
+	 */
+	public static function get_subscription_recurring_price_html( $subscription_id, $order_item = null, $args = array() ) {
+		$parts = self::get_subscription_recurring_price_parts( $subscription_id, $order_item );
+
+		if ( ! $parts ) {
+			return false;
+		}
+
+		if ( ! $parts['has_discount'] ) {
+			return $parts['discounted'];
+		}
+
+		$del_style      = $args['del_style'] ?? '';
+		$del_attributes = $del_style ? ' style="' . esc_attr( $del_style ) . '"' : '';
+
+		return '<del aria-hidden="true"' . $del_attributes . '>' . $parts['full'] . '</del> <ins>' . $parts['discounted'] . '</ins>';
+	}
+
+	/**
+	 * Formatted recurring amount for a subscription, as markup-free text.
+	 *
+	 * For contexts that cannot render `<del>` — plain-text emails above all, where stripping the
+	 * tags would leave two bare amounts side by side and no way to tell which is charged.
+	 *
+	 * @param int                 $subscription_id Subscription ID.
+	 * @param \WC_Order_Item|null $order_item      Source order item.
+	 *
+	 * @return string|false Formatted price, or false when the order item has no subscription meta.
+	 */
+	public static function get_subscription_recurring_price_text( $subscription_id, $order_item = null ) {
+		$parts = self::get_subscription_recurring_price_parts( $subscription_id, $order_item );
+
+		if ( ! $parts ) {
+			return false;
+		}
+
+		$discounted = wp_strip_all_tags( $parts['discounted'] );
+
+		if ( ! $parts['has_discount'] ) {
+			return $discounted;
+		}
+
+		return sprintf(
+			// translators: 1: discounted recurring amount, 2: original amount before the discount.
+			__( '%1$s (discounted from %2$s)', 'subscription' ),
+			$discounted,
+			wp_strip_all_tags( $parts['full'] )
+		);
+	}
+
+	/**
 	 * Get recurrings items from cart items.
 	 *
 	 * @param array $cart_items Cart items.
@@ -575,22 +975,18 @@ class Helper {
 			if ( $product->is_type( 'simple' ) && isset( $cart_item['subscription'] ) ) {
 				$cart_subscription = $cart_item['subscription'];
 				$type              = ucfirst( $cart_subscription['type'] );
+				$price_data        = self::build_cart_recurring_price_data( $cart_item, $key, $type );
 
-				// Total amount with tax
-				$quantity     = (int) $cart_item['quantity'];
-				$total_amount = wc_get_price_including_tax( $product, [ 'qty' => $quantity ] );
-				$timing_html  = "<span class='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type}</span>";
-				$price_html   = wc_price( (float) $total_amount ) . $timing_html;
-
-				$recurrs[ $key ] = array(
-					'trial_status'    => ! is_null( $cart_subscription['trial'] ),
-					'price_html'      => $price_html,
-					'start_date'      => self::start_date( $cart_subscription['trial'] ),
-					'next_date'       => self::next_date( ( $cart_subscription['time'] ?? 1 ) . ' ' . $cart_subscription['type'], $cart_subscription['trial'] ),
-					'can_user_cancel' => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
-					'max_no_payment'  => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
-					'price'           => (float) $cart_subscription['per_cost'],
-					'quantity'        => (int) $cart_item['quantity'],
+				$recurrs[ $key ] = array_merge(
+					$price_data,
+					array(
+						'trial_status'    => ! is_null( $cart_subscription['trial'] ),
+						'start_date'      => self::start_date( $cart_subscription['trial'] ),
+						'next_date'       => self::next_date( ( $cart_subscription['time'] ?? 1 ) . ' ' . $cart_subscription['type'], $cart_subscription['trial'] ),
+						'can_user_cancel' => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
+						'max_no_payment'  => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+						'quantity'        => (int) $cart_item['quantity'],
+					)
 				);
 			}
 		}
