@@ -45,8 +45,8 @@ class Cart {
 	 *
 	 * @return bool
 	 */
-	public function add_to_cart_validation( bool $passed, int $product_id, int $quantity, int $variation_id = 0 ): bool {
-		$product_id = $variation_id > 0 ? $variation_id : $product_id;
+	public function add_to_cart_validation( $passed, $product_id, $quantity, $variation_id = 0 ) {
+		$product_id = (int) $variation_id > 0 ? (int) $variation_id : (int) $product_id;
 		$validation = $this->validate_cart_items( $product_id );
 
 		if ( $validation['failed'] ) {
