@@ -234,6 +234,9 @@ Yes, it works perfectly with the free WooCommerce plugin. You can easily set up 
 =Can I offer free trials with this plugin?=
 Yes, it allows you to offer free trials before the first payment is charged, giving customers a chance to try your product or service risk-free.
 
+=Payment gateways are not showing up in the checkout?=
+Are you checking out a subscription with a free trial? Subscriptions with free trials do not ask for payment methods. You can check out without using a payment method. But after the trial ends, you will need to pay for the renewal order manually. After that, the next renewals will renew automatically depending on the payment method used.
+
 =What payment gateways are supported by this plugin?=
 This plugin supports Stripe, PayPal, Paddle, Mollie, Razorpay, Xendit, and WooEpay. These integrations make it easy to process recurring payments and manage subscriptions globally.
 
