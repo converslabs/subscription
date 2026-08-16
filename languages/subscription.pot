@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-02T11:42:16+00:00\n"
+"POT-Creation-Date: 2026-08-16T05:49:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -55,7 +55,7 @@ msgstr ""
 
 #: includes/Admin/AdminComponents.php:435
 #: includes/Admin/Subscriptions.php:457
-#: includes/Admin/views/subscription-details.php:617
+#: includes/Admin/views/subscription-details.php:628
 msgid "Upgrade to WPSubscription Pro"
 msgstr ""
 
@@ -179,7 +179,7 @@ msgstr ""
 #: includes/Admin/Menu.php:653
 #: includes/Admin/views/health-preview.php:148
 #: includes/Admin/views/subscription-list.php:32
-#: includes/Frontend/MyAccount.php:292
+#: includes/Frontend/MyAccount.php:289
 #: includes/Illuminate/Post.php:58
 #: includes/Illuminate/Post.php:64
 #: includes/Illuminate/Post.php:78
@@ -188,7 +188,7 @@ msgstr ""
 
 #: includes/Admin/Menu.php:131
 #: includes/Admin/Menu.php:132
-#: includes/Admin/views/subscription-details.php:487
+#: includes/Admin/views/subscription-details.php:498
 msgid "Subscription Details"
 msgstr ""
 
@@ -228,7 +228,7 @@ msgstr ""
 #: includes/Admin/views/health-preview.php:119
 #: includes/Admin/views/pro-upgrade-modal.php:38
 #: includes/Admin/views/reports-preview.php:153
-#: includes/Admin/views/subscription-details.php:621
+#: includes/Admin/views/subscription-details.php:632
 #: includes/Admin/views/support.php:57
 msgid "Upgrade to Pro"
 msgstr ""
@@ -943,12 +943,12 @@ msgstr ""
 #: includes/Admin/Subscriptions.php:243
 #: includes/Admin/views/delivery-preview.php:224
 #: includes/Admin/views/related-subscriptions.php:28
-#: includes/Admin/views/subscription-details.php:509
+#: includes/Admin/views/subscription-details.php:520
 #: includes/Admin/views/subscription-list.php:204
-#: includes/Frontend/Order.php:86
-#: includes/Illuminate/views/subscription-table.php:67
-#: templates/myaccount/single.php:57
-#: templates/myaccount/single.php:354
+#: includes/Frontend/Order.php:77
+#: includes/Illuminate/views/subscription-table.php:66
+#: templates/myaccount/single.php:61
+#: templates/myaccount/single.php:374
 #: templates/myaccount/subscriptions.php:21
 msgid "Status"
 msgstr ""
@@ -959,12 +959,12 @@ msgstr ""
 
 #: includes/Admin/Subscriptions.php:212
 #: includes/Admin/views/related-subscriptions.php:24
-#: includes/Admin/views/subscription-details.php:400
+#: includes/Admin/views/subscription-details.php:411
 #: templates/emails/renew-reminder-html.php:42
 #: templates/emails/status-changed-admin-html.php:37
 #: templates/emails/subscription-cancelled-html.php:35
 #: templates/emails/subscription-expired-html.php:35
-#: templates/myaccount/single.php:283
+#: templates/myaccount/single.php:287
 #: templates/myaccount/subscriptions.php:22
 msgid "Product"
 msgstr ""
@@ -982,8 +982,8 @@ msgid "Qty"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:228
-#: includes/Admin/views/subscription-details.php:136
-#: templates/myaccount/single.php:175
+#: includes/Admin/views/subscription-details.php:147
+#: templates/myaccount/single.php:179
 msgid "Total Payments"
 msgstr ""
 
@@ -996,7 +996,7 @@ msgid "Payment due date"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:247
-#: includes/Admin/views/subscription-details.php:439
+#: includes/Admin/views/subscription-details.php:450
 msgid "Payment Method"
 msgstr ""
 
@@ -1017,9 +1017,9 @@ msgid "No shipping address set."
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:262
-#: includes/Frontend/Order.php:132
-#: includes/Illuminate/views/subscription-table.php:82
-#: templates/myaccount/single.php:91
+#: includes/Frontend/Order.php:123
+#: includes/Illuminate/views/subscription-table.php:92
+#: templates/myaccount/single.php:95
 msgid "Trial"
 msgstr ""
 
@@ -1105,8 +1105,8 @@ msgstr ""
 
 #: includes/Admin/views/delivery-preview.php:93
 #: includes/Admin/views/delivery-preview.php:167
-#: includes/Admin/views/subscription-details.php:268
-#: includes/Admin/views/subscription-details.php:275
+#: includes/Admin/views/subscription-details.php:279
+#: includes/Admin/views/subscription-details.php:286
 #: includes/Admin/views/subscription-list.php:91
 msgid "All Dates"
 msgstr ""
@@ -1322,7 +1322,7 @@ msgstr ""
 
 #: includes/Admin/views/health-preview.php:285
 #: includes/Admin/views/subscription-list.php:210
-#: templates/myaccount/single.php:261
+#: templates/myaccount/single.php:265
 msgid "Actions"
 msgstr ""
 
@@ -1401,7 +1401,7 @@ msgstr ""
 #: includes/Admin/views/reports-preview.php:504
 #: includes/Admin/views/subscription-details.php:55
 #: includes/Admin/views/subscription-list.php:53
-#: includes/Admin/views/subscription-list.php:292
+#: includes/Admin/views/subscription-list.php:294
 #: includes/Illuminate/Helper.php:67
 msgid "Active"
 msgstr ""
@@ -1751,7 +1751,7 @@ msgid "Customize the button label shown on the product or shop page. Default is 
 msgstr ""
 
 #: includes/Admin/views/product-form.php:66
-#: includes/Frontend/Cart.php:273
+#: includes/Frontend/Cart.php:298
 msgid "Allow User Cancellation?"
 msgstr ""
 
@@ -1792,9 +1792,9 @@ msgid "ID"
 msgstr ""
 
 #: includes/Admin/views/related-subscriptions.php:25
-#: includes/Admin/views/subscription-details.php:117
+#: includes/Admin/views/subscription-details.php:128
 #: includes/Illuminate/Order.php:176
-#: templates/myaccount/single.php:187
+#: templates/myaccount/single.php:191
 msgid "Recurring"
 msgstr ""
 
@@ -1807,10 +1807,10 @@ msgid "Expiry date"
 msgstr ""
 
 #. translators: Number of days remaining in grace period.
-#: includes/Admin/views/related-subscriptions.php:88
-#: includes/Frontend/Order.php:96
-#: templates/myaccount/single.php:66
-#: templates/myaccount/subscriptions.php:100
+#: includes/Admin/views/related-subscriptions.php:81
+#: includes/Frontend/Order.php:87
+#: templates/myaccount/single.php:70
+#: templates/myaccount/subscriptions.php:94
 #, php-format
 msgid "%d days remaining!"
 msgstr ""
@@ -1993,9 +1993,9 @@ msgid "Subscription Performance"
 msgstr ""
 
 #: includes/Admin/views/reports-preview.php:504
-#: includes/Admin/views/subscription-details.php:512
-#: templates/myaccount/single.php:284
-#: templates/myaccount/single.php:355
+#: includes/Admin/views/subscription-details.php:523
+#: templates/myaccount/single.php:288
+#: templates/myaccount/single.php:375
 #: templates/myaccount/subscriptions.php:24
 msgid "Total"
 msgstr ""
@@ -2022,14 +2022,14 @@ msgstr ""
 
 #. translators: %s: Subscription ID
 #: includes/Admin/views/subscription-details.php:68
-#: includes/Frontend/MyAccount.php:276
+#: includes/Frontend/MyAccount.php:273
 #, php-format
 msgid "Subscription #%s"
 msgstr ""
 
 #. translators: %d: days remaining
 #: includes/Admin/views/subscription-details.php:76
-#: includes/Admin/views/subscription-list.php:306
+#: includes/Admin/views/subscription-list.php:308
 #, php-format
 msgid "%d days remaining in grace period"
 msgstr ""
@@ -2040,154 +2040,154 @@ msgstr ""
 msgid "Next payment on %s"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:123
+#: includes/Admin/views/subscription-details.php:134
 #: includes/Admin/views/subscription-list.php:208
 msgid "Started"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:129
+#: includes/Admin/views/subscription-details.php:140
 #: templates/myaccount/subscriptions.php:23
 msgid "Next Payment"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:229
+#: includes/Admin/views/subscription-details.php:240
 msgid "Billing & Shipping"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:240
+#: includes/Admin/views/subscription-details.php:251
 msgid "Additional Details"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:289
+#: includes/Admin/views/subscription-details.php:300
 #: includes/Admin/views/subscription-list.php:126
 msgid "10 / page"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:293
+#: includes/Admin/views/subscription-details.php:304
 #: includes/Admin/views/subscription-list.php:130
 msgid "20 / page"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:297
+#: includes/Admin/views/subscription-details.php:308
 #: includes/Admin/views/subscription-list.php:134
 msgid "50 / page"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:301
+#: includes/Admin/views/subscription-details.php:312
 #: includes/Admin/views/subscription-list.php:138
 msgid "100 / page"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:371
+#: includes/Admin/views/subscription-details.php:382
 msgid "Grace Period"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:376
+#: includes/Admin/views/subscription-details.php:387
 msgid "Remaining"
 msgstr ""
 
 #. translators: %d: days
-#: includes/Admin/views/subscription-details.php:377
+#: includes/Admin/views/subscription-details.php:388
 #, php-format
 msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/views/subscription-details.php:381
+#: includes/Admin/views/subscription-details.php:392
 msgid "End Date"
 msgstr ""
 
 #. translators: %s: quantity
-#: includes/Admin/views/subscription-details.php:415
+#: includes/Admin/views/subscription-details.php:426
 #, php-format
 msgid "Quantity: %s"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:458
+#: includes/Admin/views/subscription-details.php:469
 msgid "No payment method."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:489
+#: includes/Admin/views/subscription-details.php:500
 msgid "No subscription details available."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:497
-#: templates/myaccount/single.php:347
+#: includes/Admin/views/subscription-details.php:508
+#: templates/myaccount/single.php:367
 msgid "Related Orders"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:506
-#: templates/myaccount/single.php:53
-#: templates/myaccount/single.php:351
+#: includes/Admin/views/subscription-details.php:517
+#: templates/myaccount/single.php:57
+#: templates/myaccount/single.php:371
 msgid "Order"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:507
-#: templates/myaccount/single.php:352
+#: includes/Admin/views/subscription-details.php:518
+#: templates/myaccount/single.php:372
 msgid "Type"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:508
-#: templates/myaccount/single.php:353
+#: includes/Admin/views/subscription-details.php:519
+#: templates/myaccount/single.php:373
 msgid "Date"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:510
+#: includes/Admin/views/subscription-details.php:521
 msgid "Items"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:511
-#: templates/myaccount/single.php:253
+#: includes/Admin/views/subscription-details.php:522
+#: templates/myaccount/single.php:257
 msgid "Payment"
 msgstr ""
 
 #. translators: %1$s: first item number, %2$s: last item number, %3$s: total items
-#: includes/Admin/views/subscription-details.php:563
+#: includes/Admin/views/subscription-details.php:574
 #, php-format
 msgid "Showing %1$s–%2$s of %3$s related orders"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:569
-#: templates/myaccount/single.php:362
+#: includes/Admin/views/subscription-details.php:580
+#: templates/myaccount/single.php:382
 msgid "No related orders found."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:577
+#: includes/Admin/views/subscription-details.php:588
 msgid "Subscription Activities"
 msgstr ""
 
 #. translators: %1$s: first item number, %2$s: last item number, %3$s: total items
-#: includes/Admin/views/subscription-details.php:608
+#: includes/Admin/views/subscription-details.php:619
 #, php-format
 msgid "Showing %1$s–%2$s of %3$s activities"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:618
+#: includes/Admin/views/subscription-details.php:629
 msgid "Track subscription activity history, automation, and more."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:657
+#: includes/Admin/views/subscription-details.php:668
 msgid "Subscription Action"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:675
+#: includes/Admin/views/subscription-details.php:686
 msgid "Choose Action"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:683
+#: includes/Admin/views/subscription-details.php:694
 msgid "Process"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:687
+#: includes/Admin/views/subscription-details.php:698
 msgid "No actions available for this status."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:694
+#: includes/Admin/views/subscription-details.php:705
 msgid "Customer Details"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:712
+#: includes/Admin/views/subscription-details.php:723
 #: includes/Illuminate/Gateways/Paypal/Paypal.php:1779
 msgid "Order not found."
 msgstr ""
@@ -2260,7 +2260,7 @@ msgid "Draft"
 msgstr ""
 
 #: includes/Admin/views/subscription-list.php:73
-#: includes/Admin/views/subscription-list.php:379
+#: includes/Admin/views/subscription-list.php:384
 #: includes/Illuminate/Helper.php:73
 msgid "Trash"
 msgstr ""
@@ -2313,40 +2313,40 @@ msgstr ""
 msgid "Next Renewal"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:374
+#: includes/Admin/views/subscription-list.php:379
 msgid "Row actions"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:376
+#: includes/Admin/views/subscription-list.php:381
 msgid "View / Edit"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:379
+#: includes/Admin/views/subscription-list.php:384
 msgid "Move this subscription to trash?"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:381
+#: includes/Admin/views/subscription-list.php:386
 msgid "Restore"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:382
+#: includes/Admin/views/subscription-list.php:387
 msgid "Delete permanently? This cannot be undone."
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:382
+#: includes/Admin/views/subscription-list.php:387
 msgid "Delete Permanently"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:395
+#: includes/Admin/views/subscription-list.php:400
 msgid "No subscriptions found"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:396
+#: includes/Admin/views/subscription-list.php:401
 msgid "Subscriptions will appear here once customers complete checkout."
 msgstr ""
 
 #. translators: %1$s = first item number, %2$s = last item number, %3$s = total items.
-#: includes/Admin/views/subscription-list.php:417
+#: includes/Admin/views/subscription-list.php:422
 #, php-format
 msgid "Showing %1$s–%2$s of %3$s subscriptions"
 msgstr ""
@@ -2511,7 +2511,7 @@ msgstr ""
 
 #: includes/Frontend/ActionController.php:67
 #: includes/Frontend/ActionController.php:96
-#: includes/Frontend/Cart.php:547
+#: includes/Frontend/Cart.php:607
 msgid "This subscription has reached its maximum payment limit and cannot be renewed further."
 msgstr ""
 
@@ -2547,116 +2547,152 @@ msgid "List of recurring totals in cart."
 msgstr ""
 
 #: includes/Frontend/Cart.php:253
-msgid "price of the subscription."
+msgid "price of the subscription, after any discount that applies to renewals."
 msgstr ""
 
 #: includes/Frontend/Cart.php:258
-msgid "time of the subscription."
+msgid "price of the subscription before any discount."
 msgstr ""
 
 #: includes/Frontend/Cart.php:263
-msgid "type of the subscription."
+msgid "amount charged today, after all discounts."
 msgstr ""
 
 #: includes/Frontend/Cart.php:268
-msgid "price of the subscription description."
+msgid "Whether a discount applies to renewals."
+msgstr ""
+
+#: includes/Frontend/Cart.php:273
+msgid "Whether a discount applies to the first payment only."
 msgstr ""
 
 #: includes/Frontend/Cart.php:278
-#: includes/Frontend/Cart.php:371
+msgid "Number of payments the recurring discount covers. 0 means unlimited."
+msgstr ""
+
+#: includes/Frontend/Cart.php:283
+msgid "time of the subscription."
+msgstr ""
+
+#: includes/Frontend/Cart.php:288
+msgid "type of the subscription."
+msgstr ""
+
+#: includes/Frontend/Cart.php:293
+msgid "price of the subscription description."
+msgstr ""
+
+#: includes/Frontend/Cart.php:303
+#: includes/Frontend/Cart.php:399
 msgid "Maximum Total Payments"
 msgstr ""
 
-#: includes/Frontend/Cart.php:316
-#: includes/Frontend/Cart.php:499
-#: includes/Frontend/Order.php:123
+#: includes/Frontend/Cart.php:339
+#: includes/Frontend/Cart.php:527
+#: includes/Frontend/Order.php:114
 msgid "Next billing on"
 msgstr ""
 
-#: includes/Frontend/Cart.php:317
-#: includes/Frontend/Cart.php:498
-#: includes/Frontend/Order.php:140
-#: includes/Illuminate/views/subscription-table.php:89
+#: includes/Frontend/Cart.php:340
+#: includes/Frontend/Cart.php:526
+#: includes/Frontend/Order.php:131
+#: includes/Illuminate/views/subscription-table.php:99
 msgid "First billing on"
 msgstr ""
 
-#: includes/Frontend/Cart.php:346
+#: includes/Frontend/Cart.php:374
 msgid "time of the subscription type."
 msgstr ""
 
-#: includes/Frontend/Cart.php:351
+#: includes/Frontend/Cart.php:379
 msgid "the subscription type."
 msgstr ""
 
-#: includes/Frontend/Cart.php:356
+#: includes/Frontend/Cart.php:384
 msgid "the subscription trial."
 msgstr ""
 
-#: includes/Frontend/Cart.php:361
+#: includes/Frontend/Cart.php:389
 msgid "Signup Fee amount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:366
+#: includes/Frontend/Cart.php:394
 msgid "Recurring amount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:485
-#: includes/Frontend/Cart.php:486
+#: includes/Frontend/Cart.php:513
+#: includes/Frontend/Cart.php:514
 #: build/index.js:1
 #: src/index.js:76
 msgid "Recurring totals"
 msgstr ""
 
-#: includes/Frontend/Cart.php:508
-#: build/index.js:1
-#: src/index.js:99
+#. translators: 1: amount paid today, 2: amount charged on each renewal.
+#: includes/Frontend/Cart.php:541
+#: build/index.js:4
+#: src/index.js:129
+#, php-format,js-format
+msgid "You pay %1$s today. %2$s will be charged from the next renewal."
+msgstr ""
+
+#. translators: 1: number of discounted payments, 2: full price charged afterwards.
+#: includes/Frontend/Cart.php:557
+#: build/index.js:7
+#: src/index.js:142
+#, php-format,js-format
+msgid "Discount applies to your first %1$s payments. After that, %2$s."
+msgstr ""
+
+#: includes/Frontend/Cart.php:568
+#: build/index.js:7
+#: src/index.js:153
 msgid "You can cancel subscription at any time!"
 msgstr ""
 
 #. translators: 1: number of installments, 2: total amount.
-#: includes/Frontend/Cart.php:519
-#: build/index.js:4
-#: src/index.js:108
+#: includes/Frontend/Cart.php:579
+#: build/index.js:10
+#: src/index.js:162
 #, php-format,js-format
 msgid "This subscription will be billed in %1$s installments, for a total of %2$s."
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:141
+#: includes/Frontend/MyAccount.php:137
 msgid "Cancel"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:150
+#: includes/Frontend/MyAccount.php:146
 msgid "Reactivate"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:160
+#: includes/Frontend/MyAccount.php:156
 #: includes/Frontend/Product.php:250
-#: templates/myaccount/single.php:334
+#: templates/myaccount/single.php:354
 msgid "Renew"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:171
+#: includes/Frontend/MyAccount.php:167
 msgid "Pay now"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:190
+#: includes/Frontend/MyAccount.php:186
 msgid "Turn on Auto Renewal"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:198
+#: includes/Frontend/MyAccount.php:194
 msgid "Turn off Auto Renewal"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:261
+#: includes/Frontend/MyAccount.php:258
 msgid "My Subscriptions"
 msgstr ""
 
-#: includes/Frontend/Order.php:76
+#: includes/Frontend/Order.php:67
 msgid "Subscription ID"
 msgstr ""
 
-#: includes/Frontend/Order.php:113
-#: includes/Illuminate/views/subscription-table.php:74
+#: includes/Frontend/Order.php:104
+#: includes/Illuminate/views/subscription-table.php:73
 msgid "Recurring amount"
 msgstr ""
 
@@ -3192,77 +3228,83 @@ msgstr ""
 msgid "New Subscription"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:1186
+#. translators: 1: discounted recurring amount, 2: original amount before the discount.
+#: includes/Illuminate/Helper.php:958
+#, php-format
+msgid "%1$s (discounted from %2$s)"
+msgstr ""
+
+#: includes/Illuminate/Helper.php:1582
 msgid "Subscription renewal isn't possible due to previous order not completed or deletion."
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency
-#: includes/Illuminate/Order.php:359
+#: includes/Illuminate/Order.php:358
 #, php-format
 msgid "Split payment %1$d of %2$d received (%3$s %4$s). Initial access granted."
 msgstr ""
 
-#: includes/Illuminate/Order.php:365
+#: includes/Illuminate/Order.php:364
 msgid "Split Payment - Initial"
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency, %5$d: remaining
-#: includes/Illuminate/Order.php:369
+#: includes/Illuminate/Order.php:368
 #, php-format
 msgid "Split payment %1$d of %2$d received (%3$s %4$s). %5$d payments remaining."
 msgstr ""
 
-#: includes/Illuminate/Order.php:376
+#: includes/Illuminate/Order.php:375
 msgid "Split Payment - Installment"
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$d: subscription id
-#: includes/Illuminate/Order.php:395
+#: includes/Illuminate/Order.php:394
 #, php-format
 msgid "Split payment %1$d of %2$d received for subscription #%3$d"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:434
+#: includes/Illuminate/Order.php:433
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (25%%)."
 msgstr ""
 
-#: includes/Illuminate/Order.php:438
+#: includes/Illuminate/Order.php:437
 msgid "Payment Milestone - 25%"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:444
+#: includes/Illuminate/Order.php:443
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (50%%). Halfway there!"
 msgstr ""
 
-#: includes/Illuminate/Order.php:448
+#: includes/Illuminate/Order.php:447
 msgid "Payment Milestone - 50%"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:454
+#: includes/Illuminate/Order.php:453
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (75%%). Almost complete!"
 msgstr ""
 
-#: includes/Illuminate/Order.php:458
+#: includes/Illuminate/Order.php:457
 msgid "Payment Milestone - 75%"
 msgstr ""
 
 #. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:464
+#: includes/Illuminate/Order.php:463
 #, php-format
 msgid "Payment milestone reached: %1$d of %2$d payments completed (100%%). Split payment plan complete!"
 msgstr ""
 
-#: includes/Illuminate/Order.php:468
+#: includes/Illuminate/Order.php:467
 msgid "Payment Milestone - 100%"
 msgstr ""
 
-#: includes/Illuminate/Order.php:536
+#: includes/Illuminate/Order.php:535
 msgid "Subscription order with trial."
 msgstr ""
 
@@ -3420,7 +3462,7 @@ msgstr[1] ""
 msgid "Your subscription will be activated when order status is completed."
 msgstr ""
 
-#: includes/Illuminate/views/subscription-table.php:58
+#: includes/Illuminate/views/subscription-table.php:57
 msgid "Item"
 msgstr ""
 
@@ -3512,86 +3554,90 @@ msgstr ""
 msgid "Subscription Id"
 msgstr ""
 
-#: templates/myaccount/single.php:84
+#: templates/myaccount/single.php:88
 msgid "Grace Period Ends On"
 msgstr ""
 
-#: templates/myaccount/single.php:99
+#: templates/myaccount/single.php:103
 msgid "Start date"
 msgstr ""
 
-#: templates/myaccount/single.php:101
+#: templates/myaccount/single.php:105
 msgid "Trial End & Subscription Start"
 msgstr ""
 
-#: templates/myaccount/single.php:103
+#: templates/myaccount/single.php:107
 msgid "Trial End & First Billing"
 msgstr ""
 
-#: templates/myaccount/single.php:113
+#: templates/myaccount/single.php:117
 msgid "Next payment date"
 msgstr ""
 
-#: templates/myaccount/single.php:181
+#: templates/myaccount/single.php:185
 msgid "Payment Type"
 msgstr ""
 
-#: templates/myaccount/single.php:185
+#: templates/myaccount/single.php:189
 msgid "Split Payment"
 msgstr ""
 
-#: templates/myaccount/single.php:216
+#: templates/myaccount/single.php:220
 msgid "Access Duration"
 msgstr ""
 
-#: templates/myaccount/single.php:221
+#: templates/myaccount/single.php:225
 msgid "Lifetime access after completion"
 msgstr ""
 
-#: templates/myaccount/single.php:224
-#: templates/myaccount/single.php:235
+#: templates/myaccount/single.php:228
+#: templates/myaccount/single.php:239
 msgid "Full subscription duration"
 msgstr ""
 
 #. translators: %1$s: duration time, %2$s: duration type
-#: templates/myaccount/single.php:229
+#: templates/myaccount/single.php:233
 #, php-format
 msgid "%1$s %2$s after first payment"
 msgstr ""
 
-#: templates/myaccount/single.php:245
+#: templates/myaccount/single.php:249
 msgid "Access Ends On"
 msgstr ""
 
-#: templates/myaccount/single.php:279
+#: templates/myaccount/single.php:283
 msgid "Subscription Totals"
 msgstr ""
 
-#: templates/myaccount/single.php:314
+#: templates/myaccount/single.php:318
 msgid "Subtotal"
 msgstr ""
 
-#: templates/myaccount/single.php:324
+#: templates/myaccount/single.php:328
+msgid "Discount"
+msgstr ""
+
+#: templates/myaccount/single.php:344
 msgid "Tax"
 msgstr ""
 
-#: templates/myaccount/single.php:413
+#: templates/myaccount/single.php:433
 msgid "Billing address"
 msgstr ""
 
-#: templates/myaccount/subscriptions.php:127
+#: templates/myaccount/subscriptions.php:121
 msgid "View"
 msgstr ""
 
-#: templates/myaccount/subscriptions.php:139
+#: templates/myaccount/subscriptions.php:133
 msgid "No subscriptions available yet."
 msgstr ""
 
-#: templates/myaccount/subscriptions.php:152
+#: templates/myaccount/subscriptions.php:146
 msgid "Previous"
 msgstr ""
 
-#: templates/myaccount/subscriptions.php:156
+#: templates/myaccount/subscriptions.php:150
 msgid "Next"
 msgstr ""
 

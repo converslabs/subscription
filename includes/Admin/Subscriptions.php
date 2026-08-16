@@ -214,7 +214,7 @@ class Subscriptions {
 			),
 			'cost'     => array(
 				'label' => __( 'Cost', 'subscription' ),
-				'value' => Helper::format_price_with_order_item( get_post_meta( $subscription_id, '_subscrpt_price', true ), $order_item->get_id() ),
+				'value' => Helper::get_subscription_recurring_price_html( $subscription_id, $order_item ),
 			),
 			'quantity' => array(
 				'label' => __( 'Qty', 'subscription' ),

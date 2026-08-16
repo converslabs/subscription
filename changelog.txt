@@ -1,5 +1,9 @@
 *** WPSubscription Changelog ***
 
+2026-08-16 - version 1.11.0
+* fix: Discounted amount was not showing properly.
+* fix: Playground resource error.
+
 2026-08-02 - version 1.10.9
 * fix: Stripe renewal error while adding payment information.
 
