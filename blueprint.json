@@ -23,8 +23,8 @@
     {
       "step": "installPlugin",
       "pluginZipFile": {
-        "resource": "url",
-        "url": "https://downloads.wordpress.org/plugin/subscription.1.1.1.zip"
+        "resource": "wordpress.org/plugins",
+        "slug": "subscription"
       },
       "options": {
         "activate": true
@@ -34,7 +34,7 @@
       "step": "importWxr",
       "file": {
         "resource": "url",
-        "url": "https://raw.githubusercontent.com/springdevs/subscription/next/site-content.xml"
+        "url": "https://raw.githubusercontent.com/converslabs/subscription/refs/heads/main/site-content.xml"
       }
     },
     {
