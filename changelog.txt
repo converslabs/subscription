@@ -1,6 +1,8 @@
 *** WPSubscription Changelog ***
 
 2026-08-16 - version 1.11.0
+* fix: Renewal time anchoring.
+* fix: Renewals were delaying by 1/2 days.
 * fix: Discounted amount was not showing properly.
 * fix: Playground resource error.
 

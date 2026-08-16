@@ -317,6 +317,8 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/)
 == Changelog ==
 
 = 1.11.0 - Aug 16, 2026 =
+-   fix: Renewal time anchoring.
+-   fix: Renewals were delaying by 1/2 days.
 -   fix: Discounted amount was not showing properly.
 -   fix: Playground resource error.
 
