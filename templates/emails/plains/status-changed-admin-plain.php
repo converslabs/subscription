@@ -9,8 +9,10 @@
  * @var string $product_name Product name.
  * @var int $qty Subscription Quantity.
  * @var string $amount Subscription Amount with price format.
- * @var string $view_subscription_url Subscription view URL.
+ * @var string $admin_subscription_url Admin subscription details URL.
  * @var string $next_date Next payment date.
+ *
+ * @package SpringDevs\Subscription
  */
 
 // Exit if accessed directly.
@@ -42,15 +44,6 @@ echo wp_kses_post( sprintf( __( 'Amount: %s', 'subscription' ), $amount ) . "\n"
 
 echo "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";
 
-echo wp_kses_post(
-	make_clickable(
-		sprintf(
-			// translators: subscription url.
-			__( 'You can view the subscription here: %s', 'subscription' ),
-			$view_subscription_url
-		)
-	)
-);
-echo esc_html( "\n\n" );
+echo esc_html__( 'Open subscription:', 'subscription' ) . ' ' . esc_url_raw( $admin_subscription_url ) . "\n\n";
 
 echo esc_html( apply_filters( 'woocommerce_email_footer_text', get_option( 'woocommerce_email_footer_text' ) ) );
