@@ -496,10 +496,14 @@ class Helper {
 		// Allow modification of split payment arguments
 		$split_payment_args = apply_filters( 'subscrpt_split_payment_args', $split_payment_args, $order_item, $product );
 
+		// Own the subscription from the order's customer, not the current user.
+		$parent_order = wc_get_order( $order_item->get_order_id() );
+
 		$args            = array(
 			'post_title'  => 'Subscription',
 			'post_type'   => 'subscrpt_order',
 			'post_status' => $split_payment_args['post_status'],
+			'post_author' => $parent_order ? (int) $parent_order->get_customer_id() : get_current_user_id(),
 		);
 		$subscription_id = wp_insert_post( $args );
 		wp_update_post(
