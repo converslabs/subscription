@@ -546,16 +546,8 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	/**
 	 * Opt subscription carts out of Stripe's Checkout Session (Optimized Checkout) path.
 	 *
-	 * A Checkout Session is created on checkout page load, and
-	 * WC_Stripe_Checkout_Session_Manager::create_session() attaches a Stripe customer only
-	 * when the shopper is already logged in. Guest checkout — including our own "Enforce
-	 * Login" flow, where the account is created on submit — therefore produces a session
-	 * with no customer, so the payment method never becomes reusable and renewals cannot
-	 * be charged. The deferred-intent path binds the customer during process_payment(),
-	 * after the account exists, so force recurring carts onto it.
-	 *
-	 * Stripe's own cart guard only recognises WooCommerce Subscriptions products, which is
-	 * why our products need this filter.
+	 * A Checkout Session is created on page load and only carries a customer when the
+	 * shopper is already logged in, which never holds for guest checkout.
 	 *
 	 * @param bool $supported Whether adaptive pricing is supported for the current cart.
 	 *
@@ -568,11 +560,8 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	/**
 	 * Force a customer and off-session reuse onto a Checkout Session for a subscription cart.
 	 *
-	 * Backstop for {@see disable_adaptive_pricing_for_subscriptions()}: the
-	 * `wc_stripe_request_body` filter runs inside WC_Stripe_API::request(), so it catches a
-	 * session created by any code path in either Stripe mode. Without a customer the
-	 * resulting payment method is single-use and `pay_renew_order()` later aborts with
-	 * "Customer not found".
+	 * Backstop for {@see disable_adaptive_pricing_for_subscriptions()}, applied at the API
+	 * boundary so it holds for any code path and either Stripe mode.
 	 *
 	 * @param array  $request Request body sent to the Stripe API.
 	 * @param string $api     Stripe API endpoint.
@@ -599,9 +588,8 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 			$request['customer'] = $customer_id;
 		}
 
-		// A subscription always needs a reusable payment method, so this is not left to a
-		// shopper checkbox. `saved_payment_method_options` is deliberately not sent —
-		// Stripe rejects it alongside `setup_future_usage`.
+		// `saved_payment_method_options` is deliberately not sent: Stripe rejects it
+		// alongside `setup_future_usage`.
 		if ( ! isset( $request['payment_intent_data'] ) || ! is_array( $request['payment_intent_data'] ) ) {
 			$request['payment_intent_data'] = [];
 		}
@@ -624,8 +612,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		try {
 			$customer = new \WC_Stripe_Customer( get_current_user_id() );
 
-			// `checkout_session` is one of Stripe's MINIMAL_BILLING_DETAILS_CONTEXTS, so this
-			// is valid before the shopper has entered any billing details.
+			// A minimal-billing-details context, so this is valid before the shopper types anything.
 			return (string) $customer->maybe_create_customer( \WC_Stripe_Customer::CUSTOMER_CONTEXT_CHECKOUT_SESSION );
 		} catch ( \Exception $e ) {
 			subscrpt_write_log( 'Stripe customer creation failed for Checkout Session: ' . $e->getMessage() );
@@ -636,13 +623,9 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	/**
 	 * Persist the Stripe customer / payment-method ids a subscription order needs for renewals.
 	 *
-	 * `WC_Stripe_UPE_Payment_Gateway::save_payment_method_to_order()` is the only writer of
-	 * `_stripe_customer_id`, and it is skipped whenever the payment method was not flagged for
-	 * saving — which is always the case for a shopper who was a guest during
-	 * `process_payment()`, because `WC_Stripe_Helper::should_force_save_payment_method()`
-	 * returns early for logged-out users, before our filter runs. Read the ids back off the
-	 * PaymentIntent instead, then attach the customer to the account so it stops showing up
-	 * as a guest in Stripe and is reused on the next order.
+	 * The gateway only writes them when it saved the payment method, which it never does for
+	 * a shopper who was logged out during `process_payment()`. Read them off the
+	 * PaymentIntent instead.
 	 *
 	 * @param int $order_id Order ID.
 	 *
@@ -665,8 +648,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 
 		$order_helper = \WC_Stripe_Order_Helper::get_instance();
 
-		// Healthy order: both ids stored and the customer already belongs to the account.
-		// Skip the API round trip.
+		// Healthy order — skip the API round trip.
 		if (
 			! empty( $order_helper->get_stripe_customer_id( $order ) )
 			&& ! empty( $order_helper->get_stripe_source_id( $order ) )
@@ -730,8 +712,8 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	/**
 	 * Bind a Stripe customer created during guest checkout to the account behind the order.
 	 *
-	 * Without this the customer keeps the gateway's "Guest" description forever and every
-	 * later order creates another orphaned Stripe customer.
+	 * Otherwise it keeps the gateway's "Guest" description and every later order orphans
+	 * another customer.
 	 *
 	 * @param \WC_Order $order       Order the customer paid for.
 	 * @param string    $customer_id Stripe customer ID.
