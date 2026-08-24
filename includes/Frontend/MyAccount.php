@@ -76,9 +76,11 @@ class MyAccount {
 	/**
 	 * Display Subscription Content.
 	 *
-	 * @param Int $id Post ID.
+	 * @param int $id Post ID.
 	 */
-	public function view_subscrpt_content( int $id ) {
+	public function view_subscrpt_content( $id ) {
+		$id = absint( $id ); // typecast to int.
+
 		$subs_post       = get_post( $id );
 		$author_id       = $subs_post ? (int) $subs_post->post_author : 0;
 		$current_user_id = get_current_user_id();
