@@ -628,7 +628,7 @@ $subscrpt_details_ctx = array(
 								<strong><?php esc_html_e( 'Upgrade to WPSubscription Pro', 'subscription' ); ?></strong>
 								<p><?php esc_html_e( 'Track subscription activity history, automation, and more.', 'subscription' ); ?></p>
 							</div>
-							<a href="https://wpsubscription.co/" target="_blank" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" rel="noreferrer noopener">
+							<a href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" target="_blank" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" rel="noreferrer noopener">
 								<?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?>
 							</a>
 						</div>
