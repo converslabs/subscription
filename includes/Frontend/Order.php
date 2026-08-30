@@ -51,17 +51,8 @@ class Order {
 			$next_date_string = $subscription_data['next_date'] ?? '';
 			$next_date        = ! empty( $next_date_string ) ? wp_date( 'F d, Y', strtotime( $next_date_string ) ) : '-';
 
-			$quantity       = (int) $order_item->get_quantity();
-			$cost           = (float) ( $subscription_data['price'] ?? 0 ) * max( 1, $quantity );
-			$price_excl_tax = (float) $order_item->get_total();
-			$tax_amount     = (float) $order_item->get_total_tax();
-
-			if ( $tax_amount > 0 ) {
-				$cost = $price_excl_tax + $tax_amount;
-				$cost = number_format( (float) $cost, 2, '.', '' );
-			}
-
-			$recurring_amount_string = Helper::format_price_with_order_item( $cost, $order_item_id );
+			// Strikes the original amount when a discount carries into renewals.
+			$recurring_amount_string = Helper::get_subscription_recurring_price_html( $subscription_id, $order_item );
 
 			$is_grace_period = isset( $subscription_data['grace_period'] );
 			$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;

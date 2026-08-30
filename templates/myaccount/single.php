@@ -17,6 +17,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @var array $action_buttons
  * @var bool $is_grace_period
  * @var int $grace_remaining
+ * @var float $price Renewal total, after any discount that recurs.
+ * @var float $price_excl_tax Renewal subtotal before discount and tax.
+ * @var float $tax Tax on the discounted renewal amount.
+ * @var float $discount Discount that applies to each renewal. 0 when none recurs.
  *
  * This template can be overridden by copying it to <your_theme>/subscription/myaccount/single.php
  *
@@ -319,6 +323,22 @@ do_action( 'before_single_subscrpt_content', $id );
 			</td>
 		</tr>
 
+		<?php if ( ! empty( $discount ) && $discount > 0 ) : ?>
+		<tr class="subscrpt-recurring-discount">
+			<th scope="row"><?php esc_html_e( 'Discount', 'subscription' ); ?>:</th>
+			<td>
+				<span class="woocommerce-Price-amount amount">
+					<?php
+					printf(
+						'-%s',
+						wp_kses_post( wc_price( $discount, array( 'currency' => $order->get_currency() ) ) )
+					);
+					?>
+				</span>
+			</td>
+		</tr>
+		<?php endif; ?>
+
 		<?php if ( $tax > 0 ) : ?>
 		<tr>
 			<th scope="row"><?php esc_html_e( 'Tax', 'subscription' ); ?>:</th>
@@ -344,11 +364,26 @@ do_action( 'before_single_subscrpt_content', $id );
 <?php do_action( 'subscrpt_after_subscription_totals', (int) $id ); ?>
 
 <!-- Show related subscription orders -->
+<?php
+/*
+ * Sequence number within this subscription: 1 = first (parent) order, then each
+ * renewal in order. Helper::get_related_orders() returns newest-first, so the
+ * map is built from the reversed list. Relations whose order no longer exists
+ * are skipped here as well, keeping the numbering gapless with the rendered rows.
+ */
+$related_order_seq = [];
+foreach ( array_reverse( $related_orders ) as $subscrpt_relation ) {
+	if ( isset( $related_order_seq[ $subscrpt_relation->order_id ] ) || ! wc_get_order( $subscrpt_relation->order_id ) ) {
+		continue;
+	}
+	$related_order_seq[ $subscrpt_relation->order_id ] = count( $related_order_seq ) + 1;
+}
+?>
 <h2><?php echo esc_html_e( 'Related Orders', 'subscription' ); ?></h2>
 <table class="woocommerce-table woocommerce-table--order-details shop_table order_details">
 	<thead>
 		<tr>
-			<th class="order-number"><?php echo esc_html_e( 'Order', 'subscription' ); ?></th>
+			<th class="order-number"><?php echo esc_html_e( '#', 'subscription' ); ?></th>
 			<th class="order-type"><?php echo esc_html_e( 'Type', 'subscription' ); ?></th>
 			<th class="order-date"><?php echo esc_html_e( 'Date', 'subscription' ); ?></th>
 			<th class="order-status"><?php echo esc_html_e( 'Status', 'subscription' ); ?></th>
@@ -386,8 +421,12 @@ do_action( 'before_single_subscrpt_content', $id );
 
 			<tr class="order_item">
 				<td class="order-number">
-					<a href="<?php echo esc_url( wc_get_endpoint_url( 'view-order', $order_id, wc_get_page_permalink( 'myaccount' ) ) ); ?>">
-						#<?php echo esc_html( $order_id ); ?>
+					<?php
+					// translators: %s: WooCommerce order number.
+					$order_number_label = sprintf( __( 'Order #%s', 'subscription' ), $order->get_order_number() );
+					?>
+					<a href="<?php echo esc_url( wc_get_endpoint_url( 'view-order', $order_id, wc_get_page_permalink( 'myaccount' ) ) ); ?>" title="<?php echo esc_attr( $order_number_label ); ?>" aria-label="<?php echo esc_attr( $order_number_label ); ?>">
+						<?php echo esc_html( number_format_i18n( $related_order_seq[ $order_id ] ?? 0 ) ); ?>
 					</a>
 				</td>
 				<td class="order-type">

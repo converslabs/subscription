@@ -263,32 +263,57 @@ class Cart {
 				'type'             => 'array',
 				'readonly'         => true,
 				'recurring_totals' => array(
-					'price'           => array(
-						'description' => __( 'price of the subscription.', 'subscription' ),
+					'price'                  => array(
+						'description' => __( 'price of the subscription, after any discount that applies to renewals.', 'subscription' ),
 						'type'        => array( 'string' ),
 						'readonly'    => true,
 					),
-					'time'            => array(
+					'full_price'             => array(
+						'description' => __( 'price of the subscription before any discount.', 'subscription' ),
+						'type'        => array( 'string' ),
+						'readonly'    => true,
+					),
+					'first_price'            => array(
+						'description' => __( 'amount charged today, after all discounts.', 'subscription' ),
+						'type'        => array( 'string' ),
+						'readonly'    => true,
+					),
+					'has_recurring_discount' => array(
+						'description' => __( 'Whether a discount applies to renewals.', 'subscription' ),
+						'type'        => array( 'boolean' ),
+						'readonly'    => true,
+					),
+					'has_one_time_discount'  => array(
+						'description' => __( 'Whether a discount applies to the first payment only.', 'subscription' ),
+						'type'        => array( 'boolean' ),
+						'readonly'    => true,
+					),
+					'recurring_limit'        => array(
+						'description' => __( 'Number of payments the recurring discount covers. 0 means unlimited.', 'subscription' ),
+						'type'        => array( 'number' ),
+						'readonly'    => true,
+					),
+					'time'                   => array(
 						'description' => __( 'time of the subscription.', 'subscription' ),
 						'type'        => array( 'number' ),
 						'readonly'    => true,
 					),
-					'type'            => array(
+					'type'                   => array(
 						'description' => __( 'type of the subscription.', 'subscription' ),
 						'type'        => array( 'string' ),
 						'readonly'    => true,
 					),
-					'description'     => array(
+					'description'            => array(
 						'description' => __( 'price of the subscription description.', 'subscription' ),
 						'type'        => array( 'string' ),
 						'readonly'    => true,
 					),
-					'can_user_cancel' => array(
+					'can_user_cancel'        => array(
 						'description' => __( 'Allow User Cancellation?', 'subscription' ),
 						'type'        => array( 'string' ),
 						'readonly'    => true,
 					),
-					'max_no_payment'  => array(
+					'max_no_payment'         => array(
 						'description' => __( 'Maximum Total Payments', 'subscription' ),
 						'type'        => array( 'number' ),
 						'readonly'    => true,
@@ -307,7 +332,7 @@ class Cart {
 		$cart_items = WC()->cart->cart_contents;
 		$recurrings = array();
 		if ( $cart_items ) {
-			foreach ( $cart_items as $cart_item ) {
+			foreach ( $cart_items as $cart_item_key => $cart_item ) {
 				if ( isset( $cart_item['subscription'] ) && $cart_item['subscription']['type'] ) {
 					$cart_subscription = $cart_item['subscription'];
 					$start_date        = Helper::start_date( $cart_subscription['trial'] );
@@ -316,14 +341,12 @@ class Cart {
 						$cart_subscription['trial']
 					);
 
-					// Total amount with tax
-					$product      = $cart_item['data'];
-					$quantity     = (int) $cart_item['quantity'];
-					$total_amount = wc_get_price_including_tax( $product, [ 'qty' => $quantity ] );
-
 					// Subscription timing & type
 					$time = $cart_subscription['time'];
 					$type = Helper::get_typos( $time, $cart_subscription['type'], true );
+
+					// Discount-aware totals, shared with the classic cart.
+					$price_data = Helper::build_cart_recurring_price_data( $cart_item, $cart_item_key, $type );
 
 					// Description
 					$description = empty( $cart_subscription['trial'] )
@@ -333,12 +356,17 @@ class Cart {
 					$recurrings[] = apply_filters(
 						'subscrpt_cart_recurring_data',
 						array(
-							'price'           => $total_amount,
-							'time'            => $time,
-							'type'            => $type,
-							'description'     => $description,
-							'can_user_cancel' => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
-							'max_no_payment'  => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+							'price'                  => $price_data['total'],
+							'full_price'             => $price_data['full_total'],
+							'first_price'            => $price_data['first_total'],
+							'has_recurring_discount' => $price_data['has_recurring_discount'],
+							'has_one_time_discount'  => $price_data['has_one_time_discount'],
+							'recurring_limit'        => $price_data['recurring_limit'],
+							'time'                   => $time,
+							'type'                   => $type,
+							'description'            => $description,
+							'can_user_cancel'        => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
+							'max_no_payment'         => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
 						),
 						$cart_item
 					);
@@ -534,7 +562,39 @@ class Cart {
 								echo esc_html( $recurr['trial_status'] ? $recurr['start_date'] : $recurr['next_date'] );
 							?>
 						</small>
-						
+
+						<?php if ( ! empty( $recurr['has_one_time_discount'] ) ) : ?>
+							<br />
+							<small>
+								<?php
+								echo wp_kses_post(
+									sprintf(
+										// translators: 1: amount paid today, 2: amount charged on each renewal.
+										__( 'You pay %1$s today. %2$s will be charged from the next renewal.', 'subscription' ),
+										wc_price( $recurr['first_total'] ?? 0 ),
+										wc_price( $recurr['total'] ?? 0 )
+									)
+								);
+								?>
+							</small>
+						<?php endif; ?>
+
+						<?php if ( ! empty( $recurr['has_recurring_discount'] ) && (int) ( $recurr['recurring_limit'] ?? 0 ) > 1 ) : ?>
+							<br />
+							<small>
+								<?php
+								echo wp_kses_post(
+									sprintf(
+										// translators: 1: number of discounted payments, 2: full price charged afterwards.
+										__( 'Discount applies to your first %1$s payments. After that, %2$s.', 'subscription' ),
+										number_format_i18n( (int) $recurr['recurring_limit'] ),
+										$recurr['full_price_html'] ?? ''
+									)
+								);
+								?>
+							</small>
+						<?php endif; ?>
+
 						<?php if ( 'yes' === $recurr['can_user_cancel'] && 0 === (int) $recurr['max_no_payment'] ) : ?>
 							<br />
 							<small><?php esc_html_e( 'You can cancel subscription at any time!', 'subscription' ); ?></small>

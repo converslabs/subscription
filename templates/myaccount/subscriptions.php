@@ -65,15 +65,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$trial_mode = get_post_meta( get_the_ID(), '_subscrpt_trial_mode', true );
 				$trial_mode = empty( $trial_mode ) ? 'off' : $trial_mode;
 
-				$quantity       = (int) $order_item->get_quantity();
-				$price          = (float) ( $subscription_data['price'] ?? 0 ) * max( 1, $quantity );
-				$price_excl_tax = (float) $order_item->get_total();
-				$tax_amount     = (float) $order_item->get_total_tax();
-
-				if ( $tax_amount > 0 ) {
-					$price = $price_excl_tax + $tax_amount;
-					$price = number_format( (float) $price, 2, '.', '' );
-				}
+				// Renewal total, already net of any discount that recurs.
+				$display_totals = SpringDevs\Subscription\Illuminate\Helper::get_subscription_display_totals( $subscription_id, $order_item );
+				$price          = $display_totals['total'];
 
 				$product_price_html = SpringDevs\Subscription\Illuminate\Helper::format_price_with_order_item( $price, $order_item->get_id() );
 

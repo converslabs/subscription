@@ -1,4 +1,9 @@
 <?php
+/**
+ * Shared email behaviour for subscription mails.
+ *
+ * @package SpringDevs\Subscription\Traits
+ */
 
 namespace SpringDevs\Subscription\Traits;
 
@@ -126,16 +131,20 @@ trait Email {
 		$view_subs_endpoint    = Subscription::get_user_endpoint( 'view_subs' );
 		$view_subscription_url = wc_get_endpoint_url( $view_subs_endpoint, $this->subscription_id, wc_get_page_permalink( 'myaccount' ) );
 
+		// Admin-facing mails link to the wp-admin details page instead of My Account.
+		$admin_subscription_url = admin_url( 'admin.php?page=wp-subscription-details&id=' . $this->subscription_id );
+
 		return wc_get_template_html(
 			$path,
 			array_merge(
 				array(
-					'id'                    => $this->subscription_id,
-					'email_heading'         => $this->get_heading(),
-					'product_name'          => $this->product_name,
-					'qty'                   => $this->qty,
-					'amount'                => $this->amount,
-					'view_subscription_url' => $view_subscription_url,
+					'id'                     => $this->subscription_id,
+					'email_heading'          => $this->get_heading(),
+					'product_name'           => $this->product_name,
+					'qty'                    => $this->qty,
+					'amount'                 => $this->amount,
+					'view_subscription_url'  => $view_subscription_url,
+					'admin_subscription_url' => $admin_subscription_url,
 				),
 				$this->extra
 			),
@@ -180,7 +189,9 @@ trait Email {
 
 		$this->product_name = $order_item->get_name();
 		$this->qty          = $order_item->get_quantity();
-		$this->amount       = Helper::format_price_with_order_item( get_post_meta( $this->subscription_id, '_subscrpt_price', true ), $order_item->get_id() );
+
+		// Text form, not the struck-through markup: every one of these emails renders in plain text too.
+		$this->amount = Helper::get_subscription_recurring_price_text( $this->subscription_id, $order_item );
 	}
 
 	/**

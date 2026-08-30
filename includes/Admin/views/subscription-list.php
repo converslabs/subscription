@@ -57,16 +57,16 @@ for ( $i = 0; $i < 12; $i++ ) {
 							'label' => __( 'Pending', 'subscription' ),
 						),
 						array(
+							'value' => 'pe_cancelled',
+							'label' => __( 'Pending Cancellation', 'subscription' ),
+						),
+						array(
 							'value' => 'cancelled',
 							'label' => __( 'Cancelled', 'subscription' ),
 						),
 						array(
 							'value' => 'expired',
 							'label' => __( 'Expired', 'subscription' ),
-						),
-						array(
-							'value' => 'draft',
-							'label' => __( 'Draft', 'subscription' ),
 						),
 						array(
 							'value' => 'trash',
@@ -224,14 +224,16 @@ for ( $i = 0; $i < 12; $i++ ) {
 						$is_grace_period = isset( $subscription_data['grace_period'] );
 						$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
 
-						// Amount + timing
-						$quantity      = $order_item ? (int) $order_item->get_quantity() : 1;
-						$price         = '' !== ( $subscription_data['price'] ?? '' )
-							? (float) $subscription_data['price'] * max( 1, $quantity )
-							: '';
-						$timing_per    = $subscription_data['schedule']['timing_per'] ?? '';
-						$timing_option = $subscription_data['schedule']['timing_option'] ?? '';
-						$timing_label  = '';
+						// Amount + timing. Net of any discount that carries into renewals.
+						$quantity       = $order_item ? (int) $order_item->get_quantity() : 1;
+						$amount_totals  = SpringDevs\Subscription\Illuminate\Helper::get_subscription_display_totals( $subscription_id, $order_item );
+						$price          = '' !== ( $subscription_data['price'] ?? '' ) ? (float) $amount_totals['total'] : '';
+						$price_full     = (float) $amount_totals['full_excl'] + $amount_totals['tax'] + $amount_totals['discount_tax'];
+						$has_discount   = (bool) $amount_totals['has_discount'];
+						$price_per_unit = '' !== $price ? $price / max( 1, $quantity ) : '';
+						$timing_per     = $subscription_data['schedule']['timing_per'] ?? '';
+						$timing_option  = $subscription_data['schedule']['timing_option'] ?? '';
+						$timing_label   = '';
 						if ( $timing_per && $timing_option ) {
 							$timing_label = ( (int) $timing_per > 1 )
 								? $timing_per . ' ' . $timing_option . 's'
@@ -319,8 +321,11 @@ for ( $i = 0; $i < 12; $i++ ) {
 						<td style="white-space:nowrap;">
 							<?php if ( '' !== $price ) : ?>
 								<span class="wpsubs-cell-title" style="font-variant-numeric:tabular-nums;"><?php echo wp_kses_post( wc_price( $price ) ); ?></span>
+								<?php if ( $has_discount ) : ?>
+									<span class="wpsubs-cell-id"><del aria-hidden="true"><?php echo wp_kses_post( wc_price( $price_full ) ); ?></del></span>
+								<?php endif; ?>
 								<?php if ( $quantity > 1 ) : ?>
-									<span class="wpsubs-cell-id"><?php echo wp_kses_post( wc_price( (float) $subscription_data['price'] ) ); ?> &times; <?php echo (int) $quantity; ?></span>
+									<span class="wpsubs-cell-id"><?php echo wp_kses_post( wc_price( (float) $price_per_unit ) ); ?> &times; <?php echo (int) $quantity; ?></span>
 								<?php endif; ?>
 								<?php if ( $timing_label ) : ?>
 									<span class="wpsubs-cell-id">/ <?php echo esc_html( $timing_label ); ?></span>

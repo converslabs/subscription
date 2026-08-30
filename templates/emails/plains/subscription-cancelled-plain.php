@@ -1,6 +1,6 @@
 <?php
 /**
- * Mail template for Subscription status changed (Admin).
+ * Mail template for Subscription cancelled (Customer).
  *
  * @var string $email_heading Email Heading.
  * @var int $id Subscription id.
@@ -8,6 +8,8 @@
  * @var int $qty Subscription Quantity.
  * @var string $amount Subscription Amount with price format.
  * @var string $view_subscription_url Subscription view URL.
+ *
+ * @package SpringDevs\Subscription
  */
 
 // Exit if accessed directly.
@@ -39,15 +41,6 @@ echo wp_kses_post( sprintf( __( 'Amount: %s', 'subscription' ), $amount ) . "\n"
 
 echo "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";
 
-echo wp_kses_post(
-	make_clickable(
-		sprintf(
-			// translators: subscription url.
-			__( 'You can view the subscription here: %s', 'subscription' ),
-			$view_subscription_url
-		)
-	)
-);
-echo esc_html( "\n\n" );
+echo esc_html__( 'View subscription:', 'subscription' ) . ' ' . esc_url_raw( $view_subscription_url ) . "\n\n";
 
 echo esc_html( apply_filters( 'woocommerce_email_footer_text', get_option( 'woocommerce_email_footer_text' ) ) );

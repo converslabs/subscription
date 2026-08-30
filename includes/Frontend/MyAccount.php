@@ -76,9 +76,11 @@ class MyAccount {
 	/**
 	 * Display Subscription Content.
 	 *
-	 * @param Int $id Post ID.
+	 * @param int $id Post ID.
 	 */
-	public function view_subscrpt_content( int $id ) {
+	public function view_subscrpt_content( $id ) {
+		$id = absint( $id ); // typecast to int.
+
 		$subs_post       = get_post( $id );
 		$author_id       = $subs_post ? (int) $subs_post->post_author : 0;
 		$current_user_id = get_current_user_id();
@@ -116,17 +118,13 @@ class MyAccount {
 		$trial      = get_post_meta( $id, '_subscrpt_trial', true );
 		$trial_mode = get_post_meta( $id, '_subscrpt_trial_mode', true );
 
-		$quantity       = (int) $order_item->get_quantity();
-		$price          = (float) ( $subscription_data['price'] ?? 0 ) * max( 1, $quantity );
-		$price_excl_tax = (float) $order_item->get_total();
-		$tax_amount     = (float) $order_item->get_total_tax();
+		// Undiscounted subtotal, the discount that recurs, tax on the discounted amount, and the renewal total.
+		$display_totals = Helper::get_subscription_display_totals( $id, $order_item );
 
-		if ( $tax_amount > 0 ) {
-			$price = $price_excl_tax + $tax_amount;
-			$price = number_format( (float) $price, 2, '.', '' );
-		} else {
-			$tax_amount = 0;
-		}
+		$price          = $display_totals['total'];
+		$price_excl_tax = $display_totals['full_excl'];
+		$tax_amount     = $display_totals['tax'];
+		$discount       = $display_totals['discount'];
 
 		$is_grace_period = isset( $subscription_data['grace_period'] );
 		$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
@@ -233,6 +231,7 @@ class MyAccount {
 				'price'           => $price,
 				'price_excl_tax'  => $price_excl_tax,
 				'tax'             => $tax_amount,
+				'discount'        => $discount,
 				'user_cancel'     => $user_cancel,
 				'action_buttons'  => $action_buttons,
 				'wp_button_class' => wc_wp_theme_get_element_class_name( 'button' ) ? ' ' . wc_wp_theme_get_element_class_name( 'button' ) : '',

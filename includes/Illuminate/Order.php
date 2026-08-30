@@ -191,7 +191,6 @@ class Order {
 		}
 
 		$subtotal        = '-';
-		$item_id         = $item->get_id();
 		$subscription_id = Helper::get_subscription_from_order_item_id( $item->get_id() );
 
 		if ( ! $subscription_id ) {
@@ -200,8 +199,8 @@ class Order {
 		}
 		$subscription_id = $subscription_id->subscription_id;
 
-		$price    = get_post_meta( $subscription_id, '_subscrpt_price', true );
-		$subtotal = Helper::format_price_with_order_item( $price, $item_id );
+		// Strikes the original amount when a discount carries into renewals.
+		$subtotal = Helper::get_subscription_recurring_price_html( $subscription_id, $item );
 		?>
 		<td class="item_recurring" width="15%">
 			<div class="view">

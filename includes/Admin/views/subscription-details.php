@@ -108,7 +108,18 @@ if ( $order && isset( $subscription_data['price'] ) && '' !== $subscription_data
 			: ucfirst( $timing_option );
 	}
 
-	$recurring_value = wc_price( (float) $subscription_data['price'], array( 'currency' => $order->get_currency() ) );
+	// Net of any discount that carries into renewals, with the original struck through.
+	$recurring_totals = Helper::get_subscription_display_totals( $subscription_id, $order_item );
+	$recurring_full   = $recurring_totals['full_excl'] + $recurring_totals['tax'] + $recurring_totals['discount_tax'];
+
+	$recurring_value = wc_price( (float) $recurring_totals['total'], array( 'currency' => $order->get_currency() ) );
+
+	if ( $recurring_totals['has_discount'] ) {
+		$recurring_value = '<del aria-hidden="true" class="subscrpt-summary__was">'
+			. wc_price( $recurring_full, array( 'currency' => $order->get_currency() ) )
+			. '</del> ' . $recurring_value;
+	}
+
 	if ( $period_label ) {
 		$recurring_value .= '<span class="subscrpt-summary__unit"> / ' . esc_html( $period_label ) . '</span>';
 	}
@@ -253,6 +264,16 @@ foreach ( $order_histories as $history ) {
 		'order' => $related_order,
 		'label' => ucfirst( str_replace( '-', ' ', (string) $history->type ) ),
 	);
+}
+
+/*
+ * Sequence number within this subscription: 1 = first (parent) order, then each
+ * renewal in order. Helper::get_related_orders() returns newest-first, so the
+ * sequence counts down across the rendered rows.
+ */
+$related_count = count( $related_rows );
+foreach ( array_keys( $related_rows ) as $related_index ) {
+	$related_rows[ $related_index ]['seq'] = $related_count - $related_index;
 }
 
 // Reusable per-page + date toolbar for the paginated tables. Uses the admin
@@ -473,7 +494,7 @@ $subscrpt_details_ctx = array(
 			<?php endif; ?>
 
 			<!-- Related orders card -->
-			<div class="subscrpt-card" data-subscrpt-paginate data-per-page="10" data-date-col="2">
+			<div class="subscrpt-card" data-subscrpt-paginate data-per-page="10" data-date-col="3">
 				<div class="subscrpt-card__head subscrpt-card__head--toolbar">
 					<span class="subscrpt-card__title"><?php esc_html_e( 'Related Orders', 'subscription' ); ?></span>
 					<?php if ( ! empty( $related_rows ) ) : ?>
@@ -484,11 +505,11 @@ $subscrpt_details_ctx = array(
 					<table class="wpsubs-table subscrpt-table--compact">
 						<thead>
 							<tr>
+								<th><?php esc_html_e( '#', 'subscription' ); ?></th>
 								<th><?php esc_html_e( 'Order', 'subscription' ); ?></th>
 								<th><?php esc_html_e( 'Type', 'subscription' ); ?></th>
 								<th><?php esc_html_e( 'Date', 'subscription' ); ?></th>
 								<th><?php esc_html_e( 'Status', 'subscription' ); ?></th>
-								<th><?php esc_html_e( 'Items', 'subscription' ); ?></th>
 								<th><?php esc_html_e( 'Payment', 'subscription' ); ?></th>
 								<th><?php esc_html_e( 'Total', 'subscription' ); ?></th>
 							</tr>
@@ -513,15 +534,17 @@ $subscrpt_details_ctx = array(
 								$badge_class    = $order_badge_map[ $related_status ] ?? 'draft';
 								?>
 								<tr>
+									<td><span class="wpsubs-cell-title"><?php echo esc_html( number_format_i18n( $related['seq'] ) ); ?></span></td>
 									<td>
-										<a href="<?php echo esc_url( $related_order->get_edit_order_url() ); ?>" target="_blank" class="wpsubs-cell-title">
-											#<?php echo esc_html( $related_order->get_order_number() ); ?>
-										</a>
+										<?php
+										// translators: %s: WooCommerce order number.
+										$order_id_label = sprintf( __( 'Order ID: #%s', 'subscription' ), $related_order->get_order_number() );
+										?>
+										<a href="<?php echo esc_url( $related_order->get_edit_order_url() ); ?>" target="_blank" class="wpsubs-cell-title" title="<?php echo esc_attr( $order_id_label ); ?>">#<?php echo esc_html( $related_order->get_order_number() ); ?></a>
 									</td>
 									<td><?php echo esc_html( $related['label'] ); ?></td>
 									<td><?php echo esc_html( $related_order->get_date_created()->date( get_option( 'date_format' ) . ' - ' . get_option( 'time_format' ) ) ); ?></td>
 									<td><span class="wpsubs-badge wpsubs-badge--<?php echo esc_attr( $badge_class ); ?>"><?php echo esc_html( wc_get_order_status_name( $related_status ) ); ?></span></td>
-									<td><?php echo esc_html( number_format_i18n( $related_order->get_item_count() ) ); ?></td>
 									<td><?php echo $related_order->get_payment_method_title() ? esc_html( $related_order->get_payment_method_title() ) : '&mdash;'; ?></td>
 									<td><?php echo wp_kses_post( $related_order->get_formatted_order_total() ); ?></td>
 								</tr>
@@ -598,7 +621,7 @@ $subscrpt_details_ctx = array(
 								<strong><?php esc_html_e( 'Upgrade to WPSubscription Pro', 'subscription' ); ?></strong>
 								<p><?php esc_html_e( 'Track subscription activity history, automation, and more.', 'subscription' ); ?></p>
 							</div>
-							<a href="https://wpsubscription.co/" target="_blank" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" rel="noreferrer noopener">
+							<a href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" target="_blank" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" rel="noreferrer noopener">
 								<?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?>
 							</a>
 						</div>
@@ -794,6 +817,12 @@ $subscrpt_details_ctx = array(
 	font-size: 13px;
 	font-weight: 500;
 	color: var(--wpsubs-text-muted);
+}
+.subscrpt-summary__value .subscrpt-summary__was {
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--wpsubs-text-muted);
+	margin-right: 4px;
 }
 
 .subscrpt-detail-grid {
