@@ -1,5 +1,12 @@
 *** WPSubscription Changelog ***
 
+2026-08-30 - version 1.11.2
+* new: Relative ordering of renewal orders.
+* fix: Subscription list filters.
+* fix: Guest account reusable token issue.
+* fix: PHP compatibility issue.
+* fix: Subscription details error on My Account page.
+
 2026-08-23 - version 1.11.1
 * fix: Guest account creation.
 * fix: Guest checkout error.

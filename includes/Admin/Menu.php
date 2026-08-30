@@ -274,9 +274,9 @@ class Menu {
 		<div style="text-align:center;margin:38px 0 0 0;font-size:14px;color:#888;">
 			Made with <span style="color:#e25555;font-size:1.1em;">♥</span> by the WPSubscription Team
 			<div style="margin-top:6px;">
-				<a href="https://wpsubscription.co/contact" target="_blank" style="color:#2563eb;text-decoration:none;">Support</a>
+				<a href="https://wpsubscription.co/contact?utm_source=plugin&utm_medium=admin&utm_campaign=support" target="_blank" style="color:#2563eb;text-decoration:none;">Support</a>
 				&nbsp;/&nbsp;
-				<a href="https://docs.wpsubscription.co/en" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
+				<a href="https://docs.wpsubscription.co/en?utm_source=plugin&utm_medium=admin&utm_campaign=docs" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
 			</div>
 		</div>
 		<?php
@@ -550,9 +550,9 @@ class Menu {
 		<div style="text-align:center;margin:38px 0 0 0;font-size:14px;color:#888;">
 			Made with <span style="color:#e25555;font-size:1.1em;">♥</span> by the WPSubscription Team
 			<div style="margin-top:6px;">
-				<a href="https://wpsubscription.co/contact" target="_blank" style="color:#2563eb;text-decoration:none;">Support</a>
+				<a href="https://wpsubscription.co/contact?utm_source=plugin&utm_medium=admin&utm_campaign=support" target="_blank" style="color:#2563eb;text-decoration:none;">Support</a>
 				&nbsp;/&nbsp;
-				<a href="https://docs.wpsubscription.co/en" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
+				<a href="https://docs.wpsubscription.co/en?utm_source=plugin&utm_medium=admin&utm_campaign=docs" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
 			</div>
 		</div>
 		<?php

@@ -44,6 +44,15 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 
 		// Modify create intent request to add setup_future_usage and customer when needed.
 		add_filter( 'wc_stripe_generate_create_intent_request', [ $this, 'modify_create_intent_request_for_subscriptions' ], 20, 3 );
+
+		// Keep subscription carts off Stripe's Checkout Session (Optimized Checkout) path.
+		add_filter( 'wc_stripe_is_adaptive_pricing_supported', [ $this, 'disable_adaptive_pricing_for_subscriptions' ], 10, 1 );
+
+		// Last-resort guard: any Checkout Session that still gets created must carry a customer.
+		add_filter( 'wc_stripe_request_body', [ $this, 'ensure_customer_on_checkout_session' ], 10, 2 );
+
+		// Persist whatever Stripe ended up using, so renewals can charge it.
+		add_action( 'woocommerce_payment_complete', [ $this, 'backfill_stripe_meta_for_subscription_order' ], 20, 1 );
 	}
 
 	/**
@@ -532,5 +541,214 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		}
 
 		return $request;
+	}
+
+	/**
+	 * Opt subscription carts out of Stripe's Checkout Session (Optimized Checkout) path.
+	 *
+	 * A Checkout Session is created on page load and only carries a customer when the
+	 * shopper is already logged in, which never holds for guest checkout.
+	 *
+	 * @param bool $supported Whether adaptive pricing is supported for the current cart.
+	 *
+	 * @return bool
+	 */
+	public function disable_adaptive_pricing_for_subscriptions( $supported ) {
+		return $this->cart_has_subscription_items() ? false : $supported;
+	}
+
+	/**
+	 * Force a customer and off-session reuse onto a Checkout Session for a subscription cart.
+	 *
+	 * Backstop for {@see disable_adaptive_pricing_for_subscriptions()}, applied at the API
+	 * boundary so it holds for any code path and either Stripe mode.
+	 *
+	 * @param array  $request Request body sent to the Stripe API.
+	 * @param string $api     Stripe API endpoint.
+	 *
+	 * @return array
+	 */
+	public function ensure_customer_on_checkout_session( $request, $api ) {
+		if ( 'checkout/sessions' !== $api || ! is_array( $request ) ) {
+			return $request;
+		}
+
+		if ( ! $this->cart_has_subscription_items() ) {
+			return $request;
+		}
+
+		if ( empty( $request['customer'] ) ) {
+			$customer_id = $this->resolve_stripe_customer_id();
+
+			if ( empty( $customer_id ) ) {
+				subscrpt_write_log( 'Could not attach a Stripe customer to a subscription Checkout Session. Auto renewal may fail.' );
+				return $request;
+			}
+
+			$request['customer'] = $customer_id;
+		}
+
+		// `saved_payment_method_options` is deliberately not sent: Stripe rejects it
+		// alongside `setup_future_usage`.
+		if ( ! isset( $request['payment_intent_data'] ) || ! is_array( $request['payment_intent_data'] ) ) {
+			$request['payment_intent_data'] = [];
+		}
+
+		$request['payment_intent_data']['setup_future_usage'] = 'off_session';
+
+		return $request;
+	}
+
+	/**
+	 * Resolve — creating when needed — the Stripe customer for the current shopper.
+	 *
+	 * @return string Stripe customer ID, or an empty string when one cannot be resolved.
+	 */
+	private function resolve_stripe_customer_id() {
+		if ( ! class_exists( '\WC_Stripe_Customer' ) ) {
+			return '';
+		}
+
+		try {
+			$customer = new \WC_Stripe_Customer( get_current_user_id() );
+
+			// A minimal-billing-details context, so this is valid before the shopper types anything.
+			return (string) $customer->maybe_create_customer( \WC_Stripe_Customer::CUSTOMER_CONTEXT_CHECKOUT_SESSION );
+		} catch ( \Exception $e ) {
+			subscrpt_write_log( 'Stripe customer creation failed for Checkout Session: ' . $e->getMessage() );
+			return '';
+		}
+	}
+
+	/**
+	 * Persist the Stripe customer / payment-method ids a subscription order needs for renewals.
+	 *
+	 * The gateway only writes them when it saved the payment method, which it never does for
+	 * a shopper who was logged out during `process_payment()`. Read them off the
+	 * PaymentIntent instead.
+	 *
+	 * @param int $order_id Order ID.
+	 *
+	 * @return void
+	 */
+	public function backfill_stripe_meta_for_subscription_order( $order_id ) {
+		$order = wc_get_order( $order_id );
+
+		if ( ! $order instanceof \WC_Order || ! class_exists( '\WC_Stripe_API' ) || ! class_exists( '\WC_Stripe_Order_Helper' ) ) {
+			return;
+		}
+
+		if ( ! in_array( $order->get_payment_method(), self::WPSUBS_SUPPORTED_METHODS, true ) ) {
+			return;
+		}
+
+		if ( ! $this->order_has_subscription_relation( (int) $order_id ) ) {
+			return;
+		}
+
+		$order_helper = \WC_Stripe_Order_Helper::get_instance();
+
+		// Healthy order — skip the API round trip.
+		if (
+			! empty( $order_helper->get_stripe_customer_id( $order ) )
+			&& ! empty( $order_helper->get_stripe_source_id( $order ) )
+			&& ( ! $order->get_customer_id() || get_user_option( '_stripe_customer_id', $order->get_customer_id() ) )
+		) {
+			return;
+		}
+
+		$intent_id = $order_helper->get_stripe_intent_id( $order );
+
+		if ( empty( $intent_id ) || 0 !== strpos( $intent_id, 'pi_' ) ) {
+			return;
+		}
+
+		$intent = \WC_Stripe_API::retrieve( 'payment_intents/' . $intent_id );
+
+		if ( empty( $intent ) || is_wp_error( $intent ) || ! empty( $intent->error ) ) {
+			subscrpt_write_log( "Could not read Stripe intent {$intent_id} for order #{$order_id}." );
+			return;
+		}
+
+		$customer_id = isset( $intent->customer ) ? ( is_object( $intent->customer ) ? $intent->customer->id : (string) $intent->customer ) : '';
+		$source_id   = isset( $intent->payment_method ) ? ( is_object( $intent->payment_method ) ? $intent->payment_method->id : (string) $intent->payment_method ) : '';
+
+		if ( empty( $customer_id ) ) {
+			$order->add_order_note( __( 'Stripe did not attach a customer to this payment, so no reusable payment method was stored. Automatic renewal will fail until the customer saves a payment method.', 'subscription' ) );
+			$order->save();
+
+			subscrpt_write_log( "No Stripe customer on intent {$intent_id} for order #{$order_id}. Auto renewal will fail." );
+
+			/**
+			 * Fires when a paid subscription order has no reusable Stripe payment method.
+			 *
+			 * @param int    $order_id  Order ID.
+			 * @param string $intent_id Stripe PaymentIntent ID.
+			 */
+			do_action( 'subscrpt_stripe_reusable_pm_missing', (int) $order_id, $intent_id );
+			return;
+		}
+
+		$updated = false;
+
+		if ( empty( $order_helper->get_stripe_customer_id( $order ) ) ) {
+			$order_helper->update_stripe_customer_id( $order, $customer_id );
+			$updated = true;
+		}
+
+		if ( ! empty( $source_id ) && empty( $order_helper->get_stripe_source_id( $order ) ) ) {
+			$order_helper->update_stripe_source_id( $order, $source_id );
+			$updated = true;
+		}
+
+		if ( $updated ) {
+			$order->save();
+			subscrpt_write_debug_log( "Backfilled Stripe customer {$customer_id} on order #{$order_id} from intent {$intent_id}." );
+		}
+
+		$this->maybe_attach_stripe_customer_to_user( $order, $customer_id );
+	}
+
+	/**
+	 * Bind a Stripe customer created during guest checkout to the account behind the order.
+	 *
+	 * Otherwise it keeps the gateway's "Guest" description and every later order orphans
+	 * another customer.
+	 *
+	 * @param \WC_Order $order       Order the customer paid for.
+	 * @param string    $customer_id Stripe customer ID.
+	 *
+	 * @return void
+	 */
+	private function maybe_attach_stripe_customer_to_user( $order, $customer_id ) {
+		$user_id = $order->get_customer_id();
+
+		if ( ! $user_id || get_user_option( '_stripe_customer_id', $user_id ) ) {
+			return;
+		}
+
+		$user = get_userdata( $user_id );
+
+		if ( ! $user ) {
+			return;
+		}
+
+		update_user_option( $user_id, '_stripe_customer_id', $customer_id, false );
+
+		$first_name = $order->get_billing_first_name();
+		$last_name  = $order->get_billing_last_name();
+
+		\WC_Stripe_API::request(
+			[
+				'email'       => $order->get_billing_email(),
+				'name'        => trim( $first_name . ' ' . $last_name ),
+				// translators: %1$s first name, %2$s last name, %3$s username.
+				'description' => sprintf( __( 'Name: %1$s %2$s, Username: %3$s', 'subscription' ), $first_name, $last_name, $user->user_login ),
+				'metadata'    => [ 'user_id' => (string) $user_id ],
+			],
+			'customers/' . $customer_id
+		);
+
+		subscrpt_write_debug_log( "Linked Stripe customer {$customer_id} to user {$user_id} after guest checkout." );
 	}
 }

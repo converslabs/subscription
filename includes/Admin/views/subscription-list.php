@@ -57,16 +57,16 @@ for ( $i = 0; $i < 12; $i++ ) {
 							'label' => __( 'Pending', 'subscription' ),
 						),
 						array(
+							'value' => 'pe_cancelled',
+							'label' => __( 'Pending Cancellation', 'subscription' ),
+						),
+						array(
 							'value' => 'cancelled',
 							'label' => __( 'Cancelled', 'subscription' ),
 						),
 						array(
 							'value' => 'expired',
 							'label' => __( 'Expired', 'subscription' ),
-						),
-						array(
-							'value' => 'draft',
-							'label' => __( 'Draft', 'subscription' ),
 						),
 						array(
 							'value' => 'trash',

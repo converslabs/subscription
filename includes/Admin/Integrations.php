@@ -318,7 +318,7 @@ class Integrations {
 					[
 						'label' => 'More Details',
 						'type'  => 'external_link',
-						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-mollie',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-mollie?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
 				],
 			],
@@ -348,7 +348,7 @@ class Integrations {
 					[
 						'label' => 'More Details',
 						'type'  => 'external_link',
-						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-razorpay',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-razorpay?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
 				],
 			],
@@ -378,7 +378,7 @@ class Integrations {
 					[
 						'label' => 'More Details',
 						'type'  => 'external_link',
-						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-xendit',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-xendit?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
 				],
 			],
@@ -406,7 +406,7 @@ class Integrations {
 					[
 						'label' => __( 'Learn More', 'subscription' ),
 						'type'  => 'external_link',
-						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-tutor-lms',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-tutor-lms?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
 				],
 			],
@@ -429,7 +429,7 @@ class Integrations {
 					[
 						'label' => __( 'Learn More', 'subscription' ),
 						'type'  => 'external_link',
-						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-learnpress-lms',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-learnpress-lms?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
 				],
 			],
@@ -452,7 +452,7 @@ class Integrations {
 					[
 						'label' => __( 'Learn More', 'subscription' ),
 						'type'  => 'external_link',
-						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-learndash-lms',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-learndash-lms?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
 				],
 			],
@@ -476,7 +476,7 @@ class Integrations {
 					[
 						'label' => __( 'Learn More', 'subscription' ),
 						'type'  => 'external_link',
-						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-fluent-crm',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-fluent-crm?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
 				],
 			],
@@ -547,7 +547,7 @@ class Integrations {
 					[
 						'label' => __( 'Learn More', 'subscription' ),
 						'type'  => 'external_link',
-						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-mailpoet',
+						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-mailpoet?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
 				],
 			],

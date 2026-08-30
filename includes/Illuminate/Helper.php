@@ -60,8 +60,10 @@ class Helper {
 	 *
 	 * @param string $status Status.
 	 * @param bool   $return_all Whether to return all statuses or a single status.
+	 *
+	 * @return string|array Verbose status label, or the full status map when $return_all is true.
 	 */
-	public static function get_verbose_status( $status, $return_all = false ): string|array {
+	public static function get_verbose_status( $status, $return_all = false ) {
 		$statuses = array(
 			'pending'      => __( 'Pending', 'subscription' ),
 			'active'       => __( 'Active', 'subscription' ),

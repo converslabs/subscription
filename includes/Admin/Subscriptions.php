@@ -381,8 +381,8 @@ class Subscriptions {
 							<?php esc_html_e( 'WPSubscription is the most seamless and reliable WooCommerce subscription solution for store owners looking to grow recurring revenue. Easily manage recurring payments, automate renewals, and delight your customers with flexible plans.', 'subscription' ); ?>
 						</p>
 						<div class="wpsubscription-links" style="display:flex;gap:12px;flex-wrap:wrap;">
-							<a href="https://docs.wpsubscription.co/en" target="_blank" class="button button-secondary"><?php esc_html_e( 'Documentation', 'subscription' ); ?></a>
-							<a href="https://wpsubscription.co/" target="_blank" class="button button-secondary"><?php esc_html_e( 'Website', 'subscription' ); ?></a>
+							<a href="https://docs.wpsubscription.co/en?utm_source=plugin&utm_medium=admin&utm_campaign=docs" target="_blank" class="button button-secondary"><?php esc_html_e( 'Documentation', 'subscription' ); ?></a>
+							<a href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" target="_blank" class="button button-secondary"><?php esc_html_e( 'Website', 'subscription' ); ?></a>
 						</div>
 					</div>
 					<div class="promo-video" style="text-align:center;">
@@ -505,7 +505,7 @@ class Subscriptions {
 					</tbody>
 				</table>
 				<div style="text-align:center;margin-top:24px;">
-					<a href="https://wpsubscription.co/" target="_blank" class="button button-primary button-hero" style="font-size:1.2em;padding:16px 40px 16px 40px;background:#7f54b3;border:none;box-shadow:0 2px 8px rgba(127,84,179,0.10);">
+					<a href="https://wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade_pro" target="_blank" class="button button-primary button-hero" style="font-size:1.2em;padding:16px 40px 16px 40px;background:#7f54b3;border:none;box-shadow:0 2px 8px rgba(127,84,179,0.10);">
 						<?php esc_html_e( 'Upgrade to Pro', 'subscription' ); ?>
 					</a>
 				</div>
