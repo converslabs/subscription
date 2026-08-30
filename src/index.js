@@ -100,7 +100,7 @@ const RecurringTotals = ({ cart, extensions }) => {
                 recurring.time && recurring.time > 1 ? `${recurring.time}-${capitalizedType}` : capitalizedType;
 
               return (
-                <div style={{ margin: "20px 0", float: "right" }}>
+                <div style={{ margin: "8px 0px 0px", float: "right" }}>
                   <div style={{ fontSize: "18px" }}>
                     {recurring.has_recurring_discount && (
                       <del aria-hidden="true" style={{ marginRight: "6px", opacity: 0.6 }}>
