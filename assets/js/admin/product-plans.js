@@ -947,6 +947,64 @@
     });
   }
 
+  /**
+   * When the plan view is active, mirror each one-time-purchase row's price /
+   * offer into WooCommerce's native price inputs (General tab `#_regular_price`
+   * / `#_sale_price` for a simple product; `variable_regular_price[i]` /
+   * `variable_sale_price[i]` for a variation). The one-time price IS the native
+   * price, so without this the product's own Update re-saves the stale native
+   * fields and reverts the freshly-saved one-time edit.
+   *
+   * @param {HTMLElement} wrap The [data-subscrpt-product-plans] wrapper.
+   */
+  function mirrorOnetimePrices(wrap) {
+    var planView = wrap.querySelector("[data-subscrpt-plan-view]");
+    if (!planView || "none" === planView.style.display) {
+      return;
+    }
+    planView.querySelectorAll("[data-subscrpt-onetime-row]").forEach(function (row) {
+      var vid = parseInt(row.getAttribute("data-vid"), 10) || 0;
+      var priceEl = row.querySelector('[data-ot-field="price"]');
+      var offerEl = row.querySelector('[data-ot-field="offer"]');
+      if (!priceEl) {
+        return;
+      }
+      var regular = priceEl.value;
+      var sale = offerEl ? offerEl.value : "";
+
+      if (!vid) {
+        // Simple product → General tab native price inputs.
+        var r = document.getElementById("_regular_price");
+        var s = document.getElementById("_sale_price");
+        if (r) {
+          r.value = regular;
+        }
+        if (s) {
+          s.value = sale;
+        }
+        return;
+      }
+
+      // Variation → find its row index among the variation price inputs (only
+      // present when the Variations tab has been loaded; otherwise WooCommerce
+      // posts no variation prices to overwrite, so skipping is safe).
+      var postId = document.querySelector('input[name^="variable_post_id["][value="' + vid + '"]');
+      var match = postId ? postId.getAttribute("name").match(/\[(\d+)\]/) : null;
+      if (!match) {
+        return;
+      }
+      var i = match[1];
+      var vr = document.querySelector('input[name="variable_regular_price[' + i + ']"]');
+      var vs = document.querySelector('input[name="variable_sale_price[' + i + ']"]');
+      if (vr) {
+        vr.value = regular;
+      }
+      if (vs) {
+        vs.value = sale;
+      }
+    });
+  }
+
   /* ------------------------------------------------------------------ *
    * Save plan edits with the product's Update/Publish button too, so the
    * merchant does not have to use the plan card's own Save. Any card with an
@@ -991,6 +1049,10 @@
       // active we leave the classic checkboxes untouched — they win. Either way
       // per-variation enable is respected without the two sources clobbering.
       mirrorPlanEnables(wrap);
+
+      // One-time price is the native product price; mirror it into WooCommerce's
+      // own price inputs so the product's Update doesn't revert the edit.
+      mirrorOnetimePrices(wrap);
 
       // Cards with a currently-visible Save control have pending plan edits.
       var cards = Array.prototype.filter.call(wrap.querySelectorAll("[data-subscrpt-plan-card]"), function (card) {

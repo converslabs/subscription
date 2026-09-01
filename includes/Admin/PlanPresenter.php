@@ -227,13 +227,20 @@ class PlanPresenter {
 		$discount_type  = $data['discount_type'] ?? 'percentage';
 		$discount_value = isset( $data['discount_value'] ) ? (string) $data['discount_value'] : '0';
 
+		// A real offer exists only when the effective price is below the regular
+		// (an explicit sale price or a discount). Without one, offer_price() equals
+		// the regular price, so the display must not repeat it in the offer column.
+		$offer_num = self::offer_price( $regular, $selling, $discount_type, $discount_value );
+		$has_offer = '' !== $regular && $offer_num < (float) $regular;
+
 		return array(
 			'relation_id' => null === $relation_id ? (int) $relation['id'] : (int) $relation_id,
 			'plan_id'     => (int) $plan['id'],
 			'vid'         => (int) $vid,
 			'term'        => $plan['title'],
 			'regular'     => '' !== $regular ? self::money( (float) $regular ) : '-',
-			'offer'       => self::money( self::offer_price( $regular, $selling, $discount_type, $discount_value ) ),
+			'offer'       => self::money( $offer_num ),
+			'has_offer'   => $has_offer,
 			'regular_raw' => $regular,
 			'offer_raw'   => $selling,
 			'exclude'     => ! empty( $relation['exclude'] ),

@@ -85,7 +85,7 @@ $has_terms = ! empty( $plan['terms'] );
 								<?php endif; ?>
 							</td>
 							<td>
-								<span class="subscrpt-pe-view"><?php echo esc_html( $row['offer'] ); ?></span>
+								<span class="subscrpt-pe-view"><?php echo ! empty( $row['has_offer'] ) ? esc_html( $row['offer'] ) : '<span style="color:var(--wpsubs-text-subtle);">&mdash;</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static dash markup / escaped price. ?></span>
 								<?php if ( $pro_active ) : ?>
 									<input type="number" min="0" step="0.01" class="wpsubs-input subscrpt-pe-edit" data-field="sale_price" value="<?php echo esc_attr( $row['offer_raw'] ); ?>" placeholder="0.00" style="display:none;max-width:110px;" />
 								<?php endif; ?>
