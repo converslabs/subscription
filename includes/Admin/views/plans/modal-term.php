@@ -108,26 +108,49 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 				<input type="text" id="subscrpt-term-name" class="wpsubs-input" value="" placeholder="<?php esc_attr_e( 'e.g. Monthly', 'subscription' ); ?>" data-subscrpt-field="title" />
 			</div>
 
-			<!-- Billing every -->
-			<div style="<?php echo esc_attr( $row_style ); ?>">
-				<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Billing every', 'subscription' ); ?><?php echo wp_kses_post( $hint( __( 'How often the customer is charged, for example every 1 month.', 'subscription' ) ) ); ?></label>
-				<div style="<?php echo esc_attr( $pair_style ); ?>">
-					<input type="number" class="wpsubs-input" value="1" min="1" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="billing_frequency" aria-label="<?php esc_attr_e( 'Frequency', 'subscription' ); ?>" />
-					<?php
-					wpsubs_render_adv_select(
-						array(
-							'name'    => 'subscrpt_billing_interval',
-							'value'   => 'month',
-							'options' => $interval_options,
-							'attrs'   => array(
-								'data-subscrpt-field' => 'billing_interval',
-								'style'               => 'flex:0 0 auto;',
-							),
-						)
-					);
-					?>
-				</div>
+			<?php
+			// Billing every + interval; for Split Payment it shares a row with the
+			// number of payments.
+			ob_start();
+			?>
+			<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Billing every', 'subscription' ); ?><?php echo wp_kses_post( $hint( __( 'How often the customer is charged, for example every 1 month.', 'subscription' ) ) ); ?></label>
+			<div style="<?php echo esc_attr( $pair_style ); ?>">
+				<input type="number" class="wpsubs-input" value="1" min="1" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="billing_frequency" aria-label="<?php esc_attr_e( 'Frequency', 'subscription' ); ?>" />
+				<?php
+				wpsubs_render_adv_select(
+					array(
+						'name'    => 'subscrpt_billing_interval',
+						'value'   => 'month',
+						'options' => $interval_options,
+						'attrs'   => array(
+							'data-subscrpt-field' => 'billing_interval',
+							'style'               => 'flex:0 0 auto;',
+						),
+					)
+				);
+				?>
 			</div>
+			<?php
+			$billing_every_html = ob_get_clean();
+			?>
+
+			<?php if ( $is_installments ) : ?>
+				<!-- Billing every (billing group) | Number of payments -->
+				<div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;align-items:start;<?php echo esc_attr( $row_style ); ?>">
+					<div><?php echo $billing_every_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped markup (esc_* + wpsubs_render_adv_select()). ?></div>
+					<?php // Label text is too long for this column; keep only the hint and an "×" prefix so it reads as a count: "1 Month(s) × 5". ?>
+					<div>
+						<label style="<?php echo esc_attr( $label_style ); ?>text-align:right;" for="subscrpt-term-installments"><?php echo wp_kses_post( $hint( __( 'Total payments to collect (minimum 2).', 'subscription' ) ) ); ?></label>
+						<div style="display:flex;align-items:center;gap:8px;">
+							<span style="font-size:15px;color:var(--wpsubs-text-muted);line-height:1;" aria-hidden="true">&times;</span>
+							<input type="number" id="subscrpt-term-installments" class="wpsubs-input" value="2" min="2" placeholder="<?php esc_attr_e( 'times', 'subscription' ); ?>" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="installment_count" aria-label="<?php esc_attr_e( 'Number of payments', 'subscription' ); ?>" <?php disabled( $pro_locked ); ?> />
+						</div>
+					</div>
+				</div>
+			<?php else : ?>
+				<!-- Billing every -->
+				<div style="<?php echo esc_attr( $row_style ); ?>"><?php echo $billing_every_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped markup (esc_* + wpsubs_render_adv_select()). ?></div>
+			<?php endif; ?>
 
 			<!-- Free trial | Signup fee -->
 			<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;<?php echo ( $is_delivery || $is_installments ) ? esc_attr( $row_style ) : 'margin-bottom:0;'; ?>">
@@ -216,28 +239,22 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 			<?php endif; ?>
 
 			<?php if ( $is_installments ) : ?>
-				<!-- Split Payment extras -->
-				<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-bottom:0;">
-					<div>
-						<label style="<?php echo esc_attr( $label_style ); ?>" for="subscrpt-term-installments"><?php esc_html_e( 'Number of payments', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?><?php echo wp_kses_post( $hint( __( 'Total payments to collect (minimum 2).', 'subscription' ) ) ); ?></label>
-						<input type="number" id="subscrpt-term-installments" class="wpsubs-input" value="2" min="2" data-subscrpt-field="installment_count" <?php disabled( $pro_locked ); ?> />
-					</div>
-					<div>
-						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Access ends', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?><?php echo wp_kses_post( $hint( __( 'When the customer loses access after the payments finish.', 'subscription' ) ) ); ?></label>
-						<?php
-						wpsubs_render_adv_select(
-							array(
-								'name'    => 'subscrpt_access_ends',
-								'value'   => 'full_duration',
-								'options' => $access_options,
-								'attrs'   => array(
-									'data-subscrpt-field' => 'access_ends',
-									'style'               => 'width:100%;' . $adv_lock,
-								),
-							)
-						);
-						?>
-					</div>
+				<!-- Split Payment: access ends (number of payments shares the billing row above) -->
+				<div style="margin-bottom:0;">
+					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Access ends', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?><?php echo wp_kses_post( $hint( __( 'When the customer loses access after the payments finish.', 'subscription' ) ) ); ?></label>
+					<?php
+					wpsubs_render_adv_select(
+						array(
+							'name'    => 'subscrpt_access_ends',
+							'value'   => 'full_duration',
+							'options' => $access_options,
+							'attrs'   => array(
+								'data-subscrpt-field' => 'access_ends',
+								'style'               => 'width:100%;' . $adv_lock,
+							),
+						)
+					);
+					?>
 				</div>
 
 				<div data-subscrpt-access-custom style="display:none;margin-top:22px;">
