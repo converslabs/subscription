@@ -117,9 +117,31 @@ function subscrpt_plan_offered( $product_id, $variation_id = 0 ): bool {
 		return false;
 	}
 
+	return subscrpt_is_subscription_enabled( $product_id, $variation_id );
+}
+
+/**
+ * Whether a product / variation is subscription-enabled (`_subscrpt_enabled`).
+ *
+ * When the enable meta was never explicitly saved, a connected plan turns the
+ * subscription on by default — so attaching a plan enables it automatically, and
+ * it stays on until a save explicitly clears the toggle (an empty saved value).
+ * With no plan and no saved meta it is off (a fresh product defaults to off).
+ *
+ * @param int $product_id   Product (parent) id.
+ * @param int $variation_id Variation id, or 0 for simple products.
+ *
+ * @return bool
+ */
+function subscrpt_is_subscription_enabled( $product_id, $variation_id = 0 ): bool {
 	$entity_id = $variation_id ? (int) $variation_id : (int) $product_id;
 
-	return ! empty( get_post_meta( $entity_id, '_subscrpt_enabled', true ) );
+	if ( metadata_exists( 'post', $entity_id, '_subscrpt_enabled' ) ) {
+		return ! empty( get_post_meta( $entity_id, '_subscrpt_enabled', true ) );
+	}
+
+	// Never explicitly set: a connected plan enables the subscription by default.
+	return subscrpt_product_has_plan( $product_id, $variation_id );
 }
 
 /**

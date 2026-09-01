@@ -460,6 +460,17 @@ class PlanController {
 			return new WP_Error( 'subscrpt_relation_create_failed', __( 'Could not attach the product.', 'subscription' ), array( 'status' => 500 ) );
 		}
 
+		// Connecting a plan enables the subscription on the product / variation
+		// (it stays on until a product save explicitly clears the toggle). For a
+		// variation, the parent's "any variation enabled" flag is turned on too.
+		$oid = (int) $params['oid'];
+		if ( ! empty( $params['vid'] ) ) {
+			update_post_meta( (int) $params['vid'], '_subscrpt_enabled', 'yes' );
+			update_post_meta( $oid, '_subscrpt_enabled', 'yes' );
+		} else {
+			update_post_meta( $oid, '_subscrpt_enabled', 'yes' );
+		}
+
 		return rest_ensure_response( PlanRepository::get_relation( $id ) );
 	}
 

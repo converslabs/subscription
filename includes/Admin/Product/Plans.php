@@ -358,9 +358,10 @@ class Plans {
 			return false;
 		}
 
-		// Variable products: inspect each variation. Any variation tied to a plan
-		// means a plan-era product (plan view). Otherwise, any variation carrying
-		// legacy classic meta means an "old" product (classic view).
+		// A product is "classic/legacy" only when it is enabled as a classic
+		// subscription (`_subscrpt_enabled`) but tied to no plan. `_subscrpt_timing_option`
+		// is written with a default on every product save, so it can't distinguish a
+		// real classic subscription from a plain product — never key on it here.
 		if ( $product->is_type( 'variable' ) ) {
 			$has_classic = false;
 			foreach ( $product->get_children() as $variation_id ) {
@@ -369,7 +370,7 @@ class Plans {
 				}
 				if ( ! $has_classic ) {
 					$variation = wc_get_product( $variation_id );
-					if ( $variation && ( (bool) $variation->get_meta( '_subscrpt_enabled' ) || '' !== (string) $variation->get_meta( '_subscrpt_timing_option' ) ) ) {
+					if ( $variation && (bool) $variation->get_meta( '_subscrpt_enabled' ) ) {
 						$has_classic = true;
 					}
 				}
@@ -380,8 +381,7 @@ class Plans {
 		if ( function_exists( 'subscrpt_product_has_plan' ) && subscrpt_product_has_plan( $product->get_id() ) ) {
 			return false;
 		}
-		return (bool) $product->get_meta( '_subscrpt_enabled' )
-			|| '' !== (string) $product->get_meta( '_subscrpt_timing_option' );
+		return (bool) $product->get_meta( '_subscrpt_enabled' );
 	}
 
 	/**
@@ -392,7 +392,8 @@ class Plans {
 	 * @return void
 	 */
 	public static function render_toolbar( $product = null ) {
-		$subscrpt_enabled = $product ? (bool) $product->get_meta( '_subscrpt_enabled' ) : false;
+		// A connected plan enables the subscription by default (until saved off).
+		$subscrpt_enabled = $product ? subscrpt_is_subscription_enabled( $product->get_id() ) : false;
 		// Show the checkout-link generator only when the product is tied to a plan.
 		$subscrpt_has_plans = $product && ! empty( PlanRepository::get_product_connections( $product->get_id() ) );
 		?>
@@ -801,9 +802,9 @@ class Plans {
 			);
 
 			// "Enable subscription" is per variation. Connecting a plan group turns
-			// it on by default (the connect toggle starts checked and Save persists
-			// the variation's _subscrpt_enabled meta).
-			$subscrpt_var_on = $connect ? true : (bool) $subscrpt_variation->get_meta( '_subscrpt_enabled' );
+			// it on by default (until saved off); the connect toggle starts checked
+			// and Save persists the variation's _subscrpt_enabled meta.
+			$subscrpt_var_on = $connect ? true : subscrpt_is_subscription_enabled( $product->get_id(), $subscrpt_vid );
 			?>
 			<div data-subscrpt-variation-card data-variation-id="<?php echo esc_attr( $subscrpt_vid ); ?>" <?php echo $connect ? '' : 'data-subscrpt-plan-card'; ?> style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);">
 				<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
