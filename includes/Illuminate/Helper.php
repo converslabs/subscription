@@ -999,7 +999,9 @@ class Helper {
 						'start_date'      => self::start_date( $cart_subscription['trial'] ),
 						'next_date'       => self::next_date( ( $cart_subscription['time'] ?? 1 ) . ' ' . $cart_subscription['type'], $cart_subscription['trial'] ),
 						'can_user_cancel' => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
-						'max_no_payment'  => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+						'max_no_payment'  => ! empty( $cart_item['subscrpt_max_no_payment'] )
+							? (int) $cart_item['subscrpt_max_no_payment']
+							: $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
 						'quantity'        => (int) $cart_item['quantity'],
 					)
 				);

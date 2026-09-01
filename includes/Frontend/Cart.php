@@ -366,7 +366,9 @@ class Cart {
 							'type'                   => $type,
 							'description'            => $description,
 							'can_user_cancel'        => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
-							'max_no_payment'         => $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+							'max_no_payment'         => ! empty( $cart_item['subscrpt_max_no_payment'] )
+								? (int) $cart_item['subscrpt_max_no_payment']
+								: $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
 						),
 						$cart_item
 					);
@@ -438,6 +440,15 @@ class Cart {
 			$item_data = $cart_item['subscription'];
 			unset( $item_data['per_cost'] );
 			$item_data['cost'] = (float) $cart_item['subscription']['per_cost'] * $cart_item['quantity'];
+
+			// Plan items don't stamp the installment count into the subscription
+			// array (it rides the cart item as subscrpt_max_no_payment); classic
+			// products carry it on the product meta.
+			if ( ! isset( $item_data['max_no_payment'] ) ) {
+				$item_data['max_no_payment'] = ! empty( $cart_item['subscrpt_max_no_payment'] )
+					? (int) $cart_item['subscrpt_max_no_payment']
+					: $cart_item['data']->get_meta( '_subscrpt_max_no_payment' );
+			}
 
 			// Normalise the cadence word to singular/plural by frequency for the
 			// blocks (Store API) cart — plan items store the raw plural interval
