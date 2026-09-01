@@ -978,18 +978,22 @@ class Plans {
 	}
 
 	/**
-	 * Recurring plan groups not already connected to this product.
+	 * Plan groups not already connected to this product.
+	 *
+	 * Free is Recurring-only, so it offers only Recurring groups; Pro unlocks
+	 * Subscribe & Save and Installments, so all plan types are selectable.
 	 *
 	 * @param array $connected_ids Group ids already connected.
 	 *
 	 * @return array<int,array> Each: id, title.
 	 */
 	protected static function available_groups( $connected_ids ) {
-		$recurring = PlanRepository::type_to_int( 'recurring' );
-		$available = array();
+		$pro_active = function_exists( 'subscrpt_pro_activated' ) && subscrpt_pro_activated();
+		$recurring  = PlanRepository::type_to_int( 'recurring' );
+		$available  = array();
 
 		foreach ( PlanRepository::get_groups() as $group ) {
-			if ( (int) $group['type'] !== $recurring ) {
+			if ( ! $pro_active && (int) $group['type'] !== $recurring ) {
 				continue;
 			}
 			if ( 'trash' === ( $group['status'] ?? '' ) ) {
