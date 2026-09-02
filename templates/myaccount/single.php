@@ -204,9 +204,12 @@ do_action( 'before_single_subscrpt_content', $id );
 		<!-- Access Duration Information for Split Payments -->
 		<?php if ( 'split_payment' === $payment_type && $max_payments > 0 ) : ?>
 			<?php
-			$access_ends_timing   = get_post_meta( $product_id, '_subscrpt_access_ends_timing', true ) ?: 'after_full_duration';
-			$custom_duration_time = get_post_meta( $product_id, '_subscrpt_custom_access_duration_time', true ) ?: 1;
-			$custom_duration_type = get_post_meta( $product_id, '_subscrpt_custom_access_duration_type', true ) ?: 'months';
+			// Plan subscriptions store access-ends on the subscription; classic ones on
+			// the product. Prefer the subscription meta, fall back to the product.
+			$access_ends_timing   = get_post_meta( $id, '_subscrpt_access_ends_timing', true );
+			$access_ends_timing   = $access_ends_timing ? $access_ends_timing : ( get_post_meta( $product_id, '_subscrpt_access_ends_timing', true ) ?: 'after_full_duration' );
+			$custom_duration_time = get_post_meta( $id, '_subscrpt_custom_access_duration_time', true ) ?: ( get_post_meta( $product_id, '_subscrpt_custom_access_duration_time', true ) ?: 1 );
+			$custom_duration_type = get_post_meta( $id, '_subscrpt_custom_access_duration_type', true ) ?: ( get_post_meta( $product_id, '_subscrpt_custom_access_duration_type', true ) ?: 'months' );
 
 			// Calculate access end date if Pro version is available
 			$access_end_date_string = null;

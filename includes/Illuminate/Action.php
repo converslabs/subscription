@@ -17,6 +17,17 @@ class Action {
 	 * @param bool   $write_comment Write comment?.
 	 */
 	public static function status( string $status, int $subscription_id, bool $write_comment = true ) {
+		// A split-payment subscription whose final installment is paid is terminal:
+		// never (re)activate it. Any renewal-payment path that tries to set it active
+		// after completion is coerced to `completed` so the status can't flip back.
+		if (
+			'active' === $status
+			&& function_exists( 'subscrpt_is_max_payments_reached' )
+			&& subscrpt_is_max_payments_reached( $subscription_id )
+		) {
+			$status = 'completed';
+		}
+
 		$old_status = get_post_status( $subscription_id );
 
 		wp_update_post(
