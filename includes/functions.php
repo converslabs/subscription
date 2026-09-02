@@ -377,6 +377,42 @@ function subscrpt_get_payment_type( $subscription_id ) {
 }
 
 /**
+ * Human-readable label of the plan a subscription was purchased on.
+ *
+ * Combines the plan group name and the plan-term title (e.g. "Split Pay – Every
+ * Day"). Returns an empty string for legacy per-product subscriptions that were
+ * not bought through a plan.
+ *
+ * @param int $subscription_id Subscription ID.
+ * @return string Plan label, or '' when the subscription has no plan.
+ */
+function subscrpt_get_subscription_plan_label( $subscription_id ) {
+	$plan_id = (int) get_post_meta( $subscription_id, '_subscrpt_plan_id', true );
+	if ( ! $plan_id || ! class_exists( '\SpringDevs\Subscription\Illuminate\Plans\PlanRepository' ) ) {
+		return '';
+	}
+
+	$plan = \SpringDevs\Subscription\Illuminate\Plans\PlanRepository::get_plan( $plan_id );
+	if ( ! $plan ) {
+		return '';
+	}
+
+	$term_title  = isset( $plan['title'] ) ? trim( (string) $plan['title'] ) : '';
+	$group_title = '';
+	$group_id    = (int) ( $plan['plan_group_id'] ?? 0 );
+	if ( $group_id ) {
+		$group = \SpringDevs\Subscription\Illuminate\Plans\PlanRepository::get_group( $group_id );
+		if ( $group && isset( $group['title'] ) ) {
+			$group_title = trim( (string) $group['title'] );
+		}
+	}
+
+	$parts = array_filter( array( $group_title, $term_title ) );
+
+	return implode( ' – ', $parts );
+}
+
+/**
  * Enhanced completion check considering failed payments and access suspension.
  *
  * @param int $subscription_id Subscription ID.

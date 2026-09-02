@@ -50,6 +50,12 @@ do_action( 'before_single_subscrpt_content', $id );
 		flex-wrap: wrap;
 		gap: 10px;
 	}
+	.product-name .subscrpt-plan-term {
+		display: block;
+		margin-top: 4px;
+		font-size: 13px;
+		color: #6b7280;
+	}
 </style>
 <table class="woocommerce-table woocommerce-table--order-details shop_table order_details subscription_details">
 	<tbody>
@@ -304,6 +310,12 @@ do_action( 'before_single_subscrpt_content', $id );
 			<td class="product-name">
 				<a href="<?php echo esc_html( $product_link ); ?>"><?php echo esc_html( $product_name ); ?></a>
 				<strong class="product-quantity">× <?php echo esc_html( $order_item->get_quantity() ); ?></strong>
+				<?php
+				$plan_label = function_exists( 'subscrpt_get_subscription_plan_label' ) ? subscrpt_get_subscription_plan_label( $id ) : '';
+				if ( $plan_label ) :
+					?>
+					<span class="subscrpt-plan-term"><?php printf( esc_html__( 'Plan: %s', 'subscription' ), esc_html( $plan_label ) ); ?></span>
+				<?php endif; ?>
 			</td>
 			<td class="product-total">
 				<span class="woocommerce-Price-amount amount">

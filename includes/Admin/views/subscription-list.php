@@ -239,9 +239,10 @@ for ( $i = 0; $i < 12; $i++ ) {
 						$timing_option  = $subscription_data['schedule']['timing_option'] ?? '';
 						$timing_label   = '';
 						if ( $timing_per && $timing_option ) {
+							$timing_unit  = \SpringDevs\Subscription\Illuminate\Helper::get_typos( $timing_per, $timing_option );
 							$timing_label = ( (int) $timing_per > 1 )
-								? $timing_per . ' ' . $timing_option . 's'
-								: $timing_option;
+								? $timing_per . ' ' . $timing_unit
+								: $timing_unit;
 						}
 
 						// Avatar

@@ -104,9 +104,10 @@ if ( $order && isset( $subscription_data['price'] ) && '' !== $subscription_data
 	$timing_option = $subscription_data['schedule']['timing_option'] ?? '';
 	$period_label  = '';
 	if ( $timing_option ) {
+		$timing_unit  = ucfirst( Helper::get_typos( $timing_per, $timing_option ) );
 		$period_label = $timing_per > 1
-			? $timing_per . ' ' . ucfirst( $timing_option ) . 's'
-			: ucfirst( $timing_option );
+			? $timing_per . ' ' . $timing_unit
+			: $timing_unit;
 	}
 
 	// Net of any discount that carries into renewals, with the original struck through.
@@ -165,6 +166,7 @@ $used_keys = array(
 // Plan card: product + qty render side by side; trial/signup fee as extra rows.
 $plan_product = isset( $rows['product'] ) ? $rows['product']['value'] : '';
 $plan_qty     = isset( $rows['quantity'] ) ? $rows['quantity']['value'] : '';
+$plan_label   = function_exists( 'subscrpt_get_subscription_plan_label' ) ? subscrpt_get_subscription_plan_label( $subscription_id ) : '';
 $plan_extra   = array();
 foreach ( array( 'product', 'quantity', 'signup_fee', 'trial', 'trial_period' ) as $plan_key ) {
 	$used_keys[ $plan_key ] = true;
@@ -413,6 +415,14 @@ $subscrpt_details_ctx = array(
 									</div>
 									<div class="subscrpt-plan-meta">
 										<span class="subscrpt-plan-name"><?php echo $plan_product ? wp_kses_post( $plan_product ) : '&mdash;'; ?></span>
+										<?php if ( $plan_label ) : ?>
+											<span class="subscrpt-plan-term">
+												<?php
+												/* translators: %s: plan name */
+												printf( esc_html__( 'Plan: %s', 'subscription' ), esc_html( $plan_label ) );
+												?>
+											</span>
+										<?php endif; ?>
 										<span class="subscrpt-plan-qty">
 											<?php
 											/* translators: %s: quantity */
@@ -994,6 +1004,7 @@ $subscrpt_details_ctx = array(
 .subscrpt-plan-name a { color: var(--wpsubs-text); text-decoration: none; }
 .subscrpt-plan-name a:hover { color: var(--wpsubs-brand); }
 .subscrpt-plan-qty { font-size: 13px; color: var(--wpsubs-text-muted); }
+.subscrpt-plan-term { font-size: 13px; color: var(--wpsubs-text-muted); }
 .subscrpt-plan-col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .subscrpt-plan-label {
 	font-size: 11px;
