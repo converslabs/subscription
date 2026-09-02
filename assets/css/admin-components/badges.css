@@ -73,12 +73,12 @@
 }
 
 .wpsubs-badge--completed {
-  background: #eff6ff;
-  color: #1e40af;
-  border-color: #bfdbfe;
+  background: #e0e7ff;
+  color: #3730a3;
+  border-color: #c7d2fe;
 }
 .wpsubs-badge--completed .wpsubs-badge__dot {
-  background: #2563eb;
+  background: #4f46e5;
 }
 
 .wpsubs-badge--draft {

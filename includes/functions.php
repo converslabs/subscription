@@ -214,14 +214,12 @@ function subscrpt_count_payments_made( $subscription_id ) {
 
 	$table_name = $wpdb->prefix . 'subscrpt_order_relation';
 
+	// Query the relation table only. Joining wp_posts would drop every row under
+	// HPOS (orders are not stored there); wc_get_order() below is HPOS-safe.
 	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	$relations = $wpdb->get_results(
 		$wpdb->prepare(
-			"SELECT sr.*, p.post_status, p.post_date 
-		FROM $table_name sr 
-		INNER JOIN {$wpdb->posts} p ON sr.order_id = p.ID 
-		WHERE sr.subscription_id = %d
-		ORDER BY p.post_date ASC",
+			"SELECT * FROM $table_name WHERE subscription_id = %d ORDER BY id ASC",
 			$subscription_id
 		)
 	);
@@ -284,8 +282,8 @@ function subscrpt_is_max_payments_reached( $subscription_id ) {
 		// Add completion milestone note
 		subscrpt_add_payment_completion_note( $subscription_id, $payments_made, $max_payments );
 
-		// Allow customization of subscription status after completion
-		$expire_status = apply_filters( 'subscrpt_split_payment_expire_status', 'expired', $subscription_id, $payments_made, $max_payments );
+		// All installments paid: complete the subscription (no renewal / expiry / grace).
+		$expire_status = apply_filters( 'subscrpt_split_payment_expire_status', 'completed', $subscription_id, $payments_made, $max_payments );
 
 		// Update subscription status if different from current
 		$current_status = get_post_status( $subscription_id );
@@ -297,6 +295,9 @@ function subscrpt_is_max_payments_reached( $subscription_id ) {
 				)
 			);
 		}
+
+		// Clear the next date so cron never expires it into a grace period.
+		delete_post_meta( $subscription_id, '_subscrpt_next_date' );
 
 		do_action( 'subscrpt_split_payment_completed', $subscription_id, $payments_made, $max_payments );
 		update_post_meta( $subscription_id, '_subscrpt_split_payment_completed_fired', true );
@@ -436,14 +437,12 @@ function subscrpt_count_all_payment_attempts( $subscription_id ) {
 
 	$table_name = $wpdb->prefix . 'subscrpt_order_relation';
 
+	// Query the relation table only. Joining wp_posts would drop every row under
+	// HPOS (orders are not stored there); wc_get_order() below is HPOS-safe.
 	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	$relations = $wpdb->get_results(
 		$wpdb->prepare(
-			"SELECT sr.*, p.post_status, p.post_date 
-		FROM $table_name sr 
-		INNER JOIN {$wpdb->posts} p ON sr.order_id = p.ID 
-		WHERE sr.subscription_id = %d
-		ORDER BY p.post_date ASC",
+			"SELECT * FROM $table_name WHERE subscription_id = %d ORDER BY id ASC",
 			$subscription_id
 		)
 	);

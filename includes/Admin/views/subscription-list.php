@@ -69,6 +69,10 @@ for ( $i = 0; $i < 12; $i++ ) {
 							'label' => __( 'Expired', 'subscription' ),
 						),
 						array(
+							'value' => 'completed',
+							'label' => __( 'Completed', 'subscription' ),
+						),
+						array(
 							'value' => 'trash',
 							'label' => __( 'Trash', 'subscription' ),
 						),
@@ -265,6 +269,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 							'pe_cancelled' => 'pending-cancel',
 							'cancelled'    => 'cancelled',
 							'expired'      => 'expired',
+							'completed'    => 'completed',
 							'draft'        => 'draft',
 							'trash'        => 'trash',
 						);

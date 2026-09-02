@@ -85,6 +85,15 @@ class Order {
 			$next_date = sdevs_wp_strtotime( $recurr_timing, time() );
 		}
 
+		// Split payment: no next date after the final installment.
+		if (
+			in_array( $subscription_history->type, array( 'renew', 'early-renew' ), true )
+			&& function_exists( 'subscrpt_is_max_payments_reached' )
+			&& subscrpt_is_max_payments_reached( $subscription_id )
+		) {
+			return;
+		}
+
 		/**
 		 * Filter the subscription next payment date before it is saved.
 		 *
@@ -264,10 +273,21 @@ class Order {
 		foreach ( $histories as $history ) {
 			if ( 'new' === $history->type || 'renew' === $history->type ) {
 				$subscription_id = $history->subscription_id;
+
+				// Split payment: complete instead of re-activate after the final installment.
+				$target_status = $post_status;
+				if (
+					'active' === $target_status
+					&& function_exists( 'subscrpt_is_max_payments_reached' )
+					&& subscrpt_is_max_payments_reached( $subscription_id )
+				) {
+					$target_status = 'completed';
+				}
+
 				wp_update_post(
 					array(
 						'ID'          => $subscription_id,
-						'post_status' => $post_status,
+						'post_status' => $target_status,
 					)
 				);
 
@@ -284,7 +304,7 @@ class Order {
 				// Add enhanced split payment activity logging
 				$this->add_split_payment_activity_note( $history->subscription_id, $history->type, $post_status, $order );
 
-				Action::write_comment( $post_status, $history->subscription_id );
+				Action::write_comment( $target_status, $history->subscription_id );
 			} else {
 				do_action( 'subscrpt_order_status_changed', $order, $history );
 			}

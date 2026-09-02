@@ -74,6 +74,7 @@ class Helper {
 			'active'       => __( 'Active', 'subscription' ),
 			'on-hold'      => __( 'On Hold', 'subscription' ),
 			'expired'      => __( 'Expired', 'subscription' ),
+			'completed'    => __( 'Completed', 'subscription' ),
 			'pe_cancelled' => __( 'Pending Cancellation', 'subscription' ),
 			'cancelled'    => __( 'Cancelled', 'subscription' ),
 			'draft'        => __( 'Draft', 'subscription' ),
@@ -1477,7 +1478,8 @@ class Helper {
 		}
 
 		if (
-			! in_array( strtolower( $status ), array( 'cancelled', 'pending' ), true )
+			! in_array( strtolower( $status ), array( 'cancelled', 'pending', 'completed' ), true )
+			&& ! empty( $next_date )
 			&& $next_datetime - time() <= 0
 			&& (int) $default_grace_period > 0
 		) {

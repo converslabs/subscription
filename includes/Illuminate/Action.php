@@ -65,7 +65,30 @@ class Action {
 			case 'on-hold':
 				self::on_hold( $subscription_id );
 				break;
+			case 'completed':
+				self::completed( $subscription_id );
+				break;
 		}
+	}
+
+	/**
+	 * Write Comment About Completed Subscription.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 */
+	private static function completed( int $subscription_id ) {
+		$comment_id = wp_insert_comment(
+			array(
+				'comment_author'  => 'Subscription for WooCommerce',
+				'comment_content' => 'Subscription completed. All payments made.',
+				'comment_post_ID' => $subscription_id,
+				'comment_type'    => 'order_note',
+			)
+		);
+		update_comment_meta( $comment_id, '_subscrpt_activity', 'Subscription Completed' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_completed' );
+
+		do_action( 'subscrpt_subscription_completed', $subscription_id );
 	}
 
 	/**

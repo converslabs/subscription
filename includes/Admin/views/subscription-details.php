@@ -40,6 +40,7 @@ $badge_mod_map = array(
 	'pe_cancelled' => 'pending-cancel',
 	'cancelled'    => 'cancelled',
 	'expired'      => 'expired',
+	'completed'    => 'completed',
 	'draft'        => 'draft',
 	'trash'        => 'trash',
 );
@@ -135,12 +136,13 @@ if ( ! empty( $subscription_data['start_date'] ) ) {
 		'value' => esc_html( wp_date( get_option( 'date_format' ), strtotime( $subscription_data['start_date'] ) ) ),
 	);
 }
-if ( ! empty( $subscription_data['next_date'] ) ) {
-	$summary_tiles[] = array(
-		'label' => __( 'Next Payment', 'subscription' ),
-		'value' => esc_html( wp_date( get_option( 'date_format' ), strtotime( $subscription_data['next_date'] ) ) ),
-	);
-}
+// Always show the Next Payment tile; dash when there is no next date.
+$summary_tiles[] = array(
+	'label' => __( 'Next Payment', 'subscription' ),
+	'value' => ! empty( $subscription_data['next_date'] )
+		? esc_html( wp_date( get_option( 'date_format' ), strtotime( $subscription_data['next_date'] ) ) )
+		: '-',
+);
 // Total payments is not part of $subscription_data; pull it from the info rows.
 if ( isset( $rows['total_payments'] ) ) {
 	$summary_tiles[] = array(
