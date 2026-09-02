@@ -36,12 +36,12 @@ $interval_options = array(
 
 $access_options = array(
 	array(
-		'value' => 'full_duration',
-		'label' => __( 'After full duration', 'subscription' ),
+		'value' => 'lifetime',
+		'label' => __( 'Never', 'subscription' ),
 	),
 	array(
-		'value' => 'lifetime',
-		'label' => __( 'Lifetime access', 'subscription' ),
+		'value' => 'full_duration',
+		'label' => __( 'After full duration', 'subscription' ),
 	),
 	array(
 		'value' => 'custom',
@@ -239,41 +239,43 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 			<?php endif; ?>
 
 			<?php if ( $is_installments ) : ?>
-				<!-- Split Payment: access ends (number of payments shares the billing row above) -->
-				<div style="margin-bottom:0;">
-					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Access ends', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?><?php echo wp_kses_post( $hint( __( 'When the customer loses access after the payments finish.', 'subscription' ) ) ); ?></label>
-					<?php
-					wpsubs_render_adv_select(
-						array(
-							'name'    => 'subscrpt_access_ends',
-							'value'   => 'full_duration',
-							'options' => $access_options,
-							'attrs'   => array(
-								'data-subscrpt-field' => 'access_ends',
-								'style'               => 'width:100%;' . $adv_lock,
-							),
-						)
-					);
-					?>
-				</div>
-
-				<div data-subscrpt-access-custom style="display:none;margin-top:22px;">
-					<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Custom access duration', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label>
-					<div style="<?php echo esc_attr( $pair_style ); ?>">
-						<input type="number" class="wpsubs-input" value="1" min="1" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="access_custom_value" aria-label="<?php esc_attr_e( 'Access length', 'subscription' ); ?>" <?php disabled( $pro_locked ); ?> />
+				<!-- Split Payment: Access ends (full width) → Access ends | Custom duration when "Custom" is picked (JS toggles the grid). -->
+				<div data-subscrpt-access-grid style="display:grid;grid-template-columns:1fr;gap:16px;align-items:start;margin-bottom:0;">
+					<div>
+						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Access ends', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?><?php echo wp_kses_post( $hint( __( 'When the customer loses access after the payments finish.', 'subscription' ) ) ); ?></label>
 						<?php
 						wpsubs_render_adv_select(
 							array(
-								'name'    => 'subscrpt_access_custom_interval',
-								'value'   => 'month',
-								'options' => $interval_options,
+								'name'    => 'subscrpt_access_ends',
+								'value'   => 'lifetime',
+								'options' => $access_options,
 								'attrs'   => array(
-									'data-subscrpt-field' => 'access_custom_interval',
-									'style'               => 'flex:0 0 auto;' . $adv_lock,
+									'data-subscrpt-field' => 'access_ends',
+									'style'               => 'width:100%;' . $adv_lock,
 								),
 							)
 						);
 						?>
+					</div>
+
+					<div data-subscrpt-access-custom style="display:none;">
+						<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Custom access duration', 'subscription' ); ?><?php echo wp_kses_post( $pro_badge ); ?><?php echo wp_kses_post( $hint( __( 'How long access should continue after the last payment is completed.', 'subscription' ) ) ); ?></label>
+						<div style="<?php echo esc_attr( $pair_style ); ?>">
+							<input type="number" class="wpsubs-input" value="1" min="1" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="access_custom_value" aria-label="<?php esc_attr_e( 'Access length', 'subscription' ); ?>" <?php disabled( $pro_locked ); ?> />
+							<?php
+							wpsubs_render_adv_select(
+								array(
+									'name'    => 'subscrpt_access_custom_interval',
+									'value'   => 'month',
+									'options' => $interval_options,
+									'attrs'   => array(
+										'data-subscrpt-field' => 'access_custom_interval',
+										'style' => 'flex:0 0 auto;' . $adv_lock,
+									),
+								)
+							);
+							?>
+						</div>
 					</div>
 				</div>
 			<?php endif; ?>

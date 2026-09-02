@@ -181,7 +181,7 @@
       data.installment_count = Math.max(2, parseInt(f.installment_count, 10) || 2);
     }
     if (typeof f.access_ends !== "undefined") {
-      data.access_ends = f.access_ends || "full_duration";
+      data.access_ends = f.access_ends || "lifetime";
       if ("custom" === data.access_ends) {
         data.access_custom_value = parseInt(f.access_custom_value, 10) || 1;
         data.access_custom_interval = f.access_custom_interval || "month";
@@ -264,7 +264,7 @@
           el.value = data.installment_count || 2;
           break;
         case "access_ends":
-          setAdvSelect(el, data.access_ends || "full_duration");
+          setAdvSelect(el, data.access_ends || "lifetime");
           break;
         case "access_custom_value":
           el.value = data.access_custom_value || 1;
@@ -299,7 +299,14 @@
     if (!sel || !custom) {
       return;
     }
-    custom.style.display = "custom" === advValue(sel) ? "" : "none";
+    var isCustom = "custom" === advValue(sel);
+    custom.style.display = isCustom ? "" : "none";
+
+    // Access ends spans full width unless the custom-duration column is shown.
+    var grid = modal.querySelector("[data-subscrpt-access-grid]");
+    if (grid) {
+      grid.style.gridTemplateColumns = isCustom ? "1fr 2fr" : "1fr";
+    }
   }
 
   /**
