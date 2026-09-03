@@ -318,6 +318,11 @@ class Cart {
 						'type'        => array( 'number' ),
 						'readonly'    => true,
 					),
+					'split_total'            => array(
+						'description' => __( 'Total price for a split-payment plan (entered plan price).', 'subscription' ),
+						'type'        => array( 'number', 'null' ),
+						'readonly'    => true,
+					),
 				),
 			),
 		);
@@ -369,6 +374,7 @@ class Cart {
 							'max_no_payment'         => ! empty( $cart_item['subscrpt_max_no_payment'] )
 								? (int) $cart_item['subscrpt_max_no_payment']
 								: $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+							'split_total'            => isset( $cart_item['subscrpt_split_total'] ) ? (float) $cart_item['subscrpt_split_total'] : null,
 						),
 						$cart_item
 					);
@@ -621,7 +627,7 @@ class Cart {
 										// translators: 1: number of installments, 2: total amount.
 										__( 'This subscription will be billed in %1$s installments, for a total of %2$s.', 'subscription' ),
 										esc_html( $recurr['max_no_payment'] ),
-										wc_price( $recurr['price'] * (int) $recurr['max_no_payment'] )
+										wc_price( isset( $recurr['split_total'] ) && null !== $recurr['split_total'] ? $recurr['split_total'] : $recurr['price'] * (int) $recurr['max_no_payment'] )
 									)
 								);
 								?>

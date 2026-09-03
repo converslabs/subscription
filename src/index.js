@@ -160,7 +160,11 @@ const RecurringTotals = ({ cart, extensions }) => {
                             "subscription",
                           ),
                           recurring.max_no_payment,
-                          format(recurring.price * parseInt(recurring.max_no_payment)),
+                          format(
+                            recurring.split_total != null
+                              ? recurring.split_total
+                              : recurring.price * parseInt(recurring.max_no_payment),
+                          ),
                         )}
                       </small>
                     </>

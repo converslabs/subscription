@@ -1003,6 +1003,9 @@ class Helper {
 						'max_no_payment'  => ! empty( $cart_item['subscrpt_max_no_payment'] )
 							? (int) $cart_item['subscrpt_max_no_payment']
 							: $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+						// Exact plan total for split items (the entered price the split is
+						// divided from); null for classic split items which have no plan total.
+						'split_total'     => isset( $cart_item['subscrpt_split_total'] ) ? (float) $cart_item['subscrpt_split_total'] : null,
 						'quantity'        => (int) $cart_item['quantity'],
 					)
 				);

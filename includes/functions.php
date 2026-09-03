@@ -171,6 +171,29 @@ function subscrpt_is_auto_renew_enabled() {
 }
 
 /**
+ * Split-payment amounts for a given total and installment count.
+ *
+ * Single source of truth for split math so the product page, cart, checkout and
+ * subscription always agree:
+ *   - per_installment = total / count, rounded UP to 2 decimals (ceil)
+ *   - total           = the price exactly as entered (never per × count)
+ *
+ * @param float|string $total Total price as entered on the plan/product.
+ * @param int          $count Number of installments (minimum 1).
+ * @return array{total:float,count:int,per_installment:float}
+ */
+function subscrpt_split_amounts( $total, $count ) {
+	$total = (float) $total;
+	$count = max( 1, (int) $count );
+
+	return array(
+		'total'           => $total,
+		'count'           => $count,
+		'per_installment' => ceil( $total / $count * 100 ) / 100,
+	);
+}
+
+/**
  * Get maximum payments for a subscription, checking variation, product, and subscription meta.
  *
  * @param int $subscription_id Subscription ID.
