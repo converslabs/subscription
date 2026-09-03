@@ -1,0 +1,87 @@
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+.wpsubs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--wpsubs-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background 0.12s,
+    border-color 0.12s,
+    color 0.12s;
+  border: 1px solid transparent;
+  line-height: 1;
+  vertical-align: middle;
+  box-shadow: none;
+}
+
+.wpsubs-btn:focus,
+.wpsubs-btn:focus-visible,
+.wpsubs-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: var(--wpsubs-radius-sm) !important;
+}
+
+.wpsubs-btn--outline {
+  background: var(--wpsubs-surface);
+  border-color: var(--wpsubs-border);
+  color: var(--wpsubs-text);
+}
+
+.wpsubs-btn--outline:hover {
+  border-color: var(--wpsubs-border-strong);
+  background: var(--wpsubs-surface-muted);
+  color: var(--wpsubs-text);
+  text-decoration: none;
+}
+
+.wpsubs-btn--primary {
+  background: var(--wpsubs-brand);
+  border-color: var(--wpsubs-brand);
+  color: #fff;
+}
+
+.wpsubs-btn--primary:hover {
+  background: var(--wpsubs-brand-dark);
+  border-color: var(--wpsubs-brand-dark);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Icon-only square button */
+.wpsubs-btn--icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.wpsubs-btn--sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.wpsubs-btn--danger {
+  background: var(--wpsubs-surface);
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.wpsubs-btn--danger:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+  color: #b91c1c;
+  text-decoration: none;
+}

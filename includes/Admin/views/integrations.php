@@ -12,8 +12,6 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
-wp_enqueue_style( 'wp-subscription-admin-components', SUBSCRPT_ASSETS . '/css/admin-components.css', [], SUBSCRPT_VERSION );
-
 // Split by type.
 $payment_gateways = array_filter(
 	$integrations,
@@ -76,7 +74,7 @@ foreach ( $third_party as $integration ) {
 $third_party_grouped = array_filter( $third_party_grouped );
 ?>
 
-<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
+<div class="wp-subscription-admin-content list-page">
 
 	<!-- Page header -->
 	<div style="margin-bottom:20px;">

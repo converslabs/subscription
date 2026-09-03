@@ -584,7 +584,7 @@ class SettingsHelper {
 	 * Generic and reusable: a sortable list of text items with per-row remove/move
 	 * controls and an inline input + add button. The ordered list is serialized as
 	 * JSON (`[{ key, label }]`) into a hidden input so it submits with the form;
-	 * behaviour is wired by `WPSubsEditList` (admin-components.js). All user-facing
+	 * behaviour is wired by `WPSubsEditList` (admin-components/editlist.js). All user-facing
 	 * strings are overridable so the field carries no feature-specific text.
 	 *
 	 * When `modal` is true the list lives inside a `wpsubs-modal` (via the

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Registers and enqueues admin/frontend scripts and styles.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription;
 
@@ -82,6 +87,20 @@ class Assets {
 				'version'      => SUBSCRPT_VERSION,
 			);
 
+		// Admin UI components, one file each for readability (assets/js/admin-components/).
+		// Each attaches its API to `window` and auto-inits; they are registered as
+		// individual scripts and bundled behind the `subscrpt_admin_components` handle.
+		$components      = array();
+		$component_files = array( 'adv-select', 'tag-select', 'editlist', 'modal', 'tabs', 'accordion', 'pagination' );
+		foreach ( $component_files as $component_file ) {
+			$handle                = 'subscrpt_component_' . str_replace( '-', '_', $component_file );
+			$components[ $handle ] = array(
+				'src'       => $plugin_js_assets_path . 'admin-components/' . $component_file . '.js',
+				'deps'      => array(),
+				'in_footer' => true,
+			);
+		}
+
 		$scripts = array(
 			'sdevs_subscription_admin'  => array(
 				'src'       => $plugin_js_assets_path . 'admin.js',
@@ -89,8 +108,15 @@ class Assets {
 				'in_footer' => true,
 			),
 			'subscrpt_admin_components' => array(
-				'src'       => $plugin_js_assets_path . 'admin-components.js',
-				'deps'      => array( 'wp-i18n' ),
+				'src'       => false,
+				'deps'      => array_keys( $components ),
+				'in_footer' => true,
+			),
+			'subscrpt_plan_forms_js'    => array(
+				// Shared plan-group + selling-plan modal logic, used by both the
+				// Plans admin screen and the product-editor Subscription tab.
+				'src'       => $plugin_js_assets_path . 'admin/plan-forms.js',
+				'deps'      => array( 'subscrpt_admin_components' ),
 				'in_footer' => true,
 			),
 			'sdevs_installer'           => array(
@@ -106,7 +132,7 @@ class Assets {
 			),
 		);
 
-		return $scripts;
+		return array_merge( $components, $scripts );
 	}
 
 	/**
@@ -117,12 +143,44 @@ class Assets {
 	public function get_styles() {
 		$plugin_css_assets_path = SUBSCRPT_ASSETS . '/css/';
 
+		// Admin UI component styles, split by section for readability
+		// (assets/css/admin-components/). Loaded in this order behind the
+		// `subscrpt_admin_components` handle; `tokens` must stay first.
+		$component_styles = array();
+		$component_files  = array(
+			'tokens',
+			'layout',
+			'forms',
+			'buttons',
+			'select',
+			'table',
+			'badges',
+			'dropdown',
+			'pagination',
+			'empty',
+			'toggle',
+			'settings',
+			'tag-select',
+			'modal',
+			'editlist',
+			'tabs',
+			'accordion',
+			'tooltip',
+		);
+		foreach ( $component_files as $component_file ) {
+			$handle                      = 'subscrpt_style_' . str_replace( '-', '_', $component_file );
+			$component_styles[ $handle ] = array(
+				'src' => $plugin_css_assets_path . 'admin-components/' . $component_file . '.css',
+			);
+		}
+
 		$styles = array(
 			'subscrpt_admin_css'        => array(
 				'src' => $plugin_css_assets_path . 'admin.css',
 			),
 			'subscrpt_admin_components' => array(
-				'src' => $plugin_css_assets_path . 'admin-components.css',
+				'src'  => false,
+				'deps' => array_keys( $component_styles ),
 			),
 			'subscrpt_status_css'       => array(
 				'src' => $plugin_css_assets_path . 'status.css',
@@ -132,7 +190,7 @@ class Assets {
 			),
 		);
 
-		return $styles;
+		return array_merge( $component_styles, $styles );
 	}
 
 	/**
