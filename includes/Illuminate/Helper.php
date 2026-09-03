@@ -1377,7 +1377,7 @@ class Helper {
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
-				'comment_content' => sprintf( 'Subscription Renewal order successfully created.	order is %s', $new_order_id ),
+				'comment_content' => sprintf( 'Subscription Renewal order successfully created. Order #%s', $new_order_id ),
 				'comment_post_ID' => $subscription_id,
 				'comment_type'    => 'order_note',
 			)

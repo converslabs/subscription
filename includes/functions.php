@@ -279,9 +279,6 @@ function subscrpt_is_max_payments_reached( $subscription_id ) {
 
 	// Fire action when split payment plan is completed (first time only)
 	if ( $is_reached && ! get_post_meta( $subscription_id, '_subscrpt_split_payment_completed_fired', true ) ) {
-		// Add completion milestone note
-		subscrpt_add_payment_completion_note( $subscription_id, $payments_made, $max_payments );
-
 		// All installments paid: complete the subscription (no renewal / expiry / grace).
 		$expire_status = apply_filters( 'subscrpt_split_payment_expire_status', 'completed', $subscription_id, $payments_made, $max_payments );
 
@@ -709,63 +706,4 @@ function subscrpt_write_debug_log( $log ): void {
 			error_log( 'wp_subscription: ' . $log ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
 		}
 	}
-}
-
-/**
- * Add payment completion note for split payment subscriptions.
- *
- * @param int $subscription_id Subscription ID.
- * @param int $payments_made  Number of payments made.
- * @param int $max_payments   Maximum number of payments.
- */
-function subscrpt_add_payment_completion_note( $subscription_id, $payments_made, $max_payments ) {
-	// Check if this is a split payment subscription
-	if ( ! function_exists( 'subscrpt_get_payment_type' ) ) {
-		return;
-	}
-
-	$payment_type = subscrpt_get_payment_type( $subscription_id );
-	if ( 'split_payment' !== $payment_type ) {
-		return;
-	}
-
-	// Create completion note
-	$completion_note = sprintf(
-		/* translators: %1$d: payments made, %2$d: total payments */
-		__( 'Split payment plan completed successfully! %1$d of %2$d payments received.', 'subscription' ),
-		$payments_made,
-		$max_payments
-	);
-
-	// Add the completion note
-	$comment_id = wp_insert_comment(
-		array(
-			'comment_author'  => 'Subscription for WooCommerce',
-			'comment_content' => $completion_note,
-			'comment_post_ID' => $subscription_id,
-			'comment_type'    => 'order_note',
-		)
-	);
-	update_comment_meta( $comment_id, '_subscrpt_activity', __( 'Split Payment - Plan Complete', 'subscription' ) );
-	update_comment_meta( $comment_id, '_subscrpt_activity_type', 'split_payment' );
-
-	// Add payment summary note
-	$payment_summary = sprintf(
-		/* translators: %1$d: payments made, %2$d: total payments, %3$s: completion date */
-		__( 'Payment Summary: %1$d of %2$d installments completed on %3$s. All payments received successfully.', 'subscription' ),
-		$payments_made,
-		$max_payments,
-		date_i18n( wc_date_format(), current_time( 'timestamp' ) )
-	);
-
-	$summary_comment_id = wp_insert_comment(
-		array(
-			'comment_author'  => 'Subscription for WooCommerce',
-			'comment_content' => $payment_summary,
-			'comment_post_ID' => $subscription_id,
-			'comment_type'    => 'order_note',
-		)
-	);
-	update_comment_meta( $summary_comment_id, '_subscrpt_activity', __( 'Payment Summary - Complete', 'subscription' ) );
-	update_comment_meta( $summary_comment_id, '_subscrpt_activity_type', 'split_payment_summary' );
 }

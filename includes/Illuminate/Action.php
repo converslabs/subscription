@@ -37,7 +37,8 @@ class Action {
 			)
 		);
 
-		if ( $write_comment ) {
+		// Only note a real transition — never re-log the same status.
+		if ( $write_comment && $old_status !== $status ) {
 			self::write_comment( $status, $subscription_id );
 		}
 
@@ -131,7 +132,7 @@ class Action {
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
-				'comment_content' => 'Subscription activated.Next payment due date set.',
+				'comment_content' => 'Subscription activated. Next payment due date set.',
 				'comment_post_ID' => $subscription_id,
 				'comment_type'    => 'order_note',
 			)
