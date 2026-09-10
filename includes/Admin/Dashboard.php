@@ -47,13 +47,14 @@ class Dashboard {
 	/**
 	 * Render the dashboard page.
 	 *
+	 * No shared admin footer: the screen ends in its own footer row, which
+	 * already links the docs and support, so the shared one only repeated them.
+	 *
 	 * @return void
 	 */
 	public function render() {
-		$menu = new Menu();
-		$menu->render_admin_header( __( 'Overview', 'subscription' ) );
+		( new Menu() )->render_admin_header( __( 'Overview', 'subscription' ) );
 		include __DIR__ . '/views/dashboard.php';
-		$menu->render_admin_footer();
 	}
 
 	/**
