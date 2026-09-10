@@ -53,6 +53,10 @@ for ( $i = 0; $i < 12; $i++ ) {
 							'label' => __( 'Active', 'subscription' ),
 						),
 						array(
+							'value' => 'on_hold',
+							'label' => __( 'On Hold', 'subscription' ),
+						),
+						array(
 							'value' => 'pending',
 							'label' => __( 'Pending', 'subscription' ),
 						),

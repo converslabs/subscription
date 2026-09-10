@@ -145,14 +145,14 @@ class Dashboard {
 				'icon'  => 'people',
 				'label' => __( 'Active subscriptions', 'subscription' ),
 				'value' => (int) ( $counts['active'] ?? 0 ),
-				'url'   => add_query_arg( 'post_status', 'active', $list ),
+				'url'   => self::list_url( 'active' ),
 			),
 			array(
 				'key'   => 'on_hold',
 				'icon'  => 'pause',
 				'label' => __( 'On-hold subscriptions', 'subscription' ),
 				'value' => $on_hold,
-				'url'   => add_query_arg( 'post_status', 'on_hold', $list ),
+				'url'   => self::list_url( 'on_hold' ),
 				'tone'  => $on_hold > 0 ? 'warning' : '',
 			),
 			array(
@@ -305,7 +305,7 @@ class Dashboard {
 				'text'   => sprintf( _n( '%d subscription is on hold.', '%d subscriptions are on hold.', $on_hold, 'subscription' ), $on_hold ),
 				'action' => array(
 					'label' => __( 'Review them', 'subscription' ),
-					'url'   => add_query_arg( 'post_status', 'on_hold', admin_url( 'admin.php?page=wp-subscription-list' ) ),
+					'url'   => self::list_url( 'on_hold' ),
 				),
 			);
 		}
@@ -398,6 +398,20 @@ class Dashboard {
 				'url'   => 'https://my.wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=dashboard',
 			),
 		);
+	}
+
+	/**
+	 * The subscriptions list, filtered to one status.
+	 *
+	 * The list reads `subscrpt_status` — its dropdown is named that and its
+	 * reset link clears that. Any other name, `post_status` included, is ignored
+	 * without complaint and the list opens unfiltered.
+	 *
+	 * @param string $status A registered subscription status, e.g. `on_hold`.
+	 * @return string
+	 */
+	private static function list_url( string $status ): string {
+		return add_query_arg( 'subscrpt_status', $status, admin_url( 'admin.php?page=wp-subscription-list' ) );
 	}
 
 	/**

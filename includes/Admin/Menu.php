@@ -428,7 +428,8 @@ class Menu {
 	 * The subscriptions list used to live on this slug. Anything still linking
 	 * here with a list-only argument — a saved filter, a bookmarked search, a
 	 * pagination link — means the list, so it is sent there with its arguments
-	 * intact rather than landing on a dashboard that ignores them.
+	 * intact rather than landing on a dashboard that ignores them. The one
+	 * exception is `post_status`, renamed to the `subscrpt_status` the list reads.
 	 *
 	 * @return void
 	 */
@@ -440,6 +441,15 @@ class Menu {
 			if ( isset( $_GET[ $arg ] ) && '' !== $_GET[ $arg ] ) {
 				$query         = wp_unslash( $_GET );
 				$query['page'] = 'wp-subscription-list';
+
+				// The list filters on `subscrpt_status` and ignores `post_status`,
+				// so forwarding the old name as-is lands on an unfiltered list.
+				if ( isset( $query['post_status'] ) ) {
+					if ( empty( $query['subscrpt_status'] ) ) {
+						$query['subscrpt_status'] = $query['post_status'];
+					}
+					unset( $query['post_status'] );
+				}
 
 				wp_safe_redirect( add_query_arg( array_map( 'sanitize_text_field', $query ), admin_url( 'admin.php' ) ) );
 				exit;
