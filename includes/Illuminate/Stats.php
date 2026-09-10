@@ -251,6 +251,35 @@ class Stats {
 	}
 
 	/**
+	 * Count subscriptions created in one calendar month.
+	 *
+	 * Asks exactly what the subscriptions list asks when filtered to that month
+	 * — the same statuses, the same local post date — so a figure that links to
+	 * the filtered list always matches the rows it opens.
+	 *
+	 * @param \DateTimeInterface $month Any moment in the month, in the store's timezone.
+	 * @return int
+	 */
+	public static function count_new_in_month( \DateTimeInterface $month ): int {
+		$query = new \WP_Query(
+			array(
+				'post_type'      => 'subscrpt_order',
+				'post_status'    => 'any',
+				'date_query'     => array(
+					array(
+						'year'  => (int) $month->format( 'Y' ),
+						'month' => (int) $month->format( 'n' ),
+					),
+				),
+				'fields'         => 'ids',
+				'posts_per_page' => 1,
+			)
+		);
+
+		return (int) $query->found_posts;
+	}
+
+	/**
 	 * Revenue from subscription orders, grouped by month.
 	 *
 	 * Read from real orders rather than the snapshot table: snapshots record

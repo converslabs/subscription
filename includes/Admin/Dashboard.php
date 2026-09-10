@@ -139,6 +139,10 @@ class Dashboard {
 		$on_hold = (int) ( $counts['on_hold'] ?? 0 );
 		$failed  = Stats::count_failed_renewals_since( 24 );
 
+		// This month rather than a rolling window: the list filters by calendar
+		// month, and a figure that opens the list must match the rows it shows.
+		$this_month = new \DateTimeImmutable( 'now', wp_timezone() );
+
 		return array(
 			array(
 				'key'   => 'active',
@@ -173,9 +177,9 @@ class Dashboard {
 			array(
 				'key'   => 'new',
 				'icon'  => 'trend',
-				'label' => __( 'New subscriptions (this week)', 'subscription' ),
-				'value' => Stats::count_new_since( 7 ),
-				'url'   => $list,
+				'label' => __( 'New subscriptions (this month)', 'subscription' ),
+				'value' => Stats::count_new_in_month( $this_month ),
+				'url'   => add_query_arg( 'date_filter', $this_month->format( 'Y-m' ), $list ),
 			),
 		);
 	}
