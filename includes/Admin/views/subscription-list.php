@@ -36,7 +36,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 	<form method="post" id="subscriptions-form">
 		<?php wp_nonce_field( 'subscrpt_list_action' ); ?>
-		<input type="hidden" name="page" value="wp-subscription" />
+		<input type="hidden" name="page" value="wp-subscription-list" />
 
 		<!-- Toolbar -->
 		<div class="wpsubs-toolbar">
@@ -169,7 +169,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 			<?php
 			if ( 'trash' === $status && ! empty( $subscriptions ) ) :
-				$empty_trash_url = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=clean_trash&sub_id=all' ), 'wpsubs_action_clean_trash' );
+				$empty_trash_url = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription-list&action=clean_trash&sub_id=all' ), 'wpsubs_action_clean_trash' );
 				?>
 				<a href="<?php echo esc_url( $empty_trash_url ); ?>" class="wpsubs-btn wpsubs-btn--danger" onclick="return confirm('<?php esc_attr_e( 'Permanently delete all trash items? This cannot be undone.', 'subscription' ); ?>')">
 					<?php esc_html_e( 'Empty Trash', 'subscription' ); ?>
@@ -259,9 +259,9 @@ for ( $i = 0; $i < 12; $i++ ) {
 						// Action URLs
 						$nonce_action = 'wpsubs_action_' . $subscription->ID;
 						$view_url     = admin_url( 'admin.php?page=wp-subscription-details&id=' . $subscription->ID );
-						$trash_url    = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=trash&sub_id=' . $subscription->ID ), $nonce_action );
-						$delete_url   = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=delete&sub_id=' . $subscription->ID ), $nonce_action );
-						$restore_url  = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=restore&sub_id=' . $subscription->ID ), $nonce_action );
+						$trash_url    = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription-list&action=trash&sub_id=' . $subscription->ID ), $nonce_action );
+						$delete_url   = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription-list&action=delete&sub_id=' . $subscription->ID ), $nonce_action );
+						$restore_url  = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription-list&action=restore&sub_id=' . $subscription->ID ), $nonce_action );
 
 						// Status badge
 						$badge_mod_map  = array(

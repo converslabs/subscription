@@ -434,7 +434,7 @@ class Menu {
 	 */
 	public function render_dashboard_page() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$list_args = array( 'post_status', 's', 'paged', 'filter_action', 'orderby', 'order', 'subscrpt_status' );
+		$list_args = array( 'post_status', 's', 'paged', 'filter_action', 'orderby', 'order', 'subscrpt_status', 'date_filter', 'per_page' );
 
 		foreach ( $list_args as $arg ) {
 			if ( isset( $_GET[ $arg ] ) && '' !== $_GET[ $arg ] ) {
@@ -493,7 +493,7 @@ class Menu {
 						}
 					}
 
-					wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription' ) );
+					wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription-list' ) );
 					exit;
 				}
 			}
@@ -515,7 +515,7 @@ class Menu {
 					$filter_params['per_page'] = intval( $_POST['per_page'] );
 				}
 
-				$redirect_url = add_query_arg( $filter_params, admin_url( 'admin.php?page=wp-subscription' ) );
+				$redirect_url = add_query_arg( $filter_params, admin_url( 'admin.php?page=wp-subscription-list' ) );
 				wp_safe_redirect( $redirect_url );
 				exit;
 			}
@@ -550,7 +550,7 @@ class Menu {
 					wp_delete_post( $trash_id, true );
 				}
 
-				wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription&subscrpt_status=trash' ) );
+				wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription-list&subscrpt_status=trash' ) );
 				exit;
 			} else {
 				// For other actions, verify nonce with subscription ID.
@@ -560,7 +560,7 @@ class Menu {
 					wp_die();
 				}
 
-				$redirect_url = admin_url( 'admin.php?page=wp-subscription' );
+				$redirect_url = admin_url( 'admin.php?page=wp-subscription-list' );
 
 				switch ( $action ) {
 					case 'duplicate':
@@ -591,7 +591,7 @@ class Menu {
 						break;
 					case 'delete':
 						wp_delete_post( $sub_id, true );
-						$redirect_url = admin_url( 'admin.php?page=wp-subscription&subscrpt_status=trash' );
+						$redirect_url = admin_url( 'admin.php?page=wp-subscription-list&subscrpt_status=trash' );
 						break;
 				}
 
@@ -671,7 +671,7 @@ class Menu {
 			wp_die( esc_html__( 'You do not have permission to view this subscription.', 'subscription' ) );
 		}
 
-		$list_url    = admin_url( 'admin.php?page=wp-subscription' );
+		$list_url    = admin_url( 'admin.php?page=wp-subscription-list' );
 		$form_action = admin_url( 'admin.php?page=wp-subscription-details&id=' . $subscription_id );
 
 		// Handle the status-change submission.
