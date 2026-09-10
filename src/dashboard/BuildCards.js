@@ -4,6 +4,7 @@
 
 import { __ } from "@wordpress/i18n";
 import Icon from "./Icon";
+import ProBadge from "./ProBadge";
 
 export default function BuildCards({ cards }) {
   return (
@@ -23,7 +24,12 @@ export default function BuildCards({ cards }) {
             <span className="subscrpt-build__icon">
               <Icon name={card.icon} size={18} />
             </span>
-            <span className="subscrpt-build__eyebrow">{card.eyebrow}</span>
+            <span className="subscrpt-build__eyebrow">
+              {card.eyebrow}
+              {/* A real space, so the card's name reads "Insight Pro" and not "InsightPro". */}
+              {card.pro && " "}
+              {card.pro && <ProBadge />}
+            </span>
             <span className="subscrpt-build__title">{card.title}</span>
             <span className="subscrpt-build__text">{card.text}</span>
             <span className="subscrpt-build__link">

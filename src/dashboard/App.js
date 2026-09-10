@@ -15,6 +15,7 @@ import HealthBanner from "./HealthBanner";
 import SetupChecklist from "./SetupChecklist";
 import BuildCards from "./BuildCards";
 import FooterLinks from "./FooterLinks";
+import ProBadge from "./ProBadge";
 
 export default function App({ data }) {
   const { pulse = [], chart, health, setup, build = [], footer = [] } = data;
@@ -46,6 +47,8 @@ export default function App({ data }) {
                 </div>
                 <Button variant="tertiary" href={chart.url}>
                   {__("Open reports", "subscription")}
+                  {chart.pro && " "}
+                  {chart.pro && <ProBadge />}
                 </Button>
               </CardHeader>
               <CardBody>

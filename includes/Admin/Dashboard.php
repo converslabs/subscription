@@ -214,6 +214,8 @@ class Dashboard {
 				: number_format_i18n( $total, 2 ),
 			'empty'   => $total <= 0,
 			'url'     => admin_url( 'admin.php?page=wp-subscription-stats' ),
+			// Without pro, Reports is a preview of the Pro screen; the link says so.
+			'pro'     => ! subscrpt_pro_activated(),
 		);
 	}
 
@@ -343,6 +345,7 @@ class Dashboard {
 					'label' => __( 'View reports', 'subscription' ),
 					'url'   => admin_url( 'admin.php?page=wp-subscription-stats' ),
 				),
+				'pro'     => ! $is_pro,
 			),
 			array(
 				'tone'    => 'setup',

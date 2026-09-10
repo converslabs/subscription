@@ -37,6 +37,11 @@ $ink: #1e1e1e;
   line-height: 1.5;
 }
 
+/* The Pro pill beside a link label; wpsubs-badge--pro gives it its look. */
+.subscrpt-pro-badge {
+  margin-inline-start: 6px;
+}
+
 /* --------------------------------------------------------------------------
    Split: chart on the left, things that want doing on the right
    -------------------------------------------------------------------------- */
@@ -456,6 +461,15 @@ $ink: #1e1e1e;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: $muted;
+
+    // Kept inside the eyebrow's own line height, so a card carrying the pill
+    // does not push its title below the titles of the cards beside it. The
+    // space before it already separates the two.
+    .subscrpt-pro-badge {
+      line-height: 1;
+      padding-block: 1px;
+      margin-inline-start: 2px;
+    }
   }
 
   &__title {
