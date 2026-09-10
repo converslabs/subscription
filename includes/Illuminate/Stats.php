@@ -307,12 +307,20 @@ class Stats {
 
 		// Every month in the window, so a month with no sales is a gap in the
 		// chart rather than a missing bar that shifts everything along.
+		//
+		// The store's months, not UTC's. WooCommerce dates an order in the store
+		// timezone, so UTC buckets have no bar for an order placed between UTC
+		// and local midnight on the 1st, and it silently drops out of the chart.
+		$this_month = ( new \DateTimeImmutable( 'now', wp_timezone() ) )->modify( 'first day of this month' )->setTime( 0, 0 );
+		$first      = $this_month->modify( '-' . ( $months - 1 ) . ' months' );
+
 		$buckets = array();
 		for ( $i = $months - 1; $i >= 0; $i-- ) {
-			$stamp                              = strtotime( "-{$i} months", strtotime( gmdate( 'Y-m-01' ) ) );
-			$buckets[ gmdate( 'Y-m', $stamp ) ] = array(
-				'label' => gmdate( 'M', $stamp ),
-				'month' => gmdate( 'Y-m', $stamp ),
+			$month = $this_month->modify( "-{$i} months" );
+
+			$buckets[ $month->format( 'Y-m' ) ] = array(
+				'label' => wp_date( 'M', $month->getTimestamp() ),
+				'month' => $month->format( 'Y-m' ),
 				'total' => 0.0,
 			);
 		}
@@ -328,13 +336,14 @@ class Stats {
 		$order_ids = array_filter( array_map( 'intval', (array) $order_ids ) );
 
 		if ( ! empty( $order_ids ) ) {
-			$since = gmdate( 'Y-m-d H:i:s', strtotime( "-{$months} months", strtotime( gmdate( 'Y-m-01' ) ) ) );
-
 			$orders = wc_get_orders(
 				array(
 					'post__in'     => $order_ids,
 					'status'       => array( 'completed', 'processing' ),
-					'date_created' => '>=' . $since,
+					// A timestamp, not a date string: WooCommerce keeps only the day
+					// of a string and reads it in the store timezone, while a
+					// timestamp is compared to the second.
+					'date_created' => '>=' . $first->getTimestamp(),
 					'limit'        => -1,
 				)
 			);
