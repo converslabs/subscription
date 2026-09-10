@@ -14,10 +14,15 @@ if ( ! isset( $date_filter ) ) {
 }
 
 $filters_active = ! empty( $status ) || ! empty( $date_filter ) || ! empty( $search );
-$months         = array();
+
+// The last twelve of the store's months, counted back from the 1st: stepping
+// back from today skips a month on the 29th–31st (31 Oct − 1 month is 1 Oct).
+// The store's timezone, because the list filters on the local post date.
+$months     = array();
+$this_month = ( new DateTimeImmutable( 'now', wp_timezone() ) )->modify( 'first day of this month' )->setTime( 0, 0 );
 for ( $i = 0; $i < 12; $i++ ) {
-	$month                           = strtotime( "-$i month" );
-	$months[ date( 'Y-m', $month ) ] = date( 'F Y', $month );
+	$month                             = $this_month->modify( "-{$i} months" );
+	$months[ $month->format( 'Y-m' ) ] = wp_date( 'F Y', $month->getTimestamp() );
 }
 ?>
 <div class="wp-subscription-admin-content list-page">
