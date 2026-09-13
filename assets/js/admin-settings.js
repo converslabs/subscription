@@ -72,8 +72,9 @@ jQuery(document).ready(($) => {
       }
     });
 
+    // "all" shows every panel; a section shows only its own group cards.
     panels.forEach((el) => {
-      el.hidden = el.dataset.subscrptPanel !== cat;
+      el.hidden = cat !== "all" && el.dataset.subscrptCat !== cat;
     });
 
     if (push) {

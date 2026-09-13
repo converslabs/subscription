@@ -55,6 +55,15 @@ $subscrpt_settings_base = admin_url( 'admin.php?page=wp-subscription-settings' )
 
 			<aside class="subscrpt-settings__sidebar">
 				<nav class="wpsubs-vnav" aria-label="<?php esc_attr_e( 'Settings sections', 'subscription' ); ?>">
+					<?php $subscrpt_all_active = 'all' === $active_cat; ?>
+					<a
+						class="wpsubs-vnav__item<?php echo $subscrpt_all_active ? ' is-active' : ''; ?>"
+						href="<?php echo esc_url( add_query_arg( 'cat', 'all', $subscrpt_settings_base ) ); ?>"
+						data-subscrpt-cat="all"
+						aria-current="<?php echo $subscrpt_all_active ? 'page' : 'false'; ?>"
+					>
+						<span class="wpsubs-vnav__label"><?php esc_html_e( 'All Settings', 'subscription' ); ?></span>
+					</a>
 					<?php
 					$subscrpt_cat_labels = SettingsHelper::categories();
 					foreach ( $category_groups as $subscrpt_cat_id => $subscrpt_cat_group_ids ) :
@@ -78,50 +87,47 @@ $subscrpt_settings_base = admin_url( 'admin.php?page=wp-subscription-settings' )
 			<div class="subscrpt-settings__content">
 
 				<div class="subscrpt-settings__panels">
-					<?php foreach ( $category_groups as $subscrpt_cat_id => $subscrpt_cat_group_ids ) : ?>
-						<?php
-						// A section of one group takes its name from the rail item, so
-						// repeating it as a heading says nothing.
-						$subscrpt_show_headings = count( $subscrpt_cat_group_ids ) > 1;
-
-						// Flatten the section's groups into one run of fields, so the rules
-						// between them are drawn once and in order.
-						$subscrpt_fields = array();
-						foreach ( $subscrpt_cat_group_ids as $subscrpt_group_id ) {
-							foreach ( array_values( $settings_fields[ $subscrpt_group_id ]['fields'] ?? array() ) as $subscrpt_field ) {
-								if ( ! $subscrpt_show_headings && 'heading' === ( $subscrpt_field['type'] ?? '' ) ) {
-									continue;
-								}
-								$subscrpt_fields[] = $subscrpt_field;
+					<?php
+					// One card per settings group, so groups stay visually separate
+					// instead of running together in a single section card. The rail
+					// shows a group's whole section; "All Settings" shows every card.
+					foreach ( $category_groups as $subscrpt_cat_id => $subscrpt_cat_group_ids ) :
+						$subscrpt_cat_open = 'all' === $active_cat || $subscrpt_cat_id === $active_cat;
+						foreach ( $subscrpt_cat_group_ids as $subscrpt_group_id ) :
+							$subscrpt_group  = $settings_fields[ $subscrpt_group_id ] ?? array();
+							$subscrpt_fields = array_values( $subscrpt_group['fields'] ?? array() );
+							$subscrpt_count  = count( $subscrpt_fields );
+							if ( 0 === $subscrpt_count ) {
+								continue;
 							}
-						}
-						$subscrpt_count = count( $subscrpt_fields );
-						?>
-						<section
-							class="subscrpt-settings__panel wpsubs-table-card"
-							id="subscrpt-panel-<?php echo esc_attr( $subscrpt_cat_id ); ?>"
-							role="region"
-							aria-label="<?php echo esc_attr( $subscrpt_cat_labels[ $subscrpt_cat_id ] ?? $subscrpt_cat_id ); ?>"
-							data-subscrpt-panel="<?php echo esc_attr( $subscrpt_cat_id ); ?>"
-							<?php echo $subscrpt_cat_id === $active_cat ? '' : 'hidden'; ?>
-						>
-							<?php foreach ( $subscrpt_fields as $subscrpt_idx => $subscrpt_field ) : ?>
-								<?php
-								$subscrpt_type = $subscrpt_field['type'] ?? 'input';
-								SettingsHelper::render_settings_field( $subscrpt_type, $subscrpt_field['field_data'] ?? array() );
+							$subscrpt_label = SettingsHelper::group_label( $subscrpt_group_id, $subscrpt_group );
+							?>
+							<section
+								class="subscrpt-settings__panel wpsubs-table-card"
+								id="subscrpt-panel-<?php echo esc_attr( $subscrpt_group_id ); ?>"
+								role="region"
+								aria-label="<?php echo esc_attr( $subscrpt_label ); ?>"
+								data-subscrpt-panel="<?php echo esc_attr( $subscrpt_group_id ); ?>"
+								data-subscrpt-cat="<?php echo esc_attr( $subscrpt_cat_id ); ?>"
+								<?php echo $subscrpt_cat_open ? '' : 'hidden'; ?>
+							>
+								<?php foreach ( $subscrpt_fields as $subscrpt_idx => $subscrpt_field ) : ?>
+									<?php
+									$subscrpt_type = $subscrpt_field['type'] ?? 'input';
+									SettingsHelper::render_settings_field( $subscrpt_type, $subscrpt_field['field_data'] ?? array() );
 
-								// No rule before a heading either — the heading is itself the
-								// break between two groups.
-								$subscrpt_next = $subscrpt_fields[ $subscrpt_idx + 1 ] ?? null;
-								$subscrpt_rule = 'heading' !== $subscrpt_type
-									&& $subscrpt_idx + 1 < $subscrpt_count
-									&& 'heading' !== ( $subscrpt_next['type'] ?? '' );
-								?>
-								<?php if ( $subscrpt_rule ) : ?>
-									<div class="subscrpt-settings__rule"></div>
-								<?php endif; ?>
-							<?php endforeach; ?>
-						</section>
+									// No rule before a heading — the heading is itself the break.
+									$subscrpt_next = $subscrpt_fields[ $subscrpt_idx + 1 ] ?? null;
+									$subscrpt_rule = 'heading' !== $subscrpt_type
+										&& $subscrpt_idx + 1 < $subscrpt_count
+										&& 'heading' !== ( $subscrpt_next['type'] ?? '' );
+									?>
+									<?php if ( $subscrpt_rule ) : ?>
+										<div class="subscrpt-settings__rule"></div>
+									<?php endif; ?>
+								<?php endforeach; ?>
+							</section>
+						<?php endforeach; ?>
 					<?php endforeach; ?>
 				</div>
 

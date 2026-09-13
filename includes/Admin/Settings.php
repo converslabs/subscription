@@ -261,7 +261,10 @@ class Settings {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only section selection, validated against the list above.
 		$requested = isset( $_GET['cat'] ) ? sanitize_key( wp_unslash( $_GET['cat'] ) ) : '';
 
-		if ( in_array( $requested, $cats, true ) ) {
+		// `all` stacks every section on one page; a known section opens just that
+		// one. With nothing requested (or something invalid), open the first
+		// section rather than the stacked "All Settings" view.
+		if ( 'all' === $requested || in_array( $requested, $cats, true ) ) {
 			return $requested;
 		}
 
