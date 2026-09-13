@@ -195,23 +195,21 @@ class Menu {
 		);
 
 		/*
-		 * WPSubscription link under the WooCommerce menu.
+		 * Subscriptions link under the WooCommerce menu, opening the list.
 		 *
-		 * The callback has to match the one the parent menu registers. WordPress
-		 * derives this entry's hookname from the *slug*, and because
-		 * `wp-subscription` is itself a registered top-level menu that resolves
-		 * to `toplevel_page_wp-subscription` — the same hook the parent uses.
-		 * Two identical callbacks on one hook are deduplicated; two different
-		 * ones both run, which rendered the dashboard and the subscriptions list
-		 * stacked on the same screen.
+		 * A link, not a page: the slug is the list's URL and there is no
+		 * callback, so WordPress registers no page and no hook for it.
+		 * Registering `wp-subscription-list` under `woocommerce` as well would
+		 * give the list a second hookname (`woocommerce_page_…` beside
+		 * `wpsubscription_page_…`), and whichever parent WordPress found first
+		 * would set the page's $hook_suffix, which its asset loading keys on.
 		 */
 		add_submenu_page(
 			'woocommerce',
-			__( 'WPSubscription', 'subscription' ),
-			__( 'WPSubscription', 'subscription' ),
+			__( 'Subscriptions', 'subscription' ),
+			__( 'Subscriptions', 'subscription' ),
 			'manage_options',
-			'wp-subscription',
-			array( $this, 'render_dashboard_page' )
+			'admin.php?page=wp-subscription-list'
 		);
 	}
 

@@ -182,10 +182,6 @@ $subscrpt_tag_labels = [
 		<aside class="subscrpt-int-sidebar">
 		<div class="subscrpt-int-filters" data-subscrpt-integration-filters hidden>
 
-			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-int-reset hidden>
-				<?php esc_html_e( 'Reset', 'subscription' ); ?>
-			</button>
-
 			<?php
 			$subscrpt_chip_groups = [
 				[
@@ -250,6 +246,11 @@ $subscrpt_tag_labels = [
 				<?php
 			endforeach;
 			?>
+
+			<?php // Last, after the filters it clears. The script shows it only while a filter is active. ?>
+			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm subscrpt-int-filters__reset" data-subscrpt-int-reset hidden>
+				<?php esc_html_e( 'Reset', 'subscription' ); ?>
+			</button>
 		</div>
 		</aside>
 
