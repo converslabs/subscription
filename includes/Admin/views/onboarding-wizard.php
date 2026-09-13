@@ -142,6 +142,7 @@ $subscrpt_icon_plan = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor
 
 			<!-- PAGE 0: Welcome (no preview / no footer — button lives in the card) -->
 			<div class="wpsubs-wizard-section active" data-page="0" id="subscrpt-section-0">
+				<div class="wpsubs-welcome-bg" aria-hidden="true"></div>
 				<div class="wpsubs-wizard-card wpsubs-welcome">
 					<img class="wpsubs-welcome__logo" src="<?php echo esc_url( SUBSCRPT_ASSETS . '/images/logo.png' ); ?>" width="64" height="64" alt="<?php esc_attr_e( 'WPSubscription', 'subscription' ); ?>">
 					<h1 class="wpsubs-welcome__title"><?php esc_html_e( 'Thank you for installing WPSubscription!', 'subscription' ); ?></h1>

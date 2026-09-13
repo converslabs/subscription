@@ -179,6 +179,8 @@
 .wpsubs-wizard-layout.is-welcome {
   grid-template-columns: 1fr;
   grid-template-areas: "steps";
+  position: relative;
+  overflow: hidden;
 }
 .wpsubs-wizard-layout.is-welcome .wpsubs-wizard-aside,
 .wpsubs-wizard-layout.is-welcome .wpsubs-wizard-footer {
@@ -186,16 +188,94 @@
 }
 /* Center the intro in the available height so it doesn't sit at the top. */
 .wpsubs-wizard-layout.is-welcome .wpsubs-wizard-steps {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 480px;
+  min-height: 500px;
+  overflow: hidden;
+}
+/* Faint dotted texture across the whole panel. */
+.wpsubs-wizard-layout.is-welcome .wpsubs-wizard-steps::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: radial-gradient(var(--wpsubs-border, #e5e7eb) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 45%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 45%, #000 40%, transparent 100%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+/* Two soft brand blobs drifting behind the card. */
+.wpsubs-welcome-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.wpsubs-welcome-bg::before,
+.wpsubs-welcome-bg::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+}
+.wpsubs-welcome-bg::before {
+  width: 320px;
+  height: 320px;
+  top: -110px;
+  left: -90px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 77, 0, 0.22), transparent 70%);
+  animation: wpsubs-welcome-float-a 13s ease-in-out infinite;
+}
+.wpsubs-welcome-bg::after {
+  width: 360px;
+  height: 360px;
+  right: -120px;
+  bottom: -140px;
+  background: radial-gradient(circle at 60% 60%, rgba(255, 166, 133, 0.28), transparent 70%);
+  animation: wpsubs-welcome-float-b 17s ease-in-out infinite;
+}
+@keyframes wpsubs-welcome-float-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(26px, 20px) scale(1.08);
+  }
+}
+@keyframes wpsubs-welcome-float-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-30px, -18px) scale(1.1);
+  }
 }
 .wpsubs-welcome {
+  position: relative;
+  z-index: 1;
   max-width: 440px;
   margin: 0 auto;
   padding: 8px 0;
   text-align: center;
+  animation: wpsubs-welcome-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes wpsubs-welcome-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .wpsubs-welcome__logo {
   display: block;
@@ -206,6 +286,16 @@
   /* drop-shadow follows the icon's transparent shape (box-shadow would frame
      the square box and show through the transparent corners). */
   filter: drop-shadow(0 8px 16px rgba(255, 77, 0, 0.28));
+  animation: wpsubs-welcome-float-logo 5.5s ease-in-out infinite;
+}
+@keyframes wpsubs-welcome-float-logo {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 .wpsubs-welcome__title {
   font-size: 25px;
@@ -240,6 +330,25 @@
   background: var(--wpsubs-surface-muted, #f9fafb);
   border: 1px solid var(--wpsubs-border, #e5e7eb);
   border-radius: var(--wpsubs-radius, 8px);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.15s;
+  animation: wpsubs-welcome-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.wpsubs-welcome__steps li:nth-child(1) {
+  animation-delay: 0.12s;
+}
+.wpsubs-welcome__steps li:nth-child(2) {
+  animation-delay: 0.19s;
+}
+.wpsubs-welcome__steps li:nth-child(3) {
+  animation-delay: 0.26s;
+}
+.wpsubs-welcome__steps li:hover {
+  border-color: var(--wpsubs-brand, #ff4d00);
+  box-shadow: 0 2px 10px rgba(255, 77, 0, 0.1);
+  transform: translateX(2px);
 }
 .wpsubs-welcome__num {
   display: inline-flex;
@@ -276,6 +385,16 @@
 .wpsubs-welcome__skip:hover {
   color: var(--wpsubs-text, #374151);
   text-decoration: underline;
+}
+/* Respect reduced-motion: keep the layout, drop the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .wpsubs-welcome,
+  .wpsubs-welcome__logo,
+  .wpsubs-welcome__steps li,
+  .wpsubs-welcome-bg::before,
+  .wpsubs-welcome-bg::after {
+    animation: none;
+  }
 }
 /* Form rows (shared) */
 .wpsubs-form-row {
