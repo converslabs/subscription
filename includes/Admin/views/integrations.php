@@ -100,6 +100,7 @@ $subscrpt_facets = [
 	// six cards as the Payment Gateways category. The card badge still shows
 	// it, where it says something about that one integration.
 	'tag'      => [
+		'free' => 0,
 		'pro'  => 0,
 		'beta' => 0,
 	],
@@ -115,6 +116,8 @@ foreach ( $integrations as $integration ) {
 
 	if ( ! empty( $integration['is_pro'] ) ) {
 		++$subscrpt_facets['tag']['pro'];
+	} else {
+		++$subscrpt_facets['tag']['free'];
 	}
 	if ( ! empty( $integration['is_beta'] ) ) {
 		++$subscrpt_facets['tag']['beta'];
@@ -143,6 +146,7 @@ $subscrpt_status_labels = [
 ];
 
 $subscrpt_tag_labels = [
+	'free' => __( 'Free', 'subscription' ),
 	'pro'  => __( 'Pro', 'subscription' ),
 	'beta' => __( 'Beta', 'subscription' ),
 ];
@@ -295,6 +299,7 @@ $subscrpt_tag_labels = [
 					$subscrpt_card_tags   = array_keys(
 						array_filter(
 							[
+								'free'      => ! $is_pro,
 								'pro'       => $is_pro,
 								'beta'      => $is_beta,
 								'recurring' => ! empty( $integration['supports_recurring'] ),
@@ -415,6 +420,7 @@ $subscrpt_tag_labels = [
 					$subscrpt_card_tags   = array_keys(
 						array_filter(
 							[
+								'free'      => ! $is_pro,
 								'pro'       => $is_pro,
 								'beta'      => ! empty( $integration['is_beta'] ),
 								'recurring' => ! empty( $integration['supports_recurring'] ),
