@@ -13,8 +13,13 @@ jQuery(document).ready(() => {
     jQuery(".show_if_subscription").hide();
   }
 
+  // WooCommerce fires this from its variations AJAX callback, before it removes
+  // the panel's loading overlay. A product with no variations yet renders no
+  // `.woocommerce_variations[data-total]`, and JSON.parse(undefined) threw out
+  // of that callback, leaving the Variations panel spinning forever. No count
+  // means no variations.
   jQuery(document).on("woocommerce_variations_loaded", () => {
-    let total_variations = JSON.parse(jQuery(".woocommerce_variations").attr("data-total"));
+    let total_variations = parseInt(jQuery(".woocommerce_variations").attr("data-total"), 10) || 0;
     for (let index = 0; index < total_variations; index++) {
       let element = document.getElementById("subscrpt_enable[" + index + "]");
       if (element && element.checked) {
