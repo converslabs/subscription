@@ -38,14 +38,16 @@ $other_plugins = array(
 ?>
 
 
-<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
+<div class="wp-subscription-admin-content list-page">
 
-	<!-- Page header -->
-	<div style="margin-bottom:24px;">
-		<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Help & Resources', 'subscription' ); ?></h1>
-		<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0 0 12px;line-height:1.5;"><?php esc_html_e( 'Documentation, community links, and ways to get help with WPSubscription.', 'subscription' ); ?></p>
-		<div style="border-top:1px dashed #d0d3d7;"></div>
-	</div>
+	<?php
+	wpsubs_render_page_header(
+		array(
+			'title'       => __( 'Help & Resources', 'subscription' ),
+			'description' => __( 'Documentation, community links, and ways to get help with WPSubscription.', 'subscription' ),
+		)
+	);
+	?>
 
 	<?php if ( ! class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) : ?>
 	<!-- Upgrade banner -->

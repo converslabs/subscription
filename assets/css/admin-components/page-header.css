@@ -1,0 +1,77 @@
+/* --------------------------------------------------------------------------
+   Page header  (wpsubs-page-header)
+
+   The standard top-of-page block shared by every admin screen: a title, an
+   optional one-line description, an optional right-aligned action slot, and a
+   dashed rule beneath. Render it with wpsubs_render_page_header() so the title,
+   description and rule stay identical across pages and on new ones.
+
+   Markup:
+     <div class="wpsubs-page-header">
+       <div class="wpsubs-page-header__row">
+         <div class="wpsubs-page-header__text">
+           <h1 class="wpsubs-page-header__title">Title</h1>
+           <p class="wpsubs-page-header__desc">Description</p>
+         </div>
+         <div class="wpsubs-page-header__actions">…</div>
+       </div>
+       <div class="wpsubs-page-header__rule"></div>
+     </div>
+   -------------------------------------------------------------------------- */
+.wpsubs-page-header {
+  margin-bottom: 20px;
+}
+
+/* With an aside (e.g. stat cards), the header and the aside sit side by side. */
+.wpsubs-page-header--has-aside {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.wpsubs-page-header--has-aside .wpsubs-page-header__main {
+  flex: 1 1 auto;
+  min-width: 240px;
+}
+.wpsubs-page-header__aside {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Title row: the title on the left, a spacer, then any action buttons pushed to
+   the right — all on one line. The description sits full-width below it. */
+.wpsubs-page-header__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 6px;
+}
+
+/* WordPress admin core styles h1/p elements, so these need !important to win
+   the way the original inline styles did. */
+.wpsubs-page-header__title {
+  font-size: 1.375rem !important;
+  font-weight: 700 !important;
+  color: var(--wpsubs-text, #374151) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.wpsubs-page-header__desc {
+  font-size: 13px !important;
+  color: var(--wpsubs-text-muted, #6b7280) !important;
+  margin: 0 0 12px !important;
+  line-height: 1.5 !important;
+}
+
+/* No description under the title: the row keeps the gap to the rule instead. */
+.wpsubs-page-header__row:not(:has(+ .wpsubs-page-header__desc)) {
+  margin-bottom: 12px;
+}
+
+.wpsubs-page-header__rule {
+  border-top: 1px dashed var(--wpsubs-border-strong, #d0d3d7);
+}

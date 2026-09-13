@@ -1,4 +1,82 @@
 <?php
+/**
+ * Shared admin UI component renderers.
+ *
+ * @package SpringDevs\Subscription\Admin
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Render the standard admin page header: title, optional description, optional
+ * right-aligned actions, an optional right-hand aside (e.g. stat cards), and a
+ * dashed rule beneath. The one header for every admin screen in both plugins —
+ * use this instead of hand-writing the markup on a new page.
+ *
+ * @param array $args {
+ *     Header args.
+ *
+ *     @type string $title       Page title. Required.
+ *     @type string $description One-line description under the title.
+ *     @type string $doc_url     Docs URL; appends a "view documentation" link to
+ *                               the description.
+ *     @type string $actions     Pre-escaped HTML on the right of the title row.
+ *     @type string $aside       Pre-escaped HTML for a right-hand column beside
+ *                               the header (e.g. stat cards).
+ *     @type string $class       Extra classes on the wrapper.
+ * }
+ * @return void
+ */
+function wpsubs_render_page_header( array $args ): void {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'title'       => '',
+			'description' => '',
+			'doc_url'     => '',
+			'actions'     => '',
+			'aside'       => '',
+			'class'       => '',
+		)
+	);
+
+	$classes = 'wpsubs-page-header';
+	if ( '' !== $args['aside'] ) {
+		$classes .= ' wpsubs-page-header--has-aside';
+	}
+	if ( $args['class'] ) {
+		$classes .= ' ' . $args['class'];
+	}
+	?>
+	<div class="<?php echo esc_attr( $classes ); ?>">
+		<div class="wpsubs-page-header__main">
+			<div class="wpsubs-page-header__row">
+				<h1 class="wpsubs-page-header__title"><?php echo esc_html( $args['title'] ); ?></h1>
+				<?php if ( '' !== $args['actions'] ) : ?>
+					<span class="wpsubs-toolbar__spacer"></span>
+					<?php echo $args['actions']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- caller passes pre-escaped markup. ?>
+				<?php endif; ?>
+			</div>
+			<?php if ( '' !== $args['description'] ) : ?>
+				<p class="wpsubs-page-header__desc">
+					<?php echo esc_html( $args['description'] ); ?>
+					<?php if ( '' !== $args['doc_url'] ) : ?>
+						<?php esc_html_e( 'For more information,', 'subscription' ); ?>
+						<a href="<?php echo esc_url( $args['doc_url'] ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'view documentation', 'subscription' ); ?></a>.
+					<?php endif; ?>
+				</p>
+			<?php endif; ?>
+			<div class="wpsubs-page-header__rule"></div>
+		</div>
+		<?php if ( '' !== $args['aside'] ) : ?>
+			<div class="wpsubs-page-header__aside"><?php echo $args['aside']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- caller passes pre-escaped markup. ?></div>
+		<?php endif; ?>
+	</div>
+	<?php
+}
 
 /**
  * Compute the visible page list for a paginator (current ± 1 window with
@@ -611,6 +689,54 @@ function wpsubs_render_adv_select( array $args ): void {
 }
 
 /**
+ * Render a "per page" selector as an Advanced Select.
+ *
+ * Wraps wpsubs_render_adv_select() with the project-standard page-size options
+ * (10 / 20 / 50 / 100) so every list uses the same choices. Everything is
+ * overridable: pass `options` (an array of ints, or full adv-select option
+ * arrays) to change the choices, `value` for the initial selection, and any
+ * other wpsubs_render_adv_select() arg (name, align, id, class, attrs) — they
+ * pass straight through.
+ *
+ * @param array $args {
+ *   @type string $name    Hidden input name.
+ *   @type string $value   Initial value. Default '10'.
+ *   @type array  $options Page sizes (ints) or option arrays. Default 10/20/50/100.
+ *   @type mixed  ...       Any other wpsubs_render_adv_select() arg.
+ * }
+ *
+ * @return void
+ */
+function wpsubs_render_per_page_select( array $args = array() ): void {
+	$args = array_merge(
+		array(
+			'value'   => '10',
+			'options' => array( 10, 20, 50, 100 ),
+		),
+		$args
+	);
+
+	// Expand plain int page sizes into adv-select option arrays.
+	$options = array();
+	foreach ( $args['options'] as $option ) {
+		if ( is_array( $option ) ) {
+			$options[] = $option;
+			continue;
+		}
+		$options[] = array(
+			'value' => (string) $option,
+			/* translators: %d: number of items shown per page. */
+			'label' => sprintf( __( '%d / page', 'subscription' ), (int) $option ),
+		);
+	}
+
+	$args['options'] = $options;
+	$args['value']   = (string) $args['value'];
+
+	wpsubs_render_adv_select( $args );
+}
+
+/**
  * Render a tag/pill select input with an inline filter and filterable dropdown.
  * Supports single and multiple selection. No external dependencies.
  *
@@ -818,4 +944,52 @@ function wpsubs_render_modal( array $args ): void {
 		</div>
 	</div>
 	<?php
+}
+
+/**
+ * Render an inline help hint: a help icon that reveals text on hover.
+ *
+ * Thin wrapper over the canonical `wpsubs-tooltip` component
+ * (admin-components/tooltip.css): a help dashicon wrapped in a data-tip span.
+ * Returns the markup so it can be concatenated into a label; place it inside an
+ * overflow:visible container so the bubble is not clipped.
+ *
+ * @param string $text Hint text.
+ * @param array  $args Optional. 'placement' => 'top' (default)|'bottom'|'left'|'right';
+ *                     'align' => 'center' (default)|'start'|'end'; 'class' => extra trigger classes.
+ *
+ * @return string Escaped markup.
+ */
+function wpsubs_render_hint( string $text, array $args = array() ): string {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'placement' => 'top',
+			'align'     => 'center',
+			'class'     => '',
+		)
+	);
+
+	$classes = 'wpsubs-tooltip wpsubs-tooltip--hint';
+	if ( in_array( $args['placement'], array( 'bottom', 'left', 'right' ), true ) ) {
+		$classes .= ' wpsubs-tooltip--' . $args['placement'];
+	}
+	if ( in_array( $args['align'], array( 'start', 'end' ), true ) ) {
+		$classes .= ' wpsubs-tooltip--' . $args['align'];
+	}
+	if ( '' !== $args['class'] ) {
+		$classes .= ' ' . $args['class'];
+	}
+
+	// A <span> (not a <button>/<input>) is NOT a labelable element, so nesting
+	// it inside a <label> does not associate the label with it — hovering the
+	// label text therefore never reveals the tooltip, only hovering the icon
+	// does. The text is exposed to assistive tech via role="img" + aria-label.
+	return sprintf(
+		'<span class="%1$s" data-tip="%2$s" role="img" aria-label="%2$s">'
+			. '<span class="dashicons dashicons-editor-help wpsubs-tooltip__icon" aria-hidden="true"></span>'
+			. '</span>',
+		esc_attr( $classes ),
+		esc_attr( $text )
+	);
 }
