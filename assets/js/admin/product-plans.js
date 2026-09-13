@@ -425,11 +425,22 @@
     card.querySelectorAll("[data-connect-block]").forEach(function (block) {
       var on = block.getAttribute("data-group-id") === groupId;
       block.style.display = on ? "block" : "none";
-      if (on && regularVal !== "") {
+      if (!on) {
+        return;
+      }
+      if (regularVal !== "") {
         block.querySelectorAll('[data-field="regular_price"]').forEach(function (input) {
           if (!String(input.value).trim()) {
             input.value = regularVal;
           }
+        });
+      }
+      // The one-time price is the same product price, so seed it from the same
+      // place — otherwise the block offers prices for every duration and a
+      // blank for buying it once.
+      if (window.WPSubsPlanForms && window.WPSubsPlanForms.seedOneTimePrices) {
+        block.querySelectorAll("[data-subscrpt-onetime]").forEach(function (row) {
+          window.WPSubsPlanForms.seedOneTimePrices(row);
         });
       }
     });
@@ -1083,6 +1094,13 @@
    * price, so without this the product's own Update re-saves the stale native
    * fields and reverts the freshly-saved one-time edit.
    *
+   * Only a field the merchant actually changed speaks for the product. An
+   * input still holding what the server rendered (`defaultValue`) says nothing
+   * newer than the price on the General tab, and copying it anyway wiped the
+   * price of a product that had none saved yet and reverted an edit on one that
+   * did — including from the one-time rows of plans that were never picked,
+   * which the connect card renders hidden, one per available plan.
+   *
    * @param {HTMLElement} wrap The [data-subscrpt-product-plans] wrapper.
    */
   function mirrorOnetimePrices(wrap) {
@@ -1090,11 +1108,22 @@
     if (!planView || "none" === planView.style.display) {
       return;
     }
+    var changed = function (el) {
+      return el && el.value !== el.defaultValue;
+    };
     planView.querySelectorAll("[data-subscrpt-onetime]").forEach(function (row) {
       var vid = parseInt(row.getAttribute("data-vid"), 10) || 0;
       var priceEl = row.querySelector('[data-ot-field="price"]');
       var offerEl = row.querySelector('[data-ot-field="offer"]');
       if (!priceEl) {
+        return;
+      }
+      // A plan block that is not the picked one is not being edited.
+      var block = row.closest("[data-connect-block]");
+      if (block && "none" === block.style.display) {
+        return;
+      }
+      if (!changed(priceEl) && !changed(offerEl)) {
         return;
       }
       var regular = priceEl.value;
@@ -1104,10 +1133,10 @@
         // Simple product → General tab native price inputs.
         var r = document.getElementById("_regular_price");
         var s = document.getElementById("_sale_price");
-        if (r) {
+        if (r && changed(priceEl)) {
           r.value = regular;
         }
-        if (s) {
+        if (s && changed(offerEl)) {
           s.value = sale;
         }
         return;
@@ -1124,10 +1153,10 @@
       var i = match[1];
       var vr = document.querySelector('input[name="variable_regular_price[' + i + ']"]');
       var vs = document.querySelector('input[name="variable_sale_price[' + i + ']"]');
-      if (vr) {
+      if (vr && changed(priceEl)) {
         vr.value = regular;
       }
-      if (vs) {
+      if (vs && changed(offerEl)) {
         vs.value = sale;
       }
     });

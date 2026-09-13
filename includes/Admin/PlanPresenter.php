@@ -106,7 +106,7 @@ class PlanPresenter {
 						'is_variable' => $is_variable,
 						'base_price'  => ( $product && ! $is_variable ) ? self::money( (float) $product->get_price() ) : '',
 						'one_time_on' => $product ? ( 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' ) ) : false,
-						'ot_regular'  => ( $product && ! $is_variable ) ? (string) $product->get_regular_price() : '',
+						'ot_regular'  => ( $product && ! $is_variable ) ? self::one_time_price( $product ) : '',
 						'ot_offer'    => ( $product && ! $is_variable ) ? (string) $product->get_sale_price() : '',
 						'edit_url'    => get_edit_post_link( $oid, 'raw' ),
 						'view_url'    => get_permalink( $oid ),
@@ -154,7 +154,7 @@ class PlanPresenter {
 						'name'        => self::variation_name( $variation, $entry['name'] ),
 						'base_price'  => $variation ? self::money( (float) $variation->get_price() ) : '-',
 						'one_time_on' => $variation ? ( 'yes' === $variation->get_meta( '_subscrpt_one_time_enabled' ) ) : false,
-						'ot_regular'  => $variation ? (string) $variation->get_regular_price() : '',
+						'ot_regular'  => self::one_time_price( $variation ),
 						'ot_offer'    => $variation ? (string) $variation->get_sale_price() : '',
 						'rows'        => $rows,
 					);
@@ -395,6 +395,29 @@ class PlanPresenter {
 	 */
 	protected static function amount( $amount ) {
 		return number_format( (float) $amount, 2, '.', '' );
+	}
+
+	/**
+	 * The price to offer as a product's one-time purchase price.
+	 *
+	 * One-time purchase sells the product at its native WooCommerce price, so
+	 * the field should open on the price the product already has. A product can
+	 * carry an active price without a regular one — set by an import, or by a
+	 * one-time save that stored only the offer — and reading just the regular
+	 * price showed a blank beside a card header quoting the real price.
+	 *
+	 * @param \WC_Product|null $product Product or variation.
+	 *
+	 * @return string
+	 */
+	public static function one_time_price( $product ) {
+		if ( ! $product ) {
+			return '';
+		}
+
+		$regular = (string) $product->get_regular_price();
+
+		return '' !== $regular ? $regular : (string) $product->get_price();
 	}
 
 	/**
