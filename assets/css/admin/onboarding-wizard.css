@@ -92,12 +92,36 @@
   }
 }
 
-/* Page sections — all rendered, JS toggles visibility */
+/* Page sections — all rendered, JS toggles visibility. The active section
+   animates in on each step change. */
 .wpsubs-wizard-section {
   display: none;
 }
 .wpsubs-wizard-section.active {
   display: block;
+  animation: wpsubs-section-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes wpsubs-section-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wpsubs-wizard-section.active {
+    animation: none;
+  }
+}
+/* The welcome step animates its own inner content and hosts an absolutely
+   positioned background layer, so it must NOT get the section-level transform —
+   a transform would make it a containing block and shrink that background to
+   the centered card instead of the full panel. */
+#subscrpt-section-0.wpsubs-wizard-section.active {
+  animation: none;
 }
 /* Stepper */
 .wpsubs-wizard-stepper {
