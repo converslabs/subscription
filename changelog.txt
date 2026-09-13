@@ -1,5 +1,19 @@
 *** WPSubscription Changelog ***
 
+2026-09-10 - version 2.0.0-beta1
+* new: Plans — build a plan once, give it durations, connect products and price them in one place.
+* new: Overview dashboard with monthly sales, a setup checklist and store health.
+* new: Cancellation Flow — ask why, and offer a discount before the customer leaves.
+* new: One-time purchase alongside a subscription, on the product and the storefront.
+* new: Reports gains a Cancellation tab.
+* new: Checkout links you can copy for any plan duration.
+* tweak: Settings regrouped into one list — Renewals, Payments, Switching, Customers, Advanced.
+* tweak: Admin menu holds one order whether or not Pro is active; Dashboard is now Overview.
+* tweak: Saving prices and products no longer reloads the page, and confirms with a toast.
+* tweak: Integrations page filters live, with counts.
+* fix: Renewal Process and Renewal Cart Notice reach the code again.
+* fix: The Pro upgrade overlay no longer covers the WordPress menu.
+
 2026-08-30 - version 1.11.2
 * new: Relative ordering of renewal orders.
 * fix: Subscription list filters.
