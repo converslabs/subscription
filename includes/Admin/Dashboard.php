@@ -47,13 +47,14 @@ class Dashboard {
 	/**
 	 * Render the dashboard page.
 	 *
+	 * No shared admin footer: the screen ends in its own footer row, which
+	 * already links the docs and support, so the shared one only repeated them.
+	 *
 	 * @return void
 	 */
 	public function render() {
-		$menu = new Menu();
-		$menu->render_admin_header( __( 'Overview', 'subscription' ) );
+		( new Menu() )->render_admin_header( __( 'Overview', 'subscription' ) );
 		include __DIR__ . '/views/dashboard.php';
-		$menu->render_admin_footer();
 	}
 
 	/**
@@ -139,20 +140,24 @@ class Dashboard {
 		$on_hold = (int) ( $counts['on_hold'] ?? 0 );
 		$failed  = Stats::count_failed_renewals_since( 24 );
 
+		// This month rather than a rolling window: the list filters by calendar
+		// month, and a figure that opens the list must match the rows it shows.
+		$this_month = new \DateTimeImmutable( 'now', wp_timezone() );
+
 		return array(
 			array(
 				'key'   => 'active',
 				'icon'  => 'people',
 				'label' => __( 'Active subscriptions', 'subscription' ),
 				'value' => (int) ( $counts['active'] ?? 0 ),
-				'url'   => add_query_arg( 'post_status', 'active', $list ),
+				'url'   => self::list_url( 'active' ),
 			),
 			array(
 				'key'   => 'on_hold',
 				'icon'  => 'pause',
 				'label' => __( 'On-hold subscriptions', 'subscription' ),
 				'value' => $on_hold,
-				'url'   => add_query_arg( 'post_status', 'on_hold', $list ),
+				'url'   => self::list_url( 'on_hold' ),
 				'tone'  => $on_hold > 0 ? 'warning' : '',
 			),
 			array(
@@ -160,7 +165,7 @@ class Dashboard {
 				'icon'  => 'money',
 				'label' => __( 'Renewals due (next 7 days)', 'subscription' ),
 				'value' => Stats::count_renewals_due_within( 7 ),
-				'url'   => $list,
+				'url'   => add_query_arg( 'renewal_due', 7, $list ),
 			),
 			array(
 				'key'   => 'failed',
@@ -173,9 +178,9 @@ class Dashboard {
 			array(
 				'key'   => 'new',
 				'icon'  => 'trend',
-				'label' => __( 'New subscriptions (this week)', 'subscription' ),
-				'value' => Stats::count_new_since( 7 ),
-				'url'   => $list,
+				'label' => __( 'New subscriptions (this month)', 'subscription' ),
+				'value' => Stats::count_new_in_month( $this_month ),
+				'url'   => add_query_arg( 'date_filter', $this_month->format( 'Y-m' ), $list ),
 			),
 		);
 	}
@@ -210,6 +215,8 @@ class Dashboard {
 				: number_format_i18n( $total, 2 ),
 			'empty'   => $total <= 0,
 			'url'     => admin_url( 'admin.php?page=wp-subscription-stats' ),
+			// Without pro, Reports is a preview of the Pro screen; the link says so.
+			'pro'     => ! subscrpt_pro_activated(),
 		);
 	}
 
@@ -305,7 +312,7 @@ class Dashboard {
 				'text'   => sprintf( _n( '%d subscription is on hold.', '%d subscriptions are on hold.', $on_hold, 'subscription' ), $on_hold ),
 				'action' => array(
 					'label' => __( 'Review them', 'subscription' ),
-					'url'   => add_query_arg( 'post_status', 'on_hold', admin_url( 'admin.php?page=wp-subscription-list' ) ),
+					'url'   => self::list_url( 'on_hold' ),
 				),
 			);
 		}
@@ -339,6 +346,7 @@ class Dashboard {
 					'label' => __( 'View reports', 'subscription' ),
 					'url'   => admin_url( 'admin.php?page=wp-subscription-stats' ),
 				),
+				'pro'     => ! $is_pro,
 			),
 			array(
 				'tone'    => 'setup',
@@ -398,6 +406,20 @@ class Dashboard {
 				'url'   => 'https://my.wpsubscription.co/?utm_source=plugin&utm_medium=admin&utm_campaign=dashboard',
 			),
 		);
+	}
+
+	/**
+	 * The subscriptions list, filtered to one status.
+	 *
+	 * The list reads `subscrpt_status` — its dropdown is named that and its
+	 * reset link clears that. Any other name, `post_status` included, is ignored
+	 * without complaint and the list opens unfiltered.
+	 *
+	 * @param string $status A registered subscription status, e.g. `on_hold`.
+	 * @return string
+	 */
+	private static function list_url( string $status ): string {
+		return add_query_arg( 'subscrpt_status', $status, admin_url( 'admin.php?page=wp-subscription-list' ) );
 	}
 
 	/**

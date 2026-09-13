@@ -738,10 +738,23 @@ body[class*="wpsubscription_page_wp-subscription"] #wpcontent {
   overscroll-behavior: contain;
 }
 
+/* The rail sits on its own card, like every other panel in the admin. On the
+   filters element rather than the aside: the filters stay hidden until the
+   script runs, so the card never shows up empty. */
 .subscrpt-int-filters {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  padding: 16px 8px;
+  background: var(--wpsubs-surface, #fff);
+  border: 1px solid var(--wpsubs-border, #e5e7eb);
+  border-radius: var(--wpsubs-radius, 8px);
+}
+
+.subscrpt-int-filters__reset {
+  align-self: stretch;
+  justify-content: center;
+  margin: 0 4px;
 }
 
 /* The filter rail is the shared `wpsubs-vnav` component (one nav per facet).
@@ -801,6 +814,11 @@ body[class*="wpsubscription_page_wp-subscription"] #wpcontent {
   /* Each facet's vnav sits as its own column in the wrapped rail. */
   .subscrpt-int-filters .wpsubs-vnav {
     flex: 1 1 180px;
+  }
+
+  /* Reset keeps its place under the filters: a full-width last line. */
+  .subscrpt-int-filters__reset {
+    flex: 1 1 100%;
   }
 
   [data-subscrpt-int-reset] {

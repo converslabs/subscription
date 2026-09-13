@@ -323,6 +323,26 @@
   font-weight: 600;
 }
 
+/* "Other" is not one of the store's reasons: the survey adds it while the
+   comment box is on. Shown in its place, but visibly not editable. */
+.subscrpt-flow__reasons li.subscrpt-flow__reason--auto {
+  border-style: dashed;
+  background: var(--wpsubs-surface-muted, #f9fafb);
+  color: var(--wpsubs-text-muted, #6b7280);
+}
+
+.subscrpt-flow__reason-note {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--wpsubs-text-subtle, #9ca3af);
+}
+
+/* Shown once the list has been edited and not yet saved. */
+.subscrpt-flow__unsaved {
+  font-size: 13px;
+  color: var(--wpsubs-text-muted, #6b7280);
+}
+
 .subscrpt-flow__empty {
   margin: 0 0 18px;
   color: var(--wpsubs-text-subtle, #9ca3af);

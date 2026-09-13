@@ -49,6 +49,38 @@
   }
 
   /**
+   * Fill a one-time block's empty price fields from the product's current
+   * WooCommerce price.
+   *
+   * The one-time price IS the product's native price, so an empty field is not
+   * a choice — it is the merchant being asked to retype what the product
+   * already costs. The General tab's inputs are the source because they carry
+   * the price typed in this session, which no server render can know about.
+   * Only empty fields are filled, so a saved or hand-entered price stands.
+   *
+   * On the Plans screen those inputs do not exist and this does nothing; that
+   * screen seeds its fields server-side instead.
+   *
+   * @param {HTMLElement} scope A one-time row or card.
+   */
+  function seedOneTimePrices(scope) {
+    [
+      ["price", "_regular_price"],
+      ["offer", "_sale_price"],
+    ].forEach(function (pair) {
+      var input = scope.querySelector('[data-ot-field="' + pair[0] + '"]');
+      var native = document.getElementById(pair[1]);
+      if (!input || !native || "" !== String(input.value).trim()) {
+        return;
+      }
+      var value = String(native.value).trim();
+      if ("" !== value) {
+        input.value = value;
+      }
+    });
+  }
+
+  /**
    * Show the prices only while one-time purchase is switched on.
    *
    * Off, the price fields read as a second regular price sitting under the
@@ -63,6 +95,10 @@
       return;
     }
     var on = toggle.checked;
+
+    if (on) {
+      seedOneTimePrices(scope);
+    }
 
     scope.querySelectorAll("[data-subscrpt-onetime-price]").forEach(function (el) {
       el.style.display = on ? "" : "none";
@@ -559,6 +595,7 @@
 
   window.WPSubsPlanForms = {
     api: api,
+    seedOneTimePrices: seedOneTimePrices,
     fillTermModal: fillTermModal,
     openModal: openModal,
     closeModal: closeModal,

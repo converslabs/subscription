@@ -21,8 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use SpringDevs\Subscription\Admin\CancellationFlow;
 use SpringDevs\Subscription\Admin\SettingsHelper;
-
-$subscrpt_pro_active = subscrpt_pro_activated();
+use SpringDevs\Subscription\Illuminate\Cancellation;
 ?>
 <div class="wp-subscription-admin-content list-page">
 
@@ -31,7 +30,6 @@ $subscrpt_pro_active = subscrpt_pro_activated();
 		array(
 			'title'       => __( 'Cancellation Flow', 'subscription' ),
 			'description' => __( 'Customize what customers see when they cancel, and record why they leave.', 'subscription' ),
-			'actions'     => $subscrpt_pro_active ? '' : SettingsHelper::pro_badge_html(),
 		)
 	);
 	?>
@@ -42,11 +40,11 @@ $subscrpt_pro_active = subscrpt_pro_activated();
 			<li><?php esc_html_e( 'Choose the reasons they pick from, and when a cancellation takes effect', 'subscription' ); ?></li>
 		</ul>
 		<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-			<a href="https://wpsubscription.co/docs/" target="_blank" rel="noopener" class="wpsubs-btn wpsubs-btn--muted wpsubs-btn--sm">
+			<a href="https://docs.wpsubscription.co/en/category/wpsubscription" target="_blank" rel="noopener" class="wpsubs-btn wpsubs-btn--muted wpsubs-btn--sm">
 				<span class="dashicons dashicons-external" aria-hidden="true"></span>
 				<?php esc_html_e( 'View All Documentation', 'subscription' ); ?>
 			</a>
-			<a href="https://wpsubscription.co/support/" target="_blank" rel="noopener" class="wpsubs-btn wpsubs-btn--muted wpsubs-btn--sm">
+			<a href="https://wpsubscription.co/contact/" target="_blank" rel="noopener" class="wpsubs-btn wpsubs-btn--muted wpsubs-btn--sm">
 				<span class="dashicons dashicons-editor-help" aria-hidden="true"></span>
 				<?php esc_html_e( 'Get Support', 'subscription' ); ?>
 			</a>
@@ -73,22 +71,28 @@ $subscrpt_pro_active = subscrpt_pro_activated();
 				<?php if ( 'reasons' === $active_tab ) : ?>
 					<div class="wpsubs-table-card subscrpt-flow__panel subscrpt-flow__panel--reasons">
 						<?php
-						// The saved list, in the order customers see it. Editing happens in
-						// the modal; this reflects what is stored, so it catches up on save
-						// rather than while the modal is open.
-						$subscrpt_reasons = \SpringDevs\Subscription\Illuminate\Cancellation::get_reasons();
+						// The list in the order customers see it. It is rendered from what is
+						// saved, and cancellation-flow.js keeps it in step with the editor, so
+						// an edit shows here as soon as the modal closes, before saving. The
+						// automatic "Other" is shown last, as customers see it, but marked as
+						// not part of the list.
+						$subscrpt_reasons    = Cancellation::get_configured_reasons();
+						$subscrpt_auto_other = Cancellation::is_feedback_comment_enabled();
 						?>
-						<?php if ( empty( $subscrpt_reasons ) ) : ?>
-							<p class="subscrpt-flow__empty">
-								<?php esc_html_e( 'No reasons yet. Add one with Manage reasons.', 'subscription' ); ?>
-							</p>
-						<?php else : ?>
-							<ol class="subscrpt-flow__reasons">
-								<?php foreach ( $subscrpt_reasons as $subscrpt_reason ) : ?>
-									<li><?php echo esc_html( $subscrpt_reason['label'] ?? '' ); ?></li>
-								<?php endforeach; ?>
-							</ol>
-						<?php endif; ?>
+						<p class="subscrpt-flow__empty" data-subscrpt-reason-empty<?php echo empty( $subscrpt_reasons ) ? '' : ' hidden'; ?>>
+							<?php esc_html_e( 'No reasons of your own yet - customers are offered the default reasons until you add one.', 'subscription' ); ?>
+						</p>
+						<ol class="subscrpt-flow__reasons" data-subscrpt-reason-preview<?php echo empty( $subscrpt_reasons ) ? ' hidden' : ''; ?>>
+							<?php foreach ( $subscrpt_reasons as $subscrpt_reason ) : ?>
+								<li><?php echo esc_html( $subscrpt_reason['label'] ?? '' ); ?></li>
+							<?php endforeach; ?>
+							<?php if ( $subscrpt_auto_other ) : ?>
+								<li class="subscrpt-flow__reason--auto" data-subscrpt-reason-auto>
+									<?php esc_html_e( 'Other', 'subscription' ); ?>
+									<em class="subscrpt-flow__reason-note"><?php esc_html_e( 'Added automatically while Survey Comment Box is on', 'subscription' ); ?></em>
+								</li>
+							<?php endif; ?>
+						</ol>
 						<?php
 						$subscrpt_reasons_field          = CancellationFlow::reasons_field();
 						$subscrpt_reasons_field['title'] = '';
@@ -123,10 +127,11 @@ $subscrpt_pro_active = subscrpt_pro_activated();
 
 		</div>
 
-		<div style="margin-top:18px;">
+		<div style="margin-top:18px;display:flex;align-items:center;gap:12px;">
 			<button type="submit" class="wpsubs-btn wpsubs-btn--primary">
 				<?php esc_html_e( 'Save Changes', 'subscription' ); ?>
 			</button>
+			<span class="subscrpt-flow__unsaved" data-subscrpt-unsaved hidden><?php esc_html_e( 'Unsaved changes', 'subscription' ); ?></span>
 		</div>
 	</form>
 

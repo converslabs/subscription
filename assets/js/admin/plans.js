@@ -1176,24 +1176,37 @@
    * simple products use this standalone card + its own toggle/Save.
    * ------------------------------------------------------------------ */
 
-  // Save the simple card's one-time (enabled flag + native price).
+  /**
+   * PUT a simple product's one-time purchase: the switch as it stands, plus prices.
+   *
+   * The endpoint writes the prices it is given and clears any it is not, so
+   * both are always sent.
+   *
+   * @param {HTMLElement} card   The one-time card.
+   * @param {{price: string, offer: string}} prices Prices to store.
+   * @return {Promise} The request.
+   */
+  function putOneTime(card, prices) {
+    var enable = card.querySelector("[data-subscrpt-onetime-enable]");
+    return api("PUT", "/product-onetime/" + card.getAttribute("data-product-id"), {
+      enabled: enable ? enable.checked : false,
+      price: prices.price,
+      offer: prices.offer,
+    });
+  }
+
+  // Save the simple card's prices (Save sits in the price row).
   document.addEventListener("click", function (e) {
     var btn = e.target.closest("[data-subscrpt-onetime-save]");
     if (!btn) {
       return;
     }
     var card = btn.closest("[data-subscrpt-onetime-card]");
-    var pid = card.getAttribute("data-product-id");
-    var enable = card.querySelector("[data-subscrpt-onetime-enable]");
     var price = card.querySelector('[data-ot-field="price"]');
     var offer = card.querySelector('[data-ot-field="offer"]');
 
     setLoading(btn, true);
-    api("PUT", "/product-onetime/" + pid, {
-      enabled: enable ? enable.checked : false,
-      price: price ? price.value : "",
-      offer: offer ? offer.value : "",
-    })
+    putOneTime(card, { price: price ? price.value : "", offer: offer ? offer.value : "" })
       .then(function () {
         return refreshProducts(currentGroupId());
       })
@@ -1203,6 +1216,38 @@
       })
       .catch(function (err) {
         setLoading(btn, false);
+        save.notify(err.message || i18n.genericError, "error");
+      });
+  });
+
+  // The switch saves itself. Save lives in the price row, which hides while the
+  // switch is off, so "off" could not be saved any other way. It sends the
+  // prices as last saved — each input's default value — because the endpoint
+  // clears a price it is not given, and an unsaved price edit is left for Save.
+  // No product refresh: the card already shows what was stored.
+  document.addEventListener("change", function (e) {
+    var toggle = e.target.closest("[data-subscrpt-onetime-card] [data-subscrpt-onetime-enable]");
+    if (!toggle || toggle.subscrptReverting) {
+      return;
+    }
+    var card = toggle.closest("[data-subscrpt-onetime-card]");
+    var price = card.querySelector('[data-ot-field="price"]');
+    var offer = card.querySelector('[data-ot-field="offer"]');
+
+    toggle.disabled = true;
+    putOneTime(card, { price: price ? price.defaultValue : "", offer: offer ? offer.defaultValue : "" })
+      .then(function () {
+        toggle.disabled = false;
+        save.notify(toggle.checked ? i18n.oneTimeOn : i18n.oneTimeOff);
+      })
+      .catch(function (err) {
+        toggle.disabled = false;
+        // Put the switch back so it shows what is stored; the re-dispatched
+        // change re-syncs the price row without saving again.
+        toggle.subscrptReverting = true;
+        toggle.checked = !toggle.checked;
+        toggle.dispatchEvent(new Event("change", { bubbles: true }));
+        toggle.subscrptReverting = false;
         save.notify(err.message || i18n.genericError, "error");
       });
   });

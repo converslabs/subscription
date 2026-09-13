@@ -15,7 +15,7 @@
  * the POST, so leaving these four in `wp_subscription_settings` would mean
  * saving the Settings page wiped them - and saving this page wiped everything
  * else. They are registered in their own group instead (see OPTION_GROUP), and
- * Pro registers its two into the same group.
+ * Pro registers its options into the same group.
  *
  * @package SpringDevs\Subscription\Admin
  */
@@ -90,11 +90,12 @@ class CancellationFlow {
 	}
 
 	/**
-	 * Register the two free options this page owns.
+	 * Register the free options this page owns.
 	 *
 	 * Same option keys as before the move, new group. Pro registers
-	 * `subscrpt_cancellation_delay` and `subscrpt_cancellation_reasons` into
-	 * this same group from its own Cancellation class.
+	 * `subscrpt_cancellation_delay` into this same group from its own
+	 * Cancellation class. The reason list used to be Pro's too; it is free's now,
+	 * and Pro only registers it against a free version without sanitize_reasons().
 	 *
 	 * @return void
 	 */
@@ -117,6 +118,15 @@ class CancellationFlow {
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
+		register_setting(
+			self::OPTION_GROUP,
+			'subscrpt_cancellation_reasons',
+			array(
+				'type'              => 'array',
+				'default'           => array(),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_reasons' ),
+			)
+		);
 
 		/**
 		 * Fires so add-ons can register options into the Cancellation Flow group.
@@ -127,6 +137,72 @@ class CancellationFlow {
 		 * @param string $group The settings group name.
 		 */
 		do_action( 'subscrpt_register_cancellation_settings', self::OPTION_GROUP );
+	}
+
+	/**
+	 * Sanitize the cancellation reason list.
+	 *
+	 * The editor posts the ordered list as a JSON string. Each label is
+	 * sanitized, each key comes from the posted key (or the label) and is made
+	 * unique, and empty labels are dropped.
+	 *
+	 * `other` is reserved: the survey adds "Other" by itself while the comment
+	 * box is on (Cancellation::get_reasons()), so a saved one would show twice,
+	 * or show with no box to explain it in.
+	 *
+	 * Null means the list was not in the submitted form at all — the Offers tab
+	 * posts to the same settings group without rendering this field — and
+	 * options.php would save that null as an empty list. The stored list is kept.
+	 *
+	 * Pro checks for this method to know free owns the option.
+	 *
+	 * @param mixed $value JSON string, array, or null when not posted.
+	 * @return array<int,array{key:string,label:string}>
+	 */
+	public static function sanitize_reasons( $value ) {
+		if ( null === $value ) {
+			$stored = get_option( 'subscrpt_cancellation_reasons', array() );
+			return is_array( $stored ) ? $stored : array();
+		}
+
+		// options.php has already unslashed the POST; unslashing again would
+		// strip the backslashes JSON uses to escape a quote in a label.
+		$decoded = is_string( $value ) ? json_decode( $value, true ) : $value;
+		if ( ! is_array( $decoded ) ) {
+			return array();
+		}
+
+		$reasons = array();
+		$seen    = array();
+		foreach ( $decoded as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+
+			$label = isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : '';
+			if ( '' === $label ) {
+				continue;
+			}
+
+			$key = ! empty( $item['key'] ) ? sanitize_key( $item['key'] ) : sanitize_key( $label );
+			if ( Cancellation::OTHER_KEY === $key ) {
+				continue;
+			}
+			if ( '' === $key ) {
+				$key = 'reason';
+			}
+			if ( isset( $seen[ $key ] ) ) {
+				$key .= '_' . count( $reasons );
+			}
+			$seen[ $key ] = true;
+
+			$reasons[] = array(
+				'key'   => $key,
+				'label' => $label,
+			);
+		}
+
+		return $reasons;
 	}
 
 	/**
@@ -152,6 +228,15 @@ class CancellationFlow {
 			array( 'subscrpt_admin_components' ),
 			SUBSCRPT_VERSION
 		);
+
+		// Keeps the Reasons tab's list in step with the editor before saving.
+		wp_enqueue_script(
+			'subscrpt_cancellation_flow_js',
+			SUBSCRPT_ASSETS . '/js/admin/cancellation-flow.js',
+			array( 'subscrpt_admin_components' ),
+			SUBSCRPT_VERSION,
+			true
+		);
 	}
 
 	/**
@@ -171,9 +256,9 @@ class CancellationFlow {
 	/**
 	 * The Reasons tab field: the editable reason list.
 	 *
-	 * Pro-locked exactly as it was on the settings page - Pro registers and
-	 * sanitizes the option, and Cancellation::get_reasons() only reads it when
-	 * Pro is active.
+	 * Free, with or without Pro: this page registers and sanitizes the option
+	 * (sanitize_reasons()), and Cancellation::get_configured_reasons() reads it.
+	 * The automatic "Other" is not part of the list, so it is not edited here.
 	 *
 	 * @return array
 	 */
@@ -181,15 +266,14 @@ class CancellationFlow {
 		return array(
 			'id'              => 'subscrpt_cancellation_reasons',
 			'title'           => __( 'Cancellation Reasons', 'subscription' ),
-			'description'     => __( 'Reasons offered in the cancellation survey form. Shown when Cancellation Survey is enabled.', 'subscription' ),
-			'value'           => Cancellation::get_reasons(),
+			'description'     => __( 'Reasons offered in the cancellation survey form. Shown when Cancellation Survey is enabled. "Other" is added automatically while Survey Comment Box is on.', 'subscription' ),
+			'value'           => Cancellation::get_configured_reasons(),
 			'modal'           => true,
 			'button_label'    => __( 'Manage reasons', 'subscription' ),
 			'modal_title'     => __( 'Cancellation Reasons', 'subscription' ),
 			'add_placeholder' => __( 'Add a reason…', 'subscription' ),
 			'add_label'       => __( 'Add reason', 'subscription' ),
 			'empty_text'      => __( 'No reasons yet. Add one below.', 'subscription' ),
-			'pro_locked'      => ! subscrpt_pro_activated(),
 		);
 	}
 

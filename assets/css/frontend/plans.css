@@ -155,6 +155,22 @@
   background: var(--subscrpt-accent);
 }
 
+/* A duration only looks chosen inside the selected card. Picking another card —
+   One Time Purchase, say — leaves this card's duration marked `is-active` in the
+   markup, so it comes back if the card is picked again, but it must not look
+   selected while another card is. */
+.subscrpt-buybox__card:not(.is-selected) .subscrpt-buybox__term.is-active {
+  border-color: var(--subscrpt-line);
+  background: var(--subscrpt-surface);
+  color: inherit;
+  font-weight: 500;
+}
+
+.subscrpt-buybox__card:not(.is-selected) .subscrpt-buybox__term.is-active:hover {
+  border-color: var(--subscrpt-accent);
+  background: var(--subscrpt-selected-bg);
+}
+
 /* Note aligns under the control, past the radio; sits close under the name. */
 .subscrpt-buybox__note {
   padding-left: 28px;

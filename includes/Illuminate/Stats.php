@@ -143,33 +143,54 @@ class Stats {
 	}
 
 	/**
-	 * Count active subscriptions whose next payment falls inside a window.
+	 * Query arguments for active subscriptions whose next payment falls within
+	 * the next N days.
 	 *
-	 * `_subscrpt_next_date` holds a Unix timestamp, so this compares against
-	 * one rather than parsing a date string.
+	 * The one definition of "renewals due": the Overview counts with it and the
+	 * subscriptions list filters with it, so the figure and the rows it opens
+	 * cannot disagree. The meta clause is named so the list can sort by it.
+	 *
+	 * `_subscrpt_next_date` holds a Unix timestamp, so the window is compared
+	 * numerically rather than as a date string.
+	 *
+	 * @param int $days Number of days ahead to look.
+	 * @return array<string,mixed> WP_Query arguments.
+	 */
+	public static function renewals_due_args( int $days = 7 ): array {
+		$now = time();
+
+		return array(
+			'post_type'   => 'subscrpt_order',
+			'post_status' => 'active',
+			'meta_query'  => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'subscrpt_next_date' => array(
+					'key'     => '_subscrpt_next_date',
+					'value'   => array( $now, $now + ( max( 1, $days ) * DAY_IN_SECONDS ) ),
+					'compare' => 'BETWEEN',
+					'type'    => 'NUMERIC',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Count active subscriptions whose next payment falls inside a window.
 	 *
 	 * @param int $days Number of days ahead to look.
 	 * @return int
 	 */
 	public static function count_renewals_due_within( int $days = 7 ): int {
-		global $wpdb;
-
-		$now   = time();
-		$until = $now + ( max( 1, $days ) * DAY_IN_SECONDS );
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(1)
-				 FROM {$wpdb->postmeta} m
-				 INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id
-				 WHERE m.meta_key = '_subscrpt_next_date'
-				   AND p.post_type = 'subscrpt_order'
-				   AND p.post_status = 'active'
-				   AND CAST( m.meta_value AS UNSIGNED ) BETWEEN %d AND %d",
-				$now,
-				$until
+		$query = new \WP_Query(
+			array_merge(
+				self::renewals_due_args( $days ),
+				array(
+					'fields'         => 'ids',
+					'posts_per_page' => 1,
+				)
 			)
 		);
+
+		return (int) $query->found_posts;
 	}
 
 	/**
@@ -251,6 +272,35 @@ class Stats {
 	}
 
 	/**
+	 * Count subscriptions created in one calendar month.
+	 *
+	 * Asks exactly what the subscriptions list asks when filtered to that month
+	 * — the same statuses, the same local post date — so a figure that links to
+	 * the filtered list always matches the rows it opens.
+	 *
+	 * @param \DateTimeInterface $month Any moment in the month, in the store's timezone.
+	 * @return int
+	 */
+	public static function count_new_in_month( \DateTimeInterface $month ): int {
+		$query = new \WP_Query(
+			array(
+				'post_type'      => 'subscrpt_order',
+				'post_status'    => 'any',
+				'date_query'     => array(
+					array(
+						'year'  => (int) $month->format( 'Y' ),
+						'month' => (int) $month->format( 'n' ),
+					),
+				),
+				'fields'         => 'ids',
+				'posts_per_page' => 1,
+			)
+		);
+
+		return (int) $query->found_posts;
+	}
+
+	/**
 	 * Revenue from subscription orders, grouped by month.
 	 *
 	 * Read from real orders rather than the snapshot table: snapshots record
@@ -278,12 +328,20 @@ class Stats {
 
 		// Every month in the window, so a month with no sales is a gap in the
 		// chart rather than a missing bar that shifts everything along.
+		//
+		// The store's months, not UTC's. WooCommerce dates an order in the store
+		// timezone, so UTC buckets have no bar for an order placed between UTC
+		// and local midnight on the 1st, and it silently drops out of the chart.
+		$this_month = ( new \DateTimeImmutable( 'now', wp_timezone() ) )->modify( 'first day of this month' )->setTime( 0, 0 );
+		$first      = $this_month->modify( '-' . ( $months - 1 ) . ' months' );
+
 		$buckets = array();
 		for ( $i = $months - 1; $i >= 0; $i-- ) {
-			$stamp                              = strtotime( "-{$i} months", strtotime( gmdate( 'Y-m-01' ) ) );
-			$buckets[ gmdate( 'Y-m', $stamp ) ] = array(
-				'label' => gmdate( 'M', $stamp ),
-				'month' => gmdate( 'Y-m', $stamp ),
+			$month = $this_month->modify( "-{$i} months" );
+
+			$buckets[ $month->format( 'Y-m' ) ] = array(
+				'label' => wp_date( 'M', $month->getTimestamp() ),
+				'month' => $month->format( 'Y-m' ),
 				'total' => 0.0,
 			);
 		}
@@ -299,13 +357,14 @@ class Stats {
 		$order_ids = array_filter( array_map( 'intval', (array) $order_ids ) );
 
 		if ( ! empty( $order_ids ) ) {
-			$since = gmdate( 'Y-m-d H:i:s', strtotime( "-{$months} months", strtotime( gmdate( 'Y-m-01' ) ) ) );
-
 			$orders = wc_get_orders(
 				array(
 					'post__in'     => $order_ids,
 					'status'       => array( 'completed', 'processing' ),
-					'date_created' => '>=' . $since,
+					// A timestamp, not a date string: WooCommerce keeps only the day
+					// of a string and reads it in the store timezone, while a
+					// timestamp is compared to the second.
+					'date_created' => '>=' . $first->getTimestamp(),
 					'limit'        => -1,
 				)
 			);

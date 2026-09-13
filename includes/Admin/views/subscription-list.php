@@ -12,9 +12,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! isset( $date_filter ) ) {
 	$date_filter = '';
 }
+if ( ! isset( $renewal_due ) ) {
+	$renewal_due = 0;
+}
 
-$filters_active = ! empty( $status ) || ! empty( $date_filter ) || ! empty( $search );
-$months         = array();
+$filters_active = ! empty( $status ) || ! empty( $date_filter ) || ! empty( $search ) || ! empty( $renewal_due );
+
+// The last twelve of the store's months, counted back from the 1st: stepping
+// back from today skips a month on the 29th–31st (31 Oct − 1 month is 1 Oct).
+// The store's timezone, because the list filters on the local post date.
+$months     = array();
+$this_month = ( new DateTimeImmutable( 'now', wp_timezone() ) )->modify( 'first day of this month' )->setTime( 0, 0 );
 for ( $i = 0; $i < 12; $i++ ) {
 	$month                           = strtotime( "-$i month" );
 	$months[ gmdate( 'Y-m', $month ) ] = gmdate( 'F Y', $month );
@@ -38,7 +46,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 	<form method="post" id="subscriptions-form">
 		<?php wp_nonce_field( 'subscrpt_list_action' ); ?>
-		<input type="hidden" name="page" value="wp-subscription" />
+		<input type="hidden" name="page" value="wp-subscription-list" />
 
 		<!-- Toolbar -->
 		<div class="wpsubs-toolbar">
@@ -53,6 +61,10 @@ for ( $i = 0; $i < 12; $i++ ) {
 						array(
 							'value' => 'active',
 							'label' => __( 'Active', 'subscription' ),
+						),
+						array(
+							'value' => 'on_hold',
+							'label' => __( 'On Hold', 'subscription' ),
 						),
 						array(
 							'value' => 'pending',
@@ -101,6 +113,30 @@ for ( $i = 0; $i < 12; $i++ ) {
 			);
 			?>
 
+			<?php
+			// Next-renewal window. The Overview's "Renewals due" figure opens the
+			// list with 7 chosen; a window reached by URL is offered too, so the
+			// dropdown always shows what is applied.
+			$renewal_windows = array_unique( array_merge( array( 7, 14, 30 ), $renewal_due ? array( $renewal_due ) : array() ) );
+			sort( $renewal_windows );
+			$renewal_options = array();
+			foreach ( $renewal_windows as $days ) {
+				$renewal_options[] = array(
+					'value' => (string) $days,
+					/* translators: %d: number of days ahead. */
+					'label' => sprintf( _n( 'Due in %d day', 'Due in %d days', $days, 'subscription' ), $days ),
+				);
+			}
+			wpsubs_render_adv_select(
+				array(
+					'name'        => 'renewal_due',
+					'placeholder' => __( 'All Renewals', 'subscription' ),
+					'value'       => $renewal_due ? (string) $renewal_due : '',
+					'options'     => $renewal_options,
+				)
+			);
+			?>
+
 			<div class="wpsubs-search">
 				<div class="wpsubs-input-wrap wpsubs-input-wrap--icon-l">
 					<svg class="wpsubs-input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
@@ -113,13 +149,15 @@ for ( $i = 0; $i < 12; $i++ ) {
 			</button>
 
 			<?php if ( $filters_active ) : ?>
-				<a href="<?php echo esc_url( remove_query_arg( array( 'subscrpt_status', 'date_filter', 's', 'title', 'paged' ) ) ); ?>" class="wpsubs-btn wpsubs-btn--outline">
+				<a href="<?php echo esc_url( remove_query_arg( array( 'subscrpt_status', 'date_filter', 's', 'title', 'paged', 'renewal_due' ) ) ); ?>" class="wpsubs-btn wpsubs-btn--outline">
 					<?php esc_html_e( 'Clear', 'subscription' ); ?>
 				</a>
 			<?php endif; ?>
 
 			<div class="wpsubs-toolbar__spacer"></div>
 
+			<?php // Page size and bulk actions wrap as one right-aligned group, never one without the other. ?>
+			<div style="display:flex;flex-wrap:wrap;gap:8px;margin-inline-start:auto;">
 			<?php
 			$current_per_page = isset( $_GET['per_page'] ) ? intval( wp_unslash( $_GET['per_page'] ) ) : 20;
 			wpsubs_render_per_page_select(
@@ -171,12 +209,13 @@ for ( $i = 0; $i < 12; $i++ ) {
 
 			<?php
 			if ( 'trash' === $status && ! empty( $subscriptions ) ) :
-				$empty_trash_url = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=clean_trash&sub_id=all' ), 'wpsubs_action_clean_trash' );
+				$empty_trash_url = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription-list&action=clean_trash&sub_id=all' ), 'wpsubs_action_clean_trash' );
 				?>
 				<a href="<?php echo esc_url( $empty_trash_url ); ?>" class="wpsubs-btn wpsubs-btn--danger" onclick="return confirm('<?php esc_attr_e( 'Permanently delete all trash items? This cannot be undone.', 'subscription' ); ?>')">
 					<?php esc_html_e( 'Empty Trash', 'subscription' ); ?>
 				</a>
 			<?php endif; ?>
+			</div>
 
 		</div><!-- /.wpsubs-toolbar -->
 
@@ -261,9 +300,9 @@ for ( $i = 0; $i < 12; $i++ ) {
 						// Action URLs
 						$nonce_action = 'wpsubs_action_' . $subscription->ID;
 						$view_url     = admin_url( 'admin.php?page=wp-subscription-details&id=' . $subscription->ID );
-						$trash_url    = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=trash&sub_id=' . $subscription->ID ), $nonce_action );
-						$delete_url   = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=delete&sub_id=' . $subscription->ID ), $nonce_action );
-						$restore_url  = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription&action=restore&sub_id=' . $subscription->ID ), $nonce_action );
+						$trash_url    = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription-list&action=trash&sub_id=' . $subscription->ID ), $nonce_action );
+						$delete_url   = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription-list&action=delete&sub_id=' . $subscription->ID ), $nonce_action );
+						$restore_url  = wp_nonce_url( admin_url( 'admin.php?page=wp-subscription-list&action=restore&sub_id=' . $subscription->ID ), $nonce_action );
 
 						// Status badge
 						$badge_mod_map  = array(

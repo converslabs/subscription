@@ -445,7 +445,7 @@ class Plans {
 		$subscrpt_simple_ot = ( ! $product->is_type( 'variable' ) )
 			? array(
 				'enabled' => 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' ),
-				'regular' => (string) $product->get_regular_price(),
+				'regular' => \SpringDevs\Subscription\Admin\PlanPresenter::one_time_price( $product ),
 				'offer'   => (string) $product->get_sale_price(),
 			)
 			: null;
@@ -835,7 +835,7 @@ class Plans {
 			// variation's plan prices on Save.
 			$subscrpt_one_time = array(
 				'enabled' => 'yes' === $subscrpt_variation->get_meta( '_subscrpt_one_time_enabled' ),
-				'regular' => (string) $subscrpt_variation->get_regular_price(),
+				'regular' => \SpringDevs\Subscription\Admin\PlanPresenter::one_time_price( $subscrpt_variation ),
 				'offer'   => (string) $subscrpt_variation->get_sale_price(),
 			);
 

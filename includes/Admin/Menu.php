@@ -8,6 +8,7 @@
 namespace SpringDevs\Subscription\Admin;
 
 use SpringDevs\Subscription\Illuminate\Helper;
+use SpringDevs\Subscription\Illuminate\Stats;
 
 /**
  * Menu class
@@ -247,23 +248,21 @@ class Menu {
 		);
 
 		/*
-		 * WPSubscription link under the WooCommerce menu.
+		 * Subscriptions link under the WooCommerce menu, opening the list.
 		 *
-		 * The callback has to match the one the parent menu registers. WordPress
-		 * derives this entry's hookname from the *slug*, and because
-		 * `wp-subscription` is itself a registered top-level menu that resolves
-		 * to `toplevel_page_wp-subscription` — the same hook the parent uses.
-		 * Two identical callbacks on one hook are deduplicated; two different
-		 * ones both run, which rendered the dashboard and the subscriptions list
-		 * stacked on the same screen.
+		 * A link, not a page: the slug is the list's URL and there is no
+		 * callback, so WordPress registers no page and no hook for it.
+		 * Registering `wp-subscription-list` under `woocommerce` as well would
+		 * give the list a second hookname (`woocommerce_page_…` beside
+		 * `wpsubscription_page_…`), and whichever parent WordPress found first
+		 * would set the page's $hook_suffix, which its asset loading keys on.
 		 */
 		add_submenu_page(
 			'woocommerce',
-			__( 'WPSubscription', 'subscription' ),
-			__( 'WPSubscription', 'subscription' ),
+			__( 'Subscriptions', 'subscription' ),
+			__( 'Subscriptions', 'subscription' ),
 			'manage_options',
-			'wp-subscription',
-			array( $this, 'render_dashboard_page' )
+			'admin.php?page=wp-subscription-list'
 		);
 	}
 
@@ -481,18 +480,28 @@ class Menu {
 	 * The subscriptions list used to live on this slug. Anything still linking
 	 * here with a list-only argument — a saved filter, a bookmarked search, a
 	 * pagination link — means the list, so it is sent there with its arguments
-	 * intact rather than landing on a dashboard that ignores them.
+	 * intact rather than landing on a dashboard that ignores them. The one
+	 * exception is `post_status`, renamed to the `subscrpt_status` the list reads.
 	 *
 	 * @return void
 	 */
 	public function render_dashboard_page() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$list_args = array( 'post_status', 's', 'paged', 'filter_action', 'orderby', 'order', 'subscrpt_status' );
+		$list_args = array( 'post_status', 's', 'paged', 'filter_action', 'orderby', 'order', 'subscrpt_status', 'date_filter', 'per_page', 'renewal_due' );
 
 		foreach ( $list_args as $arg ) {
 			if ( isset( $_GET[ $arg ] ) && '' !== $_GET[ $arg ] ) {
 				$query         = wp_unslash( $_GET );
 				$query['page'] = 'wp-subscription-list';
+
+				// The list filters on `subscrpt_status` and ignores `post_status`,
+				// so forwarding the old name as-is lands on an unfiltered list.
+				if ( isset( $query['post_status'] ) ) {
+					if ( empty( $query['subscrpt_status'] ) ) {
+						$query['subscrpt_status'] = $query['post_status'];
+					}
+					unset( $query['post_status'] );
+				}
 
 				wp_safe_redirect( add_query_arg( array_map( 'sanitize_text_field', $query ), admin_url( 'admin.php' ) ) );
 				exit;
@@ -515,6 +524,7 @@ class Menu {
 		$date_filter = isset( $_GET['date_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['date_filter'] ) ) : '';
 		$per_page    = isset( $_GET['per_page'] ) ? max( 1, intval( $_GET['per_page'] ) ) : 20;
 		$paged       = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
+		$renewal_due = isset( $_GET['renewal_due'] ) ? min( 366, absint( $_GET['renewal_due'] ) ) : 0;
 
 		// Handle form submissions (both filters and bulk actions)
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
@@ -546,7 +556,7 @@ class Menu {
 						}
 					}
 
-					wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription' ) );
+					wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription-list' ) );
 					exit;
 				}
 			}
@@ -561,6 +571,9 @@ class Menu {
 				if ( ! empty( $_POST['date_filter'] ) ) {
 					$filter_params['date_filter'] = sanitize_text_field( wp_unslash( $_POST['date_filter'] ) );
 				}
+				if ( ! empty( $_POST['renewal_due'] ) ) {
+					$filter_params['renewal_due'] = absint( $_POST['renewal_due'] );
+				}
 				if ( ! empty( $_POST['s'] ) ) {
 					$filter_params['s'] = sanitize_text_field( wp_unslash( $_POST['s'] ) );
 				}
@@ -568,7 +581,7 @@ class Menu {
 					$filter_params['per_page'] = intval( $_POST['per_page'] );
 				}
 
-				$redirect_url = add_query_arg( $filter_params, admin_url( 'admin.php?page=wp-subscription' ) );
+				$redirect_url = add_query_arg( $filter_params, admin_url( 'admin.php?page=wp-subscription-list' ) );
 				wp_safe_redirect( $redirect_url );
 				exit;
 			}
@@ -603,7 +616,7 @@ class Menu {
 					wp_delete_post( $trash_id, true );
 				}
 
-				wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription&subscrpt_status=trash' ) );
+				wp_safe_redirect( admin_url( 'admin.php?page=wp-subscription-list&subscrpt_status=trash' ) );
 				exit;
 			} else {
 				// For other actions, verify nonce with subscription ID.
@@ -613,7 +626,7 @@ class Menu {
 					wp_die();
 				}
 
-				$redirect_url = admin_url( 'admin.php?page=wp-subscription' );
+				$redirect_url = admin_url( 'admin.php?page=wp-subscription-list' );
 
 				switch ( $action ) {
 					case 'duplicate':
@@ -644,7 +657,7 @@ class Menu {
 						break;
 					case 'delete':
 						wp_delete_post( $sub_id, true );
-						$redirect_url = admin_url( 'admin.php?page=wp-subscription&subscrpt_status=trash' );
+						$redirect_url = admin_url( 'admin.php?page=wp-subscription-list&subscrpt_status=trash' );
 						break;
 				}
 
@@ -682,6 +695,21 @@ class Menu {
 				'year'  => intval( $year ),
 				'month' => intval( $month ),
 			];
+		}
+		// Next-renewal window, soonest first. The same arguments as the
+		// Overview's "Renewals due" figure, so its 7-day rows equal its count.
+		if ( $renewal_due ) {
+			$due_args = Stats::renewals_due_args( $renewal_due );
+
+			// Only an active subscription renews, so a renewal window combined
+			// with any other status matches nothing — the filters AND together.
+			if ( $status && $due_args['post_status'] !== $status ) {
+				$args['post__in'] = array( 0 );
+			}
+
+			$args['post_status'] = $due_args['post_status'];
+			$args['meta_query']  = $due_args['meta_query']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			$args['orderby']     = [ 'subscrpt_next_date' => 'ASC' ];
 		}
 
 		$query         = new \WP_Query( $args );
@@ -724,7 +752,7 @@ class Menu {
 			wp_die( esc_html__( 'You do not have permission to view this subscription.', 'subscription' ) );
 		}
 
-		$list_url    = admin_url( 'admin.php?page=wp-subscription' );
+		$list_url    = admin_url( 'admin.php?page=wp-subscription-list' );
 		$form_action = admin_url( 'admin.php?page=wp-subscription-details&id=' . $subscription_id );
 
 		// Handle the status-change submission.
