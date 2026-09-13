@@ -143,33 +143,54 @@ class Stats {
 	}
 
 	/**
-	 * Count active subscriptions whose next payment falls inside a window.
+	 * Query arguments for active subscriptions whose next payment falls within
+	 * the next N days.
 	 *
-	 * `_subscrpt_next_date` holds a Unix timestamp, so this compares against
-	 * one rather than parsing a date string.
+	 * The one definition of "renewals due": the Overview counts with it and the
+	 * subscriptions list filters with it, so the figure and the rows it opens
+	 * cannot disagree. The meta clause is named so the list can sort by it.
+	 *
+	 * `_subscrpt_next_date` holds a Unix timestamp, so the window is compared
+	 * numerically rather than as a date string.
+	 *
+	 * @param int $days Number of days ahead to look.
+	 * @return array<string,mixed> WP_Query arguments.
+	 */
+	public static function renewals_due_args( int $days = 7 ): array {
+		$now = time();
+
+		return array(
+			'post_type'   => 'subscrpt_order',
+			'post_status' => 'active',
+			'meta_query'  => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'subscrpt_next_date' => array(
+					'key'     => '_subscrpt_next_date',
+					'value'   => array( $now, $now + ( max( 1, $days ) * DAY_IN_SECONDS ) ),
+					'compare' => 'BETWEEN',
+					'type'    => 'NUMERIC',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Count active subscriptions whose next payment falls inside a window.
 	 *
 	 * @param int $days Number of days ahead to look.
 	 * @return int
 	 */
 	public static function count_renewals_due_within( int $days = 7 ): int {
-		global $wpdb;
-
-		$now   = time();
-		$until = $now + ( max( 1, $days ) * DAY_IN_SECONDS );
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(1)
-				 FROM {$wpdb->postmeta} m
-				 INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id
-				 WHERE m.meta_key = '_subscrpt_next_date'
-				   AND p.post_type = 'subscrpt_order'
-				   AND p.post_status = 'active'
-				   AND CAST( m.meta_value AS UNSIGNED ) BETWEEN %d AND %d",
-				$now,
-				$until
+		$query = new \WP_Query(
+			array_merge(
+				self::renewals_due_args( $days ),
+				array(
+					'fields'         => 'ids',
+					'posts_per_page' => 1,
+				)
 			)
 		);
+
+		return (int) $query->found_posts;
 	}
 
 	/**

@@ -165,7 +165,7 @@ class Dashboard {
 				'icon'  => 'money',
 				'label' => __( 'Renewals due (next 7 days)', 'subscription' ),
 				'value' => Stats::count_renewals_due_within( 7 ),
-				'url'   => $list,
+				'url'   => add_query_arg( 'renewal_due', 7, $list ),
 			),
 			array(
 				'key'   => 'failed',

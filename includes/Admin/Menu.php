@@ -8,6 +8,7 @@
 namespace SpringDevs\Subscription\Admin;
 
 use SpringDevs\Subscription\Illuminate\Helper;
+use SpringDevs\Subscription\Illuminate\Stats;
 
 /**
  * Menu class
@@ -435,7 +436,7 @@ class Menu {
 	 */
 	public function render_dashboard_page() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$list_args = array( 'post_status', 's', 'paged', 'filter_action', 'orderby', 'order', 'subscrpt_status', 'date_filter', 'per_page' );
+		$list_args = array( 'post_status', 's', 'paged', 'filter_action', 'orderby', 'order', 'subscrpt_status', 'date_filter', 'per_page', 'renewal_due' );
 
 		foreach ( $list_args as $arg ) {
 			if ( isset( $_GET[ $arg ] ) && '' !== $_GET[ $arg ] ) {
@@ -472,6 +473,7 @@ class Menu {
 		$date_filter = isset( $_GET['date_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['date_filter'] ) ) : '';
 		$per_page    = isset( $_GET['per_page'] ) ? max( 1, intval( $_GET['per_page'] ) ) : 20;
 		$paged       = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
+		$renewal_due = isset( $_GET['renewal_due'] ) ? min( 366, absint( $_GET['renewal_due'] ) ) : 0;
 
 		// Handle form submissions (both filters and bulk actions)
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
@@ -517,6 +519,9 @@ class Menu {
 				}
 				if ( ! empty( $_POST['date_filter'] ) ) {
 					$filter_params['date_filter'] = sanitize_text_field( wp_unslash( $_POST['date_filter'] ) );
+				}
+				if ( ! empty( $_POST['renewal_due'] ) ) {
+					$filter_params['renewal_due'] = absint( $_POST['renewal_due'] );
 				}
 				if ( ! empty( $_POST['s'] ) ) {
 					$filter_params['s'] = sanitize_text_field( wp_unslash( $_POST['s'] ) );
@@ -639,6 +644,21 @@ class Menu {
 				'year'  => intval( $year ),
 				'month' => intval( $month ),
 			];
+		}
+		// Next-renewal window, soonest first. The same arguments as the
+		// Overview's "Renewals due" figure, so its 7-day rows equal its count.
+		if ( $renewal_due ) {
+			$due_args = Stats::renewals_due_args( $renewal_due );
+
+			// Only an active subscription renews, so a renewal window combined
+			// with any other status matches nothing — the filters AND together.
+			if ( $status && $due_args['post_status'] !== $status ) {
+				$args['post__in'] = array( 0 );
+			}
+
+			$args['post_status'] = $due_args['post_status'];
+			$args['meta_query']  = $due_args['meta_query']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			$args['orderby']     = [ 'subscrpt_next_date' => 'ASC' ];
 		}
 
 		$query         = new \WP_Query( $args );

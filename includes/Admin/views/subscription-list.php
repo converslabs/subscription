@@ -12,8 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! isset( $date_filter ) ) {
 	$date_filter = '';
 }
+if ( ! isset( $renewal_due ) ) {
+	$renewal_due = 0;
+}
 
-$filters_active = ! empty( $status ) || ! empty( $date_filter ) || ! empty( $search );
+$filters_active = ! empty( $status ) || ! empty( $date_filter ) || ! empty( $search ) || ! empty( $renewal_due );
 
 // The last twelve of the store's months, counted back from the 1st: stepping
 // back from today skips a month on the 29th–31st (31 Oct − 1 month is 1 Oct).
@@ -108,6 +111,30 @@ for ( $i = 0; $i < 12; $i++ ) {
 			);
 			?>
 
+			<?php
+			// Next-renewal window. The Overview's "Renewals due" figure opens the
+			// list with 7 chosen; a window reached by URL is offered too, so the
+			// dropdown always shows what is applied.
+			$renewal_windows = array_unique( array_merge( array( 7, 14, 30 ), $renewal_due ? array( $renewal_due ) : array() ) );
+			sort( $renewal_windows );
+			$renewal_options = array();
+			foreach ( $renewal_windows as $days ) {
+				$renewal_options[] = array(
+					'value' => (string) $days,
+					/* translators: %d: number of days ahead. */
+					'label' => sprintf( _n( 'Due in %d day', 'Due in %d days', $days, 'subscription' ), $days ),
+				);
+			}
+			wpsubs_render_adv_select(
+				array(
+					'name'        => 'renewal_due',
+					'placeholder' => __( 'All Renewals', 'subscription' ),
+					'value'       => $renewal_due ? (string) $renewal_due : '',
+					'options'     => $renewal_options,
+				)
+			);
+			?>
+
 			<div class="wpsubs-search">
 				<div class="wpsubs-input-wrap wpsubs-input-wrap--icon-l">
 					<svg class="wpsubs-input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
@@ -120,13 +147,15 @@ for ( $i = 0; $i < 12; $i++ ) {
 			</button>
 
 			<?php if ( $filters_active ) : ?>
-				<a href="<?php echo esc_url( remove_query_arg( array( 'subscrpt_status', 'date_filter', 's', 'title', 'paged' ) ) ); ?>" class="wpsubs-btn wpsubs-btn--outline">
+				<a href="<?php echo esc_url( remove_query_arg( array( 'subscrpt_status', 'date_filter', 's', 'title', 'paged', 'renewal_due' ) ) ); ?>" class="wpsubs-btn wpsubs-btn--outline">
 					<?php esc_html_e( 'Clear', 'subscription' ); ?>
 				</a>
 			<?php endif; ?>
 
 			<div class="wpsubs-toolbar__spacer"></div>
 
+			<?php // Page size and bulk actions wrap as one right-aligned group, never one without the other. ?>
+			<div style="display:flex;flex-wrap:wrap;gap:8px;margin-inline-start:auto;">
 			<?php
 			$current_per_page = isset( $_GET['per_page'] ) ? intval( wp_unslash( $_GET['per_page'] ) ) : 20;
 			wpsubs_render_per_page_select(
@@ -184,6 +213,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 					<?php esc_html_e( 'Empty Trash', 'subscription' ); ?>
 				</a>
 			<?php endif; ?>
+			</div>
 
 		</div><!-- /.wpsubs-toolbar -->
 
