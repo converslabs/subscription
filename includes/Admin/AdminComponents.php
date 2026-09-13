@@ -1,4 +1,14 @@
 <?php
+/**
+ * Shared admin UI component renderers.
+ *
+ * @package SpringDevs\Subscription\Admin
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Render the standard admin page header: title, optional description, optional
