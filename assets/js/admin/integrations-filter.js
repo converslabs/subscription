@@ -61,6 +61,63 @@
     return true;
   }
 
+  // How many cards a chip would show: the current filters, but with this chip's
+  // own facet swapped to its value (a facet never constrains its own counts;
+  // the other facets do). Powers the live count next to each chip.
+  function countFor(facet, value) {
+    return cards.filter(function (card) {
+      if (facet !== "category" && state.category && card.dataset.category !== state.category) {
+        return false;
+      }
+      if (facet !== "status" && state.status && card.dataset.status !== state.status) {
+        return false;
+      }
+
+      var tags = (card.dataset.tags || "").split(" ");
+
+      // Respect the other selected tags; for a tag chip, ignore its own state
+      // and instead require the card to carry this tag.
+      var otherTags = facet === "tag" ? state.tag.filter((t) => t !== value) : state.tag;
+      var hasOthers = otherTags.every(function (t) {
+        return tags.indexOf(t) !== -1;
+      });
+      if (!hasOthers) {
+        return false;
+      }
+      if (facet === "tag" && tags.indexOf(value) === -1) {
+        return false;
+      }
+
+      // Single-select chips (a specific value): the card must carry it.
+      if (facet === "category" && value && card.dataset.category !== value) {
+        return false;
+      }
+      if (facet === "status" && value && card.dataset.status !== value) {
+        return false;
+      }
+
+      return true;
+    }).length;
+  }
+
+  function updateCounts() {
+    chips.forEach(function (chip) {
+      var out = chip.querySelector(".subscrpt-int-chip__count");
+      if (!out) {
+        return;
+      }
+      var n = countFor(chip.dataset.facet, chip.dataset.value);
+      out.textContent = n;
+
+      // Dim (and disable) a chip that would return nothing, unless it's the
+      // currently active one — that must stay clickable to switch off.
+      var active = chip.classList.contains("is-active");
+      var dead = n === 0 && !active;
+      chip.style.opacity = dead ? "0.4" : "";
+      chip.style.pointerEvents = dead ? "none" : "";
+    });
+  }
+
   function apply() {
     var visible = 0;
 
@@ -93,6 +150,8 @@
     if (empty) {
       empty.hidden = visible !== 0;
     }
+
+    updateCounts();
   }
 
   chips.forEach(function (chip) {
