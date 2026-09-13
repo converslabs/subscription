@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-30T05:36:09+00:00\n"
+"POT-Creation-Date: 2026-09-10T09:29:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -35,74 +35,371 @@ msgstr ""
 msgid "ConversWP"
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:120
+#: includes/Admin/AdminComponents.php:130
 msgid "Pagination"
 msgstr ""
 
 #. translators: Pagination: %1$s: first item, %2$s: last item, %3$s: total items
-#: includes/Admin/AdminComponents.php:175
+#: includes/Admin/AdminComponents.php:185
 #, php-format
 msgid "Showing %1$s–%2$s of %3$s"
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:254
+#: includes/Admin/AdminComponents.php:264
 msgid "Previous page"
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:267
+#: includes/Admin/AdminComponents.php:277
 msgid "Next page"
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:435
+#: includes/Admin/AdminComponents.php:445
 #: includes/Admin/Subscriptions.php:457
-#: includes/Admin/views/subscription-details.php:640
+#: includes/Admin/views/subscription-details.php:633
 msgid "Upgrade to WPSubscription Pro"
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:436
+#: includes/Admin/AdminComponents.php:446
 msgid "This page requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro."
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:437
+#: includes/Admin/AdminComponents.php:447
 msgid "⚡ Upgrade to Pro"
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:450
+#: includes/Admin/AdminComponents.php:460
 msgid "page preview"
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:519
+#: includes/Admin/AdminComponents.php:529
 msgid "Select"
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:636
+#. translators: %d: number of items shown per page.
+#: includes/Admin/AdminComponents.php:661
+#, php-format
+msgid "%d / page"
+msgstr ""
+
+#: includes/Admin/AdminComponents.php:694
 msgid "Select..."
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:699
-#: includes/Admin/SettingsHelper.php:715
+#: includes/Admin/AdminComponents.php:757
+#: includes/Admin/SettingsHelper.php:880
+#: includes/Admin/views/plans/tab-products.php:285
+#: includes/Admin/views/plans/tab-products.php:303
 msgid "Remove"
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:707
+#: includes/Admin/AdminComponents.php:765
 msgid "Filter options"
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:751
+#: includes/Admin/AdminComponents.php:809
 msgid "No results found."
 msgstr ""
 
-#: includes/Admin/AdminComponents.php:800
-#: includes/Admin/views/pro-upgrade-modal.php:23
-#: includes/Illuminate/Cancellation.php:186
+#: includes/Admin/AdminComponents.php:858
+#: includes/Admin/Product/Plans.php:214
+#: includes/Admin/Product/Plans.php:334
+#: includes/Admin/views/plans/modal-add-product.php:27
+#: includes/Admin/views/plans/modal-create.php:49
+#: includes/Admin/views/plans/modal-term.php:101
+#: includes/Admin/views/pro-upgrade-modal.php:27
+#: includes/Illuminate/Cancellation.php:189
 msgid "Close"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:71
+#: includes/Admin/CancellationFlow.php:72
+#: includes/Admin/CancellationFlow.php:358
+#: includes/Admin/views/cancellation-flow.php:31
+msgid "Cancellation Flow"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:166
+msgid "Reasons"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:167
+msgid "Offers"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:183
+#: includes/Admin/CancellationFlow.php:188
+#: includes/Admin/views/reports-preview.php:466
+msgid "Cancellation Reasons"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:184
+msgid "Reasons offered in the cancellation survey form. Shown when Cancellation Survey is enabled."
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:187
+msgid "Manage reasons"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:189
+msgid "Add a reason…"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:190
+msgid "Add reason"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:191
+msgid "No reasons yet. Add one below."
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:212
+msgid "Retention Offer"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:213
+msgid "Offer a discount before cancelling"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:214
+msgid "Show the customer a one-off discount code when they start cancelling. Accepting it keeps the subscription."
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:224
+#: templates/myaccount/single.php:343
+msgid "Discount"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:226
+msgid "Percentage off, applied store-wide by the generated coupon."
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:240
+msgid "Valid for"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:242
+msgid "Days before the generated coupon expires."
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:303
+msgid "Cancellation Timing"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:304
+msgid "When a subscription is cancelled, choose when it actually ends."
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:306
+msgid "After 24 hours"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:307
+msgid "Immediately"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:308
+msgid "At end of billing period (before next renewal)"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:318
+msgid "Cancellation Survey"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:319
+msgid "Ask customers why they are cancelling"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:320
+msgid "Show a short cancellation survey when a customer cancels a subscription, and record the reason for churn tracking."
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:329
+msgid "Survey Comment Box"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:330
+msgid "Allow an additional comment"
+msgstr ""
+
+#: includes/Admin/CancellationFlow.php:331
+msgid "Show an optional free-text comment field in the cancellation survey."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:54
+#: includes/Admin/Menu.php:126
+#: includes/Admin/Menu.php:127
+#: includes/Admin/Subscriptions.php:344
+#: includes/Admin/Subscriptions.php:345
+#: includes/Admin/views/reports-preview.php:212
+msgid "Overview"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:146
+msgid "Active subscriptions"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:153
+msgid "On-hold subscriptions"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:161
+msgid "Renewals due (next 7 days)"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:168
+msgid "Failed renewals (last 24h)"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:176
+msgid "New subscriptions (this week)"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:232
+msgid "Enable a payment gateway"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:235
+msgid "Set up"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:241
+msgid "Add a subscription product"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:244
+msgid "Add"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:250
+msgid "Turn on pretty permalinks"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:253
+msgid "Change"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:292
+msgid "Finish setting up"
+msgstr ""
+
+#. translators: %d: number of remaining setup steps.
+#: includes/Admin/Dashboard.php:294
+#, php-format
+msgid "%d step left before your store can sell subscriptions."
+msgid_plural "%d steps left before your store can sell subscriptions."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/Dashboard.php:303
+msgid "Some subscriptions need a look"
+msgstr ""
+
+#. translators: %d: number of on-hold subscriptions.
+#: includes/Admin/Dashboard.php:305
+#, php-format
+msgid "%d subscription is on hold."
+msgid_plural "%d subscriptions are on hold."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/Dashboard.php:307
+msgid "Review them"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:317
+msgid "All subscriptions look healthy"
+msgstr ""
+
+#. translators: %d: number of active subscriptions.
+#: includes/Admin/Dashboard.php:319
+#, php-format
+msgid "%d active subscription, nothing needs attention."
+msgid_plural "%d active subscriptions, nothing needs attention."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/Dashboard.php:335
+msgid "Insight"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:336
+#: build/dashboard.js:3
+#: src/dashboard/App.js:48
+msgid "Open reports"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:337
+msgid "Revenue, active subscriptions and growth over time."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:339
+msgid "View reports"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:346
+msgid "Setup"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:347
+msgid "Configure payments"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:348
+msgid "Connect PayPal, Stripe, Paddle and more from one screen."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:350
+msgid "Open integrations"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:358
+#: includes/Admin/Dashboard.php:369
+msgid "Extend"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:359
+msgid "Subscription health"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:360
+msgid "Find and recover subscriptions that need rescuing."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:362
+msgid "Open health"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:370
+msgid "WPSubscription Pro"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:371
+msgid "Payment retries, a health queue and revenue reporting."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:373
+msgid "See what Pro adds"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:389
+#: includes/Admin/Subscriptions.php:384
+#: includes/Admin/views/support.php:156
+msgid "Documentation"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:393
+msgid "Get support"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:397
+msgid "My account"
 msgstr ""
 
 #: includes/Admin/Integrations.php:61
 #: includes/Admin/Integrations.php:62
 #: includes/Admin/Integrations.php:78
-#: includes/Admin/Integrations.php:675
-#: includes/Admin/views/integrations.php:83
+#: includes/Admin/Integrations.php:692
+#: includes/Admin/views/integrations.php:155
 msgid "Integrations"
 msgstr ""
 
@@ -135,48 +432,47 @@ msgstr ""
 msgid "Get Plugin"
 msgstr ""
 
-#: includes/Admin/Links.php:28
-msgid "Getting Started"
-msgstr ""
-
-#: includes/Admin/Links.php:30
+#: includes/Admin/Links.php:31
 msgid "Upgrade to premium"
 msgstr ""
 
-#: includes/Admin/Links.php:32
+#: includes/Admin/Links.php:33
 msgid "Support"
 msgstr ""
 
-#: includes/Admin/Links.php:33
+#: includes/Admin/Links.php:34
 msgid "Review"
 msgstr ""
 
-#: includes/Admin/Menu.php:92
-#: includes/Admin/SettingsHelper.php:151
-#: includes/Admin/views/integrations.php:168
-#: includes/Admin/views/integrations.php:262
+#: includes/Admin/Menu.php:97
+#: includes/Admin/SettingsHelper.php:316
+#: includes/Admin/views/integrations.php:363
+#: includes/Admin/views/integrations.php:477
 #: includes/Admin/views/onboarding-wizard.php:244
 #: includes/Admin/views/onboarding-wizard.php:390
+#: includes/Admin/views/plans/modal-term.php:92
+#: includes/Admin/views/plans/modal-term.php:181
 msgid "WPSubscription Pro required"
 msgstr ""
 
-#: includes/Admin/Menu.php:97
-#: includes/Admin/Menu.php:98
-#: includes/Admin/Menu.php:181
-#: includes/Admin/Menu.php:182
+#: includes/Admin/Menu.php:102
+#: includes/Admin/Menu.php:103
+#: includes/Admin/Menu.php:209
+#: includes/Admin/Menu.php:210
+#: includes/Admin/Product/Plans.php:401
 msgid "WPSubscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:110
-#: includes/Admin/Menu.php:111
-#: includes/Admin/Menu.php:740
+#: includes/Admin/Menu.php:115
+#: includes/Admin/Menu.php:116
+#: includes/Admin/Menu.php:835
 msgid "Setup Wizard"
 msgstr ""
 
-#: includes/Admin/Menu.php:120
-#: includes/Admin/Menu.php:121
-#: includes/Admin/Menu.php:363
-#: includes/Admin/Menu.php:653
+#: includes/Admin/Menu.php:138
+#: includes/Admin/Menu.php:139
+#: includes/Admin/Menu.php:457
+#: includes/Admin/Menu.php:748
 #: includes/Admin/views/health-preview.php:148
 #: includes/Admin/views/subscription-list.php:32
 #: includes/Frontend/MyAccount.php:291
@@ -186,174 +482,179 @@ msgstr ""
 msgid "Subscriptions"
 msgstr ""
 
-#: includes/Admin/Menu.php:131
-#: includes/Admin/Menu.php:132
-#: includes/Admin/views/subscription-details.php:508
+#: includes/Admin/Menu.php:149
+#: includes/Admin/Menu.php:150
+#: includes/Admin/views/subscription-details.php:501
 msgid "Subscription Details"
 msgstr ""
 
-#: includes/Admin/Menu.php:141
-#: includes/Admin/Menu.php:142
-#: includes/Admin/Menu.php:672
+#: includes/Admin/Menu.php:159
+#: includes/Admin/Menu.php:160
+#: includes/Admin/Menu.php:767
 msgid "Reports"
 msgstr ""
 
-#: includes/Admin/Menu.php:151
-#: includes/Admin/Menu.php:152
-#: includes/Admin/Menu.php:688
+#: includes/Admin/Menu.php:169
+#: includes/Admin/Menu.php:170
+#: includes/Admin/Menu.php:783
 msgid "Health"
 msgstr ""
 
-#: includes/Admin/Menu.php:161
-#: includes/Admin/Menu.php:162
+#: includes/Admin/Menu.php:179
+#: includes/Admin/Menu.php:180
 msgid "Delivery"
 msgstr ""
 
-#: includes/Admin/Menu.php:171
-#: includes/Admin/Menu.php:172
+#: includes/Admin/Menu.php:189
+#: includes/Admin/Menu.php:190
 msgid "Help"
 msgstr ""
 
-#: includes/Admin/Menu.php:331
+#: includes/Admin/Menu.php:363
 msgid "Breadcrumb"
 msgstr ""
 
-#: includes/Admin/Menu.php:332
+#: includes/Admin/Menu.php:364
 msgid "WPSubscription Home"
 msgstr ""
 
-#: includes/Admin/Menu.php:349
+#: includes/Admin/Menu.php:406
+msgid "Activate license"
+msgstr ""
+
+#: includes/Admin/Menu.php:415
+#: includes/Admin/Product.php:176
 #: includes/Admin/Subscriptions.php:509
 #: includes/Admin/views/delivery-preview.php:118
 #: includes/Admin/views/health-preview.php:119
-#: includes/Admin/views/pro-upgrade-modal.php:38
-#: includes/Admin/views/reports-preview.php:153
-#: includes/Admin/views/subscription-details.php:644
+#: includes/Admin/views/pro-upgrade-modal.php:42
+#: includes/Admin/views/reports-preview.php:186
+#: includes/Admin/views/subscription-details.php:637
 #: includes/Admin/views/support.php:57
 msgid "Upgrade to Pro"
 msgstr ""
 
-#: includes/Admin/Menu.php:363
+#: includes/Admin/Menu.php:457
 msgid "Manage your subscriptions"
 msgstr ""
 
-#: includes/Admin/Menu.php:378
-#: includes/Admin/Menu.php:588
-#: includes/Admin/Menu.php:759
+#: includes/Admin/Menu.php:472
+#: includes/Admin/Menu.php:682
+#: includes/Admin/Menu.php:854
 msgid "Security check failed."
 msgstr ""
 
-#: includes/Admin/Menu.php:441
-#: includes/Admin/Menu.php:465
+#: includes/Admin/Menu.php:535
+#: includes/Admin/Menu.php:559
 msgid "Security check failed. Please try again."
 msgstr ""
 
-#: includes/Admin/Menu.php:573
+#: includes/Admin/Menu.php:667
 msgid "Invalid subscription."
 msgstr ""
 
-#: includes/Admin/Menu.php:577
+#: includes/Admin/Menu.php:671
 msgid "You do not have permission to view this subscription."
 msgstr ""
 
-#: includes/Admin/Menu.php:603
+#: includes/Admin/Menu.php:697
 msgid "Activate Subscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:607
+#: includes/Admin/Menu.php:701
 msgid "Pending Subscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:611
+#: includes/Admin/Menu.php:705
 msgid "Expire Subscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:615
+#: includes/Admin/Menu.php:709
 msgid "Pending Cancel Subscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:619
+#: includes/Admin/Menu.php:713
 msgid "Cancel Subscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:672
+#: includes/Admin/Menu.php:767
 msgid "View your subscription analytics"
 msgstr ""
 
-#: includes/Admin/Menu.php:688
+#: includes/Admin/Menu.php:783
 msgid "Monitor your subscription health"
 msgstr ""
 
-#: includes/Admin/Menu.php:705
+#: includes/Admin/Menu.php:800
 #: includes/Admin/views/delivery-preview.php:125
 msgid "Delivery Schedules"
 msgstr ""
 
-#: includes/Admin/Menu.php:705
+#: includes/Admin/Menu.php:800
 #: includes/Admin/views/delivery-preview.php:126
 msgid "Track and manage subscription delivery schedules."
 msgstr ""
 
-#: includes/Admin/Menu.php:721
+#: includes/Admin/Menu.php:816
 #: includes/Admin/views/support.php:45
 msgid "Help & Resources"
 msgstr ""
 
-#: includes/Admin/Menu.php:721
+#: includes/Admin/Menu.php:816
 #: includes/Admin/views/support.php:46
 msgid "Documentation, community links, and ways to get help with WPSubscription."
 msgstr ""
 
-#: includes/Admin/Menu.php:740
+#: includes/Admin/Menu.php:835
 msgid "Create your first subscription product"
 msgstr ""
 
-#: includes/Admin/Menu.php:764
+#: includes/Admin/Menu.php:859
 msgid "You do not have permission to perform this action."
 msgstr ""
 
-#: includes/Admin/Menu.php:772
+#: includes/Admin/Menu.php:867
 msgid "No subscriptions selected."
 msgstr ""
 
 #. translators: Subscription ID.
-#: includes/Admin/Menu.php:783
+#: includes/Admin/Menu.php:878
 #, php-format
 msgid "Subscription #%d not found."
 msgstr ""
 
 #. translators: Subscription ID.
-#: includes/Admin/Menu.php:795
+#: includes/Admin/Menu.php:890
 #, php-format
 msgid "Failed to move subscription #%d to trash."
 msgstr ""
 
 #. translators: Subscription ID.
-#: includes/Admin/Menu.php:807
+#: includes/Admin/Menu.php:902
 #, php-format
 msgid "Failed to restore subscription #%d."
 msgstr ""
 
 #. translators: Subscription ID.
-#: includes/Admin/Menu.php:819
+#: includes/Admin/Menu.php:914
 #, php-format
 msgid "Failed to delete subscription #%d."
 msgstr ""
 
 #. translators: Bulk action.
-#: includes/Admin/Menu.php:828
+#: includes/Admin/Menu.php:923
 #, php-format
 msgid "Unknown action: %s"
 msgstr ""
 
 #. translators: Subscription ID, Error message.
-#: includes/Admin/Menu.php:836
+#: includes/Admin/Menu.php:931
 #, php-format
 msgid "Error processing subscription #%1$d: %2$s"
 msgstr ""
 
 #. translators: Number of subscriptions.
-#: includes/Admin/Menu.php:850
+#: includes/Admin/Menu.php:945
 #, php-format
 msgid "%d subscription moved to trash."
 msgid_plural "%d subscriptions moved to trash."
@@ -361,7 +662,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: Number of subscriptions.
-#: includes/Admin/Menu.php:857
+#: includes/Admin/Menu.php:952
 #, php-format
 msgid "%d subscription restored."
 msgid_plural "%d subscriptions restored."
@@ -369,18 +670,18 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: Number of subscriptions.
-#: includes/Admin/Menu.php:864
+#: includes/Admin/Menu.php:959
 #, php-format
 msgid "%d subscription permanently deleted."
 msgid_plural "%d subscriptions permanently deleted."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Menu.php:872
+#: includes/Admin/Menu.php:967
 msgid "Some errors occurred:"
 msgstr ""
 
-#: includes/Admin/Menu.php:878
+#: includes/Admin/Menu.php:973
 msgid "No subscriptions were processed."
 msgstr ""
 
@@ -427,38 +728,551 @@ msgstr ""
 msgid "Related Subscriptions"
 msgstr ""
 
-#: includes/Admin/Product.php:76
+#. translators: %d: number of installment payments.
+#: includes/Admin/PlanPresenter.php:299
+#, php-format
+msgid "%d payment"
+msgid_plural "%d payments"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: number, 2: unit (day/week/month/year).
+#: includes/Admin/PlanPresenter.php:309
+#, php-format
+msgid "%1$d-%2$s free trial"
+msgstr ""
+
+#. translators: %s: formatted signup fee amount.
+#: includes/Admin/PlanPresenter.php:318
+#, php-format
+msgid "Signup fee: %s"
+msgstr ""
+
+#. translators: %d: number of billing cycles.
+#: includes/Admin/PlanPresenter.php:325
+#, php-format
+msgid "Ends after %d cycle"
+msgid_plural "Ends after %d cycles"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: billing interval, e.g. "month" or "2 weeks".
+#: includes/Admin/PlanPresenter.php:350
+#, php-format
+msgid "Billed every %s"
+msgstr ""
+
+#: includes/Admin/PlanPresenter.php:362
+#: includes/Admin/views/onboarding-wizard.php:299
+#: includes/Admin/views/onboarding-wizard.php:317
+#: includes/functions.php:817
+msgid "Day"
+msgstr ""
+
+#: includes/Admin/PlanPresenter.php:363
+#: includes/Admin/views/onboarding-wizard.php:303
+#: includes/Admin/views/onboarding-wizard.php:321
+#: includes/functions.php:821
+msgid "Week"
+msgstr ""
+
+#: includes/Admin/PlanPresenter.php:364
+#: includes/Admin/PlanPresenter.php:368
+#: includes/Admin/views/onboarding-wizard.php:307
+#: includes/Admin/views/onboarding-wizard.php:325
+#: includes/functions.php:825
+msgid "Month"
+msgstr ""
+
+#: includes/Admin/PlanPresenter.php:365
+#: includes/Admin/views/onboarding-wizard.php:311
+#: includes/Admin/views/onboarding-wizard.php:329
+#: includes/functions.php:829
+msgid "Year"
+msgstr ""
+
+#. translators: %s: human time difference, e.g. "2 hours".
+#: includes/Admin/PlanPresenter.php:386
+#, php-format
+msgid "%s ago"
+msgstr ""
+
+#: includes/Admin/Plans.php:49
+#: includes/Admin/Plans.php:50
+#: includes/Admin/Plans.php:181
+#: includes/Admin/Plans.php:192
+#: includes/Admin/Plans.php:205
+#: includes/Admin/views/plans/list.php:22
+msgid "Plans"
+msgstr ""
+
+#: includes/Admin/Plans.php:110
+msgid "Saved."
+msgstr ""
+
+#: includes/Admin/Plans.php:111
+msgid "Deleted."
+msgstr ""
+
+#: includes/Admin/Plans.php:112
+msgid "Delete this plan and all its durations? This cannot be undone."
+msgstr ""
+
+#. translators: %d: number of selected plans.
+#: includes/Admin/Plans.php:114
+#, php-format
+msgid "Delete %d selected plan(s) and all their durations? This cannot be undone."
+msgstr ""
+
+#: includes/Admin/Plans.php:115
+msgid "Please select at least one plan."
+msgstr ""
+
+#: includes/Admin/Plans.php:116
+msgid "Delete this duration?"
+msgstr ""
+
+#: includes/Admin/Plans.php:117
+msgid "Remove this product from the plan? It will be detached from every duration."
+msgstr ""
+
+#: includes/Admin/Plans.php:118
+msgid "Remove this variation from the plan? It will be detached from every duration."
+msgstr ""
+
+#: includes/Admin/Plans.php:119
+#: includes/Admin/Plans.php:153
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: includes/Admin/Plans.php:120
+#: includes/Admin/Plans.php:154
+msgid "Please enter a name."
+msgstr ""
+
+#: includes/Admin/Plans.php:121
+#: includes/Admin/Plans.php:155
+#: includes/Admin/views/plans/detail.php:67
+#: includes/Admin/views/plans/modal-term.php:100
+msgid "Add Duration"
+msgstr ""
+
+#: includes/Admin/Plans.php:122
+#: includes/Admin/Plans.php:156
+msgid "Edit Duration"
+msgstr ""
+
+#: includes/Admin/Plans.php:123
+#: includes/Admin/views/plans/detail.php:30
+#: includes/Admin/views/plans/list.php:122
+#: includes/Admin/views/plans/tab-selling-plans.php:39
+#: includes/Illuminate/Helper.php:80
+msgid "Draft"
+msgstr ""
+
+#: includes/Admin/Plans.php:124
+#: includes/Admin/views/plans/tab-selling-plans.php:58
+msgid "Set as Draft"
+msgstr ""
+
+#: includes/Admin/Plans.php:125
+#: includes/Admin/views/plans/tab-selling-plans.php:58
+msgid "Set as Active"
+msgstr ""
+
+#: includes/Admin/Plans.php:126
+msgid "Duration activated."
+msgstr ""
+
+#: includes/Admin/Plans.php:127
+msgid "Prices saved."
+msgstr ""
+
+#. translators: %d: number of products ticked in the picker.
+#: includes/Admin/Plans.php:129
+#, php-format
+msgid "%d product(s) on this plan"
+msgstr ""
+
+#: includes/Admin/Plans.php:130
+msgid "No products on this plan"
+msgstr ""
+
+#: includes/Admin/Plans.php:131
+msgid "Products updated."
+msgstr ""
+
+#: includes/Admin/Plans.php:132
+msgid "Product removed from this plan."
+msgstr ""
+
+#: includes/Admin/Plans.php:133
+msgid "Duration set to draft."
+msgstr ""
+
+#. translators: %1$s: first item number, %2$s: last item number, %3$s: total.
+#: includes/Admin/Plans.php:135
+msgid "Showing %1-%2 of %3"
+msgstr ""
+
+#: includes/Admin/Plans.php:217
+#: includes/Admin/views/plans/modal-create.php:17
+msgid "Recurring Payment"
+msgstr ""
+
+#: includes/Admin/Plans.php:218
+#: includes/Admin/views/plans/modal-create.php:24
+msgid "Recurring Delivery"
+msgstr ""
+
+#: includes/Admin/Plans.php:219
+#: includes/Admin/views/plans/modal-create.php:31
+#: templates/myaccount/single.php:195
+msgid "Split Payment"
+msgstr ""
+
+#: includes/Admin/Product.php:104
+msgid "Could not connect the plan. Please try again."
+msgstr ""
+
 #: includes/Admin/Product.php:105
+msgid "Please select a plan."
+msgstr ""
+
+#: includes/Admin/Product.php:106
+msgid "Detach this product from the plan?"
+msgstr ""
+
+#: includes/Admin/Product.php:107
+msgid "Loading plans…"
+msgstr ""
+
+#: includes/Admin/Product.php:108
+msgid "Step 1 of 2 · Plan"
+msgstr ""
+
+#: includes/Admin/Product.php:109
+msgid "Step 2 of 2 · Plan"
+msgstr ""
+
+#: includes/Admin/Product.php:110
+msgid "Continue"
+msgstr ""
+
+#: includes/Admin/Product.php:111
+#: includes/Admin/views/onboarding-wizard.php:443
+msgid "Back"
+msgstr ""
+
+#: includes/Admin/Product.php:112
+msgid "Create"
+msgstr ""
+
+#: includes/Admin/Product.php:113
+msgid "Add plan"
+msgstr ""
+
+#: includes/Admin/Product.php:114
+msgid "Copy this direct checkout link:"
+msgstr ""
+
+#: includes/Admin/Product.php:129
 #: includes/Admin/views/delivery-preview.php:222
 #: includes/Admin/views/health-preview.php:279
 #: includes/Admin/views/onboarding-wizard.php:503
-#: includes/Admin/views/subscription-list.php:205
+#: includes/Admin/views/subscription-list.php:191
 #: includes/Illuminate/Post.php:59
 #: templates/myaccount/subscriptions.php:20
 msgid "Subscription"
 msgstr ""
 
-#: includes/Admin/Product.php:106
-msgid "Enable Subscriptions"
+#: includes/Admin/Product.php:169
+msgid "Variable product subscriptions"
 msgstr ""
 
-#: includes/Admin/Product.php:122
-#: includes/Admin/ProSettingsFields.php:367
+#: includes/Admin/Product.php:170
+#: includes/Admin/SettingsHelper.php:316
+#: includes/Admin/views/integrations.php:146
+#: includes/Admin/views/integrations.php:335
+#: includes/Admin/views/integrations.php:456
+#: includes/Admin/views/onboarding-wizard.php:244
+#: includes/Admin/views/onboarding-wizard.php:390
+#: includes/Admin/views/plans/modal-create.php:83
+#: includes/Admin/views/plans/modal-term.php:92
+#: includes/Admin/views/plans/modal-term.php:181
+msgid "Pro"
+msgstr ""
+
+#: includes/Admin/Product.php:173
+msgid "Sell each variation as its own subscription, with per-variation billing, trials and sign-up fees."
+msgstr ""
+
+#: includes/Admin/Product.php:192
+#: includes/Admin/ProSettingsFields.php:334
 msgid "Daily"
 msgstr ""
 
-#: includes/Admin/Product.php:123
-#: includes/Admin/ProSettingsFields.php:368
+#: includes/Admin/Product.php:193
+#: includes/Admin/ProSettingsFields.php:335
 msgid "Weekly"
 msgstr ""
 
-#: includes/Admin/Product.php:124
-#: includes/Admin/ProSettingsFields.php:369
+#: includes/Admin/Product.php:194
+#: includes/Admin/ProSettingsFields.php:336
+#: includes/Api/PlanController.php:306
 msgid "Monthly"
 msgstr ""
 
-#: includes/Admin/Product.php:125
+#: includes/Admin/Product.php:195
 msgid "Yearly"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:117
+#: includes/Admin/Product/Plans.php:755
+#: includes/Admin/views/plans/tab-products.php:112
+#: includes/Admin/views/plans/tab-products.php:190
+msgid "One-time purchase"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:208
+#: includes/Admin/Product/Plans.php:414
+msgid "Generate Checkout Link"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:211
+msgid "Share a link that drops this product into a customer’s cart with the chosen plan already selected."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:219
+msgid "Link type"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:228
+msgid "Add to cart"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:232
+msgid "Checkout"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:247
+msgid "Variation"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:272
+#: includes/Admin/views/plans/list.php:87
+msgid "Plan"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:316
+msgid "Link preview"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:319
+#: includes/Admin/Product/Plans.php:337
+msgid "Copy link"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:324
+#: includes/Admin/Product/Plans.php:325
+msgid "Ref."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:330
+msgid "This variation uses an “Any” attribute, so the checkout link can’t pre-select it. Use the “Add to cart” link type instead."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:404
+msgid "Sell this product as a subscription"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:407
+#: includes/Admin/Product/Plans.php:854
+msgid "Enable subscription"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:418
+msgid "Switch to simple mode"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:422
+msgid "Back to plan mode"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:503
+msgid "Open this plan on the Plans screen"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:505
+msgid "Edit in Plan"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:513
+#: includes/Admin/Product/Plans.php:860
+#: includes/Admin/views/plans/tab-products.php:166
+msgid "Edit prices"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:515
+#: includes/Admin/Product/Plans.php:862
+#: includes/Admin/views/plans/detail.php:55
+#: includes/Admin/views/plans/modal-add-product.php:41
+#: includes/Admin/views/plans/modal-create.php:99
+#: includes/Admin/views/plans/modal-term.php:285
+#: includes/Admin/views/plans/tab-products.php:168
+#: includes/Frontend/MyAccount.php:139
+msgid "Cancel"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:516
+#: includes/Admin/Product/Plans.php:639
+#: includes/Admin/Product/Plans.php:863
+#: includes/Admin/views/plans/detail.php:54
+#: includes/Admin/views/plans/tab-products.php:169
+#: includes/Admin/views/plans/tab-products.php:198
+msgid "Save"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:519
+msgid "Detach"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:546
+msgid "Not connected to any plan yet. Connect this product to a plan to sell it as a subscription."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:558
+#: includes/Admin/views/plans/list.php:37
+msgid "No plans yet"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:559
+msgid "Create a plan and its first duration, then connect this product to it."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:563
+msgid "New plan"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:568
+msgid "No plans available."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:569
+msgid "Create a plan"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:579
+msgid "Connect to a plan"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:580
+msgid "Pick a plan, then set the prices for each of its durations."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:594
+msgid "Select a plan…"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:602
+msgid "Create a new plan"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:604
+msgid "New"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:619
+msgid "This plan has no durations yet. Add a duration before connecting this product."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:625
+msgid "Create plan"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:630
+msgid "Manage plans"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:689
+#: includes/Admin/views/plans/tab-products.php:59
+msgid "Duration"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:691
+#: includes/Admin/Product/Plans.php:776
+#: includes/Admin/views/plans/tab-products.php:61
+#: includes/Admin/views/plans/tab-products.php:203
+msgid "Regular Price"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:692
+#: includes/Admin/views/plans/tab-products.php:62
+msgid "The recurring price charged each billing cycle."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:695
+#: includes/Admin/Product/Plans.php:780
+#: includes/Admin/views/plans/tab-products.php:65
+#: includes/Admin/views/plans/tab-products.php:207
+msgid "Offer Price"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:696
+#: includes/Admin/views/plans/tab-products.php:66
+msgid "A discounted recurring price shown in place of the regular price. Leave empty for no discount."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:698
+#: includes/Admin/views/health-preview.php:285
+#: includes/Admin/views/plans/list.php:147
+#: includes/Admin/views/subscription-list.php:196
+#: templates/myaccount/single.php:274
+msgid "Actions"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:727
+#: includes/Admin/views/plans/tab-products.php:92
+msgid "Enable this plan for the product"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:732
+#: includes/Admin/Product/Plans.php:764
+#: includes/Admin/Product/Plans.php:939
+msgid "Copy checkout link"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:756
+#: includes/Admin/views/plans/tab-products.php:113
+msgid "A single, non-recurring purchase at the product’s regular WooCommerce price."
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:758
+#: includes/Admin/views/plans/tab-products.php:146
+msgid "Offer this product for one-time purchase"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:761
+#: includes/Admin/views/plans/tab-products.php:196
+msgid "Allow one-time purchase"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:781
+#: includes/Admin/views/plans/tab-products.php:134
+#: includes/Admin/views/plans/tab-products.php:208
+msgid "No offer"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:851
+msgid "Sell this variation as a subscription"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:907
+msgid "off"
+msgstr ""
+
+#: includes/Admin/Product/Plans.php:919
+msgid "One-time"
 msgstr ""
 
 #: includes/Admin/ProSettingsFields.php:86
@@ -489,300 +1303,282 @@ msgstr ""
 msgid "With early renewals enabled, customers can renew their subscriptions before the next payment date."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:114
-msgid "Cancellation Timing"
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:115
-msgid "When a subscription is cancelled, choose when it actually ends."
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:117
-msgid "After 24 hours"
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:118
-msgid "Immediately"
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:119
-msgid "At end of billing period (before next renewal)"
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:130
-#: includes/Admin/ProSettingsFields.php:135
-msgid "Cancellation Reasons"
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:131
-msgid "Reasons offered in the cancellation survey form. Shown when Cancellation Survey is enabled."
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:134
-msgid "Manage reasons"
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:136
-msgid "Add a reason…"
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:137
-msgid "Add reason"
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:138
-msgid "No reasons yet. Add one below."
-msgstr ""
-
-#: includes/Admin/ProSettingsFields.php:156
+#: includes/Admin/ProSettingsFields.php:123
 msgid "Grace Period Settings"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:165
+#: includes/Admin/ProSettingsFields.php:132
 msgid "Grace Period (Days)"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:166
+#: includes/Admin/ProSettingsFields.php:133
 msgid "Days to maintain access after subscriptions expires. (0 = No grace period. Max 30 days)"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:181
+#: includes/Admin/ProSettingsFields.php:148
 msgid "Grace Period Notifications"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:182
+#: includes/Admin/ProSettingsFields.php:149
 msgid "Send notifications during grace period"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:183
+#: includes/Admin/ProSettingsFields.php:150
 msgid "Customers will receive warnings before their access is suspended."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:194
+#: includes/Admin/ProSettingsFields.php:161
 msgid "Grace Period Warning (Days Before)"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:195
+#: includes/Admin/ProSettingsFields.php:162
 msgid "Send warning emails this many days before grace period expires. (1-7 days)"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:219
+#: includes/Admin/ProSettingsFields.php:186
 msgid "Payment Failure Handling"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:228
+#: includes/Admin/ProSettingsFields.php:195
 msgid "Default Max Payment Retries"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:229
+#: includes/Admin/ProSettingsFields.php:196
 msgid "Default number of automatic retry attempts for failed payments. (0 = No retries. Max 10 retries)"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:244
+#: includes/Admin/ProSettingsFields.php:211
 msgid "Enable Payment Failure Emails"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:245
+#: includes/Admin/ProSettingsFields.php:212
 msgid "Send email notifications when payments fail"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:246
+#: includes/Admin/ProSettingsFields.php:213
 msgid "Customers will receive emails about failed payments and retry attempts."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:257
+#: includes/Admin/ProSettingsFields.php:224
 msgid "Payment Failure Email Delay (Hours)"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:258
+#: includes/Admin/ProSettingsFields.php:225
 msgid "Delay before sending payment failure emails to avoid spam during temporary issues. (0-168 hours)"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:282
+#: includes/Admin/ProSettingsFields.php:249
 msgid "API Settings"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:291
+#: includes/Admin/ProSettingsFields.php:258
 msgid "Enable API"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:292
+#: includes/Admin/ProSettingsFields.php:259
 msgid "Enable REST API endpoints for subscription actions"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:302
+#: includes/Admin/ProSettingsFields.php:269
 msgid "API Key"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:303
+#: includes/Admin/ProSettingsFields.php:270
 msgid "API key for external integrations. Keep this secure."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:317
-#: includes/Admin/ProSettingsFields.php:318
+#: includes/Admin/ProSettingsFields.php:284
+#: includes/Admin/ProSettingsFields.php:285
 msgid "Regenerate API Key"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:331
+#: includes/Admin/ProSettingsFields.php:298
 msgid "REST API Endpoint URL"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:332
+#: includes/Admin/ProSettingsFields.php:299
 msgid "Copy and use this endpoint for all API actions."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:355
+#: includes/Admin/ProSettingsFields.php:322
 #: includes/Admin/views/health-preview.php:128
 msgid "Subscription Health"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:364
+#: includes/Admin/ProSettingsFields.php:331
 msgid "Health Queue Email Frequency"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:365
+#: includes/Admin/ProSettingsFields.php:332
 msgid "How often to send the admin health queue reminder email. The email is only sent when subscriptions need attention."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:370
+#: includes/Admin/ProSettingsFields.php:337
+#: includes/Admin/views/plans/modal-term.php:40
 msgid "Never"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:391
+#: includes/Admin/ProSettingsFields.php:358
 msgid "Auto Complete Orders"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:392
+#: includes/Admin/ProSettingsFields.php:359
 msgid "Automatically change status of processing orders to completed."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:413
+#: includes/Admin/ProSettingsFields.php:370
+msgid "Require Payment for Free Trials"
+msgstr ""
+
+#: includes/Admin/ProSettingsFields.php:371
+msgid "Collect payment details at checkout for trial subscriptions"
+msgstr ""
+
+#: includes/Admin/ProSettingsFields.php:372
+msgid "Collect payment details up front on free trials so renewals charge automatically."
+msgstr ""
+
+#: includes/Admin/ProSettingsFields.php:392
+#: includes/Admin/SettingsHelper.php:186
+msgid "Switching & Upgrades"
+msgstr ""
+
+#: includes/Admin/ProSettingsFields.php:401
 msgid "Switch Subscription"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:414
+#: includes/Admin/ProSettingsFields.php:402
 msgid "Allow users to upgrade/downgrade their subscriptions."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:426
+#: includes/Admin/ProSettingsFields.php:414
 msgid "Downgrade Subscription"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:427
+#: includes/Admin/ProSettingsFields.php:415
 msgid "Allow users to downgrade their subscriptions."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:438
+#: includes/Admin/ProSettingsFields.php:426
 msgid "Switch Fee"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:439
+#: includes/Admin/ProSettingsFields.php:427
 msgid "Optional fee charged when a customer switches plans. Use a flat amount or a percentage of the new plan price. (0 = no fee)"
 msgstr ""
 
 #. translators: %s: store currency symbol.
-#: includes/Admin/ProSettingsFields.php:461
+#: includes/Admin/ProSettingsFields.php:449
 #, php-format
 msgid "Flat (%s)"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:464
+#: includes/Admin/ProSettingsFields.php:452
 msgid "Percentage (%)"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:479
+#: includes/Admin/ProSettingsFields.php:467
 msgid "Apply Fee To"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:480
+#: includes/Admin/ProSettingsFields.php:468
 msgid "Choose which switch directions the fee applies to."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:482
+#: includes/Admin/ProSettingsFields.php:470
 msgid "Both upgrade and downgrade"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:483
+#: includes/Admin/ProSettingsFields.php:471
 msgid "Upgrade only"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:484
+#: includes/Admin/ProSettingsFields.php:472
 msgid "Downgrade only"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:504
+#: includes/Admin/ProSettingsFields.php:492
 msgid "Role-Based Settings"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:513
+#: includes/Admin/ProSettingsFields.php:501
 msgid "Enable Role Based Access"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:514
+#: includes/Admin/ProSettingsFields.php:502
 msgid "Show/Hide products based on user roles."
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:534
+#: includes/Admin/ProSettingsFields.php:522
 msgid "Quick Details QR Settings"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:543
+#: includes/Admin/ProSettingsFields.php:531
 msgid "Enable Quick Details QR"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:555
+#: includes/Admin/ProSettingsFields.php:543
 msgid "Product Details"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:556
+#: includes/Admin/ProSettingsFields.php:544
 msgid "Show product details in the subscription quick view"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:567
+#: includes/Admin/ProSettingsFields.php:555
 msgid "Billing Details"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:568
+#: includes/Admin/ProSettingsFields.php:556
 msgid "Show billing details in the subscription quick view"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:579
+#: includes/Admin/ProSettingsFields.php:567
 msgid "Timeline"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:580
+#: includes/Admin/ProSettingsFields.php:568
 msgid "Show subscription timeline in the subscription quick view"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:607
+#: includes/Admin/ProSettingsFields.php:595
 msgid "Payment Gateway Settings"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:616
+#: includes/Admin/ProSettingsFields.php:604
 msgid "Hide Payment Gateways"
 msgstr ""
 
-#: includes/Admin/ProSettingsFields.php:617
+#: includes/Admin/ProSettingsFields.php:605
 msgid "Select payment gateways to hide for subscription products. (keep empty for not hiding any)"
 msgstr ""
 
-#: includes/Admin/Required.php:53
+#: includes/Admin/Required.php:68
+msgid "This plugin is not fully active"
+msgstr ""
+
+#: includes/Admin/Required.php:72
+msgid "Required Plugins"
+msgstr ""
+
+#: includes/Admin/Required.php:123
 msgid "Activate Woocommerce"
 msgstr ""
 
-#: includes/Admin/Required.php:56
+#: includes/Admin/Required.php:126
 msgid "Install Woocommerce"
 msgstr ""
 
 #: includes/Admin/Settings.php:43
 #: includes/Admin/Settings.php:44
-#: includes/Admin/Settings.php:270
-#: includes/Admin/views/settings.php:22
+#: includes/Admin/Settings.php:230
+#: includes/Admin/views/settings.php:44
 msgid "Settings"
 msgstr ""
 
 #: includes/Admin/Settings.php:68
-msgid "General Settings"
+#: includes/Admin/SettingsHelper.php:184
+msgid "Renewals"
 msgstr ""
 
 #: includes/Admin/Settings.php:77
@@ -852,75 +1648,62 @@ msgstr ""
 msgid "If a subscriber's subscription is manually cancelled or expires, they will be assigned this role."
 msgstr ""
 
-#: includes/Admin/Settings.php:158
-msgid "Cancellation Survey"
+#: includes/Admin/SettingsHelper.php:138
+msgid "General"
 msgstr ""
 
-#: includes/Admin/Settings.php:159
-msgid "Ask customers why they are cancelling"
+#: includes/Admin/SettingsHelper.php:185
+msgid "Payments"
 msgstr ""
 
-#: includes/Admin/Settings.php:160
-msgid "Show a short cancellation survey when a customer cancels a subscription, and record the reason for churn tracking."
+#: includes/Admin/SettingsHelper.php:187
+msgid "Customers"
 msgstr ""
 
-#: includes/Admin/Settings.php:171
-msgid "Survey Comment Box"
+#: includes/Admin/SettingsHelper.php:188
+msgid "Advanced"
 msgstr ""
 
-#: includes/Admin/Settings.php:172
-msgid "Allow an additional comment"
-msgstr ""
-
-#: includes/Admin/Settings.php:173
-msgid "Show an optional free-text comment field in the cancellation survey."
-msgstr ""
-
-#: includes/Admin/SettingsHelper.php:151
-#: includes/Admin/views/integrations.php:140
-#: includes/Admin/views/integrations.php:241
-#: includes/Admin/views/onboarding-wizard.php:244
-#: includes/Admin/views/onboarding-wizard.php:390
-msgid "Pro"
-msgstr ""
-
-#: includes/Admin/SettingsHelper.php:309
-#: includes/Admin/SettingsHelper.php:373
-#: includes/Admin/SettingsHelper.php:464
-#: includes/Admin/SettingsHelper.php:626
+#: includes/Admin/SettingsHelper.php:474
+#: includes/Admin/SettingsHelper.php:538
+#: includes/Admin/SettingsHelper.php:629
+#: includes/Admin/SettingsHelper.php:791
 msgid "Field ID is required."
 msgstr ""
 
-#: includes/Admin/SettingsHelper.php:618
+#: includes/Admin/SettingsHelper.php:783
 msgid "Add an item…"
 msgstr ""
 
-#: includes/Admin/SettingsHelper.php:619
+#: includes/Admin/SettingsHelper.php:784
 msgid "Add item"
 msgstr ""
 
-#: includes/Admin/SettingsHelper.php:620
+#: includes/Admin/SettingsHelper.php:785
 msgid "No items yet. Add one below."
 msgstr ""
 
-#: includes/Admin/SettingsHelper.php:621
+#: includes/Admin/SettingsHelper.php:786
 msgid "Manage list"
 msgstr ""
 
-#: includes/Admin/SettingsHelper.php:622
+#: includes/Admin/SettingsHelper.php:787
 msgid "Edit list"
 msgstr ""
 
-#: includes/Admin/SettingsHelper.php:659
+#: includes/Admin/SettingsHelper.php:824
 #: includes/Admin/views/onboarding-wizard.php:51
+#: includes/Illuminate/Cancellation.php:180
+#: build/dashboard.js:3
+#: src/dashboard/SetupChecklist.js:55
 msgid "Done"
 msgstr ""
 
-#: includes/Admin/SettingsHelper.php:713
+#: includes/Admin/SettingsHelper.php:878
 msgid "Move up"
 msgstr ""
 
-#: includes/Admin/SettingsHelper.php:714
+#: includes/Admin/SettingsHelper.php:879
 msgid "Move down"
 msgstr ""
 
@@ -931,7 +1714,7 @@ msgstr ""
 #: includes/Admin/Subscriptions.php:124
 #: includes/Admin/views/delivery-preview.php:223
 #: includes/Admin/views/health-preview.php:280
-#: includes/Admin/views/subscription-list.php:206
+#: includes/Admin/views/subscription-list.php:192
 msgid "Customer"
 msgstr ""
 
@@ -942,13 +1725,15 @@ msgstr ""
 #: includes/Admin/Subscriptions.php:126
 #: includes/Admin/Subscriptions.php:243
 #: includes/Admin/views/delivery-preview.php:224
+#: includes/Admin/views/integrations.php:199
+#: includes/Admin/views/plans/tab-products.php:68
 #: includes/Admin/views/related-subscriptions.php:28
-#: includes/Admin/views/subscription-details.php:531
-#: includes/Admin/views/subscription-list.php:204
+#: includes/Admin/views/subscription-details.php:524
+#: includes/Admin/views/subscription-list.php:190
 #: includes/Frontend/Order.php:77
 #: includes/Illuminate/views/subscription-table.php:56
-#: templates/myaccount/single.php:61
-#: templates/myaccount/single.php:389
+#: templates/myaccount/single.php:67
+#: templates/myaccount/single.php:404
 #: templates/myaccount/subscriptions.php:21
 msgid "Status"
 msgstr ""
@@ -959,12 +1744,12 @@ msgstr ""
 
 #: includes/Admin/Subscriptions.php:212
 #: includes/Admin/views/related-subscriptions.php:24
-#: includes/Admin/views/subscription-details.php:421
+#: includes/Admin/views/subscription-details.php:406
 #: templates/emails/renew-reminder-html.php:44
 #: templates/emails/status-changed-admin-html.php:39
 #: templates/emails/subscription-cancelled-html.php:37
 #: templates/emails/subscription-expired-html.php:37
-#: templates/myaccount/single.php:287
+#: templates/myaccount/single.php:296
 #: templates/myaccount/subscriptions.php:22
 msgid "Product"
 msgstr ""
@@ -982,8 +1767,8 @@ msgid "Qty"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:228
-#: includes/Admin/views/subscription-details.php:147
-#: templates/myaccount/single.php:179
+#: includes/Admin/views/subscription-details.php:150
+#: templates/myaccount/single.php:185
 msgid "Total Payments"
 msgstr ""
 
@@ -996,7 +1781,7 @@ msgid "Payment due date"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:247
-#: includes/Admin/views/subscription-details.php:460
+#: includes/Admin/views/subscription-details.php:453
 msgid "Payment Method"
 msgstr ""
 
@@ -1019,7 +1804,7 @@ msgstr ""
 #: includes/Admin/Subscriptions.php:262
 #: includes/Frontend/Order.php:123
 #: includes/Illuminate/views/subscription-table.php:76
-#: templates/myaccount/single.php:95
+#: templates/myaccount/single.php:101
 msgid "Trial"
 msgstr ""
 
@@ -1029,11 +1814,6 @@ msgstr ""
 
 #: includes/Admin/Subscriptions.php:267
 msgid "Trial isn't activated yet! "
-msgstr ""
-
-#: includes/Admin/Subscriptions.php:344
-#: includes/Admin/Subscriptions.php:345
-msgid "Overview"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:353
@@ -1052,11 +1832,6 @@ msgstr ""
 
 #: includes/Admin/Subscriptions.php:381
 msgid "WPSubscription is the most seamless and reliable WooCommerce subscription solution for store owners looking to grow recurring revenue. Easily manage recurring payments, automate renewals, and delight your customers with flexible plans."
-msgstr ""
-
-#: includes/Admin/Subscriptions.php:384
-#: includes/Admin/views/support.php:156
-msgid "Documentation"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:385
@@ -1079,6 +1854,39 @@ msgstr ""
 msgid "Unlock the full power of subscriptions for WooCommerce. Get advanced features, priority support, and more ways to grow your recurring revenue."
 msgstr ""
 
+#: includes/Admin/views/cancellation-flow.php:40
+msgid "Ask customers why they are leaving, and record it for churn tracking"
+msgstr ""
+
+#: includes/Admin/views/cancellation-flow.php:41
+msgid "Choose the reasons they pick from, and when a cancellation takes effect"
+msgstr ""
+
+#: includes/Admin/views/cancellation-flow.php:46
+msgid "View All Documentation"
+msgstr ""
+
+#: includes/Admin/views/cancellation-flow.php:50
+#: includes/Admin/views/support.php:210
+msgid "Get Support"
+msgstr ""
+
+#: includes/Admin/views/cancellation-flow.php:82
+msgid "No reasons yet. Add one with Manage reasons."
+msgstr ""
+
+#: includes/Admin/views/cancellation-flow.php:107
+msgid "Accepting the offer issues a single-use WooCommerce coupon locked to that customer, and keeps the subscription."
+msgstr ""
+
+#: includes/Admin/views/cancellation-flow.php:127
+msgid "Save Changes"
+msgstr ""
+
+#: includes/Admin/views/dashboard.php:20
+msgid "The dashboard needs JavaScript. Use the menu on the left to reach your subscriptions."
+msgstr ""
+
 #: includes/Admin/views/delivery-preview.php:74
 #: includes/Admin/views/delivery-preview.php:146
 msgid "Waiting"
@@ -1096,30 +1904,30 @@ msgstr ""
 
 #: includes/Admin/views/delivery-preview.php:86
 #: includes/Admin/views/delivery-preview.php:158
-#: includes/Admin/views/reports-preview.php:323
-#: includes/Admin/views/reports-preview.php:504
+#: includes/Admin/views/reports-preview.php:368
+#: includes/Admin/views/reports-preview.php:598
 #: includes/Admin/views/subscription-list.php:65
-#: includes/Illuminate/Helper.php:73
+#: includes/Illuminate/Helper.php:79
 msgid "Cancelled"
 msgstr ""
 
 #: includes/Admin/views/delivery-preview.php:93
 #: includes/Admin/views/delivery-preview.php:167
-#: includes/Admin/views/subscription-details.php:289
-#: includes/Admin/views/subscription-details.php:296
-#: includes/Admin/views/subscription-list.php:91
+#: includes/Admin/views/subscription-details.php:293
+#: includes/Admin/views/subscription-details.php:300
+#: includes/Admin/views/subscription-list.php:95
 msgid "All Dates"
 msgstr ""
 
 #: includes/Admin/views/delivery-preview.php:116
 #: includes/Admin/views/health-preview.php:117
-#: includes/Admin/views/reports-preview.php:151
+#: includes/Admin/views/reports-preview.php:184
 msgid "Preview with sample data."
 msgstr ""
 
 #: includes/Admin/views/delivery-preview.php:117
 #: includes/Admin/views/health-preview.php:118
-#: includes/Admin/views/reports-preview.php:152
+#: includes/Admin/views/reports-preview.php:185
 msgid "This page shows example data to illustrate the feature."
 msgstr ""
 
@@ -1138,7 +1946,7 @@ msgstr ""
 
 #: includes/Admin/views/delivery-preview.php:179
 #: includes/Admin/views/health-preview.php:208
-#: includes/Admin/views/subscription-list.php:106
+#: includes/Admin/views/subscription-list.php:110
 msgid "Filter"
 msgstr ""
 
@@ -1227,7 +2035,7 @@ msgid "Monitor and recover subscriptions that need attention."
 msgstr ""
 
 #: includes/Admin/views/health-preview.php:135
-#: includes/Admin/views/reports-preview.php:169
+#: includes/Admin/views/reports-preview.php:202
 msgid "Refresh"
 msgstr ""
 
@@ -1236,7 +2044,7 @@ msgid "are at risk zone"
 msgstr ""
 
 #: includes/Admin/views/health-preview.php:158
-#: includes/Admin/views/reports-preview.php:208
+#: includes/Admin/views/reports-preview.php:253
 msgid "Revenue at Risk"
 msgstr ""
 
@@ -1274,6 +2082,7 @@ msgid "Search ID, product, customer..."
 msgstr ""
 
 #: includes/Admin/views/health-preview.php:241
+#: includes/Admin/views/plans/list.php:68
 msgid "Bulk actions"
 msgstr ""
 
@@ -1298,7 +2107,7 @@ msgid "Export CSV"
 msgstr ""
 
 #: includes/Admin/views/health-preview.php:281
-#: includes/Admin/views/subscription-list.php:207
+#: includes/Admin/views/subscription-list.php:193
 #: templates/emails/renew-reminder-html.php:52
 #: templates/emails/status-changed-admin-html.php:47
 #: templates/emails/subscription-cancelled-html.php:45
@@ -1311,19 +2120,13 @@ msgid "Renew Date"
 msgstr ""
 
 #: includes/Admin/views/health-preview.php:283
-#: includes/functions.php:417
-#: includes/Illuminate/Helper.php:445
+#: includes/functions.php:705
+#: includes/Illuminate/Helper.php:451
 msgid "Renewal Order"
 msgstr ""
 
 #: includes/Admin/views/health-preview.php:284
 msgid "Issue"
-msgstr ""
-
-#: includes/Admin/views/health-preview.php:285
-#: includes/Admin/views/subscription-list.php:210
-#: templates/myaccount/single.php:265
-msgid "Actions"
 msgstr ""
 
 #. translators: %d: days overdue
@@ -1344,92 +2147,121 @@ msgstr ""
 msgid "Subscription Health requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro."
 msgstr ""
 
-#: includes/Admin/views/integrations.php:34
+#: includes/Admin/views/integrations.php:32
 msgid "LMS"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:35
+#: includes/Admin/views/integrations.php:33
 msgid "Learning Management System"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:40
+#: includes/Admin/views/integrations.php:38
 msgid "CRM"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:41
+#: includes/Admin/views/integrations.php:39
 msgid "Customer Relationship Management"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:46
-#: includes/Admin/views/integrations.php:47
+#: includes/Admin/views/integrations.php:44
+#: includes/Admin/views/integrations.php:45
 msgid "Automation"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:52
+#: includes/Admin/views/integrations.php:50
 #: includes/Illuminate/Gateways/Paypal/Paypal.php:228
 msgid "Email"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:53
+#: includes/Admin/views/integrations.php:51
 msgid "Email Marketing"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:58
+#: includes/Admin/views/integrations.php:56
 msgid "License"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:59
+#: includes/Admin/views/integrations.php:57
 msgid "License Management"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:84
-msgid "Connect your subscriptions with payment gateways and third-party plugins."
-msgstr ""
-
-#: includes/Admin/views/integrations.php:89
-msgid "Plugin installed and activated successfully."
-msgstr ""
-
-#: includes/Admin/views/integrations.php:95
+#: includes/Admin/views/integrations.php:133
+#: includes/Admin/views/integrations.php:268
 #: includes/Admin/views/support.php:174
 msgid "Payment Gateways"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:110
-#: includes/Admin/views/integrations.php:217
-#: includes/Admin/views/reports-preview.php:319
-#: includes/Admin/views/reports-preview.php:504
-#: includes/Admin/views/subscription-details.php:55
+#: includes/Admin/views/integrations.php:137
+#: includes/Admin/views/integrations.php:394
+#: includes/Illuminate/Cancellation.php:573
+msgid "Other"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:140
+#: includes/Admin/views/integrations.php:283
+#: includes/Admin/views/integrations.php:412
+#: includes/Admin/views/reports-preview.php:364
+#: includes/Admin/views/reports-preview.php:598
+#: includes/Admin/views/subscription-details.php:56
 #: includes/Admin/views/subscription-list.php:53
-#: includes/Admin/views/subscription-list.php:294
-#: includes/Illuminate/Helper.php:69
+#: includes/Admin/views/subscription-list.php:282
+#: includes/Illuminate/Helper.php:74
 msgid "Active"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:113
+#: includes/Admin/views/integrations.php:141
+#: includes/Admin/views/integrations.php:286
 msgid "Inactive"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:116
-#: includes/Admin/views/integrations.php:217
-msgid "Not Installed"
+#: includes/Admin/views/integrations.php:142
+msgid "Not installed"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:143
+#: includes/Admin/views/integrations.php:147
+#: includes/Admin/views/integrations.php:338
 msgid "Beta"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:148
+#: includes/Admin/views/integrations.php:156
+msgid "Connect your subscriptions with payment gateways and third-party plugins."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:186
+msgid "Reset"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:193
+msgid "Category"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:205
+msgid "Tags"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:230
+msgid "All"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:258
+msgid "No integrations match these filters."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:262
+msgid "Plugin installed and activated successfully."
+msgstr ""
+
+#: includes/Admin/views/integrations.php:289
+#: includes/Admin/views/integrations.php:412
+msgid "Not Installed"
+msgstr ""
+
+#: includes/Admin/views/integrations.php:343
 msgid "Automatic recurring"
 msgstr ""
 
-#: includes/Admin/views/integrations.php:151
+#: includes/Admin/views/integrations.php:346
 msgid "Manual renewals only"
-msgstr ""
-
-#: includes/Admin/views/integrations.php:199
-#: includes/Illuminate/Cancellation.php:387
-msgid "Other"
 msgstr ""
 
 #: includes/Admin/views/onboarding-wizard.php:71
@@ -1479,8 +2311,8 @@ msgstr ""
 
 #: includes/Admin/views/onboarding-wizard.php:108
 #: includes/Admin/views/onboarding-wizard.php:430
-#: includes/functions.php:43
-#: includes/Illuminate/Helper.php:44
+#: includes/functions.php:53
+#: includes/Illuminate/Helper.php:49
 msgid "month"
 msgid_plural "months"
 msgstr[0] ""
@@ -1559,39 +2391,17 @@ msgstr ""
 msgid "Shown on your store page and in subscription emails."
 msgstr ""
 
-#: includes/Admin/views/onboarding-wizard.php:299
-#: includes/Admin/views/onboarding-wizard.php:317
-#: includes/functions.php:529
-msgid "Day"
-msgstr ""
-
-#: includes/Admin/views/onboarding-wizard.php:303
-#: includes/Admin/views/onboarding-wizard.php:321
-#: includes/functions.php:533
-msgid "Week"
-msgstr ""
-
-#: includes/Admin/views/onboarding-wizard.php:307
-#: includes/Admin/views/onboarding-wizard.php:325
-#: includes/functions.php:537
-msgid "Month"
-msgstr ""
-
-#: includes/Admin/views/onboarding-wizard.php:311
-#: includes/Admin/views/onboarding-wizard.php:329
-#: includes/functions.php:541
-msgid "Year"
-msgstr ""
-
 #: includes/Admin/views/onboarding-wizard.php:339
 msgid "Price"
 msgstr ""
 
 #: includes/Admin/views/onboarding-wizard.php:346
+#: includes/Admin/views/plans/modal-term.php:116
 msgid "Billing every"
 msgstr ""
 
 #: includes/Admin/views/onboarding-wizard.php:370
+#: includes/Admin/views/plans/modal-term.php:158
 msgid "Free trial"
 msgstr ""
 
@@ -1626,10 +2436,6 @@ msgstr ""
 
 #: includes/Admin/views/onboarding-wizard.php:434
 msgid "This is how the product will appear on your shop page. Each purchase creates a subscription you'll manage from the Subscriptions list."
-msgstr ""
-
-#: includes/Admin/views/onboarding-wizard.php:443
-msgid "Back"
 msgstr ""
 
 #: includes/Admin/views/onboarding-wizard.php:446
@@ -1714,76 +2520,454 @@ msgstr ""
 msgid "Go to products"
 msgstr ""
 
-#: includes/Admin/views/pro-upgrade-modal.php:15
+#. translators: %d: number of durations.
+#: includes/Admin/views/plans/detail.php:33
+#: includes/Admin/views/plans/list.php:132
+#, php-format
+msgid "%d duration"
+msgid_plural "%d durations"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of connected products.
+#: includes/Admin/views/plans/detail.php:35
+#: includes/Admin/views/plans/list.php:140
+#, php-format
+msgid "%d product"
+msgid_plural "%d products"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/views/plans/detail.php:48
+msgid "Rename plan"
+msgstr ""
+
+#: includes/Admin/views/plans/detail.php:53
+msgid "Plan name"
+msgstr ""
+
+#: includes/Admin/views/plans/detail.php:73
+#: includes/Admin/views/plans/modal-add-product.php:21
+msgid "Manage Products"
+msgstr ""
+
+#: includes/Admin/views/plans/detail.php:82
+#: includes/Admin/views/plans/list.php:89
+msgid "Durations"
+msgstr ""
+
+#: includes/Admin/views/plans/detail.php:85
+#: includes/Admin/views/plans/list.php:90
+#: includes/Admin/views/reports-preview.php:376
+msgid "Products"
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:26
+#: includes/Admin/views/plans/modal-create.php:44
+#: includes/Admin/views/plans/modal-create.php:100
+msgid "Create Plan"
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:29
+#: includes/Admin/views/plans/list.php:38
+msgid "Set up a plan and connect it to your products. Manage billing from one place."
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:40
+msgid "Create your first plan"
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:53
+msgid "Search plans..."
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:72
+#: includes/Admin/views/plans/list.php:151
+#: includes/Admin/views/plans/tab-selling-plans.php:70
+msgid "Delete"
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:86
+msgid "Select all plans"
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:88
+#: includes/Admin/views/subscription-details.php:522
+#: templates/myaccount/single.php:402
+msgid "Type"
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:91
+msgid "Last Edited"
+msgstr ""
+
+#. translators: %s: plan name.
+#: includes/Admin/views/plans/list.php:110
+#, php-format
+msgid "Select %s"
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:133
+#: includes/Admin/views/plans/list.php:141
+msgid "None"
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:149
+#: includes/Admin/views/subscription-list.php:369
+msgid "View / Edit"
+msgstr ""
+
+#: includes/Admin/views/plans/list.php:161
+msgid "No plans match your search."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-add-product.php:24
+msgid "Ticked products are sold on this plan, at every duration. Untick one to take it off the plan."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-add-product.php:32
+msgid "Search products…"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-add-product.php:35
+msgid "Loading…"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-add-product.php:42
+msgid "Save products"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:18
+msgid "Digital products"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:20
+msgid "Automatically charge recurring payments (best for virtual & downloadable products)."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:25
+msgid "Physical products"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:27
+msgid "Charge and deliver physical products on a schedule."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:32
+msgid "Installments"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:34
+msgid "Split a price into a fixed number of payments."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:46
+msgid "A plan bundles the billing terms you attach to products. Name it, pick a type, then add billing terms."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:53
+msgid "Name"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:54
+msgid "e.g. Premium Membership"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:56
+msgid "Plan Type"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-create.php:94
+msgid "Recurring Delivery and Split Payment plans are available in Subscription Pro."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:21
+msgid "Day(s)"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:25
+msgid "Week(s)"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:29
+msgid "Month(s)"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:33
+msgid "Year(s)"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:44
+msgid "After full duration"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:48
+msgid "Custom"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:107
+msgid "Duration Name"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:107
+msgid "Shown to customers when they pick this plan."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:108
+msgid "e.g. Monthly"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:116
+msgid "How often the customer is charged, for example every 1 month."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:118
+msgid "Frequency"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:143
+msgid "Total payments to collect (minimum 2)."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:146
+msgid "times"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:146
+msgid "Number of payments"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:158
+#: includes/Admin/views/plans/modal-term.php:179
+msgid "optional"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:158
+msgid "Charge nothing until the trial ends."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:160
+msgid "Trial length"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:179
+msgid "Signup fee"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:183
+msgid "One-time fee on the first payment."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:195
+msgid "Delivery schedule"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:195
+msgid "How often the product ships. Leave empty to match the billing schedule."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:197
+msgid "Same as billing"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:197
+msgid "Delivery frequency"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:216
+msgid "Synchronize schedule"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:216
+msgid "Deliver everyone on the same weekday."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:223
+msgid "Delivery day"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:245
+msgid "Access ends"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:245
+msgid "When the customer loses access after the payments finish."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:262
+msgid "Custom access duration"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:262
+msgid "How long access should continue after the last payment is completed."
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:264
+msgid "Access length"
+msgstr ""
+
+#: includes/Admin/views/plans/modal-term.php:286
+msgid "Save Duration"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:27
+msgid "No products connected"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:29
+msgid "Add at least one duration on the Durations tab before attaching products."
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:31
+msgid "Add products to this plan and set their prices here, or connect a product from its own Subscription tab."
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:34
+msgid "Add Products"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:87
+#: includes/Admin/views/plans/tab-products.php:143
+msgid "Disabled"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:89
+#: includes/Admin/views/plans/tab-products.php:141
+msgid "Enabled"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:191
+msgid "This is the product’s regular WooCommerce price, charged when a customer buys it once instead of subscribing."
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:222
+msgid "Search products..."
+msgstr ""
+
+#. translators: %d: product ID.
+#: includes/Admin/views/plans/tab-products.php:258
+#, php-format
+msgid "ID: %d"
+msgstr ""
+
+#. translators: %d: number of variations.
+#: includes/Admin/views/plans/tab-products.php:262
+#, php-format
+msgid "%d variation"
+msgid_plural "%d variations"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/views/plans/tab-products.php:274
+msgid "Edit on WooCommerce"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:280
+msgid "Preview product"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:323
+msgid "Pricing"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-products.php:338
+msgid "No products match your search."
+msgstr ""
+
+#: includes/Admin/views/plans/tab-selling-plans.php:20
+msgid "No durations yet"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-selling-plans.php:21
+msgid "A duration sets how often the customer is charged, like every month or every year. Add at least one so this plan can be sold."
+msgstr ""
+
+#: includes/Admin/views/plans/tab-selling-plans.php:23
+msgid "Add your first duration"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-selling-plans.php:44
+msgid "Plan ID"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-selling-plans.php:63
+msgid "Toggle active status"
+msgstr ""
+
+#: includes/Admin/views/plans/tab-selling-plans.php:67
+msgid "Edit"
+msgstr ""
+
+#: includes/Admin/views/pro-upgrade-modal.php:19
 msgid "Unlock this feature"
 msgstr ""
 
-#: includes/Admin/views/pro-upgrade-modal.php:16
+#: includes/Admin/views/pro-upgrade-modal.php:20
 msgid "This feature requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro."
 msgstr ""
 
-#: includes/Admin/views/product-form.php:17
+#: includes/Admin/views/product-classic-fields.php:23
 msgid "Subscription Settings"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:23
+#: includes/Admin/views/product-classic-fields.php:30
 msgid "Users will pay"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:26
+#: includes/Admin/views/product-classic-fields.php:33
 msgid "Set the length of each recurring subscription period to daily, weekly, monthly or annually."
 msgstr ""
 
-#: includes/Admin/views/product-form.php:32
-msgid "\tFree Trial Duration"
+#: includes/Admin/views/product-classic-fields.php:39
+msgid "Free Trial Duration"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:47
+#: includes/Admin/views/product-classic-fields.php:48
 msgid "Let users try the subscription for free before the first payment is collected."
 msgstr ""
 
-#: includes/Admin/views/product-form.php:55
+#: includes/Admin/views/product-classic-fields.php:54
 msgid "Button Text (Custom)"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:58
+#: includes/Admin/views/product-classic-fields.php:57
 msgid "Customize the button label shown on the product or shop page. Default is \"Subscribe\""
 msgstr ""
 
-#: includes/Admin/views/product-form.php:66
-#: includes/Frontend/Cart.php:298
+#: includes/Admin/views/product-classic-fields.php:65
+#: includes/Frontend/Cart.php:312
 msgid "Allow User Cancellation?"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:69
+#: includes/Admin/views/product-classic-fields.php:68
 msgid "Yes"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:70
+#: includes/Admin/views/product-classic-fields.php:69
 msgid "No"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:72
+#: includes/Admin/views/product-classic-fields.php:71
 msgid "Allow subscribers to cancel their subscription manually from their account dashboard."
 msgstr ""
 
-#: includes/Admin/views/product-form.php:80
+#: includes/Admin/views/product-classic-fields.php:79
 msgid "Limit subscription"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:82
+#: includes/Admin/views/product-classic-fields.php:81
 msgid "Do not limit"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:83
+#: includes/Admin/views/product-classic-fields.php:82
 msgid "allow only one active subscription"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:84
+#: includes/Admin/views/product-classic-fields.php:83
 msgid "allow only one subscription of any status"
 msgstr ""
 
-#: includes/Admin/views/product-form.php:87
+#: includes/Admin/views/product-classic-fields.php:86
 msgid "Set optional limits for this product subscription."
 msgstr ""
 
@@ -1792,9 +2976,9 @@ msgid "ID"
 msgstr ""
 
 #: includes/Admin/views/related-subscriptions.php:25
-#: includes/Admin/views/subscription-details.php:128
-#: includes/Illuminate/Order.php:176
-#: templates/myaccount/single.php:191
+#: includes/Admin/views/subscription-details.php:130
+#: includes/Illuminate/Order.php:185
+#: templates/myaccount/single.php:197
 msgid "Recurring"
 msgstr ""
 
@@ -1809,391 +2993,434 @@ msgstr ""
 #. translators: Number of days remaining in grace period.
 #: includes/Admin/views/related-subscriptions.php:81
 #: includes/Frontend/Order.php:87
-#: templates/myaccount/single.php:70
+#: templates/myaccount/single.php:76
 #: templates/myaccount/subscriptions.php:94
 #, php-format
 msgid "%d days remaining!"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:154
-msgid "to unlock real subscription analytics."
+#: includes/Admin/views/reports-preview.php:147
+#: includes/Illuminate/Cancellation.php:553
+msgid "Too expensive"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:163
-msgid "Subscription Reports"
+#: includes/Admin/views/reports-preview.php:152
+#: includes/Illuminate/Cancellation.php:557
+msgid "Missing features I need"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:164
-msgid "Data-driven insights for your subscription business."
+#: includes/Admin/views/reports-preview.php:157
+#: includes/Illuminate/Cancellation.php:561
+msgid "Found a better alternative"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:186
-#: includes/Admin/views/reports-preview.php:446
-msgid "Active Subscriptions"
+#: includes/Admin/views/reports-preview.php:162
+#: includes/Illuminate/Cancellation.php:565
+msgid "No longer needed"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:167
+#: includes/Illuminate/Cancellation.php:569
+msgid "Technical issues"
 msgstr ""
 
 #: includes/Admin/views/reports-preview.php:187
-msgid "Recurring revenue base"
+msgid "to unlock real subscription analytics."
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:196
+msgid "Subscription Reports"
 msgstr ""
 
 #: includes/Admin/views/reports-preview.php:197
-msgid "Monthly Recurring Revenue"
+msgid "Data-driven insights for your subscription business."
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:198
-msgid "Predictable monthly income"
-msgstr ""
-
-#: includes/Admin/views/reports-preview.php:209
-msgid "Needs attention"
-msgstr ""
-
-#: includes/Admin/views/reports-preview.php:219
-msgid "Churn Rate"
-msgstr ""
-
-#: includes/Admin/views/reports-preview.php:220
-msgid "Customer retention indicator"
-msgstr ""
-
-#: includes/Admin/views/reports-preview.php:230
-msgid "Trial Conversion"
+#: includes/Admin/views/reports-preview.php:215
+msgid "Cancellation"
 msgstr ""
 
 #: includes/Admin/views/reports-preview.php:231
-msgid "Trial to paid success"
+#: includes/Admin/views/reports-preview.php:540
+msgid "Active Subscriptions"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:239
-msgid "Revenue & Subscription Trends"
+#: includes/Admin/views/reports-preview.php:232
+msgid "Recurring revenue base"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:246
-msgid "Quick Insights"
+#: includes/Admin/views/reports-preview.php:242
+msgid "Monthly Recurring Revenue"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:249
-msgid "Revenue Growth"
-msgstr ""
-
-#: includes/Admin/views/reports-preview.php:250
-msgid "MRR is growing steadily — great foundation!"
-msgstr ""
-
-#: includes/Admin/views/reports-preview.php:253
-msgid "Pro Tip"
+#: includes/Admin/views/reports-preview.php:243
+msgid "Predictable monthly income"
 msgstr ""
 
 #: includes/Admin/views/reports-preview.php:254
-msgid "Focus on top-performing products and optimise trial conversions."
+msgid "Needs attention"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:266
-msgid "Revenue Performance"
+#: includes/Admin/views/reports-preview.php:264
+msgid "Churn Rate"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:271
-msgid "Total Revenue"
+#: includes/Admin/views/reports-preview.php:265
+msgid "Customer retention indicator"
 msgstr ""
 
 #: includes/Admin/views/reports-preview.php:275
-msgid "Annual Recurring"
+msgid "Trial Conversion"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:279
-msgid "Net Revenue"
+#: includes/Admin/views/reports-preview.php:276
+msgid "Trial to paid success"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:283
-msgid "Avg. Value"
+#: includes/Admin/views/reports-preview.php:284
+msgid "Revenue & Subscription Trends"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:290
-msgid "Trial Performance"
+#: includes/Admin/views/reports-preview.php:291
+msgid "Quick Insights"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:294
+msgid "Revenue Growth"
 msgstr ""
 
 #: includes/Admin/views/reports-preview.php:295
-msgid "Total Trials"
+msgid "MRR is growing steadily — great foundation!"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:298
+msgid "Pro Tip"
 msgstr ""
 
 #: includes/Admin/views/reports-preview.php:299
+msgid "Focus on top-performing products and optimise trial conversions."
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:311
+msgid "Revenue Performance"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:316
+msgid "Total Revenue"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:320
+msgid "Annual Recurring"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:324
+msgid "Net Revenue"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:328
+msgid "Avg. Value"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:335
+msgid "Trial Performance"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:340
+msgid "Total Trials"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:344
 msgid "Converted"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:303
+#: includes/Admin/views/reports-preview.php:348
 msgid "Active Trials"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:307
+#: includes/Admin/views/reports-preview.php:352
 msgid "Trial Revenue"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:314
+#: includes/Admin/views/reports-preview.php:359
 msgid "Subscription Breakdown"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:327
+#: includes/Admin/views/reports-preview.php:372
 msgid "Trials"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:331
-msgid "Products"
-msgstr ""
-
-#: includes/Admin/views/reports-preview.php:343
+#: includes/Admin/views/reports-preview.php:388
 msgid "Top Performing Products"
 msgstr ""
 
 #. translators: %s: number of subscriptions
-#: includes/Admin/views/reports-preview.php:357
+#: includes/Admin/views/reports-preview.php:402
 #, php-format
 msgid "%s subscriptions"
 msgstr ""
 
 #. translators: %s: average revenue
-#: includes/Admin/views/reports-preview.php:370
+#: includes/Admin/views/reports-preview.php:415
 #, php-format
 msgid "%s avg"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:382
+#: includes/Admin/views/reports-preview.php:427
 msgid "Action Items"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:386
+#: includes/Admin/views/reports-preview.php:431
 msgid "Best Performers"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:393
+#: includes/Admin/views/reports-preview.php:438
 msgid "Recommended Next Steps"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:395
+#: includes/Admin/views/reports-preview.php:440
 msgid "Analyse customer feedback"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:396
+#: includes/Admin/views/reports-preview.php:441
 msgid "Optimise pricing strategy"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:397
+#: includes/Admin/views/reports-preview.php:442
 msgid "Expand product offerings"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:408
+#: includes/Admin/views/reports-preview.php:453
 msgid "Detailed Analytics"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:435
+#: includes/Admin/views/reports-preview.php:467
+msgid "Why customers cancelled, based on submitted feedback."
+msgstr ""
+
+#. translators: %s: number of subscriptions.
+#: includes/Admin/views/reports-preview.php:482
+#, php-format
+msgid "%s subs"
+msgstr ""
+
+#. translators: %s: total number of cancellations with feedback.
+#: includes/Admin/views/reports-preview.php:495
+#, php-format
+msgid "Total cancellations with feedback: %s"
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:503
+msgid "Sample data. Pro reports the reasons your own customers gave."
+msgstr ""
+
+#: includes/Admin/views/reports-preview.php:529
 msgid "Revenue"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:489
+#: includes/Admin/views/reports-preview.php:583
 msgid "Subscription Performance"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:504
-#: includes/Admin/views/subscription-details.php:533
-#: templates/myaccount/single.php:288
-#: templates/myaccount/single.php:390
+#: includes/Admin/views/reports-preview.php:598
+#: includes/Admin/views/subscription-details.php:526
+#: templates/myaccount/single.php:297
+#: templates/myaccount/single.php:405
 #: templates/myaccount/subscriptions.php:24
 msgid "Total"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:519
+#: includes/Admin/views/reports-preview.php:613
 msgid "Unlock Reports"
 msgstr ""
 
-#: includes/Admin/views/reports-preview.php:520
+#: includes/Admin/views/reports-preview.php:614
 msgid "Reports requires WPSubscription Pro. Unlock advanced features, priority support, and more with WPSubscription Pro."
 msgstr ""
 
 #: includes/Admin/views/required-notice.php:27
-msgid "Thanks for using Subscription for WooCommerce"
+msgid "Thanks for installing WPSubscription."
 msgstr ""
 
-#: includes/Admin/views/settings.php:23
-msgid "Configure subscription plugin behavior and features."
+#. translators: %s: WooCommerce, linked to its wordpress.org page.
+#: includes/Admin/views/required-notice.php:32
+#, php-format
+msgid "%s must be installed and activated before WPSubscription can be used."
 msgstr ""
 
-#: includes/Admin/views/settings.php:52
+#: includes/Admin/views/required-notice.php:33
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/Admin/views/settings.php:47
 msgid "Save changes"
 msgstr ""
 
+#: includes/Admin/views/settings.php:50
+msgid "Configure how subscriptions renew, charge and behave for your customers."
+msgstr ""
+
+#: includes/Admin/views/settings.php:57
+msgid "Settings sections"
+msgstr ""
+
 #. translators: %s: Subscription ID
-#: includes/Admin/views/subscription-details.php:68
+#: includes/Admin/views/subscription-details.php:69
 #: includes/Frontend/MyAccount.php:275
 #, php-format
 msgid "Subscription #%s"
 msgstr ""
 
 #. translators: %d: days remaining
-#: includes/Admin/views/subscription-details.php:76
-#: includes/Admin/views/subscription-list.php:308
+#. translators: %d: number of days left in the grace period.
+#: includes/Admin/views/subscription-details.php:77
+#: includes/Admin/views/subscription-list.php:296
 #, php-format
 msgid "%d days remaining in grace period"
 msgstr ""
 
 #. translators: %s: next payment date
-#: includes/Admin/views/subscription-details.php:90
+#: includes/Admin/views/subscription-details.php:91
 #, php-format
 msgid "Next payment on %s"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:134
-#: includes/Admin/views/subscription-list.php:208
+#: includes/Admin/views/subscription-details.php:136
+#: includes/Admin/views/subscription-list.php:194
 msgid "Started"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:140
+#: includes/Admin/views/subscription-details.php:142
 #: templates/myaccount/subscriptions.php:23
 msgid "Next Payment"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:240
+#: includes/Admin/views/subscription-details.php:244
 msgid "Billing & Shipping"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:251
+#: includes/Admin/views/subscription-details.php:255
 msgid "Additional Details"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:310
-#: includes/Admin/views/subscription-list.php:126
-msgid "10 / page"
-msgstr ""
-
-#: includes/Admin/views/subscription-details.php:314
-#: includes/Admin/views/subscription-list.php:130
-msgid "20 / page"
-msgstr ""
-
-#: includes/Admin/views/subscription-details.php:318
-#: includes/Admin/views/subscription-list.php:134
-msgid "50 / page"
-msgstr ""
-
-#: includes/Admin/views/subscription-details.php:322
-#: includes/Admin/views/subscription-list.php:138
-msgid "100 / page"
-msgstr ""
-
-#: includes/Admin/views/subscription-details.php:392
+#: includes/Admin/views/subscription-details.php:377
 msgid "Grace Period"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:397
+#: includes/Admin/views/subscription-details.php:382
 msgid "Remaining"
 msgstr ""
 
 #. translators: %d: days
-#: includes/Admin/views/subscription-details.php:398
+#: includes/Admin/views/subscription-details.php:383
 #, php-format
 msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/views/subscription-details.php:402
+#: includes/Admin/views/subscription-details.php:387
 msgid "End Date"
 msgstr ""
 
+#. translators: %s: plan name
+#. translators: %s: plan name.
+#: includes/Admin/views/subscription-details.php:422
+#: templates/myaccount/single.php:317
+#, php-format
+msgid "Plan: %s"
+msgstr ""
+
 #. translators: %s: quantity
-#: includes/Admin/views/subscription-details.php:436
+#: includes/Admin/views/subscription-details.php:429
 #, php-format
 msgid "Quantity: %s"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:479
+#: includes/Admin/views/subscription-details.php:472
 msgid "No payment method."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:510
+#: includes/Admin/views/subscription-details.php:503
 msgid "No subscription details available."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:518
-#: templates/myaccount/single.php:382
+#: includes/Admin/views/subscription-details.php:511
+#: templates/myaccount/single.php:397
 msgid "Related Orders"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:527
-#: templates/myaccount/single.php:386
+#: includes/Admin/views/subscription-details.php:520
+#: templates/myaccount/single.php:401
 msgid "#"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:528
-#: templates/myaccount/single.php:57
+#: includes/Admin/views/subscription-details.php:521
+#: templates/myaccount/single.php:63
 msgid "Order"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:529
-#: templates/myaccount/single.php:387
-msgid "Type"
-msgstr ""
-
-#: includes/Admin/views/subscription-details.php:530
-#: templates/myaccount/single.php:388
+#: includes/Admin/views/subscription-details.php:523
+#: templates/myaccount/single.php:403
 msgid "Date"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:532
-#: templates/myaccount/single.php:257
+#: includes/Admin/views/subscription-details.php:525
+#: templates/myaccount/single.php:266
 msgid "Payment"
 msgstr ""
 
 #. translators: %s: WooCommerce order number.
-#: includes/Admin/views/subscription-details.php:560
+#: includes/Admin/views/subscription-details.php:553
 #, php-format
 msgid "Order ID: #%s"
 msgstr ""
 
 #. translators: %1$s: first item number, %2$s: last item number, %3$s: total items
-#: includes/Admin/views/subscription-details.php:586
+#: includes/Admin/views/subscription-details.php:579
 #, php-format
 msgid "Showing %1$s–%2$s of %3$s related orders"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:592
-#: templates/myaccount/single.php:397
+#: includes/Admin/views/subscription-details.php:585
+#: templates/myaccount/single.php:412
 msgid "No related orders found."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:600
+#: includes/Admin/views/subscription-details.php:593
 msgid "Subscription Activities"
 msgstr ""
 
 #. translators: %1$s: first item number, %2$s: last item number, %3$s: total items
-#: includes/Admin/views/subscription-details.php:631
+#: includes/Admin/views/subscription-details.php:624
 #, php-format
 msgid "Showing %1$s–%2$s of %3$s activities"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:641
+#: includes/Admin/views/subscription-details.php:634
 msgid "Track subscription activity history, automation, and more."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:680
+#: includes/Admin/views/subscription-details.php:673
 msgid "Subscription Action"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:698
+#: includes/Admin/views/subscription-details.php:691
 msgid "Choose Action"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:706
+#: includes/Admin/views/subscription-details.php:699
 msgid "Process"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:710
+#: includes/Admin/views/subscription-details.php:703
 msgid "No actions available for this status."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:717
+#: includes/Admin/views/subscription-details.php:710
 msgid "Customer Details"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:735
+#: includes/Admin/views/subscription-details.php:728
 #: includes/Illuminate/Gateways/Paypal/Paypal.php:1779
 msgid "Order not found."
 msgstr ""
@@ -2251,108 +3478,109 @@ msgid "All Status"
 msgstr ""
 
 #: includes/Admin/views/subscription-list.php:57
-#: includes/Illuminate/Helper.php:68
+#: includes/Illuminate/Helper.php:73
 msgid "Pending"
 msgstr ""
 
 #: includes/Admin/views/subscription-list.php:61
-#: includes/Illuminate/Helper.php:72
+#: includes/Illuminate/Helper.php:78
 msgid "Pending Cancellation"
 msgstr ""
 
 #: includes/Admin/views/subscription-list.php:69
-#: includes/Illuminate/Helper.php:71
+#: includes/Illuminate/Helper.php:76
 msgid "Expired"
 msgstr ""
 
 #: includes/Admin/views/subscription-list.php:73
-#: includes/Admin/views/subscription-list.php:384
-#: includes/Illuminate/Helper.php:75
+#: includes/Illuminate/Helper.php:77
+msgid "Completed"
+msgstr ""
+
+#: includes/Admin/views/subscription-list.php:77
+#: includes/Admin/views/subscription-list.php:372
+#: includes/Illuminate/Helper.php:81
 msgid "Trash"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:101
+#: includes/Admin/views/subscription-list.php:105
 msgid "Search subscriptions..."
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:111
+#: includes/Admin/views/subscription-list.php:115
 msgid "Clear"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:153
+#: includes/Admin/views/subscription-list.php:139
 msgid "Restore selected"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:157
+#: includes/Admin/views/subscription-list.php:143
 msgid "Delete permanently"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:159
+#: includes/Admin/views/subscription-list.php:145
 msgid "Delete selected subscriptions permanently? This cannot be undone."
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:165
+#: includes/Admin/views/subscription-list.php:151
 msgid "Move to trash"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:167
+#: includes/Admin/views/subscription-list.php:153
 msgid "Move selected subscriptions to trash?"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:174
+#: includes/Admin/views/subscription-list.php:160
 msgid "Select Action"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:188
+#: includes/Admin/views/subscription-list.php:174
 msgid "Permanently delete all trash items? This cannot be undone."
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:189
+#: includes/Admin/views/subscription-list.php:175
 msgid "Empty Trash"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:196
+#: includes/Admin/views/subscription-list.php:182
 msgid "Subscriptions list"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:209
+#: includes/Admin/views/subscription-list.php:195
 msgid "Next Renewal"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:379
+#: includes/Admin/views/subscription-list.php:367
 msgid "Row actions"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:381
-msgid "View / Edit"
-msgstr ""
-
-#: includes/Admin/views/subscription-list.php:384
+#: includes/Admin/views/subscription-list.php:372
 msgid "Move this subscription to trash?"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:386
+#: includes/Admin/views/subscription-list.php:374
 msgid "Restore"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:387
+#: includes/Admin/views/subscription-list.php:375
 msgid "Delete permanently? This cannot be undone."
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:387
+#: includes/Admin/views/subscription-list.php:375
 msgid "Delete Permanently"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:400
+#: includes/Admin/views/subscription-list.php:388
 msgid "No subscriptions found"
 msgstr ""
 
-#: includes/Admin/views/subscription-list.php:401
+#: includes/Admin/views/subscription-list.php:389
 msgid "Subscriptions will appear here once customers complete checkout."
 msgstr ""
 
 #. translators: %1$s = first item number, %2$s = last item number, %3$s = total items.
-#: includes/Admin/views/subscription-list.php:422
+#: includes/Admin/views/subscription-list.php:410
 #, php-format
 msgid "Showing %1$s–%2$s of %3$s subscriptions"
 msgstr ""
@@ -2471,10 +3699,6 @@ msgstr ""
 msgid "Integration guides for LMS, CRM, automation, email marketing, and license management plugins."
 msgstr ""
 
-#: includes/Admin/views/support.php:210
-msgid "Get Support"
-msgstr ""
-
 #: includes/Admin/views/support.php:211
 msgid "wpsubscription.co/contact"
 msgstr ""
@@ -2510,6 +3734,50 @@ msgstr ""
 msgid "Plugin installed but could not be activated automatically."
 msgstr ""
 
+#: includes/Api/PlanController.php:224
+msgid "You are not allowed to manage subscription plans."
+msgstr ""
+
+#: includes/Api/PlanController.php:283
+msgid "Could not create the plan."
+msgstr ""
+
+#: includes/Api/PlanController.php:400
+msgid "A valid plan_group_id is required."
+msgstr ""
+
+#: includes/Api/PlanController.php:406
+msgid "Could not create the plan term."
+msgstr ""
+
+#: includes/Api/PlanController.php:492
+msgid "A valid plan_id is required."
+msgstr ""
+
+#: includes/Api/PlanController.php:496
+msgid "A product or term id (oid) is required."
+msgstr ""
+
+#: includes/Api/PlanController.php:511
+msgid "Could not attach the product."
+msgstr ""
+
+#: includes/Api/PlanController.php:671
+msgid "Plan view is not available for this product type."
+msgstr ""
+
+#: includes/Api/PlanController.php:836
+msgid "Recurring Delivery and Split Payment plans require Subscription Pro."
+msgstr ""
+
+#: includes/Api/PlanController.php:859
+msgid "Attaching plans to product variations requires Subscription Pro."
+msgstr ""
+
+#: includes/Api/PlanController.php:873
+msgid "Not found."
+msgstr ""
+
 #: includes/Frontend/ActionController.php:38
 #: includes/Frontend/ActionController.php:53
 msgid "You don't have permission to modify this subscription. If you believe this is an error, please contact support."
@@ -2517,154 +3785,154 @@ msgstr ""
 
 #: includes/Frontend/ActionController.php:67
 #: includes/Frontend/ActionController.php:96
-#: includes/Frontend/Cart.php:607
+#: includes/Frontend/Cart.php:656
 msgid "This subscription has reached its maximum payment limit and cannot be renewed further."
 msgstr ""
 
-#: includes/Frontend/Cart.php:53
-#: includes/Frontend/Cart.php:73
+#: includes/Frontend/Cart.php:58
+#: includes/Frontend/Cart.php:78
 msgid "This product cannot be added to the cart."
 msgstr ""
 
-#: includes/Frontend/Cart.php:96
+#: includes/Frontend/Cart.php:102
 msgid "You cannot purchase multiple subscriptions at the same time."
 msgstr ""
 
-#: includes/Frontend/Cart.php:98
+#: includes/Frontend/Cart.php:104
 msgid "You cannot purchase a subscription and a non-subscription product at the same time."
 msgstr ""
 
-#: includes/Frontend/Cart.php:102
+#: includes/Frontend/Cart.php:108
 msgid "You cannot purchase a subscription along with other products. Please remove other products from your cart first."
 msgstr ""
 
-#: includes/Frontend/Cart.php:163
+#: includes/Frontend/Cart.php:169
 msgid "Free Trial"
 msgstr ""
 
-#: includes/Frontend/Cart.php:197
-#: includes/Frontend/Cart.php:202
-#: includes/Frontend/Cart.php:207
+#: includes/Frontend/Cart.php:211
+#: includes/Frontend/Cart.php:216
+#: includes/Frontend/Cart.php:221
 msgid "An item which is no longer available was removed from your cart."
 msgstr ""
 
-#: includes/Frontend/Cart.php:248
+#: includes/Frontend/Cart.php:262
 msgid "List of recurring totals in cart."
 msgstr ""
 
-#: includes/Frontend/Cart.php:253
+#: includes/Frontend/Cart.php:267
 msgid "price of the subscription, after any discount that applies to renewals."
 msgstr ""
 
-#: includes/Frontend/Cart.php:258
+#: includes/Frontend/Cart.php:272
 msgid "price of the subscription before any discount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:263
+#: includes/Frontend/Cart.php:277
 msgid "amount charged today, after all discounts."
 msgstr ""
 
-#: includes/Frontend/Cart.php:268
+#: includes/Frontend/Cart.php:282
 msgid "Whether a discount applies to renewals."
 msgstr ""
 
-#: includes/Frontend/Cart.php:273
+#: includes/Frontend/Cart.php:287
 msgid "Whether a discount applies to the first payment only."
 msgstr ""
 
-#: includes/Frontend/Cart.php:278
+#: includes/Frontend/Cart.php:292
 msgid "Number of payments the recurring discount covers. 0 means unlimited."
 msgstr ""
 
-#: includes/Frontend/Cart.php:283
+#: includes/Frontend/Cart.php:297
 msgid "time of the subscription."
 msgstr ""
 
-#: includes/Frontend/Cart.php:288
+#: includes/Frontend/Cart.php:302
 msgid "type of the subscription."
 msgstr ""
 
-#: includes/Frontend/Cart.php:293
+#: includes/Frontend/Cart.php:307
 msgid "price of the subscription description."
 msgstr ""
 
-#: includes/Frontend/Cart.php:303
-#: includes/Frontend/Cart.php:399
+#: includes/Frontend/Cart.php:317
+#: includes/Frontend/Cart.php:421
 msgid "Maximum Total Payments"
 msgstr ""
 
-#: includes/Frontend/Cart.php:339
-#: includes/Frontend/Cart.php:527
+#: includes/Frontend/Cart.php:322
+msgid "Total price for a split-payment plan (entered plan price)."
+msgstr ""
+
+#: includes/Frontend/Cart.php:358
+#: includes/Frontend/Cart.php:576
 #: includes/Frontend/Order.php:114
 msgid "Next billing on"
 msgstr ""
 
-#: includes/Frontend/Cart.php:340
-#: includes/Frontend/Cart.php:526
+#: includes/Frontend/Cart.php:359
+#: includes/Frontend/Cart.php:575
 #: includes/Frontend/Order.php:131
 #: includes/Illuminate/views/subscription-table.php:80
 msgid "First billing on"
 msgstr ""
 
-#: includes/Frontend/Cart.php:374
+#: includes/Frontend/Cart.php:396
 msgid "time of the subscription type."
 msgstr ""
 
-#: includes/Frontend/Cart.php:379
+#: includes/Frontend/Cart.php:401
 msgid "the subscription type."
 msgstr ""
 
-#: includes/Frontend/Cart.php:384
+#: includes/Frontend/Cart.php:406
 msgid "the subscription trial."
 msgstr ""
 
-#: includes/Frontend/Cart.php:389
+#: includes/Frontend/Cart.php:411
 msgid "Signup Fee amount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:394
+#: includes/Frontend/Cart.php:416
 msgid "Recurring amount."
 msgstr ""
 
-#: includes/Frontend/Cart.php:513
-#: includes/Frontend/Cart.php:514
+#: includes/Frontend/Cart.php:562
+#: includes/Frontend/Cart.php:563
 #: build/index.js:1
-#: src/index.js:76
+#: src/index.js:72
 msgid "Recurring totals"
 msgstr ""
 
 #. translators: 1: amount paid today, 2: amount charged on each renewal.
-#: includes/Frontend/Cart.php:541
+#: includes/Frontend/Cart.php:590
 #: build/index.js:4
-#: src/index.js:129
+#: src/index.js:125
 #, php-format,js-format
 msgid "You pay %1$s today. %2$s will be charged from the next renewal."
 msgstr ""
 
 #. translators: 1: number of discounted payments, 2: full price charged afterwards.
-#: includes/Frontend/Cart.php:557
+#: includes/Frontend/Cart.php:606
 #: build/index.js:7
-#: src/index.js:142
+#: src/index.js:138
 #, php-format,js-format
 msgid "Discount applies to your first %1$s payments. After that, %2$s."
 msgstr ""
 
-#: includes/Frontend/Cart.php:568
+#: includes/Frontend/Cart.php:617
 #: build/index.js:7
-#: src/index.js:153
+#: src/index.js:149
 msgid "You can cancel subscription at any time!"
 msgstr ""
 
 #. translators: 1: number of installments, 2: total amount.
-#: includes/Frontend/Cart.php:579
+#: includes/Frontend/Cart.php:628
 #: build/index.js:10
-#: src/index.js:162
+#: src/index.js:158
 #, php-format,js-format
 msgid "This subscription will be billed in %1$s installments, for a total of %2$s."
-msgstr ""
-
-#: includes/Frontend/MyAccount.php:139
-msgid "Cancel"
 msgstr ""
 
 #: includes/Frontend/MyAccount.php:148
@@ -2672,8 +3940,8 @@ msgid "Reactivate"
 msgstr ""
 
 #: includes/Frontend/MyAccount.php:158
-#: includes/Frontend/Product.php:250
-#: templates/myaccount/single.php:354
+#: includes/Frontend/Product.php:261
+#: templates/myaccount/single.php:369
 msgid "Renew"
 msgstr ""
 
@@ -2702,54 +3970,64 @@ msgstr ""
 msgid "Recurring amount"
 msgstr ""
 
-#: includes/Frontend/Product.php:117
-#: includes/Frontend/Product.php:122
+#. translators: 1: price (may include a struck-through regular price), 2: billing interval.
+#: includes/Frontend/Plans.php:289
+#, php-format
+msgid "Billed %1$s / %2$s"
+msgstr ""
+
+#: includes/Frontend/Product.php:128
+#: includes/Frontend/Product.php:133
 msgid "You Already Subscribed These Product!"
 msgstr ""
 
-#: includes/functions.php:39
-#: includes/Illuminate/Helper.php:32
+#: includes/Frontend/Product.php:294
+msgid "Select options"
+msgstr ""
+
+#: includes/functions.php:49
+#: includes/Illuminate/Helper.php:37
 msgid "day"
 msgid_plural "days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/functions.php:41
-#: includes/Illuminate/Helper.php:38
+#: includes/functions.php:51
+#: includes/Illuminate/Helper.php:43
 msgid "week"
 msgid_plural "weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/functions.php:45
-#: includes/Illuminate/Helper.php:50
+#: includes/functions.php:55
+#: includes/Illuminate/Helper.php:55
 msgid "year"
 msgid_plural "years"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/functions.php:416
+#. translators: %d: discount percentage.
+#: includes/functions.php:170
+#, php-format
+msgid "Save up to %d%%"
+msgstr ""
+
+#. translators: %d: discount percentage.
+#: includes/functions.php:172
+#, php-format
+msgid "Save %d%%"
+msgstr ""
+
+#: includes/functions.php:174
+msgid "Sale"
+msgstr ""
+
+#: includes/functions.php:226
+msgid "One Time Purchase"
+msgstr ""
+
+#: includes/functions.php:704
 msgid "New Subscription Order"
-msgstr ""
-
-#. translators: %1$d: payments made, %2$d: total payments
-#: includes/functions.php:611
-#, php-format
-msgid "Split payment plan completed successfully! %1$d of %2$d payments received."
-msgstr ""
-
-#: includes/functions.php:625
-msgid "Split Payment - Plan Complete"
-msgstr ""
-
-#. translators: %1$d: payments made, %2$d: total payments, %3$s: completion date
-#: includes/functions.php:631
-#, php-format
-msgid "Payment Summary: %1$d of %2$d installments completed on %3$s. All payments received successfully."
-msgstr ""
-
-#: includes/functions.php:645
-msgid "Payment Summary - Complete"
 msgstr ""
 
 #: includes/Illuminate/AutoRenewal.php:44
@@ -2757,68 +4035,110 @@ msgstr ""
 msgid "Subscription early renewal order creation failed due to product deletion !"
 msgstr ""
 
-#: includes/Illuminate/Cancellation.php:104
+#: includes/Illuminate/Cancellation.php:106
 msgid "Cancellation Reason"
 msgstr ""
 
-#: includes/Illuminate/Cancellation.php:112
+#: includes/Illuminate/Cancellation.php:114
 msgid "No reason selected"
 msgstr ""
 
 #. translators: %s: date and time the feedback was submitted.
-#: includes/Illuminate/Cancellation.php:119
+#: includes/Illuminate/Cancellation.php:121
 #, php-format
 msgid "Submitted %s"
 msgstr ""
 
-#: includes/Illuminate/Cancellation.php:185
+#: includes/Illuminate/Cancellation.php:188
 msgid "Before you go"
 msgstr ""
 
-#: includes/Illuminate/Cancellation.php:191
-msgid "Please let us know why you are cancelling. Your feedback helps us improve."
+#. translators: %s: discount percentage.
+#: includes/Illuminate/Cancellation.php:200
+#, php-format
+msgid "Stay with us and take %s%% off your next order."
 msgstr ""
 
-#: includes/Illuminate/Cancellation.php:211
-msgid "Additional comments (optional)"
+#: includes/Illuminate/Cancellation.php:208
+msgid "No thanks, continue"
 msgstr ""
 
-#: includes/Illuminate/Cancellation.php:215
-msgid "Keep subscription"
+#: includes/Illuminate/Cancellation.php:210
+msgid "Claim discount"
 msgstr ""
 
 #: includes/Illuminate/Cancellation.php:216
+msgid "Please let us know why you are cancelling. Your feedback helps us improve."
+msgstr ""
+
+#: includes/Illuminate/Cancellation.php:236
+msgid "Additional comments (optional)"
+msgstr ""
+
+#: includes/Illuminate/Cancellation.php:240
 msgid "Confirm cancellation"
 msgstr ""
 
-#: includes/Illuminate/Cancellation.php:367
-msgid "Too expensive"
-msgstr ""
-
-#: includes/Illuminate/Cancellation.php:371
-msgid "Missing features I need"
-msgstr ""
-
-#: includes/Illuminate/Cancellation.php:375
-msgid "Found a better alternative"
-msgstr ""
-
-#: includes/Illuminate/Cancellation.php:379
-msgid "No longer needed"
-msgstr ""
-
-#: includes/Illuminate/Cancellation.php:383
-msgid "Technical issues"
+#: includes/Illuminate/Cancellation.php:241
+msgid "Keep subscription"
 msgstr ""
 
 #. translators: %s: cancellation date and time.
-#: includes/Illuminate/Cancellation.php:563
+#: includes/Illuminate/Cancellation.php:749
 #, php-format
 msgid "This subscription is scheduled to be cancelled on %s. You can continue accessing it until then."
 msgstr ""
 
-#: includes/Illuminate/Cancellation.php:567
+#: includes/Illuminate/Cancellation.php:753
 msgid "This subscription is scheduled to be cancelled at the end of the current billing period. You can continue accessing it until then."
+msgstr ""
+
+#: includes/Illuminate/Emails/AdminCancellationEmail.php:72
+msgid "Recipient(s)"
+msgstr ""
+
+#: includes/Illuminate/Emails/AdminCancellationEmail.php:74
+msgid "Enter recipients (comma-separated) for this email. Defaults to the WooCommerce store email."
+msgstr ""
+
+#: includes/Illuminate/Emails/CancellationAdmin.php:32
+msgid "Subscription cancelled ( Admin )"
+msgstr ""
+
+#: includes/Illuminate/Emails/CancellationAdmin.php:33
+msgid "Sent to the store owner when a customer cancels a subscription."
+msgstr ""
+
+#: includes/Illuminate/Emails/CancellationAdmin.php:56
+msgid "[{site_title}] A subscription was cancelled"
+msgstr ""
+
+#: includes/Illuminate/Emails/CancellationAdmin.php:65
+msgid "A subscription was cancelled"
+msgstr ""
+
+#: includes/Illuminate/Emails/CancellationAdmin.php:74
+msgid "A customer has cancelled their subscription."
+msgstr ""
+
+#: includes/Illuminate/Emails/SavedAdmin.php:26
+msgid "Subscription saved ( Admin )"
+msgstr ""
+
+#: includes/Illuminate/Emails/SavedAdmin.php:27
+msgid "Sent to the store owner when a customer starts cancelling and then keeps their subscription."
+msgstr ""
+
+#: includes/Illuminate/Emails/SavedAdmin.php:43
+msgid "[{site_title}] A subscription was saved"
+msgstr ""
+
+#: includes/Illuminate/Emails/SavedAdmin.php:52
+msgid "A subscription was saved"
+msgstr ""
+
+#: includes/Illuminate/Emails/SavedAdmin.php:61
+msgid "A customer started cancelling a subscription and then decided to keep it."
 msgstr ""
 
 #: includes/Illuminate/Emails/StatusChangedAdmin.php:22
@@ -3133,24 +4453,24 @@ msgstr ""
 msgid "PayPal refund initiated. Refund ID: %s"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Stripe/Stripe.php:127
+#: includes/Illuminate/Gateways/Stripe/Stripe.php:130
 msgid "SEPA Direct Debit"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Stripe/Stripe.php:189
+#: includes/Illuminate/Gateways/Stripe/Stripe.php:192
 msgid "Customer not found"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Stripe/Stripe.php:218
+#: includes/Illuminate/Gateways/Stripe/Stripe.php:221
 msgid "The subscription renewal payment could not be completed automatically. Customer authentication may be required."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Stripe/Stripe.php:677
+#: includes/Illuminate/Gateways/Stripe/Stripe.php:696
 msgid "Stripe did not attach a customer to this payment, so no reusable payment method was stored. Automatic renewal will fail until the customer saves a payment method."
 msgstr ""
 
 #. translators: %1$s first name, %2$s last name, %3$s username.
-#: includes/Illuminate/Gateways/Stripe/Stripe.php:746
+#: includes/Illuminate/Gateways/Stripe/Stripe.php:765
 #, php-format
 msgid "Name: %1$s %2$s, Username: %3$s"
 msgstr ""
@@ -3193,134 +4513,90 @@ msgstr ""
 msgid "You are ordering a subscription product. You must be either <strong>logged in</strong> or check the \"<strong>Create an account</strong>\" option to continue the checkout."
 msgstr ""
 
-#: includes/Illuminate/Helper.php:70
+#: includes/Illuminate/Helper.php:75
 msgid "On Hold"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:74
-msgid "Draft"
-msgstr ""
-
 #. translators: %s: trial period.
-#: includes/Illuminate/Helper.php:375
+#: includes/Illuminate/Helper.php:381
 #, php-format
 msgid "+ %s free trial!"
 msgstr ""
 
 #. translators: %1$s: order id, %2$d: payment number, %3$d: total payments
-#: includes/Illuminate/Helper.php:433
+#: includes/Illuminate/Helper.php:439
 #, php-format
 msgid "Split payment installment %2$d of %3$d. Order %1$s created for subscription."
 msgstr ""
 
-#: includes/Illuminate/Helper.php:438
+#: includes/Illuminate/Helper.php:444
 msgid "Split Payment - Renewal"
 msgstr ""
 
 #. translators: order id.
-#: includes/Illuminate/Helper.php:442
+#: includes/Illuminate/Helper.php:448
 #, php-format
 msgid "The order %s has been created for the subscription"
 msgstr ""
 
 #. translators: %1$s: order id, %2$d: max payments
-#: includes/Illuminate/Helper.php:527
+#: includes/Illuminate/Helper.php:534
 #, php-format
 msgid "Split payment subscription created successfully. Order: %1$s. Total installments: %2$d."
 msgstr ""
 
-#: includes/Illuminate/Helper.php:531
+#: includes/Illuminate/Helper.php:538
 msgid "Split Payment - New Subscription"
 msgstr ""
 
 #. translators: Order Id.
-#: includes/Illuminate/Helper.php:535
+#: includes/Illuminate/Helper.php:542
 #, php-format
 msgid "Subscription successfully created. Order is %s"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:538
+#: includes/Illuminate/Helper.php:545
 #: includes/Illuminate/Post.php:67
 msgid "New Subscription"
 msgstr ""
 
 #. translators: 1: discounted recurring amount, 2: original amount before the discount.
-#: includes/Illuminate/Helper.php:964
+#: includes/Illuminate/Helper.php:971
 #, php-format
 msgid "%1$s (discounted from %2$s)"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:1588
+#: includes/Illuminate/Helper.php:1604
 msgid "Subscription renewal isn't possible due to previous order not completed or deletion."
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency
-#: includes/Illuminate/Order.php:358
+#: includes/Illuminate/Order.php:391
 #, php-format
 msgid "Split payment %1$d of %2$d received (%3$s %4$s). Initial access granted."
 msgstr ""
 
-#: includes/Illuminate/Order.php:364
+#: includes/Illuminate/Order.php:397
 msgid "Split Payment - Initial"
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$s: amount, %4$s: currency, %5$d: remaining
-#: includes/Illuminate/Order.php:368
+#: includes/Illuminate/Order.php:401
 #, php-format
 msgid "Split payment %1$d of %2$d received (%3$s %4$s). %5$d payments remaining."
 msgstr ""
 
-#: includes/Illuminate/Order.php:375
+#: includes/Illuminate/Order.php:408
 msgid "Split Payment - Installment"
 msgstr ""
 
 #. translators: %1$d: payment number, %2$d: total payments, %3$d: subscription id
-#: includes/Illuminate/Order.php:394
+#: includes/Illuminate/Order.php:427
 #, php-format
 msgid "Split payment %1$d of %2$d received for subscription #%3$d"
 msgstr ""
 
-#. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:433
-#, php-format
-msgid "Payment milestone reached: %1$d of %2$d payments completed (25%%)."
-msgstr ""
-
-#: includes/Illuminate/Order.php:437
-msgid "Payment Milestone - 25%"
-msgstr ""
-
-#. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:443
-#, php-format
-msgid "Payment milestone reached: %1$d of %2$d payments completed (50%%). Halfway there!"
-msgstr ""
-
-#: includes/Illuminate/Order.php:447
-msgid "Payment Milestone - 50%"
-msgstr ""
-
-#. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:453
-#, php-format
-msgid "Payment milestone reached: %1$d of %2$d payments completed (75%%). Almost complete!"
-msgstr ""
-
-#: includes/Illuminate/Order.php:457
-msgid "Payment Milestone - 75%"
-msgstr ""
-
-#. translators: %1$d: payments made, %2$d: total payments
-#: includes/Illuminate/Order.php:463
-#, php-format
-msgid "Payment milestone reached: %1$d of %2$d payments completed (100%%). Split payment plan complete!"
-msgstr ""
-
-#: includes/Illuminate/Order.php:467
-msgid "Payment Milestone - 100%"
-msgstr ""
-
-#: includes/Illuminate/Order.php:535
+#: includes/Illuminate/Order.php:482
 msgid "Subscription order with trial."
 msgstr ""
 
@@ -3463,11 +4739,24 @@ msgstr[1] ""
 
 #: includes/Illuminate/Post.php:238
 msgctxt "post status label"
+msgid "Completed"
+msgstr ""
+
+#. translators: completed posts count.
+#: includes/Illuminate/Post.php:241
+#, php-format
+msgid "Completed <span class=\"count\">(%s)</span>"
+msgid_plural "Completed <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Illuminate/Post.php:254
+msgctxt "post status label"
 msgid "Pending Cancellation"
 msgstr ""
 
 #. translators: pending cancellation posts count.
-#: includes/Illuminate/Post.php:241
+#: includes/Illuminate/Post.php:257
 #, php-format
 msgid "Pending Cancellation <span class=\"count\">(%s)</span>"
 msgid_plural "Pending Cancellation <span class=\"count\">(%s)</span>"
@@ -3484,6 +4773,72 @@ msgstr ""
 
 #: includes/Traits/Email.php:101
 msgid "Subscription: #{subscription_id}"
+msgstr ""
+
+#: templates/emails/cancellation-admin-html.php:32
+msgid "Reason given"
+msgstr ""
+
+#: templates/emails/cancellation-admin-html.php:34
+#: templates/emails/plains/cancellation-admin-plain.php:19
+msgid "No reason given"
+msgstr ""
+
+#: templates/emails/cancellation-admin-html.php:38
+#: templates/emails/cancellation-saved-admin-html.php:38
+msgid "Reported"
+msgstr ""
+
+#: templates/emails/cancellation-admin-html.php:45
+#: templates/emails/plains/cancellation-admin-plain.php:21
+msgid "Which customer cancelled, what they wrote, and your full churn history are shown in WPSubscription Pro."
+msgstr ""
+
+#: templates/emails/cancellation-admin-html.php:53
+#: templates/emails/cancellation-saved-admin-html.php:53
+msgid "See it in Pro"
+msgstr ""
+
+#: templates/emails/cancellation-admin-html.php:60
+#: templates/emails/cancellation-saved-admin-html.php:60
+msgid "Open the Reports page"
+msgstr ""
+
+#: templates/emails/cancellation-saved-admin-html.php:32
+msgid "Reason they had selected"
+msgstr ""
+
+#: templates/emails/cancellation-saved-admin-html.php:34
+#: templates/emails/plains/cancellation-saved-admin-plain.php:19
+msgid "None selected"
+msgstr ""
+
+#: templates/emails/cancellation-saved-admin-html.php:45
+#: templates/emails/plains/cancellation-saved-admin-plain.php:21
+msgid "Which customer this was, and your full retention history, are shown in WPSubscription Pro."
+msgstr ""
+
+#: templates/emails/plains/cancellation-admin-plain.php:19
+msgid "Reason given:"
+msgstr ""
+
+#: templates/emails/plains/cancellation-admin-plain.php:20
+#: templates/emails/plains/cancellation-saved-admin-plain.php:20
+msgid "Reported:"
+msgstr ""
+
+#: templates/emails/plains/cancellation-admin-plain.php:22
+#: templates/emails/plains/cancellation-saved-admin-plain.php:22
+msgid "See it in Pro:"
+msgstr ""
+
+#: templates/emails/plains/cancellation-admin-plain.php:23
+#: templates/emails/plains/cancellation-saved-admin-plain.php:23
+msgid "Reports:"
+msgstr ""
+
+#: templates/emails/plains/cancellation-saved-admin-plain.php:19
+msgid "Reason they had selected:"
 msgstr ""
 
 #. translators: Number of days before & day|days.
@@ -3577,80 +4932,72 @@ msgstr ""
 msgid "Open subscription"
 msgstr ""
 
-#: templates/myaccount/single.php:88
+#: templates/myaccount/single.php:94
 msgid "Grace Period Ends On"
 msgstr ""
 
-#: templates/myaccount/single.php:103
+#: templates/myaccount/single.php:109
 msgid "Start date"
 msgstr ""
 
-#: templates/myaccount/single.php:105
+#: templates/myaccount/single.php:111
 msgid "Trial End & Subscription Start"
 msgstr ""
 
-#: templates/myaccount/single.php:107
+#: templates/myaccount/single.php:113
 msgid "Trial End & First Billing"
 msgstr ""
 
-#: templates/myaccount/single.php:117
+#: templates/myaccount/single.php:123
 msgid "Next payment date"
 msgstr ""
 
-#: templates/myaccount/single.php:185
+#: templates/myaccount/single.php:191
 msgid "Payment Type"
 msgstr ""
 
-#: templates/myaccount/single.php:189
-msgid "Split Payment"
-msgstr ""
-
-#: templates/myaccount/single.php:220
+#: templates/myaccount/single.php:229
 msgid "Access Duration"
 msgstr ""
 
-#: templates/myaccount/single.php:225
+#: templates/myaccount/single.php:234
 msgid "Lifetime access after completion"
 msgstr ""
 
-#: templates/myaccount/single.php:228
-#: templates/myaccount/single.php:239
+#: templates/myaccount/single.php:237
+#: templates/myaccount/single.php:248
 msgid "Full subscription duration"
 msgstr ""
 
 #. translators: %1$s: duration time, %2$s: duration type
-#: templates/myaccount/single.php:233
+#: templates/myaccount/single.php:242
 #, php-format
 msgid "%1$s %2$s after first payment"
 msgstr ""
 
-#: templates/myaccount/single.php:249
+#: templates/myaccount/single.php:258
 msgid "Access Ends On"
 msgstr ""
 
-#: templates/myaccount/single.php:283
+#: templates/myaccount/single.php:292
 msgid "Subscription Totals"
 msgstr ""
 
-#: templates/myaccount/single.php:318
+#: templates/myaccount/single.php:333
 msgid "Subtotal"
 msgstr ""
 
-#: templates/myaccount/single.php:328
-msgid "Discount"
-msgstr ""
-
-#: templates/myaccount/single.php:344
+#: templates/myaccount/single.php:359
 msgid "Tax"
 msgstr ""
 
 #. translators: %s: WooCommerce order number.
-#: templates/myaccount/single.php:426
+#: templates/myaccount/single.php:441
 #, php-format
 msgid "Order #%s"
 msgstr ""
 
-#: templates/myaccount/single.php:452
+#: templates/myaccount/single.php:467
 msgid "Billing address"
 msgstr ""
 
@@ -3670,16 +5017,75 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: assets/js/admin-components.js:1078
+#: assets/js/admin-components/pagination.js:322
 msgid "No matching records."
 msgstr ""
 
+#. translators: %d: number of months.
+#: build/dashboard.js:2
+#: src/dashboard/SalesChart.js:29
+#, js-format
+msgid "across the last %d months"
+msgstr ""
+
+#: build/dashboard.js:2
+#: src/dashboard/SalesChart.js:37
+msgid "No subscription revenue yet. Bars appear once orders come in."
+msgstr ""
+
+#: build/dashboard.js:2
+#: src/dashboard/SetupChecklist.js:25
+msgid "Get set up"
+msgstr ""
+
+#: build/dashboard.js:2
+#: src/dashboard/SetupChecklist.js:26
+msgid "A few steps before your store can sell subscriptions."
+msgstr ""
+
+#. translators: 1: steps done, 2: steps total.
+#: build/dashboard.js:3
+#: src/dashboard/SetupChecklist.js:31
+#, js-format
+msgid "%1$d of %2$d done"
+msgstr ""
+
+#: build/dashboard.js:3
+#: src/dashboard/BuildCards.js:11
+msgid "Build with WPSubscription"
+msgstr ""
+
+#: build/dashboard.js:3
+#: src/dashboard/BuildCards.js:12
+msgid "Everything you need to grow recurring revenue."
+msgstr ""
+
+#: build/dashboard.js:3
+#: src/dashboard/App.js:27
+msgid "Subscription pulse"
+msgstr ""
+
+#: build/dashboard.js:3
+#: src/dashboard/App.js:29
+msgid "Live counts of subscriptions and renewal activity in your store."
+msgstr ""
+
+#: build/dashboard.js:3
+#: src/dashboard/App.js:44
+msgid "Monthly sales"
+msgstr ""
+
+#: build/dashboard.js:3
+#: src/dashboard/App.js:45
+msgid "Revenue from subscription orders."
+msgstr ""
+
 #: build/index.js:1
-#: src/index.js:18
+#: src/index.js:22
 msgid "Due Today"
 msgstr ""
 
 #: build/index.js:1
-#: src/index.js:47
+#: src/index.js:42
 msgid "Every"
 msgstr ""

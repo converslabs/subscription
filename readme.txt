@@ -1,9 +1,9 @@
 === Subscriptions for WooCommerce with Stripe Recurring Payments ===
 Contributors: converswp, shamsbd71, aushamim
 Tags: woocommerce subscriptions, subscriptions, recurring payments, billing, stripe
-Requires at least: 6.0
-Tested up to: 7.0
-Stable tag: 1.11.2
+Requires at least: 6.2
+Tested up to: 7.1
+Stable tag: 2.0.0-beta1
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -315,6 +315,20 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.0.0-beta1 - Sep 10, 2026 =
+-   new: Plans — build a plan once, give it durations, connect products and price them in one place.
+-   new: Overview dashboard with monthly sales, a setup checklist and store health.
+-   new: Cancellation Flow — ask why, and offer a discount before the customer leaves.
+-   new: One-time purchase alongside a subscription, on the product and the storefront.
+-   new: Reports gains a Cancellation tab.
+-   new: Checkout links you can copy for any plan duration.
+-   tweak: Settings regrouped into one list — Renewals, Payments, Switching, Customers, Advanced.
+-   tweak: Admin menu holds one order whether or not Pro is active; Dashboard is now Overview.
+-   tweak: Saving prices and products no longer reloads the page, and confirms with a toast.
+-   tweak: Integrations page filters live, with counts.
+-   fix: Renewal Process and Renewal Cart Notice reach the code again.
+-   fix: The Pro upgrade overlay no longer covers the WordPress menu.
 
 = 1.11.2 - Aug 30, 2026 =
 -   new: Relative ordering of renewal orders.
