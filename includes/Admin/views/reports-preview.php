@@ -190,20 +190,16 @@ $dummy_cancellation_reasons = array(
 	</div>
 
 	<!-- Page header -->
-	<div style="max-width:1240px;margin:20px auto 0;padding:0 0 20px;">
-		<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;">
-			<div>
-				<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Subscription Reports', 'subscription' ); ?></h1>
-				<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0;line-height:1.5;"><?php esc_html_e( 'Data-driven insights for your subscription business.', 'subscription' ); ?></p>
-			</div>
-			<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:4px;">
-				<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="height:28px;padding:0 10px;font-size:12px;cursor:not-allowed;opacity:0.6;" disabled>
-					<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" style="flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-					<?php esc_html_e( 'Refresh', 'subscription' ); ?>
-				</button>
-			</div>
-		</div>
-		<div style="border-top:1px dashed #d0d3d7;"></div>
+	<div style="max-width:1240px;margin:20px auto 0;">
+		<?php
+		wpsubs_render_page_header(
+			array(
+				'title'       => __( 'Subscription Reports', 'subscription' ),
+				'description' => __( 'Data-driven insights for your subscription business.', 'subscription' ),
+				'actions'     => '<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="height:28px;padding:0 10px;font-size:12px;cursor:not-allowed;opacity:0.6;" disabled><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" style="flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>' . esc_html__( 'Refresh', 'subscription' ) . '</button>',
+			)
+		);
+		?>
 	</div>
 
 	<div class="wpsubs-tabs" data-tabs-query="report" style="max-width:1240px;margin:0 auto;">

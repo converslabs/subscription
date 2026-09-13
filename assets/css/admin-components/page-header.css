@@ -22,6 +22,24 @@
   margin-bottom: 20px;
 }
 
+/* With an aside (e.g. stat cards), the header and the aside sit side by side. */
+.wpsubs-page-header--has-aside {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.wpsubs-page-header--has-aside .wpsubs-page-header__main {
+  flex: 1 1 auto;
+  min-width: 240px;
+}
+.wpsubs-page-header__aside {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 /* Title row: the title on the left, a spacer, then any action buttons pushed to
    the right — all on one line. The description sits full-width below it. */
 .wpsubs-page-header__row {

@@ -26,14 +26,15 @@ $subscrpt_pro_active = subscrpt_pro_activated();
 ?>
 <div class="wp-subscription-admin-content list-page">
 
-	<div style="display:flex;align-items:center;gap:10px;margin:0 0 12px;">
-		<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0;line-height:1.2;">
-			<?php esc_html_e( 'Cancellation Flow', 'subscription' ); ?>
-		</h1>
-		<?php if ( ! $subscrpt_pro_active ) : ?>
-			<?php echo wp_kses_post( SettingsHelper::pro_badge_html() ); ?>
-		<?php endif; ?>
-	</div>
+	<?php
+	wpsubs_render_page_header(
+		array(
+			'title'       => __( 'Cancellation Flow', 'subscription' ),
+			'description' => __( 'Customize what customers see when they cancel, and record why they leave.', 'subscription' ),
+			'actions'     => $subscrpt_pro_active ? '' : SettingsHelper::pro_badge_html(),
+		)
+	);
+	?>
 
 	<div class="wpsubs-table-card" style="padding:18px 20px;margin-bottom:18px;background:var(--wpsubs-surface-muted,#f9fafb);">
 		<ul style="margin:0 0 14px;padding-left:18px;color:var(--wpsubs-text-muted);font-size:13px;line-height:1.9;">
