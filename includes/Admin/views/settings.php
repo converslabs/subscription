@@ -38,19 +38,20 @@ $subscrpt_settings_base = admin_url( 'admin.php?page=wp-subscription-settings' )
 		<?php settings_fields( 'wp_subscription_settings' ); ?>
 		<?php do_settings_sections( 'wp_subscription_settings' ); ?>
 
-		<?php // Page header: matches the other admin pages (Subscriptions, Integrations) — title + one-line description + dashed rule — with Save pinned to the right of the title row. ?>
-		<div style="margin-bottom:20px;">
-			<div style="display:flex;align-items:flex-start;gap:12px;">
-				<div style="flex:1;min-width:0;">
-					<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Settings', 'subscription' ); ?></h1>
-					<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0 0 12px;line-height:1.5;"><?php esc_html_e( 'Configure how subscriptions renew, charge and behave for your customers.', 'subscription' ); ?></p>
-				</div>
-				<button type="submit" class="wpsubs-btn wpsubs-btn--primary subscrpt-settings__save">
-					<?php esc_html_e( 'Save changes', 'subscription' ); ?>
-				</button>
-			</div>
-			<div style="border-top:1px dashed #d0d3d7;"></div>
-		</div>
+		<?php
+		// Shared page header (title + description + dashed rule) with the Save
+		// button pinned to the right of the title row.
+		wpsubs_render_page_header(
+			array(
+				'title'       => __( 'Settings', 'subscription' ),
+				'description' => __( 'Configure how subscriptions renew, charge and behave for your customers.', 'subscription' ),
+				'actions'     => sprintf(
+					'<button type="submit" class="wpsubs-btn wpsubs-btn--primary subscrpt-settings__save">%s</button>',
+					esc_html__( 'Save changes', 'subscription' )
+				),
+			)
+		);
+		?>
 
 		<div class="subscrpt-settings__layout">
 

@@ -192,6 +192,7 @@ class Assets {
 		$component_files  = array(
 			'tokens',
 			'layout',
+			'page-header',
 			'forms',
 			'buttons',
 			'select',

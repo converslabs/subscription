@@ -1,6 +1,45 @@
 <?php
 
 /**
+ * Render the standard admin page header: title, optional description, optional
+ * right-aligned actions, and a dashed rule beneath. Keeps every screen's header
+ * identical — use this instead of hand-writing the markup on a new page.
+ *
+ * @param array $args Header args: `title` (required), `description`, `actions`
+ *                    (pre-escaped HTML for the right of the title row) and
+ *                    `class` (extra wrapper classes).
+ * @return void
+ */
+function wpsubs_render_page_header( array $args ): void {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'title'       => '',
+			'description' => '',
+			'actions'     => '',
+			'class'       => '',
+		)
+	);
+
+	$classes = 'wpsubs-page-header' . ( $args['class'] ? ' ' . $args['class'] : '' );
+	?>
+	<div class="<?php echo esc_attr( $classes ); ?>">
+		<div class="wpsubs-page-header__row">
+			<h1 class="wpsubs-page-header__title"><?php echo esc_html( $args['title'] ); ?></h1>
+			<?php if ( '' !== $args['actions'] ) : ?>
+				<span class="wpsubs-toolbar__spacer"></span>
+				<?php echo $args['actions']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- caller passes pre-escaped markup. ?>
+			<?php endif; ?>
+		</div>
+		<?php if ( '' !== $args['description'] ) : ?>
+			<p class="wpsubs-page-header__desc"><?php echo esc_html( $args['description'] ); ?></p>
+		<?php endif; ?>
+		<div class="wpsubs-page-header__rule"></div>
+	</div>
+	<?php
+}
+
+/**
  * Compute the visible page list for a paginator (current ± 1 window with
  * ellipsis for wider gaps, page 1 and the last page always pinned).
  *
