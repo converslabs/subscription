@@ -35,6 +35,15 @@ class Cancellation {
 	const CANCEL_AT_META = '_subscrpt_cancel_at';
 
 	/**
+	 * Key of the "Other" reason, which the survey adds by itself.
+	 *
+	 * Reserved: it is never one of the store's own reasons. See get_reasons().
+	 *
+	 * @var string
+	 */
+	const OTHER_KEY = 'other';
+
+	/**
 	 * Initialize the class.
 	 */
 	public function __construct() {
@@ -541,8 +550,10 @@ class Cancellation {
 	/**
 	 * Built-in default cancellation reasons.
 	 *
-	 * Used when no Pro-managed reason list is set. Filterable so Pro and
-	 * integrations can adjust the defaults.
+	 * Used when the store has not saved its own list. Written for a store
+	 * selling goods on a subscription — the reasons a customer stops a product
+	 * subscription — and without "Other", which get_reasons() adds by itself.
+	 * Filterable so Pro and integrations can adjust the defaults.
 	 *
 	 * @return array<int,array{key:string,label:string}>
 	 */
@@ -553,24 +564,24 @@ class Cancellation {
 				'label' => __( 'Too expensive', 'subscription' ),
 			],
 			[
-				'key'   => 'missing_features',
-				'label' => __( 'Missing features I need', 'subscription' ),
+				'key'   => 'too_much_product',
+				'label' => __( 'I have more than I need', 'subscription' ),
 			],
 			[
-				'key'   => 'found_alternative',
-				'label' => __( 'Found a better alternative', 'subscription' ),
+				'key'   => 'quality_issues',
+				'label' => __( 'Not happy with the quality', 'subscription' ),
 			],
 			[
-				'key'   => 'no_longer_needed',
-				'label' => __( 'No longer needed', 'subscription' ),
+				'key'   => 'delivery_issues',
+				'label' => __( 'Delivery took too long', 'subscription' ),
 			],
 			[
-				'key'   => 'technical_issues',
-				'label' => __( 'Technical issues', 'subscription' ),
+				'key'   => 'found_better_deal',
+				'label' => __( 'Found a better deal elsewhere', 'subscription' ),
 			],
 			[
-				'key'   => 'other',
-				'label' => __( 'Other', 'subscription' ),
+				'key'   => 'taking_a_break',
+				'label' => __( 'Just taking a break', 'subscription' ),
 			],
 		];
 
@@ -583,23 +594,51 @@ class Cancellation {
 	}
 
 	/**
-	 * Resolve the active cancellation reason list.
+	 * The store's own reasons: the saved list, or the defaults when none is saved.
 	 *
-	 * Uses the Pro-managed `subscrpt_cancellation_reasons` option when Pro is
-	 * active and the option is non-empty; otherwise falls back to the built-in
-	 * defaults so the feature works without Pro.
+	 * This is what the Reasons editor edits. It is read with or without Pro —
+	 * editing reasons is a free feature. An "other" entry saved before "Other"
+	 * became automatic is dropped, so it can never show twice.
+	 *
+	 * @return array<int,array{key:string,label:string}>
+	 */
+	public static function get_configured_reasons() {
+		$reasons = get_option( 'subscrpt_cancellation_reasons', [] );
+		if ( empty( $reasons ) || ! is_array( $reasons ) ) {
+			$reasons = self::default_reasons();
+		}
+
+		return array_values(
+			array_filter(
+				$reasons,
+				static function ( $reason ) {
+					return is_array( $reason ) && self::OTHER_KEY !== ( $reason['key'] ?? '' );
+				}
+			)
+		);
+	}
+
+	/**
+	 * The reasons customers are offered.
+	 *
+	 * The store's reasons, then "Other" when the comment box is on — an answer
+	 * that is none of the listed reasons needs the comment to say what it is,
+	 * so without the box there is no "Other". Everything customer-facing reads
+	 * this, including the label snapshot taken when feedback is recorded.
 	 *
 	 * @return array<int,array{key:string,label:string}>
 	 */
 	public static function get_reasons() {
-		if ( subscrpt_pro_activated() ) {
-			$reasons = get_option( 'subscrpt_cancellation_reasons', [] );
-			if ( ! empty( $reasons ) && is_array( $reasons ) ) {
-				return $reasons;
-			}
+		$reasons = self::get_configured_reasons();
+
+		if ( self::is_feedback_comment_enabled() ) {
+			$reasons[] = [
+				'key'   => self::OTHER_KEY,
+				'label' => __( 'Other', 'subscription' ),
+			];
 		}
 
-		return self::default_reasons();
+		return $reasons;
 	}
 
 	/**
