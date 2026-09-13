@@ -390,7 +390,7 @@ class Integrations {
 			'tutor_lms'   => [
 				'title'        => 'Tutor LMS',
 				'description'  => 'Restrict course access based on subscription status. Enroll and unenroll students automatically.',
-				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/tutor-lms.jpg',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/tutor-lms.gif',
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'lms',
@@ -413,7 +413,7 @@ class Integrations {
 			'learnpress'  => [
 				'title'        => 'LearnPress',
 				'description'  => 'Connect subscriptions with LearnPress courses. Enroll users automatically when subscriptions are active.',
-				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/learnpress.png',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/learnpress.gif',
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'lms',
@@ -578,7 +578,7 @@ class Integrations {
 			'license_mgr' => [
 				'title'        => 'License Manager for WooCommerce',
 				'description'  => 'Generate and manage software license keys that are automatically tied to active subscriptions.',
-				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/license-manager.png',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/license-manager.gif',
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'license',
