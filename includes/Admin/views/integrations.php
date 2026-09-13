@@ -100,6 +100,7 @@ $subscrpt_facets = [
 	// six cards as the Payment Gateways category. The card badge still shows
 	// it, where it says something about that one integration.
 	'tag'      => [
+		'free' => 0,
 		'pro'  => 0,
 		'beta' => 0,
 	],
@@ -115,6 +116,8 @@ foreach ( $integrations as $integration ) {
 
 	if ( ! empty( $integration['is_pro'] ) ) {
 		++$subscrpt_facets['tag']['pro'];
+	} else {
+		++$subscrpt_facets['tag']['free'];
 	}
 	if ( ! empty( $integration['is_beta'] ) ) {
 		++$subscrpt_facets['tag']['beta'];
@@ -143,6 +146,7 @@ $subscrpt_status_labels = [
 ];
 
 $subscrpt_tag_labels = [
+	'free' => __( 'Free', 'subscription' ),
 	'pro'  => __( 'Pro', 'subscription' ),
 	'beta' => __( 'Beta', 'subscription' ),
 ];
@@ -150,12 +154,14 @@ $subscrpt_tag_labels = [
 
 <div class="wp-subscription-admin-content list-page">
 
-	<!-- Page header -->
-	<div style="margin-bottom:20px;">
-		<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Integrations', 'subscription' ); ?></h1>
-		<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0 0 12px;line-height:1.5;"><?php esc_html_e( 'Connect your subscriptions with payment gateways and third-party plugins.', 'subscription' ); ?></p>
-		<div style="border-top:1px dashed #d0d3d7;"></div>
-	</div>
+	<?php
+	wpsubs_render_page_header(
+		array(
+			'title'       => __( 'Integrations', 'subscription' ),
+			'description' => __( 'Connect your subscriptions with payment gateways and third-party plugins.', 'subscription' ),
+		)
+	);
+	?>
 
 	<?php
 	/**
@@ -246,9 +252,8 @@ $subscrpt_tag_labels = [
 				<?php
 			endforeach;
 			?>
-
-			<?php // Last, after the filters it clears. The script shows it only while a filter is active. ?>
-			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm subscrpt-int-filters__reset" data-subscrpt-int-reset hidden>
+			<?php // Last in the rail: it only appears once a filter is on, and it undoes what is above it. ?>
+			<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-subscrpt-int-reset hidden>
 				<?php esc_html_e( 'Reset', 'subscription' ); ?>
 			</button>
 		</div>
@@ -296,6 +301,7 @@ $subscrpt_tag_labels = [
 					$subscrpt_card_tags   = array_keys(
 						array_filter(
 							[
+								'free'      => ! $is_pro,
 								'pro'       => $is_pro,
 								'beta'      => $is_beta,
 								'recurring' => ! empty( $integration['supports_recurring'] ),
@@ -416,6 +422,7 @@ $subscrpt_tag_labels = [
 					$subscrpt_card_tags   = array_keys(
 						array_filter(
 							[
+								'free'      => ! $is_pro,
 								'pro'       => $is_pro,
 								'beta'      => ! empty( $integration['is_beta'] ),
 								'recurring' => ! empty( $integration['supports_recurring'] ),

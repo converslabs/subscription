@@ -16,19 +16,18 @@ use SpringDevs\Subscription\Admin\Plans;
 ?>
 <div class="wp-subscription-admin-content list-page">
 
-	<!-- Page header -->
-	<div style="margin-bottom:20px;">
-		<div style="display:flex;align-items:center;gap:10px;margin:0 0 6px;">
-			<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0;line-height:1.2;"><?php esc_html_e( 'Plans', 'subscription' ); ?></h1>
-			<span class="wpsubs-toolbar__spacer"></span>
-			<button type="button" class="wpsubs-btn wpsubs-btn--primary" data-wpsubs-modal-open="subscrpt-create-plan">
-				<span class="dashicons dashicons-plus-alt2" style="font-size:14px;width:14px;height:14px;line-height:1;"></span>
-				<?php esc_html_e( 'Create Plan', 'subscription' ); ?>
-			</button>
-		</div>
-		<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0 0 12px;line-height:1.5;"><?php esc_html_e( 'Set up a plan and connect it to your products. Manage billing from one place.', 'subscription' ); ?></p>
-		<div style="border-top:1px dashed #d0d3d7;"></div>
-	</div>
+	<?php
+	wpsubs_render_page_header(
+		array(
+			'title'       => __( 'Plans', 'subscription' ),
+			'description' => __( 'Set up a plan and connect it to your products. Manage billing from one place.', 'subscription' ),
+			'actions'     => sprintf(
+				'<button type="button" class="wpsubs-btn wpsubs-btn--primary" data-wpsubs-modal-open="subscrpt-create-plan"><span class="dashicons dashicons-plus-alt2" style="font-size:14px;width:14px;height:14px;line-height:1;"></span>%s</button>',
+				esc_html__( 'Create Plan', 'subscription' )
+			),
+		)
+	);
+	?>
 
 	<?php if ( empty( $plans ) ) : ?>
 

@@ -25,12 +25,14 @@ use SpringDevs\Subscription\Illuminate\Cancellation;
 ?>
 <div class="wp-subscription-admin-content list-page">
 
-	<?php // No Pro badge on the title: the survey and its reasons are free; the Pro-only fields carry their own. ?>
-	<div style="display:flex;align-items:center;gap:10px;margin:0 0 12px;">
-		<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0;line-height:1.2;">
-			<?php esc_html_e( 'Cancellation Flow', 'subscription' ); ?>
-		</h1>
-	</div>
+	<?php
+	wpsubs_render_page_header(
+		array(
+			'title'       => __( 'Cancellation Flow', 'subscription' ),
+			'description' => __( 'Customize what customers see when they cancel, and record why they leave.', 'subscription' ),
+		)
+	);
+	?>
 
 	<div class="wpsubs-table-card" style="padding:18px 20px;margin-bottom:18px;background:var(--wpsubs-surface-muted,#f9fafb);">
 		<ul style="margin:0 0 14px;padding-left:18px;color:var(--wpsubs-text-muted);font-size:13px;line-height:1.9;">

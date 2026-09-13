@@ -120,12 +120,14 @@ $month_options = array(
 		</p>
 	</div>
 
-	<!-- Page header -->
-	<div style="margin-bottom:20px;">
-		<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Delivery Schedules', 'subscription' ); ?></h1>
-		<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0 0 12px;line-height:1.5;"><?php esc_html_e( 'Track and manage subscription delivery schedules.', 'subscription' ); ?></p>
-		<div style="border-top:1px dashed #d0d3d7;"></div>
-	</div>
+	<?php
+	wpsubs_render_page_header(
+		array(
+			'title'       => __( 'Delivery Schedules', 'subscription' ),
+			'description' => __( 'Track and manage subscription delivery schedules.', 'subscription' ),
+		)
+	);
+	?>
 
 	<!-- Toolbar -->
 	<div class="wpsubs-toolbar" style="margin-top:0;">

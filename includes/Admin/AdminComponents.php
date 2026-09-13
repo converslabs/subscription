@@ -1,4 +1,82 @@
 <?php
+/**
+ * Shared admin UI component renderers.
+ *
+ * @package SpringDevs\Subscription\Admin
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Render the standard admin page header: title, optional description, optional
+ * right-aligned actions, an optional right-hand aside (e.g. stat cards), and a
+ * dashed rule beneath. The one header for every admin screen in both plugins —
+ * use this instead of hand-writing the markup on a new page.
+ *
+ * @param array $args {
+ *     Header args.
+ *
+ *     @type string $title       Page title. Required.
+ *     @type string $description One-line description under the title.
+ *     @type string $doc_url     Docs URL; appends a "view documentation" link to
+ *                               the description.
+ *     @type string $actions     Pre-escaped HTML on the right of the title row.
+ *     @type string $aside       Pre-escaped HTML for a right-hand column beside
+ *                               the header (e.g. stat cards).
+ *     @type string $class       Extra classes on the wrapper.
+ * }
+ * @return void
+ */
+function wpsubs_render_page_header( array $args ): void {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'title'       => '',
+			'description' => '',
+			'doc_url'     => '',
+			'actions'     => '',
+			'aside'       => '',
+			'class'       => '',
+		)
+	);
+
+	$classes = 'wpsubs-page-header';
+	if ( '' !== $args['aside'] ) {
+		$classes .= ' wpsubs-page-header--has-aside';
+	}
+	if ( $args['class'] ) {
+		$classes .= ' ' . $args['class'];
+	}
+	?>
+	<div class="<?php echo esc_attr( $classes ); ?>">
+		<div class="wpsubs-page-header__main">
+			<div class="wpsubs-page-header__row">
+				<h1 class="wpsubs-page-header__title"><?php echo esc_html( $args['title'] ); ?></h1>
+				<?php if ( '' !== $args['actions'] ) : ?>
+					<span class="wpsubs-toolbar__spacer"></span>
+					<?php echo $args['actions']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- caller passes pre-escaped markup. ?>
+				<?php endif; ?>
+			</div>
+			<?php if ( '' !== $args['description'] ) : ?>
+				<p class="wpsubs-page-header__desc">
+					<?php echo esc_html( $args['description'] ); ?>
+					<?php if ( '' !== $args['doc_url'] ) : ?>
+						<?php esc_html_e( 'For more information,', 'subscription' ); ?>
+						<a href="<?php echo esc_url( $args['doc_url'] ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'view documentation', 'subscription' ); ?></a>.
+					<?php endif; ?>
+				</p>
+			<?php endif; ?>
+			<div class="wpsubs-page-header__rule"></div>
+		</div>
+		<?php if ( '' !== $args['aside'] ) : ?>
+			<div class="wpsubs-page-header__aside"><?php echo $args['aside']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- caller passes pre-escaped markup. ?></div>
+		<?php endif; ?>
+	</div>
+	<?php
+}
 
 /**
  * Compute the visible page list for a paginator (current ± 1 window with
