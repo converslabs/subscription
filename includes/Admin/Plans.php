@@ -125,6 +125,8 @@ class Plans {
 					'setActive'              => __( 'Set as Active', 'subscription' ),
 					'termActivated'          => __( 'Duration activated.', 'subscription' ),
 					'pricesSaved'            => __( 'Prices saved.', 'subscription' ),
+					'oneTimeOn'              => __( 'One-time purchase turned on.', 'subscription' ),
+					'oneTimeOff'             => __( 'One-time purchase turned off.', 'subscription' ),
 					/* translators: %d: number of products ticked in the picker. */
 					'picked'                 => __( '%d product(s) on this plan', 'subscription' ),
 					'pickedNone'             => __( 'No products on this plan', 'subscription' ),

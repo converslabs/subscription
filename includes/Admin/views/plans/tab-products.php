@@ -190,23 +190,27 @@ $has_terms = ! empty( $plan['terms'] );
 					<strong style="font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'One-time purchase', 'subscription' ); ?></strong>
 					<?php echo wp_kses_post( wpsubs_render_hint( __( 'This is the product’s regular WooCommerce price, charged when a customer buys it once instead of subscribing.', 'subscription' ) ) ); ?>
 					<span class="wpsubs-toolbar__spacer"></span>
+					<?php // The switch saves itself (plans.js): Save lives in the price row below, which hides while it is off. ?>
 					<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--wpsubs-text-muted);cursor:pointer;">
 						<input type="checkbox" class="wpsubs-toggle" data-subscrpt-onetime-enable <?php checked( $subscrpt_on ); ?> />
 						<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
 						<span><?php esc_html_e( 'Allow one-time purchase', 'subscription' ); ?></span>
 					</label>
-					<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-onetime-save><?php esc_html_e( 'Save', 'subscription' ); ?></button>
 				</div>
 				<div data-subscrpt-onetime-body style="padding:12px 14px;border-top:1px solid var(--wpsubs-border,#e5e7eb);<?php echo $subscrpt_show_body ? '' : 'display:none;'; ?>">
-					<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;max-width:460px;">
-						<label style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--wpsubs-text-muted);">
-							<?php esc_html_e( 'Regular Price', 'subscription' ); ?>
-							<input type="number" min="0" step="0.01" class="wpsubs-input" data-ot-field="price" value="<?php echo esc_attr( $product['ot_regular'] ); ?>" placeholder="0.00" style="width:100%;box-sizing:border-box;" />
-						</label>
-						<label style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--wpsubs-text-muted);">
-							<?php esc_html_e( 'Offer Price', 'subscription' ); ?>
-							<input type="number" min="0" step="0.01" class="wpsubs-input" data-ot-field="offer" value="<?php echo esc_attr( $product['ot_offer'] ); ?>" placeholder="<?php esc_attr_e( 'No offer', 'subscription' ); ?>" style="width:100%;box-sizing:border-box;" />
-						</label>
+					<?php // Flex on an inner row: the body's own inline display is what the switch toggles. ?>
+					<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+						<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;max-width:460px;flex:1 1 360px;">
+							<label style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--wpsubs-text-muted);">
+								<?php esc_html_e( 'Regular Price', 'subscription' ); ?>
+								<input type="number" min="0" step="0.01" class="wpsubs-input" data-ot-field="price" value="<?php echo esc_attr( $product['ot_regular'] ); ?>" placeholder="0.00" style="width:100%;box-sizing:border-box;" />
+							</label>
+							<label style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--wpsubs-text-muted);">
+								<?php esc_html_e( 'Offer Price', 'subscription' ); ?>
+								<input type="number" min="0" step="0.01" class="wpsubs-input" data-ot-field="offer" value="<?php echo esc_attr( $product['ot_offer'] ); ?>" placeholder="<?php esc_attr_e( 'No offer', 'subscription' ); ?>" style="width:100%;box-sizing:border-box;" />
+							</label>
+						</div>
+						<button type="button" class="wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm" data-subscrpt-onetime-save style="margin-left:auto;"><?php esc_html_e( 'Save', 'subscription' ); ?></button>
 					</div>
 				</div>
 			</div>

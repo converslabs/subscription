@@ -398,17 +398,24 @@ class PlanPresenter {
 	}
 
 	/**
-	 * Format an amount with the WooCommerce currency symbol (suffix style).
+	 * Format an amount in the store's currency, exactly as WooCommerce does.
+	 *
+	 * WooCommerce's wc_price() applies the store's symbol, its position (left or
+	 * right, with or without a space) and its separators and decimals. Appending the symbol
+	 * to a dot-decimal number instead printed "25.00$" on a store set to
+	 * "$25.00", and "25.00€" on one set to "25,00 €". Tags are stripped and
+	 * entities decoded, so callers keep escaping it as plain text — the same
+	 * shape PlanController returns for these prices.
 	 *
 	 * @param float $amount Amount.
 	 *
 	 * @return string
 	 */
 	public static function money( $amount ) {
-		$symbol = function_exists( 'get_woocommerce_currency_symbol' )
-			? html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' )
-			: '$';
+		if ( ! function_exists( 'wc_price' ) ) {
+			return self::amount( $amount );
+		}
 
-		return self::amount( $amount ) . $symbol;
+		return html_entity_decode( wp_strip_all_tags( wc_price( (float) $amount ) ), ENT_QUOTES, 'UTF-8' );
 	}
 }
