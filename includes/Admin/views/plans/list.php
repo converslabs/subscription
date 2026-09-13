@@ -143,14 +143,10 @@ use SpringDevs\Subscription\Admin\Plans;
 							</td>
 							<td><?php echo esc_html( $plan['edited'] ); ?></td>
 							<td>
-								<div class="wpsubs-row-actions" data-subscrpt-dropdown>
-									<button type="button" class="wpsubs-row-actions__trigger" aria-label="<?php esc_attr_e( 'Actions', 'subscription' ); ?>">···</button>
-									<div class="wpsubs-dropdown" hidden>
-										<a href="<?php echo esc_url( $detail_url ); ?>" class="wpsubs-dropdown__item"><?php esc_html_e( 'View / Edit', 'subscription' ); ?></a>
-										<div class="wpsubs-dropdown__divider"></div>
-										<a href="#" class="wpsubs-dropdown__item wpsubs-dropdown__item--danger" data-subscrpt-delete-plan="<?php echo esc_attr( $plan['id'] ); ?>"><?php esc_html_e( 'Delete', 'subscription' ); ?></a>
-									</div>
-								</div>
+								<?php // The title already opens the plan; the row keeps only the action that is not on screen. plans.js confirms and deletes on data-subscrpt-delete-plan. ?>
+								<button type="button" class="wpsubs-icon-action wpsubs-icon-action--danger" data-subscrpt-delete-plan="<?php echo esc_attr( $plan['id'] ); ?>" title="<?php esc_attr_e( 'Delete plan', 'subscription' ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: plan name. */ __( 'Delete %s', 'subscription' ), $plan['name'] ) ); ?>">
+									<span class="dashicons dashicons-trash" aria-hidden="true"></span>
+								</button>
 							</td>
 						</tr>
 					<?php endforeach; ?>
