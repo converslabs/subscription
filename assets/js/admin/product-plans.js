@@ -53,7 +53,8 @@
     while (node && node !== panel && node.parentNode) {
       var sibling = node.parentNode.firstElementChild;
       while (sibling) {
-        if (sibling !== node) {
+        // Modals are overlays, not settings — never gate them.
+        if (sibling !== node && !sibling.classList.contains("wpsubs-modal")) {
           regions.push(sibling);
         }
         sibling = sibling.nextElementSibling;
@@ -484,6 +485,14 @@
     var create = document.getElementById("subscrpt-create-plan");
     var term = document.getElementById("subscrpt-term-modal");
 
+    // Rendered inside WooCommerce's product-data panel, whose stacking context
+    // traps the fixed modals. Move them to <body> so they overlay correctly.
+    [create, term].forEach(function (m) {
+      if (m && m.parentNode !== document.body) {
+        document.body.appendChild(m);
+      }
+    });
+
     if (create && !create.hasAttribute("data-subscrpt-defer")) {
       create.setAttribute("data-subscrpt-defer", "1");
       injectStep(create, i18n.step1 || "Step 1 of 2");
@@ -648,6 +657,8 @@
         type: group.type,
         product_type: 1,
         status: "active",
+        // This wizard creates its own first duration below; skip the auto-seed.
+        seed_default_term: false,
       })
         .then(function (created) {
           pendingGroup = null;

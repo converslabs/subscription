@@ -284,11 +284,11 @@ class Plans {
 								}
 							}
 							$subscrpt_plan_opts = $subscrpt_onetime;
-							foreach ( $subscrpt_recurring as $subscrpt_i => $subscrpt_p ) {
-								// Divider before the first recurring plan when a one-time exists.
-								if ( 0 === $subscrpt_i && ! empty( $subscrpt_onetime ) ) {
-									$subscrpt_p['divider'] = true;
-								}
+							// Divider between the one-time option and the recurring plans.
+							if ( ! empty( $subscrpt_onetime ) && ! empty( $subscrpt_recurring ) ) {
+								$subscrpt_plan_opts[] = [ 'divider' => true ];
+							}
+							foreach ( $subscrpt_recurring as $subscrpt_p ) {
 								$subscrpt_plan_opts[] = $subscrpt_p;
 							}
 							$subscrpt_plan_default = isset( $subscrpt_ctx['plans'][0]['value'] ) ? $subscrpt_ctx['plans'][0]['value'] : '';
@@ -368,6 +368,10 @@ class Plans {
 				if ( function_exists( 'subscrpt_product_has_plan' ) && subscrpt_product_has_plan( $product->get_id(), $variation_id ) ) {
 					return false;
 				}
+				// Ever plan-connected: stay in plan mode.
+				if ( 'yes' === get_post_meta( $variation_id, '_subscrpt_plan_connected_before', true ) ) {
+					return false;
+				}
 				if ( ! $has_classic ) {
 					$variation = wc_get_product( $variation_id );
 					if ( $variation && (bool) $variation->get_meta( '_subscrpt_enabled' ) ) {
@@ -379,6 +383,10 @@ class Plans {
 		}
 
 		if ( function_exists( 'subscrpt_product_has_plan' ) && subscrpt_product_has_plan( $product->get_id() ) ) {
+			return false;
+		}
+		// Ever plan-connected: stay in plan mode.
+		if ( 'yes' === $product->get_meta( '_subscrpt_plan_connected_before' ) ) {
 			return false;
 		}
 		return (bool) $product->get_meta( '_subscrpt_enabled' );

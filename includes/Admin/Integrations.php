@@ -100,6 +100,10 @@ class Integrations {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			)
 		);
+
+		// Browser-side filter rail. Enqueued on this hook, not in the render
+		// callback, so it always loads.
+		wp_enqueue_script( 'subscrpt-integrations-filter', SUBSCRPT_ASSETS . '/js/admin/integrations-filter.js', [], SUBSCRPT_VERSION, true );
 	}
 
 	/**
@@ -674,19 +678,6 @@ class Integrations {
 	public function render_integrations_page() {
 		$integrations = $this->integrations;
 		$integrations = $this->filter_integration_actions( $integrations );
-
-		// Integrations styles.
-		// wp_enqueue_style( 'wp-subs-integration-settings', SUBSCRPT_ASSETS . '/css/integration_settings.css', [], SUBSCRPT_VERSION, 'all' );
-
-		// Filtering happens in the browser against cards already in the DOM, so
-		// this is behaviour rather than rendering — see the file's header.
-		wp_enqueue_script(
-			'subscrpt-integrations-filter',
-			SUBSCRPT_ASSETS . '/js/admin/integrations-filter.js',
-			array(),
-			SUBSCRPT_VERSION,
-			true
-		);
 
 		$menu = new \SpringDevs\Subscription\Admin\Menu();
 		$menu->render_admin_header( __( 'Integrations', 'subscription' ) );
