@@ -648,6 +648,8 @@
         type: group.type,
         product_type: 1,
         status: "active",
+        // This wizard creates its own first duration below; skip the auto-seed.
+        seed_default_term: false,
       })
         .then(function (created) {
           pendingGroup = null;
