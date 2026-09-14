@@ -1,8 +1,11 @@
 /**
- * Setup checklist.
+ * Onboarding checklist.
  *
- * Renders nothing once every step is done — a finished checklist is clutter,
- * and the banner above already says the store is ready.
+ * The wizard's three steps, each with a button to where it gets done, then a
+ * warning when no payment gateway is on — onboarding can be finished without
+ * one, but no customer can pay. Once the steps are done the card shrinks to a
+ * single line that still opens the wizard, so it can be run again for another
+ * plan; the gateway warning stays until a gateway is on.
  */
 
 import { __, sprintf } from "@wordpress/i18n";
@@ -11,9 +14,61 @@ import { __, sprintf } from "@wordpress/i18n";
 import { Card, CardHeader, CardBody, Button } from "@wordpress/components";
 import Icon from "./Icon";
 
+function Count({ setup }) {
+  return (
+    <span className="subscrpt-setup__count">
+      {sprintf(
+        /* translators: 1: steps done, 2: steps total. */
+        __("%1$d of %2$d done", "subscription"),
+        setup.done,
+        setup.total,
+      )}
+    </span>
+  );
+}
+
+function WizardLink({ wizard }) {
+  return (
+    <a className="subscrpt-setup__wizard" href={wizard.url}>
+      {wizard.label}
+      <span aria-hidden="true">→</span>
+    </a>
+  );
+}
+
+function GatewayWarning({ gateway }) {
+  return (
+    <div className="subscrpt-setup__warning">
+      <span className="subscrpt-setup__warning-icon">
+        <Icon name="alert" size={16} />
+      </span>
+      <div className="subscrpt-setup__warning-body">
+        <p className="subscrpt-setup__warning-title">{gateway.title}</p>
+        <p className="subscrpt-setup__warning-text">{gateway.text}</p>
+        <Button variant="secondary" size="small" href={gateway.action.url}>
+          {gateway.action.label}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function SetupChecklist({ setup }) {
   if (setup.complete) {
-    return null;
+    return (
+      <Card className="subscrpt-setup is-complete">
+        <CardBody>
+          <div className="subscrpt-setup__summary">
+            <div>
+              <h2 className="subscrpt-heading">{__("Onboarding", "subscription")}</h2>
+              <Count setup={setup} />
+            </div>
+            <WizardLink wizard={setup.wizard} />
+          </div>
+          {setup.gateway && <GatewayWarning gateway={setup.gateway} />}
+        </CardBody>
+      </Card>
+    );
   }
 
   const percent = Math.round((setup.done / setup.total) * 100);
@@ -22,17 +77,10 @@ export default function SetupChecklist({ setup }) {
     <Card className="subscrpt-setup">
       <CardHeader>
         <div>
-          <h2 className="subscrpt-heading">{__("Get set up", "subscription")}</h2>
-          <p className="subscrpt-sub">{__("A few steps before your store can sell subscriptions.", "subscription")}</p>
+          <h2 className="subscrpt-heading">{__("Onboarding", "subscription")}</h2>
+          <p className="subscrpt-sub">{__("Your first plan, step by step.", "subscription")}</p>
         </div>
-        <span className="subscrpt-setup__count">
-          {sprintf(
-            /* translators: 1: steps done, 2: steps total. */
-            __("%1$d of %2$d done", "subscription"),
-            setup.done,
-            setup.total,
-          )}
-        </span>
+        <Count setup={setup} />
       </CardHeader>
 
       <CardBody>
@@ -61,6 +109,12 @@ export default function SetupChecklist({ setup }) {
             </li>
           ))}
         </ul>
+
+        {setup.gateway && <GatewayWarning gateway={setup.gateway} />}
+
+        <div className="subscrpt-setup__footer">
+          <WizardLink wizard={setup.wizard} />
+        </div>
       </CardBody>
     </Card>
   );

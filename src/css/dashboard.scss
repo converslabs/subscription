@@ -317,6 +317,24 @@ $ink: #1e1e1e;
   }
 }
 
+/* In the 340px column an action beside the text squeezes the title onto two
+   lines and the sentence onto three, so it drops underneath, lined up with the
+   text. A grid rather than a computed indent, so the badge's border never has
+   to be counted. Below 1100px the column is full width again and the action
+   goes back beside the text. */
+@media screen and (min-width: 1101px) {
+  .subscrpt-dash__aside .subscrpt-banner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+
+    > .components-button {
+      grid-column: 2;
+      justify-self: start;
+    }
+  }
+}
+
 /* --------------------------------------------------------------------------
    Setup checklist
    -------------------------------------------------------------------------- */
@@ -326,6 +344,83 @@ $ink: #1e1e1e;
     font-size: 12px;
     color: $muted;
     white-space: nowrap;
+  }
+
+  /* Same amber as the attention banner, one step quieter: it sits inside a
+     card rather than heading the column. */
+  &__warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid #f3d799;
+    border-radius: 6px;
+    background: #fffaf0;
+  }
+
+  &__warning-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: #bd8600;
+  }
+
+  &__warning-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__warning-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8a6116;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  &__warning-text {
+    font-size: 12px;
+    color: $muted;
+    margin: 2px 0 8px;
+    line-height: 1.5;
+  }
+
+  &__footer {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f1;
+    text-align: end;
+  }
+
+  &__wizard {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--wp-admin-theme-color, #3858e9);
+
+    &:hover,
+    &:focus {
+      text-decoration: underline;
+    }
+  }
+
+  /* Done: one line — the count on the left, the way back into the wizard on
+     the right. */
+  &__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    .subscrpt-setup__count {
+      display: block;
+      margin-top: 2px;
+    }
   }
 }
 
