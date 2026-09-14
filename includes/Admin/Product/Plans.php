@@ -368,6 +368,10 @@ class Plans {
 				if ( function_exists( 'subscrpt_product_has_plan' ) && subscrpt_product_has_plan( $product->get_id(), $variation_id ) ) {
 					return false;
 				}
+				// Ever plan-connected: stay in plan mode.
+				if ( 'yes' === get_post_meta( $variation_id, '_subscrpt_plan_connected_before', true ) ) {
+					return false;
+				}
 				if ( ! $has_classic ) {
 					$variation = wc_get_product( $variation_id );
 					if ( $variation && (bool) $variation->get_meta( '_subscrpt_enabled' ) ) {
@@ -379,6 +383,10 @@ class Plans {
 		}
 
 		if ( function_exists( 'subscrpt_product_has_plan' ) && subscrpt_product_has_plan( $product->get_id() ) ) {
+			return false;
+		}
+		// Ever plan-connected: stay in plan mode.
+		if ( 'yes' === $product->get_meta( '_subscrpt_plan_connected_before' ) ) {
 			return false;
 		}
 		return (bool) $product->get_meta( '_subscrpt_enabled' );

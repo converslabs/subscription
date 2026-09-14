@@ -518,12 +518,17 @@ class PlanController {
 		// Connecting a plan enables the subscription on the product / variation
 		// (it stays on until a product save explicitly clears the toggle). For a
 		// variation, the parent's "any variation enabled" flag is turned on too.
+		// Marker: product has been plan-connected at least once (keeps the editor
+		// in plan mode after a detach).
 		$oid = (int) $params['oid'];
 		if ( ! empty( $params['vid'] ) ) {
 			update_post_meta( (int) $params['vid'], '_subscrpt_enabled', 'yes' );
+			update_post_meta( (int) $params['vid'], '_subscrpt_plan_connected_before', 'yes' );
 			update_post_meta( $oid, '_subscrpt_enabled', 'yes' );
+			update_post_meta( $oid, '_subscrpt_plan_connected_before', 'yes' );
 		} else {
 			update_post_meta( $oid, '_subscrpt_enabled', 'yes' );
+			update_post_meta( $oid, '_subscrpt_plan_connected_before', 'yes' );
 		}
 
 		// Default the purchase limit when the product has never had one set. The
