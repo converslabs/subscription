@@ -216,7 +216,7 @@ class Cart {
 						wc_add_notice( __( 'An item which is no longer available was removed from your cart.', 'subscription' ), 'error' );
 						WC()->cart->remove_cart_item( $key );
 					}
-				} elseif ( $product->get_meta( '_subscrpt_enabled' ) ) {
+				} elseif ( $product->is_enabled() ) {
 					// remove the item.
 					wc_add_notice( __( 'An item which is no longer available was removed from your cart.', 'subscription' ), 'error' );
 					WC()->cart->remove_cart_item( $key );
