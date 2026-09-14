@@ -115,7 +115,7 @@ $adv_lock   = $pro_locked ? 'opacity:0.55;pointer-events:none;' : '';
 			?>
 			<label style="<?php echo esc_attr( $label_style ); ?>"><?php esc_html_e( 'Billing every', 'subscription' ); ?><?php echo wp_kses_post( $hint( __( 'How often the customer is charged, for example every 1 month.', 'subscription' ) ) ); ?></label>
 			<div style="<?php echo esc_attr( $pair_style ); ?>">
-				<input type="number" class="wpsubs-input" value="1" min="1" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="billing_frequency" aria-label="<?php esc_attr_e( 'Frequency', 'subscription' ); ?>" />
+				<input type="number" class="wpsubs-input" value="1" min="1" max="<?php echo $pro_active ? '' : '1'; ?>" style="flex:1 1 auto;min-width:0;" data-subscrpt-field="billing_frequency" aria-label="<?php esc_attr_e( 'Frequency', 'subscription' ); ?>"<?php echo $pro_active ? '' : ' title="' . esc_attr__( 'Upgrade to Pro to bill every few periods.', 'subscription' ) . '"'; ?> <?php disabled( ! $pro_active ); ?> />
 				<?php
 				wpsubs_render_adv_select(
 					array(
