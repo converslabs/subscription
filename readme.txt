@@ -665,4 +665,3 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 
 = 1.0.0 - Feb 28, 2022 =
 -   new: Initial release  
-

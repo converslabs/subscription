@@ -100,6 +100,10 @@ class Integrations {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			)
 		);
+
+		// Browser-side filter rail. Enqueued on this hook, not in the render
+		// callback, so it always loads.
+		wp_enqueue_script( 'subscrpt-integrations-filter', SUBSCRPT_ASSETS . '/js/admin/integrations-filter.js', [], SUBSCRPT_VERSION, true );
 	}
 
 	/**
@@ -238,7 +242,7 @@ class Integrations {
 			'stripe'   => [
 				'title'              => 'Stripe',
 				'description'        => 'Process subscription payments securely with Stripe.',
-				'icon_url'           => 'https://ps.w.org/woocommerce-gateway-stripe/assets/icon-256x256.png',
+				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/stripe.png',
 				'type'               => 'payment_gateway',
 				'is_installed'       => class_exists( 'WC_Stripe' ),
 				'is_active'          => self::is_gateway_enabled( 'stripe' ),
@@ -390,7 +394,7 @@ class Integrations {
 			'tutor_lms'   => [
 				'title'        => 'Tutor LMS',
 				'description'  => 'Restrict course access based on subscription status. Enroll and unenroll students automatically.',
-				'icon_url'     => 'https://ps.w.org/tutor/assets/icon-256x256.gif',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/tutor-lms.jpeg',
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'lms',
@@ -413,7 +417,7 @@ class Integrations {
 			'learnpress'  => [
 				'title'        => 'LearnPress',
 				'description'  => 'Connect subscriptions with LearnPress courses. Enroll users automatically when subscriptions are active.',
-				'icon_url'     => 'https://ps.w.org/learnpress/assets/icon-256x256.gif',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/learnpress.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'lms',
@@ -460,7 +464,7 @@ class Integrations {
 			'fluentcrm'   => [
 				'title'        => 'FluentCRM',
 				'description'  => 'Trigger email sequences and manage contacts based on subscription events and status changes.',
-				'icon_url'     => 'https://ps.w.org/fluent-crm/assets/icon-256x256.png',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/fluentcrm.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'crm',
@@ -484,7 +488,7 @@ class Integrations {
 			'automatorwp' => [
 				'title'        => 'AutomatorWP',
 				'description'  => 'Build powerful automations triggered by subscription events without writing any code.',
-				'icon_url'     => 'https://ps.w.org/automatorwp/assets/icon-256x256.png',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/automatorwp.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'automation',
@@ -507,7 +511,7 @@ class Integrations {
 			'wpfusion'    => [
 				'title'        => 'WP Fusion',
 				'description'  => 'Sync subscription data with your CRM and marketing platforms through WP Fusion.',
-				'icon_url'     => 'https://ps.w.org/wp-fusion-lite/assets/icon-256x256.png',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/wp-fusion.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'automation',
@@ -531,7 +535,7 @@ class Integrations {
 			'mailpoet'    => [
 				'title'        => 'MailPoet',
 				'description'  => 'Add subscribers to MailPoet lists and trigger email automations based on subscription lifecycle events.',
-				'icon_url'     => 'https://ps.w.org/mailpoet/assets/icon-256x256.png',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/mailpoet.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'email',
@@ -578,7 +582,7 @@ class Integrations {
 			'license_mgr' => [
 				'title'        => 'License Manager for WooCommerce',
 				'description'  => 'Generate and manage software license keys that are automatically tied to active subscriptions.',
-				'icon_url'     => 'https://ps.w.org/license-manager-for-woocommerce/assets/icon-256x256.gif',
+				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/license-manager.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'license',
@@ -619,7 +623,8 @@ class Integrations {
 			$is_installed = $integration['is_installed'] ?? false;
 			$is_active    = $integration['is_active'] ?? false;
 
-			$cleaned_actions = [];
+			$cleaned_actions   = [];
+			$shown_install_url = null;
 
 			foreach ( $integration['actions'] as $integration_action ) {
 				$action_tag = $integration_action['action'] ?? null;
@@ -627,6 +632,7 @@ class Integrations {
 				if ( 'install' === $action_tag ) {
 					if ( ! $is_installed ) {
 						$cleaned_actions[] = $integration_action;
+						$shown_install_url = $integration_action['url'] ?? null;
 					}
 					continue;
 				}
@@ -649,7 +655,12 @@ class Integrations {
 					continue;
 				}
 
-				// Default.
+				// Default. Skip a "More Details"-style link that just repeats the
+				// install/"Get X" link already shown (e.g. Paddle), so the card
+				// does not carry the same URL twice.
+				if ( null !== $shown_install_url && ( $integration_action['url'] ?? null ) === $shown_install_url ) {
+					continue;
+				}
 				$cleaned_actions[] = $integration_action;
 			}
 
@@ -667,9 +678,6 @@ class Integrations {
 	public function render_integrations_page() {
 		$integrations = $this->integrations;
 		$integrations = $this->filter_integration_actions( $integrations );
-
-		// Integrations styles.
-		// wp_enqueue_style( 'wp-subs-integration-settings', SUBSCRPT_ASSETS . '/css/integration_settings.css', [], SUBSCRPT_VERSION, 'all' );
 
 		$menu = new \SpringDevs\Subscription\Admin\Menu();
 		$menu->render_admin_header( __( 'Integrations', 'subscription' ) );

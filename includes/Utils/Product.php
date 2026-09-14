@@ -123,7 +123,23 @@ abstract class Product {
 	}
 
 	public function is_enabled(): bool {
-		return $this->product->get_meta( '_subscrpt_enabled' );
+		if ( empty( $this->product->get_meta( '_subscrpt_enabled' ) ) ) {
+			return false;
+		}
+
+		// Once plan-connected, a product is a subscription only while it still has
+		// a plan — it never falls back to the legacy terms after a detach.
+		if ( 'yes' === $this->product->get_meta( '_subscrpt_plan_connected_before' ) && function_exists( 'subscrpt_product_has_plan' ) ) {
+			$parent = $this->product->get_parent_id();
+			$has_plan = $parent
+				? subscrpt_product_has_plan( $parent, $this->product->get_id() )
+				: subscrpt_product_has_plan( $this->product->get_id() );
+			if ( ! $has_plan ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public function get_trial_timing_per(): int {

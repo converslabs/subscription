@@ -35,6 +35,15 @@ class Cancellation {
 	const CANCEL_AT_META = '_subscrpt_cancel_at';
 
 	/**
+	 * Key of the "Other" reason, which the survey adds by itself.
+	 *
+	 * Reserved: it is never one of the store's own reasons. See get_reasons().
+	 *
+	 * @var string
+	 */
+	const OTHER_KEY = 'other';
+
+	/**
 	 * Initialize the class.
 	 */
 	public function __construct() {
@@ -44,6 +53,8 @@ class Cancellation {
 		add_action( 'before_single_subscrpt_content', [ $this, 'display_pending_cancellation_notice' ] );
 		add_action( 'before_single_subscrpt_content', [ $this, 'maybe_render_feedback_modal' ] );
 		add_action( 'wp_ajax_subscrpt_record_cancellation_feedback', [ $this, 'record_feedback' ] );
+		add_action( 'wp_ajax_subscrpt_record_cancellation_save', [ $this, 'record_save' ] );
+		add_action( 'wp_ajax_subscrpt_claim_cancellation_offer', [ $this, 'claim_offer' ] );
 		add_action( 'subscrpt_details_side_bottom', [ $this, 'render_admin_feedback_card' ] );
 	}
 
@@ -173,8 +184,9 @@ class Cancellation {
 			'subscrpt_cancellation_feedback',
 			'subscrptCancellationFeedback',
 			[
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'subscrpt_cancellation_feedback' ),
+				'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+				'nonce'     => wp_create_nonce( 'subscrpt_cancellation_feedback' ),
+				'doneLabel' => __( 'Done', 'subscription' ),
 			]
 		);
 		?>
@@ -187,7 +199,29 @@ class Cancellation {
 						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
 					</button>
 				</div>
-				<div class="subscrpt-feedback-modal__body">
+				<?php if ( \SpringDevs\Subscription\Admin\CancellationFlow::offer_enabled() ) : ?>
+					<?php $subscrpt_offer_percent = \SpringDevs\Subscription\Admin\CancellationFlow::offer_percent(); ?>
+					<div class="subscrpt-feedback-modal__body" data-subscrpt-offer-step>
+						<p class="subscrpt-feedback-modal__intro">
+							<?php
+							printf(
+								/* translators: %s: discount percentage. */
+								esc_html__( 'Stay with us and take %s%% off your next order.', 'subscription' ),
+								esc_html( (string) $subscrpt_offer_percent )
+							);
+							?>
+						</p>
+						<p class="subscrpt-feedback-modal__offer-note" data-subscrpt-offer-result hidden></p>
+					</div>
+					<div class="subscrpt-feedback-modal__footer" data-subscrpt-offer-step>
+						<button type="button" class="subscrpt-feedback-modal__btn subscrpt-feedback-modal__offer-decline" data-subscrpt-offer-decline><?php esc_html_e( 'No thanks, continue', 'subscription' ); ?></button>
+						<button type="button" class="subscrpt-feedback-modal__btn subscrpt-feedback-modal__offer-claim" data-subscrpt-offer-claim>
+							<?php esc_html_e( 'Claim discount', 'subscription' ); ?>
+						</button>
+					</div>
+				<?php endif; ?>
+
+				<div class="subscrpt-feedback-modal__body"<?php echo \SpringDevs\Subscription\Admin\CancellationFlow::offer_enabled() ? ' data-subscrpt-reason-step hidden' : ''; ?>>
 					<p class="subscrpt-feedback-modal__intro" id="subscrpt-feedback-intro"><?php esc_html_e( 'Please let us know why you are cancelling. Your feedback helps us improve.', 'subscription' ); ?></p>
 					<ul class="subscrpt-feedback-modal__reasons">
 						<?php foreach ( $reasons as $index => $reason ) : ?>
@@ -211,9 +245,9 @@ class Cancellation {
 						<textarea class="subscrpt-feedback-modal__comment" id="subscrpt-feedback-comment" rows="3" placeholder="<?php esc_attr_e( 'Additional comments (optional)', 'subscription' ); ?>"></textarea>
 					<?php endif; ?>
 				</div>
-				<div class="subscrpt-feedback-modal__footer">
-					<button type="button" class="subscrpt-feedback-modal__btn subscrpt-feedback-modal__keep" data-subscrpt-feedback-dismiss><?php esc_html_e( 'Keep subscription', 'subscription' ); ?></button>
+				<div class="subscrpt-feedback-modal__footer"<?php echo \SpringDevs\Subscription\Admin\CancellationFlow::offer_enabled() ? ' data-subscrpt-reason-step hidden' : ''; ?>>
 					<button type="button" class="subscrpt-feedback-modal__btn subscrpt-feedback-modal__confirm" id="subscrpt-feedback-confirm"><?php esc_html_e( 'Confirm cancellation', 'subscription' ); ?></button>
+					<button type="button" class="subscrpt-feedback-modal__btn subscrpt-feedback-modal__keep" data-subscrpt-feedback-dismiss><?php esc_html_e( 'Keep subscription', 'subscription' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -319,6 +353,167 @@ class Cancellation {
 	}
 
 	/**
+	 * AJAX: the customer accepted the retention offer.
+	 *
+	 * Free owns the request - nonce, ownership, throttle - and asks for an offer
+	 * through `subscrpt_cancellation_offer`. Free itself has nothing to give: the
+	 * coupon is Pro's, so without a listener this reports no offer rather than
+	 * promising a discount that never arrives.
+	 *
+	 * @return void
+	 */
+	public function claim_offer() {
+		check_ajax_referer( 'subscrpt_cancellation_feedback', 'nonce' );
+
+		$subscription_id = isset( $_POST['subscription_id'] ) ? absint( wp_unslash( $_POST['subscription_id'] ) ) : 0;
+		if ( $subscription_id <= 0 ) {
+			wp_send_json_error( [ 'message' => 'invalid_subscription' ] );
+		}
+
+		$subs_post = get_post( $subscription_id );
+		if ( ! $subs_post || 'subscrpt_order' !== $subs_post->post_type ) {
+			wp_send_json_error( [ 'message' => 'invalid_subscription' ] );
+		}
+
+		$author_id = (int) $subs_post->post_author;
+		if ( ! current_user_can( 'manage_options' ) && $author_id !== get_current_user_id() ) {
+			wp_send_json_error( [ 'message' => 'forbidden' ] );
+		}
+
+		/**
+		 * Filters the retention offer handed to a cancelling customer.
+		 *
+		 * Return an array with a `code` to make the offer; anything falsy means no
+		 * offer was issued and the customer continues to the reasons step.
+		 *
+		 * @param array|null $offer           The offer, or null when none is issued.
+		 * @param int        $subscription_id Subscription ID.
+		 * @param int        $customer_id     Subscription owner.
+		 */
+		$offer = apply_filters( 'subscrpt_cancellation_offer', null, $subscription_id, $author_id );
+
+		if ( empty( $offer['code'] ) ) {
+			wp_send_json_error( [ 'message' => 'no_offer' ] );
+		}
+
+		// Accepting the offer is a save, and the strongest kind - report it even
+		// if the customer already dismissed the modal once today.
+		delete_transient( self::save_throttle_key( $subscription_id ) );
+		set_transient( self::save_throttle_key( $subscription_id ), 1, DAY_IN_SECONDS );
+
+		$reason_key = isset( $_POST['reason_key'] ) ? sanitize_key( wp_unslash( $_POST['reason_key'] ) ) : '';
+
+		$reason_label = '';
+		foreach ( self::get_reasons() as $reason ) {
+			if ( isset( $reason['key'] ) && (string) $reason['key'] === $reason_key ) {
+				$reason_label = isset( $reason['label'] ) ? (string) $reason['label'] : '';
+				break;
+			}
+		}
+
+		do_action(
+			'subscrpt_subscription_saved',
+			$subscription_id,
+			[
+				'subscription_id' => $subscription_id,
+				'customer_id'     => $author_id,
+				'reason_key'      => $reason_key,
+				'reason_label'    => $reason_label,
+				'offer_accepted'  => true,
+				'offer_code'      => (string) $offer['code'],
+			]
+		);
+
+		wp_send_json_success(
+			[
+				'code'    => (string) $offer['code'],
+				'message' => isset( $offer['message'] ) ? (string) $offer['message'] : '',
+			]
+		);
+	}
+
+	/**
+	 * Transient guarding one save report per subscription per day.
+	 *
+	 * Every way out of the modal counts as a save - Keep subscription, the X, the
+	 * overlay, Escape - so without this a customer idly opening and closing it
+	 * would mail the store owner each time.
+	 *
+	 * @param int $subscription_id Subscription post ID.
+	 * @return string
+	 */
+	protected static function save_throttle_key( $subscription_id ) {
+		return 'subscrpt_save_reported_' . (int) $subscription_id;
+	}
+
+	/**
+	 * AJAX: the customer backed out of cancelling.
+	 *
+	 * Records nothing - the reason list is only meaningful for an actual
+	 * cancellation - but fires `subscrpt_subscription_saved` so the retention can
+	 * be reported. Throttled to once a day per subscription.
+	 *
+	 * @return void
+	 */
+	public function record_save() {
+		check_ajax_referer( 'subscrpt_cancellation_feedback', 'nonce' );
+
+		$subscription_id = isset( $_POST['subscription_id'] ) ? absint( wp_unslash( $_POST['subscription_id'] ) ) : 0;
+		if ( $subscription_id <= 0 ) {
+			wp_send_json_error( [ 'message' => 'invalid_subscription' ] );
+		}
+
+		$subs_post = get_post( $subscription_id );
+		if ( ! $subs_post || 'subscrpt_order' !== $subs_post->post_type ) {
+			wp_send_json_error( [ 'message' => 'invalid_subscription' ] );
+		}
+
+		$author_id = (int) $subs_post->post_author;
+		if ( ! current_user_can( 'manage_options' ) && $author_id !== get_current_user_id() ) {
+			wp_send_json_error( [ 'message' => 'forbidden' ] );
+		}
+
+		$throttle = self::save_throttle_key( $subscription_id );
+		if ( get_transient( $throttle ) ) {
+			wp_send_json_success( [ 'throttled' => true ] );
+		}
+		set_transient( $throttle, 1, DAY_IN_SECONDS );
+
+		$reason_key = isset( $_POST['reason_key'] ) ? sanitize_key( wp_unslash( $_POST['reason_key'] ) ) : '';
+
+		$reason_label = '';
+		foreach ( self::get_reasons() as $reason ) {
+			if ( isset( $reason['key'] ) && (string) $reason['key'] === $reason_key ) {
+				$reason_label = isset( $reason['label'] ) ? (string) $reason['label'] : '';
+				break;
+			}
+		}
+
+		$data = [
+			'subscription_id' => $subscription_id,
+			'customer_id'     => $author_id,
+			'reason_key'      => $reason_key,
+			'reason_label'    => $reason_label,
+			'offer_accepted'  => false,
+		];
+
+		/**
+		 * Fires when a customer opens the cancellation modal and backs out.
+		 *
+		 * Throttled to once a day per subscription, so a listener may treat each
+		 * call as a distinct retention event.
+		 *
+		 * @param int   $subscription_id Subscription ID.
+		 * @param array $data            Save context: the reason that had been
+		 *                               selected (may be empty) and whether a
+		 *                               retention offer was accepted.
+		 */
+		do_action( 'subscrpt_subscription_saved', $subscription_id, $data );
+
+		wp_send_json_success( [ 'saved' => true ] );
+	}
+
+	/**
 	 * Get Settings
 	 *
 	 * @param string $id Setting ID.
@@ -355,8 +550,10 @@ class Cancellation {
 	/**
 	 * Built-in default cancellation reasons.
 	 *
-	 * Used when no Pro-managed reason list is set. Filterable so Pro and
-	 * integrations can adjust the defaults.
+	 * Used when the store has not saved its own list. Written for a store
+	 * selling goods on a subscription — the reasons a customer stops a product
+	 * subscription — and without "Other", which get_reasons() adds by itself.
+	 * Filterable so Pro and integrations can adjust the defaults.
 	 *
 	 * @return array<int,array{key:string,label:string}>
 	 */
@@ -367,24 +564,24 @@ class Cancellation {
 				'label' => __( 'Too expensive', 'subscription' ),
 			],
 			[
-				'key'   => 'missing_features',
-				'label' => __( 'Missing features I need', 'subscription' ),
+				'key'   => 'too_much_product',
+				'label' => __( 'I have more than I need', 'subscription' ),
 			],
 			[
-				'key'   => 'found_alternative',
-				'label' => __( 'Found a better alternative', 'subscription' ),
+				'key'   => 'quality_issues',
+				'label' => __( 'Not happy with the quality', 'subscription' ),
 			],
 			[
-				'key'   => 'no_longer_needed',
-				'label' => __( 'No longer needed', 'subscription' ),
+				'key'   => 'delivery_issues',
+				'label' => __( 'Delivery took too long', 'subscription' ),
 			],
 			[
-				'key'   => 'technical_issues',
-				'label' => __( 'Technical issues', 'subscription' ),
+				'key'   => 'found_better_deal',
+				'label' => __( 'Found a better deal elsewhere', 'subscription' ),
 			],
 			[
-				'key'   => 'other',
-				'label' => __( 'Other', 'subscription' ),
+				'key'   => 'taking_a_break',
+				'label' => __( 'Just taking a break', 'subscription' ),
 			],
 		];
 
@@ -397,23 +594,51 @@ class Cancellation {
 	}
 
 	/**
-	 * Resolve the active cancellation reason list.
+	 * The store's own reasons: the saved list, or the defaults when none is saved.
 	 *
-	 * Uses the Pro-managed `subscrpt_cancellation_reasons` option when Pro is
-	 * active and the option is non-empty; otherwise falls back to the built-in
-	 * defaults so the feature works without Pro.
+	 * This is what the Reasons editor edits. It is read with or without Pro —
+	 * editing reasons is a free feature. An "other" entry saved before "Other"
+	 * became automatic is dropped, so it can never show twice.
+	 *
+	 * @return array<int,array{key:string,label:string}>
+	 */
+	public static function get_configured_reasons() {
+		$reasons = get_option( 'subscrpt_cancellation_reasons', [] );
+		if ( empty( $reasons ) || ! is_array( $reasons ) ) {
+			$reasons = self::default_reasons();
+		}
+
+		return array_values(
+			array_filter(
+				$reasons,
+				static function ( $reason ) {
+					return is_array( $reason ) && self::OTHER_KEY !== ( $reason['key'] ?? '' );
+				}
+			)
+		);
+	}
+
+	/**
+	 * The reasons customers are offered.
+	 *
+	 * The store's reasons, then "Other" when the comment box is on — an answer
+	 * that is none of the listed reasons needs the comment to say what it is,
+	 * so without the box there is no "Other". Everything customer-facing reads
+	 * this, including the label snapshot taken when feedback is recorded.
 	 *
 	 * @return array<int,array{key:string,label:string}>
 	 */
 	public static function get_reasons() {
-		if ( subscrpt_pro_activated() ) {
-			$reasons = get_option( 'subscrpt_cancellation_reasons', [] );
-			if ( ! empty( $reasons ) && is_array( $reasons ) ) {
-				return $reasons;
-			}
+		$reasons = self::get_configured_reasons();
+
+		if ( self::is_feedback_comment_enabled() ) {
+			$reasons[] = [
+				'key'   => self::OTHER_KEY,
+				'label' => __( 'Other', 'subscription' ),
+			];
 		}
 
-		return self::default_reasons();
+		return $reasons;
 	}
 
 	/**
