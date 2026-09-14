@@ -284,11 +284,11 @@ class Plans {
 								}
 							}
 							$subscrpt_plan_opts = $subscrpt_onetime;
-							foreach ( $subscrpt_recurring as $subscrpt_i => $subscrpt_p ) {
-								// Divider before the first recurring plan when a one-time exists.
-								if ( 0 === $subscrpt_i && ! empty( $subscrpt_onetime ) ) {
-									$subscrpt_p['divider'] = true;
-								}
+							// Divider between the one-time option and the recurring plans.
+							if ( ! empty( $subscrpt_onetime ) && ! empty( $subscrpt_recurring ) ) {
+								$subscrpt_plan_opts[] = [ 'divider' => true ];
+							}
+							foreach ( $subscrpt_recurring as $subscrpt_p ) {
 								$subscrpt_plan_opts[] = $subscrpt_p;
 							}
 							$subscrpt_plan_default = isset( $subscrpt_ctx['plans'][0]['value'] ) ? $subscrpt_ctx['plans'][0]['value'] : '';
