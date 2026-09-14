@@ -137,8 +137,9 @@ class Plans {
 		$min = min( $prices );
 		$max = max( $prices );
 
+		// All plans the same price is not a range; show nothing (selector lists each).
 		return $min === $max
-			? wc_price( $min )
+			? ''
 			: wc_price( $min ) . ' &ndash; ' . wc_price( $max );
 	}
 
