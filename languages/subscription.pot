@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-14T10:55:38+00:00\n"
+"POT-Creation-Date: 2026-09-14T12:12:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -233,7 +233,7 @@ msgstr ""
 msgid "Show an optional free-text comment field in the cancellation survey."
 msgstr ""
 
-#: includes/Admin/Dashboard.php:56
+#: includes/Admin/Dashboard.php:57
 #: includes/Admin/Menu.php:180
 #: includes/Admin/Menu.php:181
 #: includes/Admin/Subscriptions.php:344
@@ -242,164 +242,201 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:151
+#: includes/Admin/Dashboard.php:152
 msgid "Active subscriptions"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:158
+#: includes/Admin/Dashboard.php:159
 msgid "On-hold subscriptions"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:166
+#: includes/Admin/Dashboard.php:167
 msgid "Renewals due (next 7 days)"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:173
+#: includes/Admin/Dashboard.php:174
 msgid "Failed renewals (last 24h)"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:181
+#: includes/Admin/Dashboard.php:182
 msgid "New subscriptions (this month)"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:239
-msgid "Enable a payment gateway"
-msgstr ""
-
-#: includes/Admin/Dashboard.php:242
-msgid "Set up"
-msgstr ""
-
-#: includes/Admin/Dashboard.php:248
-msgid "Add a subscription product"
-msgstr ""
-
-#: includes/Admin/Dashboard.php:251
-msgid "Add"
+#: includes/Admin/Dashboard.php:254
+#: includes/Admin/Product/Plans.php:577
+#: includes/Admin/views/onboarding-wizard.php:169
+msgid "Create a plan"
 msgstr ""
 
 #: includes/Admin/Dashboard.php:257
-msgid "Turn on pretty permalinks"
+#: includes/Admin/Product.php:112
+msgid "Create"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:260
-msgid "Change"
+#: includes/Admin/Dashboard.php:263
+#: includes/Admin/views/onboarding-wizard.php:210
+#: includes/Admin/views/onboarding-wizard.php:417
+msgid "Add billing durations"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:299
+#: includes/Admin/Dashboard.php:266
+msgid "Add"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:272
+msgid "Connect a product"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:275
+msgid "Connect"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:289
+msgid "No payment gateway enabled"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:290
+msgid "Customers cannot pay for subscriptions yet."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:292
+msgid "Set up"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:297
+msgid "Run setup wizard"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:325
 msgid "Finish setting up"
 msgstr ""
 
-#. translators: %d: number of remaining setup steps.
-#: includes/Admin/Dashboard.php:301
+#. translators: 1: onboarding steps done, 2: onboarding steps in total.
+#: includes/Admin/Dashboard.php:327
 #, php-format
-msgid "%d step left before your store can sell subscriptions."
-msgid_plural "%d steps left before your store can sell subscriptions."
+msgid "%1$d of %2$d onboarding step done."
+msgid_plural "%1$d of %2$d onboarding steps done."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Dashboard.php:310
+#: includes/Admin/Dashboard.php:329
+msgid "Start onboarding"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:338
+msgid "Payments are not set up"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:339
+msgid "No payment gateway is enabled, so customers cannot pay for subscriptions."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:341
+msgid "Set up payments"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:352
 msgid "Some subscriptions need a look"
 msgstr ""
 
 #. translators: %d: number of on-hold subscriptions.
-#: includes/Admin/Dashboard.php:312
+#: includes/Admin/Dashboard.php:354
 #, php-format
 msgid "%d subscription is on hold."
 msgid_plural "%d subscriptions are on hold."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Dashboard.php:314
+#: includes/Admin/Dashboard.php:356
 msgid "Review them"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:324
+#: includes/Admin/Dashboard.php:366
 msgid "All subscriptions look healthy"
 msgstr ""
 
 #. translators: %d: number of active subscriptions.
-#: includes/Admin/Dashboard.php:326
+#: includes/Admin/Dashboard.php:368
 #, php-format
 msgid "%d active subscription, nothing needs attention."
 msgid_plural "%d active subscriptions, nothing needs attention."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Dashboard.php:342
+#: includes/Admin/Dashboard.php:384
 msgid "Insight"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:343
+#: includes/Admin/Dashboard.php:385
 #: build/dashboard.js:3
 #: src/dashboard/App.js:49
 msgid "Open reports"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:344
+#: includes/Admin/Dashboard.php:386
 msgid "Revenue, active subscriptions and growth over time."
 msgstr ""
 
-#: includes/Admin/Dashboard.php:346
+#: includes/Admin/Dashboard.php:388
 msgid "View reports"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:354
+#: includes/Admin/Dashboard.php:396
 msgid "Setup"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:355
+#: includes/Admin/Dashboard.php:397
 msgid "Configure payments"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:356
+#: includes/Admin/Dashboard.php:398
 msgid "Connect PayPal, Stripe, Paddle and more from one screen."
 msgstr ""
 
-#: includes/Admin/Dashboard.php:358
+#: includes/Admin/Dashboard.php:400
 msgid "Open integrations"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:366
-#: includes/Admin/Dashboard.php:377
+#: includes/Admin/Dashboard.php:408
+#: includes/Admin/Dashboard.php:419
 msgid "Extend"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:367
+#: includes/Admin/Dashboard.php:409
 msgid "Subscription health"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:368
+#: includes/Admin/Dashboard.php:410
 msgid "Find and recover subscriptions that need rescuing."
 msgstr ""
 
-#: includes/Admin/Dashboard.php:370
+#: includes/Admin/Dashboard.php:412
 msgid "Open health"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:378
+#: includes/Admin/Dashboard.php:420
 msgid "WPSubscription Pro"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:379
+#: includes/Admin/Dashboard.php:421
 msgid "Payment retries, a health queue and revenue reporting."
 msgstr ""
 
-#: includes/Admin/Dashboard.php:381
+#: includes/Admin/Dashboard.php:423
 msgid "See what Pro adds"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:397
+#: includes/Admin/Dashboard.php:439
 #: includes/Admin/Subscriptions.php:384
 #: includes/Admin/views/support.php:158
 msgid "Documentation"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:401
+#: includes/Admin/Dashboard.php:443
 msgid "Get support"
 msgstr ""
 
-#: includes/Admin/Dashboard.php:405
+#: includes/Admin/Dashboard.php:447
 msgid "My account"
 msgstr ""
 
@@ -964,10 +1001,6 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: includes/Admin/Product.php:112
-msgid "Create"
-msgstr ""
-
 #: includes/Admin/Product.php:113
 msgid "Add plan"
 msgstr ""
@@ -1157,11 +1190,6 @@ msgstr ""
 
 #: includes/Admin/Product/Plans.php:576
 msgid "No plans available."
-msgstr ""
-
-#: includes/Admin/Product/Plans.php:577
-#: includes/Admin/views/onboarding-wizard.php:169
-msgid "Create a plan"
 msgstr ""
 
 #: includes/Admin/Product/Plans.php:587
@@ -1698,7 +1726,7 @@ msgstr ""
 #: includes/Admin/SettingsHelper.php:824
 #: includes/Illuminate/Cancellation.php:189
 #: build/dashboard.js:3
-#: src/dashboard/SetupChecklist.js:55
+#: src/dashboard/SetupChecklist.js:103
 msgid "Done"
 msgstr ""
 
@@ -2401,11 +2429,6 @@ msgstr ""
 
 #: includes/Admin/views/onboarding-wizard.php:201
 msgid "e.g. Monthly Box"
-msgstr ""
-
-#: includes/Admin/views/onboarding-wizard.php:210
-#: includes/Admin/views/onboarding-wizard.php:417
-msgid "Add billing durations"
 msgstr ""
 
 #: includes/Admin/views/onboarding-wizard.php:211
@@ -5131,21 +5154,22 @@ msgstr ""
 msgid "No subscription revenue yet. Bars appear once orders come in."
 msgstr ""
 
-#: build/dashboard.js:2
-#: src/dashboard/SetupChecklist.js:25
-msgid "Get set up"
-msgstr ""
-
-#: build/dashboard.js:2
-#: src/dashboard/SetupChecklist.js:26
-msgid "A few steps before your store can sell subscriptions."
-msgstr ""
-
 #. translators: 1: steps done, 2: steps total.
 #: build/dashboard.js:3
-#: src/dashboard/SetupChecklist.js:31
+#: src/dashboard/SetupChecklist.js:22
 #, js-format
 msgid "%1$d of %2$d done"
+msgstr ""
+
+#: build/dashboard.js:3
+#: src/dashboard/SetupChecklist.js:63
+#: src/dashboard/SetupChecklist.js:80
+msgid "Onboarding"
+msgstr ""
+
+#: build/dashboard.js:3
+#: src/dashboard/SetupChecklist.js:81
+msgid "Your first plan, step by step."
 msgstr ""
 
 #: build/dashboard.js:3
