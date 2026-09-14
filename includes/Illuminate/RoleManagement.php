@@ -21,6 +21,13 @@ class RoleManagement {
 
 		add_action( 'subscrpt_subscription_expired', [ $this, 'maybe_change_user_role_on_subscription_deactivation' ] );
 		add_action( 'subscrpt_subscription_cancelled', [ $this, 'maybe_change_user_role_on_subscription_deactivation' ] );
+
+		// A failed renewal suspends the subscription rather than ending it, so the
+		// role has to come down here too. Nothing listened to this before, which
+		// left a customer who stopped paying holding their subscriber role for the
+		// whole retry ladder. Reversible: a recovered payment fires
+		// `subscrpt_subscription_activated`, which puts the role back.
+		add_action( 'subscrpt_subscription_on_hold', [ $this, 'maybe_change_user_role_on_subscription_deactivation' ] );
 	}
 
 	/**

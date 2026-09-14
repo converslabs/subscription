@@ -1,5 +1,16 @@
 *** WPSubscription Changelog ***
 
+2026-09-14 - version 2.0.0
+* new: Plans. Build reusable plans with multiple durations.
+* new: Connect a plan to products, or create one from the product editor.
+* new: One-time purchase option on products.
+* new: Redesigned setup wizard.
+* new: Overview dashboard.
+* new: Edit cancellation reasons without Pro.
+* improved: Filterable integrations page.
+* improved: Simpler settings page.
+* improved: Consistent admin page headers.
+
 2026-08-30 - version 1.11.2
 * new: Relative ordering of renewal orders.
 * fix: Subscription list filters.

@@ -14,13 +14,11 @@
  *
  * Requires PHP: 7.4
  *
- * Requires at least: 6.0
- * Tested up to: 7.0
+ * Requires at least: 6.2
+ * Tested up to: 7.1
  *
  * WC requires at least: 6.0
  * WC tested up to: 10.3
- *
- * Requires Plugins: woocommerce
  *
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html

@@ -108,7 +108,7 @@ $issue_badge_map = array(
 );
 ?>
 
-<div class="wp-subscription-admin-content list-page subscrpt-subs-list">
+<div class="wp-subscription-admin-content list-page">
 
 	<!-- Disclaimer banner -->
 	<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;">
@@ -125,16 +125,15 @@ $issue_badge_map = array(
 	<div style="display:flex;align-items:flex-start;margin-bottom:20px;gap:24px;flex-wrap:wrap;">
 
 		<div style="flex:1;min-width:200px;">
-			<h1 style="font-size:1.375rem;font-weight:700;color:var(--wpsubs-text);margin:0 0 6px;line-height:1.2;"><?php esc_html_e( 'Subscription Health', 'subscription' ); ?></h1>
-			<p style="font-size:13px;color:var(--wpsubs-text-muted);margin:0 0 12px;line-height:1.5;">
-				<?php esc_html_e( 'Monitor and recover subscriptions that need attention.', 'subscription' ); ?>
-			</p>
-			<div style="border-top:1px dashed #d0d3d7;padding-top:10px;display:flex;align-items:center;gap:8px;">
-				<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="height:28px;padding:0 10px;font-size:12px;cursor:not-allowed;opacity:0.6;" disabled>
-					<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-					<?php esc_html_e( 'Refresh', 'subscription' ); ?>
-				</button>
-			</div>
+			<?php
+			wpsubs_render_page_header(
+				array(
+					'title'       => __( 'Subscription Health', 'subscription' ),
+					'description' => __( 'Monitor and recover subscriptions that need attention.', 'subscription' ),
+					'actions'     => '<button type="button" class="wpsubs-btn wpsubs-btn--outline" style="height:28px;padding:0 10px;font-size:12px;cursor:not-allowed;opacity:0.6;" disabled><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>' . esc_html__( 'Refresh', 'subscription' ) . '</button>',
+				)
+			);
+			?>
 		</div>
 
 		<div style="display:flex;gap:12px;flex-shrink:0;">
