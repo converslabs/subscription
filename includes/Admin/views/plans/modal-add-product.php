@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<input type="checkbox" class="wpsubs-checkbox" data-subscrpt-picker-all />
 				</label>
 				<div class="wpsubs-input-wrap wpsubs-input-wrap--icon-l" style="flex:1;">
-					<span class="wpsubs-input-icon dashicons dashicons-search"></span>
+					<svg class="wpsubs-input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
 					<input type="search" class="wpsubs-input" placeholder="<?php esc_attr_e( 'Search products…', 'subscription' ); ?>" data-subscrpt-product-search />
 				</div>
 			</div>
