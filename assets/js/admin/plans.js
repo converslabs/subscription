@@ -605,6 +605,33 @@
     parent.indeterminate = checked > 0 && checked < kids.length;
   }
 
+  /**
+   * Update the "N selected" tally beside each column header.
+   *
+   * @param {HTMLElement} modal The bulk-price modal.
+   */
+  function syncBulkCounts(modal) {
+    [
+      ["term", "[data-subscrpt-bulk-term]"],
+      ["product", "[data-subscrpt-bulk-product]"],
+    ].forEach(function (pair) {
+      var out = modal.querySelector('[data-subscrpt-bulk-count="' + pair[0] + '"]');
+      if (!out) {
+        return;
+      }
+      var n = modal.querySelectorAll(pair[1] + ":checked").length;
+      out.textContent = n ? (i18n.bulkSelected || "%d selected").replace("%d", n) : "";
+    });
+  }
+
+  // Any change inside the modal refreshes the per-column tallies.
+  document.addEventListener("change", function (e) {
+    var modal = e.target.closest("[data-subscrpt-bulk-price]");
+    if (modal) {
+      syncBulkCounts(modal);
+    }
+  });
+
   // A column's "All" checkbox ticks/unticks every row in that column.
   document.addEventListener("change", function (e) {
     var all = e.target.closest("[data-subscrpt-bulk-toggle-all]");

@@ -129,6 +129,8 @@ class Plans {
 					'bulkNoPrice'            => __( 'Enter a regular price.', 'subscription' ),
 					'bulkNoProducts'         => __( 'Select at least one product.', 'subscription' ),
 					'bulkNoTerms'            => __( 'Select at least one duration.', 'subscription' ),
+					/* translators: %d: number of selected items. */
+					'bulkSelected'           => __( '%d selected', 'subscription' ),
 					'oneTimeOn'              => __( 'One-time purchase turned on.', 'subscription' ),
 					'oneTimeOff'             => __( 'One-time purchase turned off.', 'subscription' ),
 					/* translators: %d: number of products ticked in the picker. */
