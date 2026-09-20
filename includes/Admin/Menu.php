@@ -237,6 +237,16 @@ class Menu {
 			array( $this, 'render_delivery_page' )
 		);
 
+		// Subscription Boxes
+		add_submenu_page(
+			$parent_slug,
+			__( 'Boxes', 'subscription' ),
+			__( 'Boxes', 'subscription' ) . $pro_badge,
+			'manage_options',
+			'wp-subscription-boxes',
+			array( $this, 'render_boxes_page' )
+		);
+
 		// Help & Resources
 		add_submenu_page(
 			$parent_slug,
@@ -293,6 +303,7 @@ class Menu {
 		$default_order = [
 			'wp-subscription'              => 5,   // Overview
 			'wp-subscription-delivery'     => 20,  // Delivery (pro)
+			'wp-subscription-boxes'        => 25,  // Boxes (preview)
 			'wp-subscription-list'         => 30,  // Subscriptions
 			'wp-subscription-stats'        => 40,  // Reports
 			'wp-subscription-health'       => 50,  // Health
@@ -885,6 +896,32 @@ class Menu {
 		} else {
 			// Allow pro plugin to render the full delivery page content.
 			do_action( 'subscrpt_render_delivery_page' );
+		}
+
+		$this->render_admin_footer();
+	}
+
+	/**
+	 * Render the Subscription Boxes page.
+	 *
+	 * The preview is chosen with `has_action()` rather than the
+	 * `subscrpt_pro_activated()` test the other locked pages use, and that
+	 * difference is deliberate: Pro does not ship the real Boxes screen yet, so
+	 * a pro check would leave every Pro install staring at an empty page. The
+	 * preview therefore stays visible on Pro installs too, until Pro actually
+	 * registers a listener for `subscrpt_render_boxes_page`.
+	 *
+	 * @do_action subscrpt_render_boxes_page Fires in place of the preview once an extension renders the real Boxes screen.
+	 *
+	 * @return void
+	 */
+	public function render_boxes_page() {
+		$this->render_admin_header( __( 'Subscription Boxes', 'subscription' ), __( 'Plan box editions, lock contents before renewal, and pack what is due.', 'subscription' ) );
+
+		if ( has_action( 'subscrpt_render_boxes_page' ) ) {
+			do_action( 'subscrpt_render_boxes_page' );
+		} else {
+			include 'views/boxes-preview.php';
 		}
 
 		$this->render_admin_footer();
