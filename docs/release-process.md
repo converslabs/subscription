@@ -197,6 +197,7 @@ Merge the PR into `main` once review and CI are green. The zip built in step 5 i
 - Never release directly from `main` or from a feature branch — always through `release/vX.Y.Z`.
 - Never edit generated files (`readme.txt`, built assets, `.pot` output) by hand.
 - If a merged PR turns out to be broken after step 2, revert it on the release branch rather than delaying the release.
+- Updating anything on the main branch triggers the `Update Plugin Assets/Readme` action. It checks any changes in the `readme.txt` and publishes them to WordPress Org.
 
 ---
 
