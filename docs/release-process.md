@@ -202,6 +202,7 @@ Merge the PR into `main` once review and CI are green. The zip built in step 5 i
 
 ## 5. Distribution
 
-- After merging the `release` branch into the `main` branch, create a release tag. Make sure you do not add any prefix to the version tag. E.g.: `2.0.1`.
+- After merging the `release` branch into the `main` branch, create a release tag. 
+  > Make sure you do not add any prefix to the version tag. E.g.: `2.0.1`.
 - Add the file generated when you ran `yarn release` to the GitHub release draft.
-- After publishing the release, it will be automatically synced to the WordPress Org.
+- After publishing the release, the new version will be automatically synced to the WordPress Org.
