@@ -107,10 +107,11 @@ class Settings {
 					'label'       => __( 'Accept Stripe Auto Renewals', 'subscription' ),
 					'description' => class_exists( 'WC_Stripe' )
 						? sprintf(
-							/* translators: 1: opening link tag, 2: closing link tag */
-							__( '&#10003; WooCommerce Stripe Payment Gateway is active. %1$sConfigure%2$s', 'subscription' ),
-							'<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=stripe' ) ) . '">',
-							'</a>'
+							/* translators: 1: opening plugin link tag, 2: closing link tag, 3: opening settings link tag */
+							__( '&#10003; %1$sWooCommerce Stripe Payment Gateway%2$s is active. %3$sConfigure%2$s', 'subscription' ),
+							'<a href="https://wordpress.org/plugins/woocommerce-gateway-stripe/" target="_blank">',
+							'</a>',
+							'<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=stripe' ) ) . '">'
 						)
 						: sprintf(
 							/* translators: HTML tags */
