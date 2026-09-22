@@ -113,6 +113,24 @@ class Ajax {
 			wp_send_json_error( array( 'message' => __( 'Plugin slug is required.', 'subscription' ) ), 400 );
 		}
 
+		// Already installed but inactive: the upgrader would refuse with
+		// "Destination folder already exists", so activate it instead.
+		$installed_file = self::get_installed_plugin_file( $plugin_slug );
+
+		if ( $installed_file ) {
+			if ( ! current_user_can( 'activate_plugins' ) ) {
+				wp_send_json_error( array( 'message' => __( 'Permission denied.', 'subscription' ) ), 403 );
+			}
+
+			$activate = activate_plugin( $installed_file );
+
+			if ( is_wp_error( $activate ) ) {
+				wp_send_json_error( array( 'message' => $activate->get_error_message() ), 500 );
+			}
+
+			wp_send_json_success();
+		}
+
 		include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		include_once ABSPATH . 'wp-admin/includes/file.php';
@@ -181,5 +199,25 @@ class Ajax {
 		}
 
 		wp_send_json_success();
+	}
+
+	/**
+	 * Main file of an installed plugin, looked up by its wp.org slug.
+	 *
+	 * @param string $plugin_slug The wp.org plugin slug, i.e. its directory name.
+	 * @return string Plugin file relative to the plugins directory, or an empty string when not installed.
+	 */
+	public static function get_installed_plugin_file( $plugin_slug ) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			include_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		foreach ( array_keys( get_plugins() ) as $plugin_file ) {
+			if ( strtok( $plugin_file, '/' ) === $plugin_slug ) {
+				return $plugin_file;
+			}
+		}
+
+		return '';
 	}
 }

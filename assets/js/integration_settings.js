@@ -26,7 +26,7 @@ function subscrptInstallPlugin(btn, slug) {
 
   btn.disabled = true;
   btn.style.cursor = "wait";
-  btn.innerHTML = SUBSCRPT_SPINNER_SVG + "Installing…";
+  btn.innerHTML = SUBSCRPT_SPINNER_SVG + (btn.dataset.busyLabel || "Installing…");
 
   var data = new FormData();
   data.append("action", "subscrpt_install_integration_plugin");
@@ -58,6 +58,20 @@ function subscrptInstallPlugin(btn, slug) {
       window.alert("Installation failed. Please try again.");
     });
 }
+
+/**
+ * Links and buttons that cannot carry an inline handler — e.g. inside a settings field
+ * description, which is passed through wp_kses_post() — declare the slug in
+ * data-subscrpt-install-plugin instead.
+ */
+document.addEventListener("click", function (event) {
+  var btn = event.target.closest("[data-subscrpt-install-plugin]");
+  if (!btn || btn.disabled) {
+    return;
+  }
+  event.preventDefault();
+  subscrptInstallPlugin(btn, btn.dataset.subscrptInstallPlugin);
+});
 
 function wpSubsInstallPaypalIntegration() {
   jQuery
