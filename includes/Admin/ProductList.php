@@ -13,8 +13,8 @@ namespace SpringDevs\Subscription\Admin;
 /**
  * ProductList class
  *
- * Marks products managed by WPSubscription with a badge under the product
- * name on `edit.php?post_type=product`.
+ * Marks products managed by WPSubscription with the plugin icon beside the
+ * product name on `edit.php?post_type=product`.
  *
  * @package SpringDevs\Subscription\Admin
  */
@@ -24,21 +24,21 @@ class ProductList {
 	 * Initialize the class
 	 */
 	public function __construct() {
-		// After WooCommerce's own renderer (priority 10), so the badge lands
-		// below the product name and above the row actions.
-		add_action( 'manage_product_posts_custom_column', array( $this, 'render_badge' ), 20, 2 );
+		// After WooCommerce's own renderer (priority 10), so the icon lands
+		// beside the product name and above the row actions.
+		add_action( 'manage_product_posts_custom_column', array( $this, 'render_icon' ), 20, 2 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 	}
 
 	/**
-	 * Print the badge in the name column of a subscription product.
+	 * Print the plugin icon in the name column of a subscription product.
 	 *
 	 * @param string $column  Column key.
 	 * @param int    $post_id Product id.
 	 *
 	 * @return void
 	 */
-	public function render_badge( $column, $post_id ) {
+	public function render_icon( $column, $post_id ) {
 		if ( 'name' !== $column ) {
 			return;
 		}
@@ -48,10 +48,12 @@ class ProductList {
 			return;
 		}
 
+		$label = __( 'This product is sold as a subscription by WPSubscription.', 'subscription' );
+
 		printf(
-			'<span class="subscrpt-product-list-badge" title="%1$s">%2$s</span>',
-			esc_attr__( 'This product is sold as a subscription by WPSubscription.', 'subscription' ),
-			esc_html__( 'Subscription', 'subscription' )
+			'<img class="subscrpt-product-list-icon" src="%1$s" width="16" height="16" alt="%2$s" title="%2$s" />',
+			esc_url( SUBSCRPT_ASSETS . '/images/icons/subscription-20.png' ),
+			esc_attr( $label )
 		);
 	}
 
@@ -83,7 +85,7 @@ class ProductList {
 	}
 
 	/**
-	 * Badge styles, on the products list screen only.
+	 * Icon styles, on the products list screen only.
 	 *
 	 * @return void
 	 */
@@ -97,7 +99,7 @@ class ProductList {
 		wp_enqueue_style( 'subscrpt_product_list' );
 		wp_add_inline_style(
 			'subscrpt_product_list',
-			'.subscrpt-product-list-badge{display:inline-block;margin-left:6px;vertical-align:middle;padding:1px 8px;border-radius:10px;background:#e7f0fa;color:#135e96;font-size:11px;font-weight:600;line-height:18px;}'
+			'.subscrpt-product-list-icon{margin-left:6px;vertical-align:middle;}'
 		);
 	}
 }
