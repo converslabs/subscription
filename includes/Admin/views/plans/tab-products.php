@@ -237,6 +237,11 @@ $has_terms = ! empty( $plan['terms'] );
 				?>
 
 				<div class="wpsubs-toolbar__spacer"></div>
+
+				<button type="button" class="wpsubs-btn wpsubs-btn--outline" data-wpsubs-modal-open="subscrpt-bulk-price">
+					<span class="dashicons dashicons-money-alt" style="font-size:16px;width:16px;height:16px;line-height:1;"></span>
+					<?php esc_html_e( 'Quick price update', 'subscription' ); ?>
+				</button>
 			</div>
 
 			<div class="wpsubs-accordion" data-multi="1" data-subscrpt-product-list>
@@ -351,3 +356,4 @@ $has_terms = ! empty( $plan['terms'] );
 
 <?php
 require __DIR__ . '/modal-add-product.php';
+require __DIR__ . '/modal-bulk-price.php';
