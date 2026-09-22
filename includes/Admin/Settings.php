@@ -105,12 +105,19 @@ class Settings {
 					'id'          => 'wp_subscription_stripe_auto_renew',
 					'title'       => __( 'Stripe Auto Renewal', 'subscription' ),
 					'label'       => __( 'Accept Stripe Auto Renewals', 'subscription' ),
-					'description' => sprintf(
-						/* translators: HTML tags */
-						__( '%1$s WooCommerce Stripe Payment Gateway %2$s plugin is required!', 'subscription' ),
-						'<a href="https://wordpress.org/plugins/woocommerce-gateway-stripe/" target="_blank">',
-						'</a>'
-					) . $this->get_stripe_plugin_action(),
+					'description' => class_exists( 'WC_Stripe' )
+						? sprintf(
+							/* translators: 1: opening link tag, 2: closing link tag */
+							__( '&#10003; WooCommerce Stripe Payment Gateway is active. %1$sConfigure%2$s', 'subscription' ),
+							'<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=stripe' ) ) . '">',
+							'</a>'
+						)
+						: sprintf(
+							/* translators: HTML tags */
+							__( '%1$s WooCommerce Stripe Payment Gateway %2$s plugin is required!', 'subscription' ),
+							'<a href="https://wordpress.org/plugins/woocommerce-gateway-stripe/" target="_blank">',
+							'</a>'
+						) . $this->get_stripe_plugin_action(),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'wp_subscription_stripe_auto_renew', '1' ),
 				],
@@ -171,14 +178,10 @@ class Settings {
 	 * so the link carries data attributes rather than an inline handler;
 	 * `integration_settings.js` picks it up.
 	 *
-	 * @return string Link HTML, or an empty string when Stripe is active or the user cannot act on it.
+	 * @return string Link HTML, or an empty string when the user cannot act on it.
 	 */
 	private function get_stripe_plugin_action() {
-		if ( class_exists( 'WC_Stripe' ) ) {
-			return '';
-		}
-
-		$slug      = 'woocommerce-gateway-stripe';
+		$slug     = 'woocommerce-gateway-stripe';
 		$installed = '' !== Ajax::get_installed_plugin_file( $slug );
 
 		if ( $installed && current_user_can( 'activate_plugins' ) ) {
