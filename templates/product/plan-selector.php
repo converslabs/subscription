@@ -4,9 +4,14 @@
  *
  * A radio card per plan group; a group's terms render as buttons beneath its
  * billing note; the chosen plan-term id posts via the hidden field. This is the
- * base template shipped by the free plugin and reused by Pro — the discount
- * badge and the One-Time card only render when Pro supplies that data (a `badge`
- * on a group / a group of type `one_time`); free never sets them.
+ * base template shipped by the free plugin and reused by Pro — the One-Time card
+ * only renders when a group of type `one_time` is supplied.
+ *
+ * The discount badge belongs to the *selected term*, not to the card: each term
+ * button carries its own `data-badge`, and the selector writes it into the one
+ * badge slot as the shopper moves between terms. The slot is rendered whenever
+ * any term has a badge, hidden while the selected term has none, so a term that
+ * is discounted can still show its saving after starting from one that is not.
  *
  * Override by copying to <your_theme>/subscription/product/plan-selector.php
  *
@@ -31,10 +36,23 @@ if ( ! empty( $groups[0]['terms'] ) ) {
 		$gid       = 'subscrpt-grp-' . sanitize_html_class( $group['id'] );
 		$is_first  = 0 === $index;
 		$has_terms = ! empty( $group['terms'] );
+
+		// The badge follows the selection, so the slot has to exist whenever any
+		// term carries one — not only when the term shown first does.
+		$badge_text = isset( $group['badge'] ) ? (string) $group['badge'] : '';
+		$has_badge  = '' !== $badge_text;
+		if ( ! $has_badge && $has_terms ) {
+			foreach ( $group['terms'] as $subscrpt_term ) {
+				if ( ! empty( $subscrpt_term['badge'] ) ) {
+					$has_badge = true;
+					break;
+				}
+			}
+		}
 		?>
 		<label class="subscrpt-buybox__card <?php echo $is_first ? 'is-selected' : ''; ?>" for="<?php echo esc_attr( $gid ); ?>" data-subscrpt-card<?php echo ( $has_terms && 1 === count( $group['terms'] ) ) ? ' data-subscrpt-single-term="' . esc_attr( $group['terms'][0]['id'] ) . '"' : ''; ?>>
-			<?php if ( ! empty( $group['badge'] ) ) : ?>
-				<span class="subscrpt-buybox__badge"><?php echo esc_html( $group['badge'] ); ?></span>
+			<?php if ( $has_badge ) : ?>
+				<span class="subscrpt-buybox__badge" data-subscrpt-badge<?php echo '' === $badge_text ? ' hidden' : ''; ?>><?php echo esc_html( $badge_text ); ?></span>
 			<?php endif; ?>
 			<span class="subscrpt-buybox__head">
 				<input type="radio" class="subscrpt-buybox__radio" id="<?php echo esc_attr( $gid ); ?>" name="subscrpt_plan_group" value="<?php echo esc_attr( $group['id'] ); ?>" <?php checked( $is_first ); ?> />
@@ -57,7 +75,7 @@ if ( ! empty( $groups[0]['terms'] ) ) {
 			<?php if ( $has_terms && count( $group['terms'] ) > 1 ) : ?>
 				<span class="subscrpt-buybox__terms" data-subscrpt-terms>
 					<?php foreach ( $group['terms'] as $subscrpt_ti => $plan_term ) : ?>
-						<button type="button" class="subscrpt-buybox__term<?php echo 0 === $subscrpt_ti ? ' is-active' : ''; ?>" data-subscrpt-term-btn data-term-id="<?php echo esc_attr( $plan_term['id'] ); ?>" data-price="<?php echo esc_attr( wp_strip_all_tags( $plan_term['price'] ) ); ?>" data-note="<?php echo esc_attr( $plan_term['note'] ); ?>"><?php echo esc_html( $plan_term['label'] ); ?></button>
+						<button type="button" class="subscrpt-buybox__term<?php echo 0 === $subscrpt_ti ? ' is-active' : ''; ?>" data-subscrpt-term-btn data-term-id="<?php echo esc_attr( $plan_term['id'] ); ?>" data-price="<?php echo esc_attr( wp_strip_all_tags( $plan_term['price'] ) ); ?>" data-note="<?php echo esc_attr( $plan_term['note'] ); ?>" data-badge="<?php echo esc_attr( isset( $plan_term['badge'] ) ? $plan_term['badge'] : '' ); ?>"><?php echo esc_html( $plan_term['label'] ); ?></button>
 					<?php endforeach; ?>
 				</span>
 			<?php endif; ?>
