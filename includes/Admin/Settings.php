@@ -165,13 +165,13 @@ class Settings {
 	}
 
 	/**
-	 * Install / Activate button for the Stripe gateway plugin.
+	 * Install / Activate link for the Stripe gateway plugin.
 	 *
 	 * Rendered inside a field description, which goes through `wp_kses_post()`,
-	 * so the button carries data attributes rather than an inline handler;
+	 * so the link carries data attributes rather than an inline handler;
 	 * `integration_settings.js` picks it up.
 	 *
-	 * @return string Button HTML, or an empty string when Stripe is active or the user cannot act on it.
+	 * @return string Link HTML, or an empty string when Stripe is active or the user cannot act on it.
 	 */
 	private function get_stripe_plugin_action() {
 		if ( class_exists( 'WC_Stripe' ) ) {
@@ -192,7 +192,7 @@ class Settings {
 		}
 
 		return sprintf(
-			' <button type="button" class="wpsubs-btn wpsubs-btn--sm wpsubs-btn--outline" data-subscrpt-install-plugin="%1$s" data-busy-label="%2$s">%3$s</button>',
+			' <a href="#" data-subscrpt-install-plugin="%1$s" data-busy-label="%2$s">%3$s</a>',
 			esc_attr( $slug ),
 			esc_attr( $busy_label ),
 			esc_html( $label )

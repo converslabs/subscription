@@ -60,7 +60,7 @@ function subscrptInstallPlugin(btn, slug) {
 }
 
 /**
- * Buttons that cannot carry an inline handler — e.g. inside a settings field
+ * Links and buttons that cannot carry an inline handler — e.g. inside a settings field
  * description, which is passed through wp_kses_post() — declare the slug in
  * data-subscrpt-install-plugin instead.
  */
