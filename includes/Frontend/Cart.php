@@ -36,29 +36,63 @@ class Cart {
 		add_action( 'woocommerce_calculate_totals', array( $this, 'remove_calculation_price_filter' ) );
 		add_action( 'woocommerce_after_calculate_totals', array( $this, 'remove_calculation_price_filter' ) );
 
-		add_filter( 'woocommerce_add_to_cart_validation', array( $this, 'add_to_cart_validation' ), 10, 4 );
+		add_filter( 'woocommerce_add_to_cart_validation', array( $this, 'add_to_cart_validation' ), 10, 6 );
 		add_action( 'woocommerce_store_api_validate_add_to_cart', array( $this, 'add_to_cart_validation_store_api' ), 10, 1 );
+
+		// Priority 25: after WooCommerce's own add-to-cart handler (20), so a switch
+		// confirmation never races the request that offered it.
+		add_action( 'wp_loaded', array( $this, 'handle_switch_request' ), 25 );
+		add_action( 'woocommerce_add_to_cart', array( $this, 'notice_quantity_merged' ), 10, 6 );
 	}
+
+	/**
+	 * Whether the add-to-cart being validated merges into a subscription line
+	 * already in the cart — set by validation, consumed once by the notice.
+	 *
+	 * @var bool
+	 */
+	private $quantity_merged = false;
 
 	/**
 	 * Add to cart validation.
 	 *
-	 * @param bool $passed Passed ?.
-	 * @param int  $product_id Product Id.
-	 * @param int  $quantity Quantity.
-	 * @param int  $variation_id Variation Id.
+	 * @param bool  $passed         Passed ?.
+	 * @param int   $product_id     Product Id.
+	 * @param int   $quantity       Quantity.
+	 * @param int   $variation_id   Variation Id.
+	 * @param array $variation      Chosen variation attributes.
+	 * @param array $cart_item_data Cart item data passed to add_to_cart().
 	 *
 	 * @return bool
 	 */
-	public function add_to_cart_validation( $passed, $product_id, $quantity, $variation_id = 0 ) {
-		$product_id = (int) $variation_id > 0 ? (int) $variation_id : (int) $product_id;
-		$validation = $this->validate_cart_items( $product_id );
+	public function add_to_cart_validation( $passed, $product_id, $quantity = 1, $variation_id = 0, $variation = array(), $cart_item_data = array() ) {
+		$validation = $this->validate_cart_items( (int) $product_id, (int) $variation_id );
+
+		// A different subscription is in the cart: offer the swap instead of a wall.
+		if ( $validation['failed'] && ! empty( $validation['switch_keys'] ) ) {
+			$this->offer_switch(
+				array(
+					'product_id'     => (int) $product_id,
+					'quantity'       => (float) $quantity,
+					'variation_id'   => (int) $variation_id,
+					'variation'      => is_array( $variation ) ? $variation : array(),
+					'cart_item_data' => is_array( $cart_item_data ) ? $cart_item_data : array(),
+					'plan_id'        => (int) $validation['plan_id'],
+					'cart_item_keys' => $validation['switch_keys'],
+				)
+			);
+
+			return false;
+		}
 
 		if ( $validation['failed'] ) {
 			$error_notice = empty( $validation['error_notice'] ) ? __( 'This product cannot be added to the cart.', 'subscription' ) : $validation['error_notice'];
 			wc_add_notice( $error_notice, 'error' );
 			return false;
 		}
+
+		// Same subscription again: WooCommerce merges the line, we say so afterwards.
+		$this->quantity_merged = ! empty( $validation['quantity_merged'] );
 
 		// Validation passed.
 		return $passed;
@@ -71,49 +105,297 @@ class Cart {
 	 * @throws \Exception If validation fails.
 	 */
 	public function add_to_cart_validation_store_api( $product ) {
-		$product_id = $product->get_id();
-		$validation = $this->validate_cart_items( $product_id );
+		$parent_id  = $product->is_type( 'variation' ) ? (int) $product->get_parent_id() : (int) $product->get_id();
+		$variation  = $product->is_type( 'variation' ) ? (int) $product->get_id() : 0;
+		$validation = $this->validate_cart_items( $parent_id, $variation );
 
-		if ( $validation['failed'] ) {
-			$error_notice = empty( $validation['error_notice'] ) ? __( 'This product cannot be added to the cart.', 'subscription' ) : $validation['error_notice'];
-			throw new \Exception( esc_html( $error_notice ) );
+		if ( ! $validation['failed'] ) {
+			return;
 		}
+
+		// The blocks cart has no place to put the Yes/No links a classic notice
+		// carries, so say what to do instead of offering the swap.
+		if ( ! empty( $validation['switch_keys'] ) ) {
+			throw new \Exception(
+				esc_html__( 'You cannot purchase multiple different subscriptions at once. Remove the subscription already in your cart to switch plans.', 'subscription' )
+			);
+		}
+
+		$error_notice = empty( $validation['error_notice'] ) ? __( 'This product cannot be added to the cart.', 'subscription' ) : $validation['error_notice'];
+		throw new \Exception( esc_html( $error_notice ) );
 	}
 
 	/**
 	 * Validate cart items.
 	 *
-	 * @param int $product_id Product Id.
-	 * @return array
+	 * Three outcomes matter, and they are not all failures:
+	 *
+	 * - the same subscription (same product, same variation, same plan term) is
+	 *   already in the cart — pass, and let WooCommerce merge the quantity under
+	 *   its own store rules;
+	 * - a *different* subscription is in the cart — fail, but report the lines it
+	 *   would have to replace so the caller can offer a swap;
+	 * - a subscription and a non-subscription product are being mixed — fail.
+	 *
+	 * @param int $product_id   Product Id (the parent, for a variation).
+	 * @param int $variation_id Variation Id, 0 for a non-variable product.
+	 *
+	 * @return array{failed:bool,error_notice:?string,switch_keys:array,quantity_merged:bool,plan_id:int}
 	 */
-	public function validate_cart_items( $product_id ) {
-		$cart_items = WC()->cart->cart_contents;
+	public function validate_cart_items( $product_id, $variation_id = 0 ) {
+		$product_id   = (int) $product_id;
+		$variation_id = (int) $variation_id;
+		$cart_items   = WC()->cart->cart_contents;
 
-		$product = Subscription::get_subs_product( $product_id );
+		$product = Subscription::get_subs_product( $variation_id > 0 ? $variation_id : $product_id );
 
-		$error_notice = null;
-		$failed       = false;
+		$error_notice    = null;
+		$failed          = false;
+		$switch_keys     = array();
+		$quantity_merged = false;
+
 		// A tied plan counts as a subscription even without classic `_subscrpt_enabled`.
-		$enabled = $product->is_enabled() || subscrpt_plan_offered( $product_id );
+		$enabled = $product->is_enabled() || subscrpt_plan_offered( $product_id, $variation_id );
+		$plan_id = $enabled ? (int) PlanCheckout::resolve_request_plan_id( $product_id ) : 0;
+
+		// Pro resolves plan types free cannot (Subscribe & Save, Installments,
+		// per-variation), so trust the requested plan id when free's own resolver
+		// draws a blank — otherwise re-adding the very same plan item would read as
+		// a different subscription and prompt a pointless swap.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce verifies the add-to-cart request; we only read a plan id.
+		if ( $enabled && ! $plan_id && ! empty( $_REQUEST['subscrpt_plan_id'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- as above.
+			$plan_id = absint( wp_unslash( $_REQUEST['subscrpt_plan_id'] ) );
+		}
 
 		foreach ( $cart_items as $key => $cart_item ) {
 			if ( isset( $cart_item['subscription'] ) ) {
-				if ( $enabled ) {
-					$error_notice = __( 'You cannot purchase multiple subscriptions at the same time.', 'subscription' );
-				} else {
+				if ( ! $enabled ) {
 					$error_notice = __( 'You cannot purchase a subscription and a non-subscription product at the same time.', 'subscription' );
+					$failed       = true;
+					continue;
 				}
-				$failed = true;
+
+				if ( $this->is_same_subscription( $cart_item, $product_id, $variation_id, $plan_id ) ) {
+					$quantity_merged = true;
+					continue;
+				}
+
+				$error_notice  = __( 'You cannot purchase multiple subscriptions at the same time.', 'subscription' );
+				$failed        = true;
+				$switch_keys[] = $key;
 			} elseif ( $enabled ) {
 				$error_notice = __( 'You cannot purchase a subscription along with other products. Please remove other products from your cart first.', 'subscription' );
 				$failed       = true;
 			}
 		}
 
+		// Mixing with a plain product is not swappable — drop the swap offer so the
+		// caller falls back to the message that names the real problem.
+		if ( $failed && ! empty( $switch_keys ) && count( $switch_keys ) !== $this->count_failed_lines( $cart_items, $product_id, $variation_id, $plan_id, $enabled ) ) {
+			$switch_keys = array();
+		}
+
 		return [
-			'failed'       => (bool) $failed,
-			'error_notice' => $error_notice,
+			'failed'          => (bool) $failed,
+			'error_notice'    => $error_notice,
+			'switch_keys'     => $switch_keys,
+			'quantity_merged' => ( ! $failed && $quantity_merged ),
+			'plan_id'         => $plan_id,
 		];
+	}
+
+	/**
+	 * Count the cart lines that block this add-to-cart, swappable or not.
+	 *
+	 * @param array $cart_items   Cart contents.
+	 * @param int   $product_id   Product Id.
+	 * @param int   $variation_id Variation Id.
+	 * @param int   $plan_id      Chosen plan-term id, 0 for a classic item.
+	 * @param bool  $enabled      Whether the incoming product is a subscription.
+	 *
+	 * @return int
+	 */
+	private function count_failed_lines( $cart_items, $product_id, $variation_id, $plan_id, $enabled ) {
+		$count = 0;
+		foreach ( $cart_items as $cart_item ) {
+			if ( isset( $cart_item['subscription'] ) ) {
+				if ( ! $enabled || ! $this->is_same_subscription( $cart_item, $product_id, $variation_id, $plan_id ) ) {
+					++$count;
+				}
+			} elseif ( $enabled ) {
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Whether a cart line is the very same subscription an add-to-cart asks for.
+	 *
+	 * Same product, same variation and same plan term — anything else is a
+	 * different subscription, even on the same product.
+	 *
+	 * @param array $cart_item    Cart item.
+	 * @param int   $product_id   Product Id.
+	 * @param int   $variation_id Variation Id.
+	 * @param int   $plan_id      Chosen plan-term id, 0 for a classic item.
+	 *
+	 * @return bool
+	 */
+	private function is_same_subscription( $cart_item, $product_id, $variation_id, $plan_id ) {
+		$item_plan_id = isset( $cart_item['subscrpt_plan_id'] ) ? (int) $cart_item['subscrpt_plan_id'] : 0;
+
+		return (int) $cart_item['product_id'] === $product_id
+			&& (int) ( $cart_item['variation_id'] ?? 0 ) === $variation_id
+			&& $item_plan_id === (int) $plan_id;
+	}
+
+	/**
+	 * Park the blocked add-to-cart in the session and ask whether to swap.
+	 *
+	 * The confirmation lives in a notice rather than a modal so it reaches every
+	 * theme and both add-to-cart paths: WooCommerce sends a failed AJAX add back
+	 * to the product page, where the notice — and its Yes/No links — render.
+	 *
+	 * @param array $pending Pending switch payload.
+	 *
+	 * @return void
+	 */
+	private function offer_switch( array $pending ) {
+		if ( ! WC()->session ) {
+			wc_add_notice( __( 'You cannot purchase multiple subscriptions at the same time.', 'subscription' ), 'error' );
+			return;
+		}
+
+		$pending['return_url'] = get_permalink( $pending['product_id'] );
+		if ( ! $pending['return_url'] ) {
+			$pending['return_url'] = wc_get_cart_url();
+		}
+
+		WC()->session->set( 'subscrpt_pending_switch', $pending );
+
+		$switch_url = wp_nonce_url( add_query_arg( 'subscrpt_switch', 'yes', $pending['return_url'] ), 'subscrpt_switch_cart' );
+		$keep_url   = wp_nonce_url( add_query_arg( 'subscrpt_switch', 'no', $pending['return_url'] ), 'subscrpt_switch_cart' );
+
+		$notice = sprintf(
+			'<span class="subscrpt-switch-prompt">%1$s</span> <a href="%2$s" class="button subscrpt-switch-confirm">%3$s</a> <a href="%4$s" class="subscrpt-switch-cancel">%5$s</a>',
+			esc_html__( 'You cannot purchase multiple different subscriptions at once. Would you like to switch your current subscription?', 'subscription' ),
+			esc_url( $switch_url ),
+			esc_html__( 'Yes, switch', 'subscription' ),
+			esc_url( $keep_url ),
+			esc_html__( 'No, keep my cart', 'subscription' )
+		);
+
+		wc_add_notice( apply_filters( 'subscrpt_cart_switch_notice', $notice, $pending ), 'error' );
+	}
+
+	/**
+	 * Answer the switch confirmation: replace the cart subscription, or keep it.
+	 *
+	 * @return void
+	 */
+	public function handle_switch_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the nonce is verified right below.
+		if ( empty( $_GET['subscrpt_switch'] ) || is_admin() || ! function_exists( 'WC' ) || ! WC()->cart ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- verified on the next line.
+		$answer = sanitize_key( wp_unslash( $_GET['subscrpt_switch'] ) );
+		$nonce  = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'subscrpt_switch_cart' ) ) {
+			wc_add_notice( __( 'That subscription switch link has expired. Please try adding the subscription again.', 'subscription' ), 'error' );
+			$this->redirect_after_switch( wc_get_cart_url() );
+			return;
+		}
+
+		$pending = WC()->session ? WC()->session->get( 'subscrpt_pending_switch' ) : null;
+		if ( WC()->session ) {
+			WC()->session->set( 'subscrpt_pending_switch', null );
+		}
+
+		$return_url = is_array( $pending ) && ! empty( $pending['return_url'] ) ? $pending['return_url'] : wc_get_cart_url();
+
+		if ( 'yes' !== $answer || ! is_array( $pending ) ) {
+			wc_add_notice( __( 'Your cart was left unchanged.', 'subscription' ), 'notice' );
+			$this->redirect_after_switch( $return_url );
+			return;
+		}
+
+		foreach ( (array) $pending['cart_item_keys'] as $cart_item_key ) {
+			WC()->cart->remove_cart_item( $cart_item_key );
+		}
+
+		// `woocommerce_add_cart_item_data` reads the chosen plan from the request,
+		// and this request is the confirmation link, not the original form post —
+		// so put the plan back where the resolver looks for it.
+		$had_plan_request = isset( $_REQUEST['subscrpt_plan_id'] );
+		if ( ! empty( $pending['plan_id'] ) ) {
+			$_REQUEST['subscrpt_plan_id'] = (int) $pending['plan_id'];
+		}
+
+		$added = WC()->cart->add_to_cart(
+			(int) $pending['product_id'],
+			max( 1, (float) $pending['quantity'] ),
+			(int) $pending['variation_id'],
+			(array) $pending['variation'],
+			(array) $pending['cart_item_data']
+		);
+
+		if ( ! $had_plan_request ) {
+			unset( $_REQUEST['subscrpt_plan_id'] );
+		}
+
+		if ( $added ) {
+			wc_add_notice( __( 'Your subscription was switched. The previous subscription was removed from your cart.', 'subscription' ), 'success' );
+
+			/**
+			 * Fires after a cart subscription is swapped for another.
+			 *
+			 * @param string $cart_item_key New cart item key.
+			 * @param array  $pending       The switch payload that was applied.
+			 */
+			do_action( 'subscrpt_cart_subscription_switched', $added, $pending );
+		}
+
+		$this->redirect_after_switch( $return_url );
+	}
+
+	/**
+	 * Redirect away from a switch link so it is never re-submitted on reload.
+	 *
+	 * @param string $fallback_url URL to fall back on.
+	 *
+	 * @return void
+	 */
+	private function redirect_after_switch( $fallback_url ) {
+		$url = remove_query_arg( array( 'subscrpt_switch', '_wpnonce' ), $fallback_url );
+
+		if ( wp_doing_ajax() ) {
+			return;
+		}
+
+		// Guarded so a redirect that never happened (CLI, a test, headers already
+		// filtered away) does not take the request down with an unconditional exit.
+		if ( wp_safe_redirect( $url ) ) {
+			exit;
+		}
+	}
+
+	/**
+	 * Tell the shopper the line quantity went up instead of a new line appearing.
+	 *
+	 * @return void
+	 */
+	public function notice_quantity_merged() {
+		if ( ! $this->quantity_merged ) {
+			return;
+		}
+
+		$this->quantity_merged = false;
+		wc_add_notice( __( 'That subscription is already in your cart — its quantity has been updated.', 'subscription' ), 'notice' );
 	}
 
 	/**
