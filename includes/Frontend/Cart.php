@@ -87,6 +87,20 @@ class Cart {
 	 * @return array
 	 */
 	public function validate_cart_items( $product_id ) {
+		/**
+		 * Filters whether the cart may hold more than one subscription, or a
+		 * subscription alongside a normal product, bypassing the restriction below.
+		 *
+		 * @param bool $allow      Whether to allow it. Default false.
+		 * @param int  $product_id Product being added to the cart.
+		 */
+		if ( apply_filters( 'subscrpt_allow_multiple_subscriptions_in_cart', false, $product_id ) ) {
+			return [
+				'failed'       => false,
+				'error_notice' => null,
+			];
+		}
+
 		$cart_items = WC()->cart->cart_contents;
 
 		$product = Subscription::get_subs_product( $product_id );
