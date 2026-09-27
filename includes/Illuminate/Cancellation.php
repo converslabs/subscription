@@ -204,11 +204,19 @@ class Cancellation {
 					<div class="subscrpt-feedback-modal__body" data-subscrpt-offer-step>
 						<p class="subscrpt-feedback-modal__intro">
 							<?php
-							printf(
-								/* translators: %s: discount percentage. */
-								esc_html__( 'Stay with us and take %s%% off your next order.', 'subscription' ),
-								esc_html( (string) $subscrpt_offer_percent )
-							);
+							if ( 'fixed' === \SpringDevs\Subscription\Admin\CancellationFlow::offer_type() ) {
+								printf(
+									/* translators: %s: formatted discount amount. */
+									esc_html__( 'Stay with us and take %s off your next order.', 'subscription' ),
+									wp_kses_post( wc_price( \SpringDevs\Subscription\Admin\CancellationFlow::offer_amount() ) )
+								);
+							} else {
+								printf(
+									/* translators: %s: discount percentage. */
+									esc_html__( 'Stay with us and take %s%% off your next order.', 'subscription' ),
+									esc_html( (string) $subscrpt_offer_percent )
+								);
+							}
 							?>
 						</p>
 						<p class="subscrpt-feedback-modal__offer-note" data-subscrpt-offer-result hidden></p>
