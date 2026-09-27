@@ -17,6 +17,7 @@ class Ajax {
 		add_action( 'wp_ajax_subscrpt_install_woocommerce_plugin', array( $this, 'install_woocommerce_plugin' ) );
 		add_action( 'wp_ajax_subscrpt_activate_woocommerce_plugin', array( $this, 'wps_subscription_activate_woocommerce_plugin' ) );
 		add_action( 'wp_ajax_subscrpt_install_integration_plugin', array( $this, 'install_integration_plugin' ) );
+		add_action( 'wp_ajax_subscrpt_activate_integration_plugin', array( $this, 'activate_integration_plugin' ) );
 	}
 
 	/**
@@ -178,6 +179,35 @@ class Ajax {
 
 		if ( is_wp_error( $activate ) ) {
 			wp_send_json_success( array( 'warning' => __( 'Plugin installed but could not be activated automatically.', 'subscription' ) ) );
+		}
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Activate an already installed integration plugin from the integrations page.
+	 */
+	public function activate_integration_plugin() {
+		check_ajax_referer( 'subscrpt_integration_install_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'subscription' ) ), 403 );
+		}
+
+		$plugin_file = isset( $_POST['plugin_file'] ) ? sanitize_text_field( wp_unslash( $_POST['plugin_file'] ) ) : '';
+
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		if ( empty( $plugin_file ) || ! array_key_exists( $plugin_file, get_plugins() ) ) {
+			wp_send_json_error( array( 'message' => __( 'Plugin is not installed.', 'subscription' ) ), 400 );
+		}
+
+		$activate = activate_plugin( $plugin_file );
+
+		if ( is_wp_error( $activate ) ) {
+			wp_send_json_error( array( 'message' => $activate->get_error_message() ), 500 );
 		}
 
 		wp_send_json_success();

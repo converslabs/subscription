@@ -398,7 +398,7 @@ class Integrations {
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'lms',
-				'is_installed' => is_plugin_active( 'tutor/tutor.php' ) && class_exists( 'TUTOR\Tutor' ),
+				'is_installed' => $this->is_plugin_installed( 'tutor/tutor.php' ),
 				'is_active'    => is_plugin_active( 'tutor/tutor.php' ) && class_exists( 'TUTOR\Tutor' ),
 				'actions'      => [
 					[
@@ -406,6 +406,12 @@ class Integrations {
 						'label'    => __( 'Install Now', 'subscription' ),
 						'type'     => 'function',
 						'function' => "subscrptInstallPlugin(this, 'tutor')",
+					],
+					[
+						'action'   => 'activate',
+						'label'    => __( 'Activate', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptActivatePlugin(this, 'tutor/tutor.php')",
 					],
 					[
 						'label' => __( 'Learn More', 'subscription' ),
@@ -421,7 +427,7 @@ class Integrations {
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'lms',
-				'is_installed' => is_plugin_active( 'learnpress/learnpress.php' ) && class_exists( 'LearnPress' ),
+				'is_installed' => $this->is_plugin_installed( 'learnpress/learnpress.php' ),
 				'is_active'    => is_plugin_active( 'learnpress/learnpress.php' ) && class_exists( 'LearnPress' ),
 				'actions'      => [
 					[
@@ -429,6 +435,12 @@ class Integrations {
 						'label'    => __( 'Install Now', 'subscription' ),
 						'type'     => 'function',
 						'function' => "subscrptInstallPlugin(this, 'learnpress')",
+					],
+					[
+						'action'   => 'activate',
+						'label'    => __( 'Activate', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptActivatePlugin(this, 'learnpress/learnpress.php')",
 					],
 					[
 						'label' => __( 'Learn More', 'subscription' ),
@@ -444,7 +456,7 @@ class Integrations {
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'lms',
-				'is_installed' => is_plugin_active( 'sfwd-lms/sfwd_lms.php' ) && class_exists( 'LearnDash\Core\App' ),
+				'is_installed' => $this->is_plugin_installed( 'sfwd-lms/sfwd_lms.php' ),
 				'is_active'    => is_plugin_active( 'sfwd-lms/sfwd_lms.php' ) && class_exists( 'LearnDash\Core\App' ),
 				'actions'      => [
 					[
@@ -452,6 +464,12 @@ class Integrations {
 						'label'  => __( 'Get LearnDash', 'subscription' ),
 						'type'   => 'external_link',
 						'url'    => 'https://www.learndash.com/',
+					],
+					[
+						'action'   => 'activate',
+						'label'    => __( 'Activate', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptActivatePlugin(this, 'sfwd-lms/sfwd_lms.php')",
 					],
 					[
 						'label' => __( 'Learn More', 'subscription' ),
@@ -468,7 +486,7 @@ class Integrations {
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'crm',
-				'is_installed' => class_exists( 'FluentCrm\App\Services\Funnel\BaseTrigger' ),
+				'is_installed' => $this->is_plugin_installed( 'fluent-crm/fluent-crm.php' ),
 				'is_active'    => class_exists( 'FluentCrm\App\Services\Funnel\BaseTrigger' ),
 				'actions'      => [
 					[
@@ -476,6 +494,12 @@ class Integrations {
 						'label'    => __( 'Install Now', 'subscription' ),
 						'type'     => 'function',
 						'function' => "subscrptInstallPlugin(this, 'fluent-crm')",
+					],
+					[
+						'action'   => 'activate',
+						'label'    => __( 'Activate', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptActivatePlugin(this, 'fluent-crm/fluent-crm.php')",
 					],
 					[
 						'label' => __( 'Learn More', 'subscription' ),
@@ -492,7 +516,7 @@ class Integrations {
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'automation',
-				'is_installed' => is_plugin_active( 'automatorwp/automatorwp.php' ) && class_exists( 'AutomatorWP' ),
+				'is_installed' => $this->is_plugin_installed( 'automatorwp/automatorwp.php' ),
 				'is_active'    => is_plugin_active( 'automatorwp/automatorwp.php' ) && class_exists( 'AutomatorWP' ),
 				'actions'      => [
 					[
@@ -500,6 +524,12 @@ class Integrations {
 						'label'    => __( 'Install Now', 'subscription' ),
 						'type'     => 'function',
 						'function' => "subscrptInstallPlugin(this, 'automatorwp')",
+					],
+					[
+						'action'   => 'activate',
+						'label'    => __( 'Activate', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptActivatePlugin(this, 'automatorwp/automatorwp.php')",
 					],
 					// [
 					// 'label' => __( 'Learn More', 'subscription' ),
@@ -515,7 +545,7 @@ class Integrations {
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'automation',
-				'is_installed' => class_exists( 'WPF_Integrations_Base' ),
+				'is_installed' => $this->is_plugin_installed( 'wp-fusion/wp-fusion.php' ) || class_exists( 'WPF_Integrations_Base' ),
 				'is_active'    => class_exists( 'WPF_Integrations_Base' ),
 				'actions'      => [
 					[
@@ -523,6 +553,12 @@ class Integrations {
 						'label'  => __( 'Get WP Fusion', 'subscription' ),
 						'type'   => 'external_link',
 						'url'    => 'https://wpfusion.com/',
+					],
+					[
+						'action'   => 'activate',
+						'label'    => __( 'Activate', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptActivatePlugin(this, 'wp-fusion/wp-fusion.php')",
 					],
 					// [
 					// 'label' => __( 'Learn More', 'subscription' ),
@@ -539,7 +575,7 @@ class Integrations {
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'email',
-				'is_installed' => is_plugin_active( 'mailpoet/mailpoet.php' ) || is_plugin_active( 'mailpoet-premium/mailpoet-premium.php' ),
+				'is_installed' => $this->is_plugin_installed( 'mailpoet/mailpoet.php' ) || is_plugin_active( 'mailpoet-premium/mailpoet-premium.php' ),
 				'is_active'    => is_plugin_active( 'mailpoet/mailpoet.php' ) || is_plugin_active( 'mailpoet-premium/mailpoet-premium.php' ),
 				'actions'      => [
 					[
@@ -547,6 +583,12 @@ class Integrations {
 						'label'    => __( 'Install Now', 'subscription' ),
 						'type'     => 'function',
 						'function' => "subscrptInstallPlugin(this, 'mailpoet')",
+					],
+					[
+						'action'   => 'activate',
+						'label'    => __( 'Activate', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptActivatePlugin(this, 'mailpoet/mailpoet.php')",
 					],
 					[
 						'label' => __( 'Learn More', 'subscription' ),
@@ -563,7 +605,7 @@ class Integrations {
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'license',
-				'is_installed' => is_plugin_active( 'software-license/software-license.php' ) && class_exists( 'WOO_SL' ),
+				'is_installed' => $this->is_plugin_installed( 'software-license/software-license.php' ),
 				'is_active'    => is_plugin_active( 'software-license/software-license.php' ) && class_exists( 'WOO_SL' ),
 				'actions'      => [
 					[
@@ -571,6 +613,12 @@ class Integrations {
 						'label'  => __( 'Get Plugin', 'subscription' ),
 						'type'   => 'external_link',
 						'url'    => 'https://wpsoftwarelicense.com/',
+					],
+					[
+						'action'   => 'activate',
+						'label'    => __( 'Activate', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptActivatePlugin(this, 'software-license/software-license.php')",
 					],
 					// [
 					// 'label' => __( 'Learn More', 'subscription' ),
@@ -586,7 +634,7 @@ class Integrations {
 				'type'         => 'third_party',
 				'is_pro'       => true,
 				'category'     => 'license',
-				'is_installed' => is_plugin_active( 'license-manager-for-woocommerce/license-manager-for-woocommerce.php' ) && class_exists( 'LicenseManagerForWooCommerce\Models\Resources\License' ),
+				'is_installed' => $this->is_plugin_installed( 'license-manager-for-woocommerce/license-manager-for-woocommerce.php' ),
 				'is_active'    => is_plugin_active( 'license-manager-for-woocommerce/license-manager-for-woocommerce.php' ) && class_exists( 'LicenseManagerForWooCommerce\Models\Resources\License' ),
 				'actions'      => [
 					[
@@ -594,6 +642,12 @@ class Integrations {
 						'label'    => __( 'Install Now', 'subscription' ),
 						'type'     => 'function',
 						'function' => "subscrptInstallPlugin(this, 'license-manager-for-woocommerce')",
+					],
+					[
+						'action'   => 'activate',
+						'label'    => __( 'Activate', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptActivatePlugin(this, 'license-manager-for-woocommerce/license-manager-for-woocommerce.php')",
 					],
 					// [
 					// 'label' => __( 'Learn More', 'subscription' ),
@@ -638,6 +692,12 @@ class Integrations {
 				}
 				if ( 'uninstall' === $action_tag ) {
 					if ( $is_installed ) {
+						$cleaned_actions[] = $integration_action;
+					}
+					continue;
+				}
+				if ( 'activate' === $action_tag ) {
+					if ( $is_installed && ! $is_active ) {
 						$cleaned_actions[] = $integration_action;
 					}
 					continue;
