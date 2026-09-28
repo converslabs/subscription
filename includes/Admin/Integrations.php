@@ -193,6 +193,53 @@ class Integrations {
 	}
 
 	/**
+	 * Find the basename of an installed plugin from its wp.org slug.
+	 *
+	 * @param string $slug The wp.org plugin slug, which is also its directory.
+	 * @return string The plugin basename, or an empty string when not installed.
+	 */
+	protected function find_plugin_file( $slug ) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		foreach ( array_keys( get_plugins() ) as $plugin_file ) {
+			if ( 0 === strpos( $plugin_file, $slug . '/' ) ) {
+				return $plugin_file;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Mark a gateway card installed when its plugin is on disk, and give it an
+	 * Activate action for when that plugin is inactive.
+	 *
+	 * Gateway cards otherwise detect installation by a class the plugin declares,
+	 * which only exists while it is active, so an installed-but-inactive gateway
+	 * offered "Install Now" and the install failed on the existing folder.
+	 *
+	 * @param array  $integration The integration card.
+	 * @param string $slug        The wp.org plugin slug.
+	 * @return array
+	 */
+	protected function with_gateway_plugin_state( array $integration, $slug ) {
+		$plugin_file = $this->find_plugin_file( $slug );
+		if ( '' === $plugin_file ) {
+			return $integration;
+		}
+
+		$integration['is_installed'] = true;
+		$integration['plugin_file']  = $plugin_file;
+		$integration['actions'][]    = [
+			'action'   => 'activate',
+			'label'    => __( 'Activate', 'subscription' ),
+			'type'     => 'function',
+			'function' => "subscrptActivatePlugin(this, '" . esc_js( $plugin_file ) . "')",
+		];
+		return $integration;
+	}
+
+	/**
 	 * Check if a payment gateway is enabled.
 	 *
 	 * @param string $gateway_id Gateway ID.
@@ -387,6 +434,11 @@ class Integrations {
 				],
 			],
 		];
+
+		$integrations['stripe']   = $this->with_gateway_plugin_state( $integrations['stripe'], 'woocommerce-gateway-stripe' );
+		$integrations['mollie']   = $this->with_gateway_plugin_state( $integrations['mollie'], 'mollie-payments-for-woocommerce' );
+		$integrations['razorpay'] = $this->with_gateway_plugin_state( $integrations['razorpay'], 'woo-razorpay' );
+		$integrations['xendit']   = $this->with_gateway_plugin_state( $integrations['xendit'], 'woo-xendit-virtual-accounts' );
 
 		// Third-party integrations (requires Pro plugin to function).
 		$third_party = [
@@ -677,6 +729,11 @@ class Integrations {
 			$is_installed = $integration['is_installed'] ?? false;
 			$is_active    = $integration['is_active'] ?? false;
 
+			// A gateway card is "active" when its gateway is enabled, which is not
+			// the same as its plugin being active; read the plugin itself.
+			$plugin_file   = $integration['plugin_file'] ?? '';
+			$plugin_active = '' !== $plugin_file ? is_plugin_active( $plugin_file ) : $is_active;
+
 			$cleaned_actions   = [];
 			$shown_install_url = null;
 
@@ -697,7 +754,7 @@ class Integrations {
 					continue;
 				}
 				if ( 'activate' === $action_tag ) {
-					if ( $is_installed && ! $is_active ) {
+					if ( $is_installed && ! $plugin_active ) {
 						$cleaned_actions[] = $integration_action;
 					}
 					continue;
@@ -709,7 +766,7 @@ class Integrations {
 					continue;
 				}
 				if ( 'settings' === $action_tag ) {
-					if ( $is_installed ) {
+					if ( $is_installed && ( '' === $plugin_file || $plugin_active ) ) {
 						$cleaned_actions[] = $integration_action;
 					}
 					continue;

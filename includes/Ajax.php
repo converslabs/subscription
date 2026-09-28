@@ -119,6 +119,18 @@ class Ajax {
 		include_once ABSPATH . 'wp-admin/includes/file.php';
 		include_once ABSPATH . 'wp-admin/includes/misc.php';
 
+		// Already on disk: installing again fails on the existing folder, so
+		// activate what is there instead.
+		foreach ( array_keys( get_plugins() ) as $installed_file ) {
+			if ( 0 === strpos( $installed_file, $plugin_slug . '/' ) ) {
+				$activate = activate_plugin( $installed_file );
+				if ( is_wp_error( $activate ) ) {
+					wp_send_json_error( array( 'message' => $activate->get_error_message() ), 500 );
+				}
+				wp_send_json_success();
+			}
+		}
+
 		$cache_key = 'subscrpt_plugin_api_' . sanitize_key( $plugin_slug );
 		$api       = get_transient( $cache_key );
 
@@ -156,17 +168,21 @@ class Ajax {
 			set_transient( $cache_key, $api, 12 * HOUR_IN_SECONDS );
 		}
 
-		$upgrader = new \Plugin_Upgrader( new \WP_Ajax_Upgrader_Skin() );
+		$skin     = new \WP_Ajax_Upgrader_Skin();
+		$upgrader = new \Plugin_Upgrader( $skin );
 		$result   = $upgrader->install( $api->download_link );
-
-		ob_end_clean();
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ), 500 );
 		}
 
+		// The skin collects the reason (folder exists, no filesystem access, …)
+		// while install() itself only returns null.
 		if ( ! $result ) {
-			wp_send_json_error( array( 'message' => __( 'Plugin installation failed.', 'subscription' ) ), 500 );
+			$message = $skin->get_errors()->has_errors()
+				? $skin->get_error_messages()
+				: __( 'Plugin installation failed.', 'subscription' );
+			wp_send_json_error( array( 'message' => $message ), 500 );
 		}
 
 		$plugin_file = $upgrader->plugin_info();
