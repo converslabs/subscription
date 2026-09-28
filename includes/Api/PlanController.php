@@ -85,6 +85,18 @@ class PlanController {
 
 		register_rest_route(
 			self::NS,
+			'/plans/groups/(?P<id>\d+)/order',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_group_order' ),
+					'permission_callback' => $perm,
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NS,
 			'/plans/terms',
 			array(
 				array(
@@ -362,6 +374,42 @@ class PlanController {
 		PlanRepository::update_group( $id, $params );
 
 		return rest_ensure_response( PlanRepository::get_group_tree( $id ) );
+	}
+
+	/**
+	 * PUT /plans/groups/{id}/order - save the admin display order of the
+	 * group's durations and/or products (drag-and-drop on the detail page).
+	 *
+	 * Stored in the group's `data` JSON as `term_order` / `product_order`
+	 * (lists of ids), merged so the rest of `data` is left as it was.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function update_group_order( WP_REST_Request $request ) {
+		$id    = (int) $request['id'];
+		$group = PlanRepository::get_group( $id );
+
+		if ( ! $group ) {
+			return $this->not_found();
+		}
+
+		$params = $this->read_params( $request );
+		$data   = is_array( $group['data'] ) ? $group['data'] : array();
+
+		foreach ( array(
+			'terms'    => 'term_order',
+			'products' => 'product_order',
+		) as $param => $key ) {
+			if ( isset( $params[ $param ] ) && is_array( $params[ $param ] ) ) {
+				$data[ $key ] = array_values( array_unique( array_filter( array_map( 'absint', $params[ $param ] ) ) ) );
+			}
+		}
+
+		PlanRepository::update_group( $id, array( 'data' => $data ) );
+
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 	/**

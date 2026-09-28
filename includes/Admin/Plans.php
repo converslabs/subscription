@@ -133,6 +133,7 @@ class Plans {
 					'productsUpdated'        => __( 'Products updated.', 'subscription' ),
 					'productRemoved'         => __( 'Product removed from this plan.', 'subscription' ),
 					'termDrafted'            => __( 'Duration set to draft.', 'subscription' ),
+					'orderSaved'             => __( 'Order saved.', 'subscription' ),
 					/* translators: %1$s: first item number, %2$s: last item number, %3$s: total. */
 					'showingRange'           => __( 'Showing %1-%2 of %3', 'subscription' ),
 				),

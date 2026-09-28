@@ -1253,6 +1253,306 @@
   });
 
   /* ------------------------------------------------------------------ *
+   * Drag-and-drop reorder: durations + products (vertical only).
+   *
+   * A drag starts on [data-subscrpt-sort-handle] only, moves its
+   * [data-subscrpt-sort-item] within the [data-subscrpt-sortable] list, and
+   * saves the list's full id order (hidden/paged-out items included) to
+   * /groups/{id}/order. Siblings slide aside with a FLIP transition. Arrow
+   * keys on a focused handle move it one step. Everything is delegated,
+   * because the Products panel is re-rendered in place.
+   * ------------------------------------------------------------------ */
+
+  var SORT_ANIM_MS = 200;
+  var SORT_EDGE_PX = 60;
+  var sortDrag = null;
+  var sortPending = {};
+
+  /**
+   * Items of a list the merchant can currently see (search/pager aware).
+   *
+   * @param {HTMLElement} list Sortable list.
+   * @return {HTMLElement[]}
+   */
+  function sortVisible(list) {
+    return Array.prototype.filter.call(list.children, function (el) {
+      return el.hasAttribute("data-subscrpt-sort-item") && "none" !== el.style.display;
+    });
+  }
+
+  /**
+   * Every item id of a list, in DOM order.
+   *
+   * @param {HTMLElement} list Sortable list.
+   * @return {number[]}
+   */
+  function sortIds(list) {
+    return Array.prototype.map.call(list.querySelectorAll(":scope > [data-subscrpt-sort-item]"), function (el) {
+      return parseInt(el.getAttribute("data-subscrpt-sort-item"), 10);
+    });
+  }
+
+  /**
+   * Move `el` in the DOM (before `ref`, or to the end) and slide every other
+   * visible item from where it was to where it now is.
+   *
+   * @param {HTMLElement}      list Sortable list.
+   * @param {HTMLElement}      el   Item to move.
+   * @param {HTMLElement|null} ref  Insert before this item.
+   * @param {boolean}          self Animate `el` too (keyboard moves).
+   */
+  function sortMove(list, el, ref, self) {
+    var others = sortVisible(list).filter(function (it) {
+      return self || it !== el;
+    });
+    var before = others.map(function (it) {
+      return it.offsetTop;
+    });
+
+    list.insertBefore(el, ref);
+
+    others.forEach(function (it, i) {
+      var delta = before[i] - it.offsetTop;
+      if (!delta) {
+        return;
+      }
+      it.style.transition = "none";
+      it.style.transform = "translateY(" + delta + "px)";
+      void it.offsetHeight; // Commit the start frame.
+      it.style.transition = "transform " + SORT_ANIM_MS + "ms cubic-bezier(0.2, 0, 0, 1)";
+      it.style.transform = "";
+      window.clearTimeout(it._subscrptSortTimer);
+      it._subscrptSortTimer = window.setTimeout(function () {
+        it.style.transition = "";
+      }, SORT_ANIM_MS);
+    });
+  }
+
+  /**
+   * Put a list back into a given id order (a failed save).
+   *
+   * @param {HTMLElement} list Sortable list.
+   * @param {number[]}    ids  Order to restore.
+   */
+  function sortRestore(list, ids) {
+    ids.forEach(function (id) {
+      var el = list.querySelector(':scope > [data-subscrpt-sort-item="' + id + '"]');
+      if (el) {
+        list.appendChild(el);
+      }
+    });
+    sortSynced(list);
+  }
+
+  /**
+   * Tell the list's search/pager the DOM order changed.
+   *
+   * @param {HTMLElement} list Sortable list.
+   */
+  function sortSynced(list) {
+    var root = list.closest("[data-subscrpt-browse]");
+    if (root) {
+      root.dispatchEvent(new CustomEvent("subscrpt:sorted"));
+    }
+  }
+
+  /**
+   * Save a list's order. Debounced so a run of arrow-key moves is one write;
+   * on failure the list goes back to the order it had before the run.
+   *
+   * @param {HTMLElement} list   Sortable list.
+   * @param {number[]}    before Order before this change.
+   */
+  function sortSave(list, before) {
+    var key = list.getAttribute("data-subscrpt-sortable");
+    var groupId = currentGroupId();
+    if (!key || !groupId) {
+      return;
+    }
+
+    var pending = sortPending[key] || { before: before };
+    sortPending[key] = pending;
+    window.clearTimeout(pending.timer);
+    pending.timer = window.setTimeout(function () {
+      delete sortPending[key];
+      var ids = sortIds(list);
+      if (ids.join() === pending.before.join()) {
+        return;
+      }
+      var body = {};
+      body[key] = ids;
+      api("PUT", "/groups/" + groupId + "/order", body)
+        .then(function () {
+          save.notify(i18n.orderSaved);
+        })
+        .catch(function (err) {
+          sortRestore(list, pending.before);
+          save.notify(err.message || i18n.genericError, "error");
+        });
+    }, 300);
+  }
+
+  /**
+   * Follow the pointer: position the lifted item, swap it past any sibling
+   * whose midpoint it crossed, and keep it inside the list.
+   *
+   * @param {number} clientY Pointer Y in the viewport.
+   */
+  function sortUpdate(clientY) {
+    var d = sortDrag;
+    var el = d.item;
+    var items = sortVisible(d.list);
+    var first = items[0];
+    var last = items[items.length - 1];
+
+    // Page coordinates, so auto-scroll does not throw the item off the pointer.
+    var dy = clientY + window.scrollY - d.startY;
+    var top = d.startTop + dy;
+    top = Math.max(first.offsetTop, Math.min(top, last.offsetTop + last.offsetHeight - el.offsetHeight));
+    // Leading edge, not centre: an expanded (tall) product must still be able
+    // to pass a short one inside the clamped range.
+    var bottom = top + el.offsetHeight;
+
+    var i = items.indexOf(el);
+    var next = items[i + 1];
+    var prev = items[i - 1];
+    var movedDown = false;
+    while (next && bottom > next.offsetTop + next.offsetHeight / 2) {
+      sortMove(d.list, el, next.nextSibling, false);
+      items = sortVisible(d.list);
+      next = items[items.indexOf(el) + 1];
+      movedDown = true;
+    }
+    while (!movedDown && prev && top < prev.offsetTop + prev.offsetHeight / 2) {
+      sortMove(d.list, el, prev, false);
+      items = sortVisible(d.list);
+      prev = items[items.indexOf(el) - 1];
+    }
+
+    el.style.transform = "translateY(" + (top - el.offsetTop) + "px) scale(1.01)";
+  }
+
+  /**
+   * Scroll the page while the pointer rests near the top/bottom edge.
+   */
+  function sortAutoScroll() {
+    if (!sortDrag) {
+      return;
+    }
+    var y = sortDrag.clientY;
+    var h = window.innerHeight;
+    var step = 0;
+    if (y < SORT_EDGE_PX) {
+      step = -Math.ceil((SORT_EDGE_PX - y) / 4);
+    } else if (y > h - SORT_EDGE_PX) {
+      step = Math.ceil((y - (h - SORT_EDGE_PX)) / 4);
+    }
+    if (step) {
+      window.scrollBy(0, step);
+      sortUpdate(y);
+    }
+    sortDrag.raf = window.requestAnimationFrame(sortAutoScroll);
+  }
+
+  function sortOnMove(e) {
+    if (!sortDrag || e.pointerId !== sortDrag.pointerId) {
+      return;
+    }
+    e.preventDefault();
+    sortDrag.clientY = e.clientY;
+    sortUpdate(e.clientY);
+  }
+
+  function sortOnEnd(e) {
+    if (!sortDrag || e.pointerId !== sortDrag.pointerId) {
+      return;
+    }
+    var d = sortDrag;
+    var el = d.item;
+    sortDrag = null;
+
+    window.cancelAnimationFrame(d.raf);
+    window.removeEventListener("pointermove", sortOnMove);
+    window.removeEventListener("pointerup", sortOnEnd);
+    window.removeEventListener("pointercancel", sortOnEnd);
+    document.body.classList.remove("wpsubs-sorting");
+
+    // Glide into the slot, then drop the lift.
+    el.classList.remove("wpsubs-sort-item--dragging");
+    el.classList.add("wpsubs-sort-item--settling");
+    el.style.transform = "";
+    window.setTimeout(function () {
+      el.classList.remove("wpsubs-sort-item--settling");
+    }, 240);
+
+    if (sortIds(d.list).join() !== d.before.join()) {
+      sortSynced(d.list);
+      sortSave(d.list, d.before);
+    }
+  }
+
+  document.addEventListener("pointerdown", function (e) {
+    var handle = e.target.closest("[data-subscrpt-sort-handle]");
+    if (!handle || sortDrag || (e.pointerType === "mouse" && 0 !== e.button)) {
+      return;
+    }
+    var item = handle.closest("[data-subscrpt-sort-item]");
+    var list = item && item.parentElement;
+    if (!list || !list.hasAttribute("data-subscrpt-sortable")) {
+      return;
+    }
+    e.preventDefault();
+    handle.focus({ preventScroll: true });
+
+    sortDrag = {
+      item: item,
+      list: list,
+      pointerId: e.pointerId,
+      startY: e.clientY + window.scrollY,
+      startTop: item.offsetTop,
+      clientY: e.clientY,
+      before: sortIds(list),
+    };
+
+    item.style.transition = "";
+    item.classList.remove("wpsubs-sort-item--settling");
+    item.classList.add("wpsubs-sort-item--dragging");
+    item.style.transform = "scale(1.01)";
+    document.body.classList.add("wpsubs-sorting");
+
+    window.addEventListener("pointermove", sortOnMove, { passive: false });
+    window.addEventListener("pointerup", sortOnEnd);
+    window.addEventListener("pointercancel", sortOnEnd);
+    sortDrag.raf = window.requestAnimationFrame(sortAutoScroll);
+  });
+
+  // Keyboard: ArrowUp / ArrowDown on a focused handle moves one step.
+  document.addEventListener("keydown", function (e) {
+    var handle = e.target.closest ? e.target.closest("[data-subscrpt-sort-handle]") : null;
+    if (!handle || sortDrag || ("ArrowUp" !== e.key && "ArrowDown" !== e.key)) {
+      return;
+    }
+    var item = handle.closest("[data-subscrpt-sort-item]");
+    var list = item && item.parentElement;
+    if (!list || !list.hasAttribute("data-subscrpt-sortable")) {
+      return;
+    }
+    e.preventDefault();
+
+    var items = sortVisible(list);
+    var i = items.indexOf(item);
+    var target = "ArrowUp" === e.key ? items[i - 1] : items[i + 1];
+    if (!target) {
+      return;
+    }
+    var before = sortIds(list);
+    sortMove(list, item, "ArrowUp" === e.key ? target : target.nextSibling, true);
+    handle.focus({ preventScroll: true });
+    sortSynced(list);
+    sortSave(list, before);
+  });
+
+  /* ------------------------------------------------------------------ *
    * Products tab: client-side search + pagination over the product list.
    * ------------------------------------------------------------------ */
 
@@ -1385,6 +1685,11 @@
       perPage = parseInt(e.detail && e.detail.value, 10) || perPage;
       page = 1;
       render();
+    });
+
+    // A drag-and-drop reorder moved items in the DOM: page in the new order.
+    root.addEventListener("subscrpt:sorted", function () {
+      items = Array.prototype.slice.call(root.querySelectorAll("[data-subscrpt-browse-item]"));
     });
 
     pager.addEventListener("click", function (e) {
