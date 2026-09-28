@@ -172,6 +172,18 @@ class PlanController {
 
 		register_rest_route(
 			self::NS,
+			'/plans/product-user-cancel/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'save_product_user_cancel' ),
+					'permission_callback' => $perm,
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NS,
 			'/plans/group-products/(?P<id>\d+)',
 			array(
 				array(
@@ -584,6 +596,32 @@ class PlanController {
 				'id'      => $id,
 			)
 		);
+	}
+
+	/**
+	 * PUT /plans/product-user-cancel/{id} - save whether customers may cancel.
+	 *
+	 * Writes the same `_subscrpt_user_cancel` meta the product editor saves, as
+	 * an explicit "yes" / "no", which checkout copies onto each new subscription.
+	 *
+	 * Body: { enabled: bool }.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function save_product_user_cancel( WP_REST_Request $request ) {
+		$product = function_exists( 'wc_get_product' ) ? wc_get_product( (int) $request['id'] ) : null;
+
+		if ( ! $product ) {
+			return $this->not_found();
+		}
+
+		$params = $this->read_params( $request );
+		$product->update_meta_data( '_subscrpt_user_cancel', empty( $params['enabled'] ) ? 'no' : 'yes' );
+		$product->save();
+
+		return rest_ensure_response( array( 'saved' => true ) );
 	}
 
 	/**
