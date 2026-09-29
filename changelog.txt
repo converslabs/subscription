@@ -1,5 +1,10 @@
 *** WPSubscription Changelog ***
 
+2026-09-29 - version 2.1.0
+* new: Quickly update connected product prices of a plan.
+* improved: Managing plan products.
+* improved: Cart limitations.
+
 2026-09-14 - version 2.0.0
 * new: Plans. Build reusable plans with multiple durations.
 * new: Connect a plan to products, or create one from the product editor.
