@@ -102,8 +102,9 @@ $has_terms = ! empty( $plan['terms'] );
 						$subscrpt_ot_on   = ! empty( $one_time['enabled'] );
 						$subscrpt_ot_reg  = (string) $one_time['regular'];
 						$subscrpt_ot_off  = (string) $one_time['offer'];
-						$subscrpt_ot_rdsp = '' !== $subscrpt_ot_reg ? \SpringDevs\Subscription\Admin\PlanPresenter::money( (float) $subscrpt_ot_reg ) : '-';
-						$subscrpt_ot_odsp = '' !== $subscrpt_ot_off ? \SpringDevs\Subscription\Admin\PlanPresenter::money( (float) $subscrpt_ot_off ) : '-';
+						$subscrpt_ot_dash = '<span style="color:var(--wpsubs-text-subtle);">&mdash;</span>';
+						$subscrpt_ot_rdsp = '' !== $subscrpt_ot_reg ? esc_html( \SpringDevs\Subscription\Admin\PlanPresenter::money( (float) $subscrpt_ot_reg ) ) : $subscrpt_ot_dash;
+						$subscrpt_ot_odsp = '' !== $subscrpt_ot_off ? esc_html( \SpringDevs\Subscription\Admin\PlanPresenter::money( (float) $subscrpt_ot_off ) ) : $subscrpt_ot_dash;
 						?>
 						<tr data-subscrpt-onetime data-subscrpt-onetime-row style="border-top:2px solid var(--wpsubs-border,#e5e7eb);background:var(--wpsubs-surface-muted,#f6f7f7);">
 							<td>
@@ -120,7 +121,7 @@ $has_terms = ! empty( $plan['terms'] );
 						$subscrpt_ot_hidden = $subscrpt_ot_on ? '' : ' style="display:none;"';
 						?>
 						<td>
-							<span class="subscrpt-pe-view"><?php echo esc_html( $subscrpt_ot_rdsp ); ?></span>
+							<span class="subscrpt-pe-view"><?php echo wp_kses_post( $subscrpt_ot_rdsp ); ?></span>
 							<span class="subscrpt-pe-edit" style="display:none;">
 								<span data-subscrpt-onetime-price<?php echo $subscrpt_ot_hidden; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal. ?>>
 									<input type="number" min="0" step="0.01" class="wpsubs-input" data-ot-field="price" value="<?php echo esc_attr( $subscrpt_ot_reg ); ?>" placeholder="0.00" style="max-width:110px;" />
@@ -128,7 +129,7 @@ $has_terms = ! empty( $plan['terms'] );
 							</span>
 						</td>
 						<td>
-							<span class="subscrpt-pe-view"><?php echo esc_html( $subscrpt_ot_odsp ); ?></span>
+							<span class="subscrpt-pe-view"><?php echo wp_kses_post( $subscrpt_ot_odsp ); ?></span>
 							<span class="subscrpt-pe-edit" style="display:none;">
 								<span data-subscrpt-onetime-price<?php echo $subscrpt_ot_hidden; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal. ?>>
 									<input type="number" min="0" step="0.01" class="wpsubs-input" data-ot-field="offer" value="<?php echo esc_attr( $subscrpt_ot_off ); ?>" placeholder="<?php esc_attr_e( 'No offer', 'subscription' ); ?>" style="max-width:110px;" />

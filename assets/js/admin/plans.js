@@ -785,6 +785,7 @@
           list.lastElementChild.style.borderBottom = "none";
         }
         syncPickerCount(modal);
+        syncSelectAll(modal);
       })
       .catch(function () {
         list.innerHTML =
@@ -816,13 +817,71 @@
     out.textContent = n ? (i18n.picked || "%d on this plan").replace("%d", n) : i18n.pickedNone || "";
   }
 
-  // Any tick in the picker updates the tally.
+  /**
+   * The picker's attachable, non-locked checkboxes — what select-all acts on.
+   * Rows locked to another plan are disabled and left out.
+   *
+   * @param {HTMLElement} modal The add-product modal.
+   * @return {HTMLElement[]} Enabled row checkboxes.
+   */
+  function selectableBoxes(modal) {
+    var boxes = modal.querySelectorAll("[data-subscrpt-product-list] input[data-oid]");
+    return Array.prototype.filter.call(boxes, function (box) {
+      return !box.disabled;
+    });
+  }
+
+  /**
+   * Reflect the rows in the select-all checkbox: on when all are ticked,
+   * indeterminate when some are, off when none (disabled when nothing to pick).
+   *
+   * @param {HTMLElement} modal The add-product modal.
+   */
+  function syncSelectAll(modal) {
+    var toggle = modal && modal.querySelector("[data-subscrpt-picker-all]");
+    if (!toggle) {
+      return;
+    }
+    var boxes = selectableBoxes(modal);
+    var checked = boxes.filter(function (box) {
+      return box.checked;
+    }).length;
+    toggle.disabled = 0 === boxes.length;
+    toggle.checked = boxes.length > 0 && checked === boxes.length;
+    toggle.indeterminate = checked > 0 && checked < boxes.length;
+  }
+
+  // Any tick in the picker updates the tally and the select-all state.
   document.addEventListener("change", function (e) {
     var box = e.target.closest("[data-subscrpt-product-list] input[type=checkbox]");
     var modal = box && box.closest("[data-subscrpt-add-product]");
     if (modal) {
       syncPickerCount(modal);
+      syncSelectAll(modal);
     }
+  });
+
+  // Select-all ticks/unticks every enabled row. Select-all makes the picker
+  // uniform, so parent controls and children all take the same state directly —
+  // no synthetic change events (which would re-enter syncSelectAll mid-loop).
+  document.addEventListener("change", function (e) {
+    var toggle = e.target.closest("[data-subscrpt-picker-all]");
+    var modal = toggle && toggle.closest("[data-subscrpt-add-product]");
+    if (!modal) {
+      return;
+    }
+    var checked = toggle.checked;
+    var boxes = modal.querySelectorAll("[data-subscrpt-product-list] input[type=checkbox]");
+    Array.prototype.forEach.call(boxes, function (box) {
+      if (box.disabled) {
+        return;
+      }
+      box.checked = checked;
+      box.indeterminate = false;
+    });
+    toggle.checked = checked;
+    toggle.indeterminate = false;
+    syncPickerCount(modal);
   });
 
   // Load the picker when the modal opens (pre-checking attached products).
