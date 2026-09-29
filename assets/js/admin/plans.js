@@ -580,6 +580,166 @@
   }
 
   /* ------------------------------------------------------------------ *
+   * Products tab: bulk-set one price across products x durations.
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Reflect a variable product's variations in its parent control checkbox:
+   * on when all are ticked, indeterminate when some are.
+   *
+   * @param {HTMLElement} group The [data-subscrpt-bulk-group] wrapper.
+   */
+  function syncBulkParent(group) {
+    var parent = group && group.querySelector("[data-subscrpt-bulk-parent]");
+    if (!parent) {
+      return;
+    }
+    var kids = group.querySelectorAll("[data-subscrpt-bulk-product]");
+    var checked = 0;
+    kids.forEach(function (cb) {
+      if (cb.checked) {
+        checked += 1;
+      }
+    });
+    parent.checked = kids.length > 0 && checked === kids.length;
+    parent.indeterminate = checked > 0 && checked < kids.length;
+  }
+
+  /**
+   * Update the "N selected" tally beside each column header.
+   *
+   * @param {HTMLElement} modal The bulk-price modal.
+   */
+  function syncBulkCounts(modal) {
+    [
+      ["term", "[data-subscrpt-bulk-term]"],
+      ["product", "[data-subscrpt-bulk-product]"],
+    ].forEach(function (pair) {
+      var out = modal.querySelector('[data-subscrpt-bulk-count="' + pair[0] + '"]');
+      if (!out) {
+        return;
+      }
+      var n = modal.querySelectorAll(pair[1] + ":checked").length;
+      out.textContent = n ? (i18n.bulkSelected || "%d selected").replace("%d", n) : "";
+    });
+  }
+
+  // Any change inside the modal refreshes the per-column tallies.
+  document.addEventListener("change", function (e) {
+    var modal = e.target.closest("[data-subscrpt-bulk-price]");
+    if (modal) {
+      syncBulkCounts(modal);
+    }
+  });
+
+  // A column's "All" checkbox ticks/unticks every row in that column.
+  document.addEventListener("change", function (e) {
+    var all = e.target.closest("[data-subscrpt-bulk-toggle-all]");
+    var modal = all && all.closest("[data-subscrpt-bulk-price]");
+    if (!modal) {
+      return;
+    }
+    var col = all.getAttribute("data-subscrpt-bulk-toggle-all");
+    var sel = "product" === col ? "[data-subscrpt-bulk-product]" : "[data-subscrpt-bulk-term]";
+    modal.querySelectorAll(sel).forEach(function (cb) {
+      if (!cb.disabled) {
+        cb.checked = all.checked;
+      }
+    });
+    if ("product" === col) {
+      modal.querySelectorAll("[data-subscrpt-bulk-parent]").forEach(function (parent) {
+        parent.checked = all.checked;
+        parent.indeterminate = false;
+      });
+    }
+  });
+
+  // A variable product's parent control ticks/unticks all its variations.
+  document.addEventListener("change", function (e) {
+    var parent = e.target.closest("[data-subscrpt-bulk-parent]");
+    var group = parent && parent.closest("[data-subscrpt-bulk-group]");
+    if (!group || !parent.closest("[data-subscrpt-bulk-price]")) {
+      return;
+    }
+    group.querySelectorAll("[data-subscrpt-bulk-product]").forEach(function (cb) {
+      if (!cb.disabled) {
+        cb.checked = parent.checked;
+      }
+    });
+    parent.indeterminate = false;
+  });
+
+  // A variation tick keeps its parent control in sync.
+  document.addEventListener("change", function (e) {
+    var child = e.target.closest("[data-subscrpt-bulk-product]");
+    var group = child && child.closest("[data-subscrpt-bulk-group]");
+    if (!group || !child.closest("[data-subscrpt-bulk-price]")) {
+      return;
+    }
+    syncBulkParent(group);
+  });
+
+  // Apply the entered price to every selected product on every selected duration.
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-bulk-apply]");
+    var modal = btn && btn.closest("[data-subscrpt-bulk-price]");
+    if (!modal) {
+      return;
+    }
+
+    var regInput = modal.querySelector("[data-subscrpt-bulk-regular]");
+    var saleInput = modal.querySelector("[data-subscrpt-bulk-sale]");
+    var regular = regInput ? regInput.value.trim() : "";
+    if ("" === regular) {
+      save.notify(i18n.bulkNoPrice || i18n.genericError, "error");
+      return;
+    }
+
+    var products = Array.prototype.map.call(
+      modal.querySelectorAll("[data-subscrpt-bulk-product]:checked"),
+      function (cb) {
+        return { oid: cb.getAttribute("data-oid"), vid: cb.getAttribute("data-vid") || 0 };
+      },
+    );
+    if (!products.length) {
+      save.notify(i18n.bulkNoProducts || i18n.genericError, "error");
+      return;
+    }
+
+    var planIds = Array.prototype.map.call(modal.querySelectorAll("[data-subscrpt-bulk-term]:checked"), function (cb) {
+      return cb.value;
+    });
+    if (!planIds.length) {
+      save.notify(i18n.bulkNoTerms || i18n.genericError, "error");
+      return;
+    }
+
+    setLoading(btn, true);
+    api("POST", "/bulk-price", {
+      plan_ids: planIds,
+      products: products,
+      regular_price: regular,
+      sale_price: saleInput ? saleInput.value.trim() : "",
+    })
+      .then(function () {
+        // Close before the panel refresh replaces (and orphans) the modal —
+        // otherwise its body-scroll lock is never released.
+        if (window.WPSubsModal && window.WPSubsModal.close) {
+          window.WPSubsModal.close("subscrpt-bulk-price");
+        }
+        return refreshProducts(currentGroupId());
+      })
+      .then(function () {
+        setLoading(btn, false);
+        save.notify(i18n.bulkApplied || i18n.pricesSaved);
+      })
+      .catch(function (err) {
+        setLoading(btn, false);
+        save.notify(err.message || i18n.genericError, "error");
+      });
+  });
+
+  /* ------------------------------------------------------------------ *
    * Products tab (Pro): bulk-add products to the plan group.
    * ------------------------------------------------------------------ */
 
