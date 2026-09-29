@@ -54,6 +54,11 @@ class Multilingual {
 	const STRINGS_HASH_OPTION = 'subscrpt_plan_strings_hash';
 
 	/**
+	 * WooCommerce session key: the locale and language of the storefront page the shopper last saw.
+	 */
+	const SESSION_KEY = 'subscrpt_shopper_language';
+
+	/**
 	 * Translation groups already looked up this request, by post id.
 	 *
 	 * @var array<int,int[]>
@@ -71,7 +76,9 @@ class Multilingual {
 	 * Initialize the class.
 	 */
 	public function __construct() {
+		add_action( 'template_redirect', array( $this, 'remember_shopper_language' ) );
 		add_action( 'save_post_subscrpt_order', array( $this, 'remember_language' ), 10, 3 );
+		add_filter( 'subscrpt_before_saving_renewal_order', array( $this, 'set_renewal_order_language' ), 10, 3 );
 		add_action( 'admin_init', array( $this, 'register_plan_strings' ) );
 	}
 
@@ -235,8 +242,42 @@ class Multilingual {
 	}
 
 	/**
+	 * Keep the language of the shop pages the shopper browses in their session.
+	 *
+	 * The block checkout places its order through the Store API, a REST request
+	 * with no language in its URL, which Polylang and WPML answer in the default
+	 * language. The page the shopper was looking at knew their language, so it is
+	 * kept here for {@see remember_language()}. Only written to a session that
+	 * already exists, so a visitor with no cart costs nothing.
+	 *
+	 * Shop, product, cart and checkout pages only: any other front-end request —
+	 * the browser's own `/favicon.ico`, a 404, a feed — has no language prefix
+	 * either, and would overwrite it with the default.
+	 *
+	 * @return void
+	 */
+	public function remember_shopper_language() {
+		if ( ! function_exists( 'WC' ) || ! WC()->session || ! WC()->session->has_session() ) {
+			return;
+		}
+
+		if ( ! is_woocommerce() && ! is_cart() && ! ( is_checkout() && ! is_wc_endpoint_url() ) ) {
+			return;
+		}
+
+		WC()->session->set(
+			self::SESSION_KEY,
+			array(
+				'locale'   => determine_locale(),
+				'language' => (string) apply_filters( 'wpml_current_language', null ),
+			)
+		);
+	}
+
+	/**
 	 * Record the shopper's language on a subscription when checkout creates it.
 	 *
+	 * The language of the last storefront page they saw, else this request's.
 	 * Only when it differs from the site's — a subscription with nothing recorded
 	 * gets emails in the site language, and keeps following it if that changes.
 	 * Admin and cron requests are skipped: their language is not the customer's.
@@ -252,16 +293,50 @@ class Multilingual {
 			return;
 		}
 
-		$locale      = determine_locale();
+		$seen = function_exists( 'WC' ) && WC()->session ? WC()->session->get( self::SESSION_KEY ) : null;
+
+		$locale      = ! empty( $seen['locale'] ) ? $seen['locale'] : determine_locale();
 		$site_locale = get_option( 'WPLANG' ) ? get_option( 'WPLANG' ) : 'en_US';
 		if ( $locale && $locale !== $site_locale ) {
 			update_post_meta( $post_id, self::LOCALE_META, $locale );
 		}
 
-		$language = apply_filters( 'wpml_current_language', null );
+		$language = ! empty( $seen['language'] ) ? $seen['language'] : apply_filters( 'wpml_current_language', null );
 		if ( $language && 'all' !== $language && apply_filters( 'wpml_default_language', null ) !== $language ) {
 			update_post_meta( $post_id, self::LANGUAGE_META, $language );
 		}
+	}
+
+	/**
+	 * Give a renewal order its subscription's language.
+	 *
+	 * Renewal orders are built in cron, so nothing sets a language on them, and
+	 * WooCommerce Multilingual sends an order's own emails — "order received",
+	 * "completed" — in the language stored in its `wpml_language` meta.
+	 * Polylang for WooCommerce keeps order languages its own way, which the WPML
+	 * hook API cannot set.
+	 *
+	 * @param \WC_Order $new_order       Renewal order, not yet saved.
+	 * @param \WC_Order $old_order       Order it renews.
+	 * @param int       $subscription_id Subscription id.
+	 *
+	 * @return \WC_Order
+	 */
+	public function set_renewal_order_language( $new_order, $old_order, $subscription_id ) {
+		if ( ! $new_order instanceof \WC_Order || ! self::is_active() || $new_order->get_meta( 'wpml_language' ) ) {
+			return $new_order;
+		}
+
+		$language = self::subscription_language( $subscription_id )['language'];
+		if ( '' === $language && $old_order instanceof \WC_Order ) {
+			$language = (string) $old_order->get_meta( 'wpml_language' );
+		}
+
+		if ( '' !== $language ) {
+			$new_order->update_meta_data( 'wpml_language', $language );
+		}
+
+		return $new_order;
 	}
 
 	/**
