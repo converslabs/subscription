@@ -145,7 +145,25 @@ class Cart {
 	public function validate_cart_items( $product_id, $variation_id = 0 ) {
 		$product_id   = (int) $product_id;
 		$variation_id = (int) $variation_id;
-		$cart_items   = WC()->cart->cart_contents;
+
+		/**
+		 * Filters whether the cart may hold more than one subscription, or a
+		 * subscription alongside a normal product, bypassing the restriction below.
+		 *
+		 * @param bool $allow      Whether to allow it. Default false.
+		 * @param int  $product_id Product being added to the cart — the variation, for a variable product.
+		 */
+		if ( apply_filters( 'subscrpt_allow_multiple_subscriptions_in_cart', false, $variation_id > 0 ? $variation_id : $product_id ) ) {
+			return [
+				'failed'          => false,
+				'error_notice'    => null,
+				'switch_keys'     => [],
+				'quantity_merged' => false,
+				'plan_id'         => 0,
+			];
+		}
+
+		$cart_items = WC()->cart->cart_contents;
 
 		$product = Subscription::get_subs_product( $variation_id > 0 ? $variation_id : $product_id );
 
