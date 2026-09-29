@@ -152,6 +152,12 @@
   min-width: unset;
 }
 
+/* Retention offer discount type picker: same as the Switch Fee one. */
+.subscrpt-offer-type .wpsubs-adv-select__trigger {
+  width: max-content;
+  min-width: unset;
+}
+
 /* ──────────────────────────────────────────────────────────────────────────
    Page header — the title/description/rule use the shared inline markup from
    the other admin pages (see views/settings.php). Only the Save button keeps a

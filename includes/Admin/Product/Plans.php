@@ -17,6 +17,7 @@
 
 namespace SpringDevs\Subscription\Admin\Product;
 
+use SpringDevs\Subscription\Illuminate\Helper;
 use SpringDevs\Subscription\Illuminate\Plans\PlanRepository;
 
 /**
@@ -659,6 +660,25 @@ class Plans {
 						<?php endif; ?>
 					</div>
 				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( ! $product->is_type( 'variable' ) ) : ?>
+			<?php
+			// No name: the classic `subscrpt_user_cancel` select is what the product
+			// save reads. product-plans.js keeps the two in step, so there is one
+			// value on the form whichever view is showing. Variable products set it
+			// per variation instead.
+			?>
+			<div class="wpsubs-table-card" style="padding:12px 14px;margin-top:18px;">
+				<label class="wpsubs-settings-toggle-label" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+					<input type="checkbox" class="wpsubs-toggle" data-subscrpt-plan-user-cancel <?php checked( Helper::can_user_cancel( $product->get_meta( '_subscrpt_user_cancel' ) ) ); ?> />
+					<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+					<span style="display:flex;flex-direction:column;gap:2px;">
+						<strong style="font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'Allow User Cancellation', 'subscription' ); ?></strong>
+						<span style="font-size:12px;color:var(--wpsubs-text-muted);"><?php esc_html_e( 'Allow subscribers to cancel their subscription manually from their account dashboard.', 'subscription' ); ?></span>
+					</span>
+				</label>
 			</div>
 		<?php endif; ?>
 

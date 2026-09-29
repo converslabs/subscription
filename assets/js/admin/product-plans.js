@@ -103,6 +103,35 @@
   }
 
   /**
+   * The plan view's "Allow User Cancellation" toggle has no name of its own:
+   * the classic `subscrpt_user_cancel` select is what the product save reads.
+   * The two are kept in step both ways, so Update posts the value last set in
+   * whichever view the merchant used.
+   */
+  function syncPlanUserCancel() {
+    var select = document.querySelector('select[name="subscrpt_user_cancel"]');
+    var toggle = document.querySelector("[data-subscrpt-plan-user-cancel]");
+    if (select && toggle) {
+      toggle.checked = "no" !== select.value;
+    }
+  }
+
+  document.addEventListener("change", function (e) {
+    var target = e.target;
+    if (!target) {
+      return;
+    }
+    if (target.hasAttribute("data-subscrpt-plan-user-cancel")) {
+      var select = document.querySelector('select[name="subscrpt_user_cancel"]');
+      if (select) {
+        select.value = target.checked ? "yes" : "no";
+      }
+    } else if ("subscrpt_user_cancel" === target.name) {
+      syncPlanUserCancel();
+    }
+  });
+
+  /**
    * The classic-settings pane for a plan-view wrapper. Free renders its own
    * ([data-subscrpt-classic-view]); with Pro active the classic pane is Pro's
    * `.subscrpt-classic-fields` sibling inside the panel.
@@ -713,6 +742,9 @@
           window.WPSubsAdvSelect.init(view);
         }
         syncSubscriptionGate();
+        // The server renders the stored value; an unsaved change lives in the
+        // classic select.
+        syncPlanUserCancel();
         if (selectGroupId) {
           selectConnectGroup(view, selectGroupId);
         }
