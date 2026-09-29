@@ -23,7 +23,7 @@ jQuery(document).ready(function ($) {
         cursor: "pointer",
         lineHeight: 1,
       })
-      .attr("title", "Show password");
+      .attr("title", wp.i18n.__("Show password", "subscription"));
 
     // Toggle functionality
     $toggleBtn.on("click", function () {
@@ -32,7 +32,10 @@ jQuery(document).ready(function ($) {
       $toggleBtn
         .removeClass("dashicons-visibility dashicons-hidden")
         .addClass(isPassword ? "dashicons-hidden" : "dashicons-visibility")
-        .attr("title", isPassword ? "Hide password" : "Show password");
+        .attr(
+          "title",
+          isPassword ? wp.i18n.__("Hide password", "subscription") : wp.i18n.__("Show password", "subscription"),
+        );
     });
 
     // Insert button
@@ -60,7 +63,7 @@ jQuery(document).ready(function ($) {
         cursor: "pointer",
         lineHeight: 1,
       })
-      .attr("title", "Copy to clipboard");
+      .attr("title", wp.i18n.__("Copy to clipboard", "subscription"));
 
     // Copy functionality
     $copyBtn.on("click", function (event) {
@@ -78,9 +81,9 @@ jQuery(document).ready(function ($) {
           document.execCommand("copy");
           document.body.removeChild(tempInput);
         }
-        alert("Data successfully copied to clipboard.");
+        alert(wp.i18n.__("Copied to clipboard.", "subscription"));
       } catch (err) {
-        alert("Failed to the data. Please try to copy manually.");
+        alert(wp.i18n.__("Could not copy. Please copy it manually.", "subscription"));
         console.error("Failed to the data. ", err);
       }
     });

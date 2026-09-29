@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<th scope="col" class="order-product"><?php esc_html_e( 'Product', 'subscription' ); ?></th>
 			<th scope="col" class="subscrpt-next-date"><?php esc_html_e( 'Next Payment', 'subscription' ); ?></th>
 			<th scope="col" class="subscrpt-total"><?php esc_html_e( 'Total', 'subscription' ); ?></th>
-			<th scope="col" class="subscrpt-action">Actions</th>
+			<th scope="col" class="subscrpt-action"><?php esc_html_e( 'Actions', 'subscription' ); ?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -81,12 +81,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				?>
 
 				<tr>
-					<td data-title="Subscription"><?php the_ID(); ?></td>
+					<td data-title="<?php echo esc_attr__( 'Subscription', 'subscription' ); ?>"><?php the_ID(); ?></td>
 
-					<td data-title="Status">
+					<td data-title="<?php echo esc_attr__( 'Status', 'subscription' ); ?>">
 						<?php if ( $is_grace_period && $grace_remaining > 0 ) : ?>
 							<span class="subscrpt-legacy-status subscrpt-legacy-status--active grace-active">
-								Active
+								<?php esc_html_e( 'Active', 'subscription' ); ?>
 
 								<?php
 									$grace_remaining_text = sprintf(
@@ -101,22 +101,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 							</span>
 						<?php else : ?>
 							<span class="subscrpt-legacy-status subscrpt-legacy-status--<?php echo esc_attr( strtolower( $subscrpt_status ) ); ?>">
-								<?php echo esc_html( strlen( $verbose_status ) > 9 ? substr( $verbose_status, 0, 9 ) . '...' : $verbose_status ); ?>
+								<?php echo esc_html( mb_strlen( $verbose_status ) > 9 ? mb_substr( $verbose_status, 0, 9 ) . '...' : $verbose_status ); ?>
 							</span>
 						<?php endif; ?>
 					</td>
 					
-					<td data-title="Product"><?php echo esc_html( $product_name ); ?></td>
+					<td data-title="<?php echo esc_attr__( 'Product', 'subscription' ); ?>"><?php echo esc_html( $product_name ); ?></td>
 					
 					<?php if ( 'on' !== $trial_mode ) : ?>
-						<td data-title="Next Payment"><?php echo esc_html( $next_date ); ?></td>
+						<td data-title="<?php echo esc_attr__( 'Next Payment', 'subscription' ); ?>"><?php echo esc_html( $next_date ); ?></td>
 					<?php else : ?>
-						<td data-title="Next Payment"><small>First Billing : </small><?php echo esc_html( $start_date ); ?></td>
+						<td data-title="<?php echo esc_attr__( 'Next Payment', 'subscription' ); ?>"><small><?php esc_html_e( 'First Billing:', 'subscription' ); ?> </small><?php echo esc_html( $start_date ); ?></td>
 					<?php endif; ?>
 
-					<td data-title="Total"><?php echo wp_kses_post( $product_price_html ); ?></td>
+					<td data-title="<?php echo esc_attr__( 'Total', 'subscription' ); ?>"><?php echo wp_kses_post( $product_price_html ); ?></td>
 
-					<td data-title="Actions">						
+					<td data-title="<?php echo esc_attr__( 'Actions', 'subscription' ); ?>">						
 						<a href="<?php echo esc_url( $view_sub_url ); ?>" class="woocommerce-button <?php echo esc_attr( $wp_button_class ); ?> button view">
 							<?php echo esc_html_e( 'View', 'subscription' ); ?>
 						</a>

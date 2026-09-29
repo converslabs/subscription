@@ -26,7 +26,7 @@ function subscrptInstallPlugin(btn, slug) {
 
   btn.disabled = true;
   btn.style.cursor = "wait";
-  btn.innerHTML = SUBSCRPT_SPINNER_SVG + "Installing…";
+  btn.innerHTML = SUBSCRPT_SPINNER_SVG + wp.i18n.__("Installing…", "subscription");
 
   var data = new FormData();
   data.append("action", "subscrpt_install_integration_plugin");
@@ -47,7 +47,9 @@ function subscrptInstallPlugin(btn, slug) {
         btn.style.cursor = originalCursor;
         btn.innerHTML = originalHTML;
         // eslint-disable-next-line no-alert
-        window.alert((result.data && result.data.message) || "Installation failed. Please try again.");
+        window.alert(
+          (result.data && result.data.message) || wp.i18n.__("Installation failed. Please try again.", "subscription"),
+        );
       }
     })
     .catch(function () {
@@ -55,7 +57,7 @@ function subscrptInstallPlugin(btn, slug) {
       btn.style.cursor = originalCursor;
       btn.innerHTML = originalHTML;
       // eslint-disable-next-line no-alert
-      window.alert("Installation failed. Please try again.");
+      window.alert(wp.i18n.__("Installation failed. Please try again.", "subscription"));
     });
 }
 
