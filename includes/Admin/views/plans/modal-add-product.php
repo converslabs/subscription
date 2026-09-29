@@ -27,9 +27,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<button type="button" class="wpsubs-modal__close" data-wpsubs-modal-close aria-label="<?php esc_attr_e( 'Close', 'subscription' ); ?>">&times;</button>
 		</div>
 		<div class="wpsubs-modal__body">
-			<div class="wpsubs-input-wrap wpsubs-input-wrap--icon-l" style="margin-bottom:12px;">
-				<span class="wpsubs-input-icon dashicons dashicons-search"></span>
-				<input type="search" class="wpsubs-input" placeholder="<?php esc_attr_e( 'Search products…', 'subscription' ); ?>" data-subscrpt-product-search />
+			<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+				<label style="display:inline-flex;align-items:center;padding-left:4px;cursor:pointer;" title="<?php esc_attr_e( 'Select all available products', 'subscription' ); ?>">
+					<input type="checkbox" class="wpsubs-checkbox" data-subscrpt-picker-all />
+				</label>
+				<div class="wpsubs-input-wrap wpsubs-input-wrap--icon-l" style="flex:1;">
+					<svg class="wpsubs-input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+					<input type="search" class="wpsubs-input" placeholder="<?php esc_attr_e( 'Search products…', 'subscription' ); ?>" data-subscrpt-product-search />
+				</div>
 			</div>
 			<ul data-subscrpt-product-list style="list-style:none;margin:0;padding:0;max-height:min(560px, 60vh);overflow-y:auto;display:flex;flex-direction:column;gap:2px;">
 				<li style="padding:10px 4px;color:var(--wpsubs-text-subtle);font-size:13px;"><?php esc_html_e( 'Loading…', 'subscription' ); ?></li>
