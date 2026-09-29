@@ -8,6 +8,9 @@
  * This template can be overridden by copying it to <your_theme>/subscription/myaccount/subscriptions.php
  */
 
+use SpringDevs\Subscription\Illuminate\Helper;
+use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -32,14 +35,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$postslist->the_post();
 
 				$subscription_id   = get_the_ID();
-				$subscription_data = SpringDevs\Subscription\Illuminate\Helper::get_subscription_data( $subscription_id );
+				$subscription_data = Helper::get_subscription_data( $subscription_id );
 
 				if ( ! $subscription_data ) {
 					continue;
 				}
 
 				$subscrpt_status = $subscription_data['status'] ?? '';
-				$verbose_status  = SpringDevs\Subscription\Illuminate\Helper::get_verbose_status( $subscrpt_status );
+				$verbose_status  = Helper::get_verbose_status( $subscrpt_status );
 
 				$order_id      = $subscription_data['order']['order_id'] ?? 0;
 				$order_item_id = $subscription_data['order']['order_item_id'] ?? 0;
@@ -66,17 +69,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$trial_mode = empty( $trial_mode ) ? 'off' : $trial_mode;
 
 				// Renewal total, already net of any discount that recurs.
-				$display_totals = SpringDevs\Subscription\Illuminate\Helper::get_subscription_display_totals( $subscription_id, $order_item );
+				$display_totals = Helper::get_subscription_display_totals( $subscription_id, $order_item );
 				$price          = $display_totals['total'];
 
-				$product_price_html = SpringDevs\Subscription\Illuminate\Helper::format_price_with_order_item( $price, $order_item->get_id() );
+				$product_price_html = Helper::format_price_with_order_item( $price, $order_item->get_id() );
 
 				$is_grace_period = isset( $subscription_data['grace_period'] );
 				$grace_remaining = $subscription_data['grace_period']['remaining_days'] ?? 0;
 
 				$my_account_page_id = get_option( 'woocommerce_myaccount_page_id' );
 				$my_account_url     = get_permalink( $my_account_page_id );
-				$view_sub_endpoint  = SpringDevs\Subscription\Illuminate\Subscription\Subscription::get_user_endpoint( 'view_subs' );
+				$view_sub_endpoint  = Subscription::get_user_endpoint( 'view_subs' );
 				$view_sub_url       = wc_get_endpoint_url( $view_sub_endpoint, get_the_ID(), $my_account_url );
 				?>
 
@@ -143,11 +146,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 <?php if ( 1 < $postslist->max_num_pages ) : ?>
 	<div class="woocommerce-pagination woocommerce-pagination--without-numbers woocommerce-Pagination">
 		<?php if ( 1 !== $current_page ) : ?>
-			<a class="woocommerce-button woocommerce-button--previous woocommerce-Button woocommerce-Button--previous button<?php echo esc_attr( $wp_button_class ); ?>" href="<?php echo esc_url( wc_get_endpoint_url( 'subscriptions', $current_page - 1 ) ); ?>"><?php esc_html_e( 'Previous', 'subscription' ); ?></a>
+			<a class="woocommerce-button woocommerce-button--previous woocommerce-Button woocommerce-Button--previous button<?php echo esc_attr( $wp_button_class ); ?>" href="<?php echo esc_url( wc_get_endpoint_url( Subscription::get_user_endpoint( 'subs_list' ), $current_page - 1 ) ); ?>"><?php esc_html_e( 'Previous', 'subscription' ); ?></a>
 		<?php endif; ?>
 
 		<?php if ( intval( $postslist->max_num_pages ) !== $current_page ) : ?>
-			<a class="woocommerce-button woocommerce-button--next woocommerce-Button woocommerce-Button--next button<?php echo esc_attr( $wp_button_class ); ?>" href="<?php echo esc_url( wc_get_endpoint_url( 'subscriptions', $current_page + 1 ) ); ?>"><?php esc_html_e( 'Next', 'subscription' ); ?></a>
+			<a class="woocommerce-button woocommerce-button--next woocommerce-Button woocommerce-Button--next button<?php echo esc_attr( $wp_button_class ); ?>" href="<?php echo esc_url( wc_get_endpoint_url( Subscription::get_user_endpoint( 'subs_list' ), $current_page + 1 ) ); ?>"><?php esc_html_e( 'Next', 'subscription' ); ?></a>
 		<?php endif; ?>
 	</div>
 <?php endif; ?>

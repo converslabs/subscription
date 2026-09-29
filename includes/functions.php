@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
+use SpringDevs\Subscription\Illuminate\Multilingual;
+use SpringDevs\Subscription\Illuminate\Plans\PlanRepository;
 use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
 use SpringDevs\Subscription\Utils\Product;
 
@@ -100,7 +102,7 @@ function subscrpt_pro_activated(): bool {
  */
 function subscrpt_product_has_plan( $product_id, $variation_id = 0 ): bool {
 	return ! empty(
-		\SpringDevs\Subscription\Illuminate\Plans\PlanRepository::resolve_for_product( $product_id, $variation_id )
+		PlanRepository::resolve_for_product( $product_id, $variation_id )
 	);
 }
 
@@ -555,22 +557,22 @@ function subscrpt_get_payment_type( $subscription_id ) {
  */
 function subscrpt_get_subscription_plan_label( $subscription_id ) {
 	$plan_id = (int) get_post_meta( $subscription_id, '_subscrpt_plan_id', true );
-	if ( ! $plan_id || ! class_exists( '\SpringDevs\Subscription\Illuminate\Plans\PlanRepository' ) ) {
+	if ( ! $plan_id || ! class_exists( PlanRepository::class ) ) {
 		return '';
 	}
 
-	$plan = \SpringDevs\Subscription\Illuminate\Plans\PlanRepository::get_plan( $plan_id );
+	$plan = PlanRepository::get_plan( $plan_id );
 	if ( ! $plan ) {
 		return '';
 	}
 
-	$term_title  = isset( $plan['title'] ) ? trim( (string) $plan['title'] ) : '';
+	$term_title  = isset( $plan['title'] ) ? trim( Multilingual::translate_string( $plan['title'], Multilingual::plan_string_name( $plan_id ) ) ) : '';
 	$group_title = '';
 	$group_id    = (int) ( $plan['plan_group_id'] ?? 0 );
 	if ( $group_id ) {
-		$group = \SpringDevs\Subscription\Illuminate\Plans\PlanRepository::get_group( $group_id );
+		$group = PlanRepository::get_group( $group_id );
 		if ( $group && isset( $group['title'] ) ) {
-			$group_title = trim( (string) $group['title'] );
+			$group_title = trim( Multilingual::translate_string( $group['title'], Multilingual::group_string_name( $group_id ) ) );
 		}
 	}
 
