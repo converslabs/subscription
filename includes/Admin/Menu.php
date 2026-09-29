@@ -79,7 +79,7 @@ class Menu {
 		wp_enqueue_script(
 			'sdevs_subscription_admin',
 			SUBSCRPT_ASSETS . '/js/admin.js',
-			array( 'jquery' ),
+			array( 'jquery', 'wp-i18n' ),
 			SUBSCRPT_VERSION,
 			true
 		);
@@ -97,10 +97,11 @@ class Menu {
 		wp_enqueue_script(
 			'subscrpt-onboarding-wizard',
 			SUBSCRPT_ASSETS . '/js/admin/onboarding-wizard.js',
-			array( 'jquery', 'subscrpt_admin_components' ),
+			array( 'jquery', 'subscrpt_admin_components', 'wp-i18n' ),
 			SUBSCRPT_VERSION,
 			true
 		);
+		wp_set_script_translations( 'subscrpt-onboarding-wizard', 'subscription', SUBSCRPT_PATH . '/languages' );
 		$subscrpt_wizard_has_products = (bool) wc_get_products(
 			array(
 				'status' => array( 'publish', 'draft', 'pending', 'private' ),
@@ -351,11 +352,14 @@ class Menu {
 	public function render_admin_footer() {
 		?>
 		<div style="text-align:center;margin:38px 0 0 0;font-size:14px;color:#888;">
-			Made with <span style="color:#e25555;font-size:1.1em;">♥</span> by the WPSubscription Team
+			<?php
+			/* translators: %s: a heart symbol. */
+			printf( esc_html__( 'Made with %s by the WPSubscription Team', 'subscription' ), '<span style="color:#e25555;font-size:1.1em;">♥</span>' );
+			?>
 			<div style="margin-top:6px;">
-				<a href="https://wpsubscription.co/contact?utm_source=plugin&utm_medium=admin&utm_campaign=support" target="_blank" style="color:#2563eb;text-decoration:none;">Support</a>
+				<a href="https://wpsubscription.co/contact?utm_source=plugin&utm_medium=admin&utm_campaign=support" target="_blank" style="color:#2563eb;text-decoration:none;"><?php esc_html_e( 'Support', 'subscription' ); ?></a>
 				&nbsp;/&nbsp;
-				<a href="https://docs.wpsubscription.co/en?utm_source=plugin&utm_medium=admin&utm_campaign=docs" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
+				<a href="https://docs.wpsubscription.co/en?utm_source=plugin&utm_medium=admin&utm_campaign=docs" target="_blank" style="color:#2563eb;text-decoration:none;"><?php esc_html_e( 'Docs', 'subscription' ); ?></a>
 			</div>
 		</div>
 		<?php
@@ -723,11 +727,14 @@ class Menu {
 		include __DIR__ . '/views/subscription-list.php';
 		?>
 		<div style="text-align:center;margin:38px 0 0 0;font-size:14px;color:#888;">
-			Made with <span style="color:#e25555;font-size:1.1em;">♥</span> by the WPSubscription Team
+			<?php
+			/* translators: %s: a heart symbol. */
+			printf( esc_html__( 'Made with %s by the WPSubscription Team', 'subscription' ), '<span style="color:#e25555;font-size:1.1em;">♥</span>' );
+			?>
 			<div style="margin-top:6px;">
-				<a href="https://wpsubscription.co/contact?utm_source=plugin&utm_medium=admin&utm_campaign=support" target="_blank" style="color:#2563eb;text-decoration:none;">Support</a>
+				<a href="https://wpsubscription.co/contact?utm_source=plugin&utm_medium=admin&utm_campaign=support" target="_blank" style="color:#2563eb;text-decoration:none;"><?php esc_html_e( 'Support', 'subscription' ); ?></a>
 				&nbsp;/&nbsp;
-				<a href="https://docs.wpsubscription.co/en?utm_source=plugin&utm_medium=admin&utm_campaign=docs" target="_blank" style="color:#2563eb;text-decoration:none;">Docs</a>
+				<a href="https://docs.wpsubscription.co/en?utm_source=plugin&utm_medium=admin&utm_campaign=docs" target="_blank" style="color:#2563eb;text-decoration:none;"><?php esc_html_e( 'Docs', 'subscription' ); ?></a>
 			</div>
 		</div>
 		<?php

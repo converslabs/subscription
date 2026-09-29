@@ -90,7 +90,8 @@ class Integrations {
 			return;
 		}
 
-		wp_enqueue_script( 'subscrpt-integrations', SUBSCRPT_ASSETS . '/js/integration_settings.js', [], SUBSCRPT_VERSION, true );
+		wp_enqueue_script( 'subscrpt-integrations', SUBSCRPT_ASSETS . '/js/integration_settings.js', [ 'wp-i18n' ], SUBSCRPT_VERSION, true );
+		wp_set_script_translations( 'subscrpt-integrations', 'subscription', SUBSCRPT_PATH . '/languages' );
 
 		wp_localize_script(
 			'subscrpt-integrations',
@@ -211,7 +212,7 @@ class Integrations {
 		$integrations = [
 			'paypal'   => [
 				'title'              => 'PayPal',
-				'description'        => 'Accept recurring subscription payments directly through PayPal.',
+				'description'        => __( 'Accept recurring subscription payments directly through PayPal.', 'subscription' ),
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/paypal.svg',
 				'type'               => 'payment_gateway',
 				'is_installed'       => 'on' === get_option( 'wp_subs_paypal_integration_enabled', 'off' ),
@@ -226,7 +227,7 @@ class Integrations {
 					// ],
 					[
 						'action' => 'settings',
-						'label'  => 'Settings',
+						'label'  => __( 'Settings', 'subscription' ),
 						'type'   => 'link',
 						'url'    => admin_url( 'admin.php?page=wc-settings&tab=checkout&section=wp_subscription_paypal' ),
 					],
@@ -241,7 +242,7 @@ class Integrations {
 			],
 			'stripe'   => [
 				'title'              => 'Stripe',
-				'description'        => 'Process subscription payments securely with Stripe.',
+				'description'        => __( 'Process subscription payments securely with Stripe.', 'subscription' ),
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/stripe.png',
 				'type'               => 'payment_gateway',
 				'is_installed'       => class_exists( 'WC_Stripe' ),
@@ -250,13 +251,13 @@ class Integrations {
 				'actions'            => [
 					[
 						'action'   => 'install',
-						'label'    => 'Install Now',
+						'label'    => __( 'Install Now', 'subscription' ),
 						'type'     => 'function',
 						'function' => "subscrptInstallPlugin(this, 'woocommerce-gateway-stripe')",
 					],
 					[
 						'action' => 'settings',
-						'label'  => 'Settings',
+						'label'  => __( 'Settings', 'subscription' ),
 						'type'   => 'link',
 						'url'    => admin_url( 'admin.php?page=wc-settings&tab=checkout&section=stripe&panel=settings' ),
 					],
@@ -264,7 +265,7 @@ class Integrations {
 			],
 			'paddle'   => [
 				'title'              => 'Paddle',
-				'description'        => 'Process subscription payments securely with Paddle.',
+				'description'        => __( 'Process subscription payments securely with Paddle.', 'subscription' ),
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/paddle.svg',
 				'type'               => 'payment_gateway',
 				'is_installed'       => class_exists( 'SmartPayWoo\Gateways\Paddle\SmartPay_Paddle' ),
@@ -273,25 +274,25 @@ class Integrations {
 				'actions'            => [
 					[
 						'action' => 'install',
-						'label'  => 'Get Paddle',
+						'label'  => __( 'Get Paddle', 'subscription' ),
 						'type'   => 'external_link',
 						'url'    => 'https://wpsmartpay.com/paddle-for-woocommerce/',
 					],
 					[
 						'action'     => 'enable',
-						'label'      => 'Enable Gateway',
+						'label'      => __( 'Enable Gateway', 'subscription' ),
 						'type'       => 'toggle_option',
 						'option_key' => 'woocommerce_enable_paddle_gateway',
 						'value'      => true,
 					],
 					[
 						'action' => 'settings',
-						'label'  => 'Settings',
+						'label'  => __( 'Settings', 'subscription' ),
 						'type'   => 'link',
 						'url'    => admin_url( 'admin.php?page=wc-settings&tab=checkout&section=smartpay_paddle&from=WCADMIN_PAYMENT_SETTINGS' ),
 					],
 					[
-						'label' => 'More Details',
+						'label' => __( 'More Details', 'subscription' ),
 						'type'  => 'external_link',
 						'url'   => 'https://wpsmartpay.com/paddle-for-woocommerce/',
 					],
@@ -299,7 +300,7 @@ class Integrations {
 			],
 			'mollie'   => [
 				'title'              => 'Mollie',
-				'description'        => 'Pay for subscriptions with Mollie Payments for WooCommerce.',
+				'description'        => __( 'Pay for subscriptions with Mollie Payments for WooCommerce.', 'subscription' ),
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/mollie.png',
 				'type'               => 'payment_gateway',
 				'is_pro'             => true,
@@ -309,18 +310,18 @@ class Integrations {
 				'actions'            => [
 					[
 						'action'   => 'install',
-						'label'    => 'Install Now',
+						'label'    => __( 'Install Now', 'subscription' ),
 						'type'     => 'function',
 						'function' => "subscrptInstallPlugin(this, 'mollie-payments-for-woocommerce')",
 					],
 					[
 						'action' => 'settings',
-						'label'  => 'Settings',
+						'label'  => __( 'Settings', 'subscription' ),
 						'type'   => 'link',
 						'url'    => admin_url( 'admin.php?page=wc-settings&tab=mollie_settings' ),
 					],
 					[
-						'label' => 'More Details',
+						'label' => __( 'More Details', 'subscription' ),
 						'type'  => 'external_link',
 						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-mollie?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
@@ -328,7 +329,7 @@ class Integrations {
 			],
 			'razorpay' => [
 				'title'              => 'Razorpay',
-				'description'        => 'Pay for subscriptions securely with Razorpay for WooCommerce.',
+				'description'        => __( 'Pay for subscriptions securely with Razorpay for WooCommerce.', 'subscription' ),
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/razorpay.png',
 				'type'               => 'payment_gateway',
 				'is_pro'             => true,
@@ -339,18 +340,18 @@ class Integrations {
 				'actions'            => [
 					[
 						'action'   => 'install',
-						'label'    => 'Install Now',
+						'label'    => __( 'Install Now', 'subscription' ),
 						'type'     => 'function',
 						'function' => "subscrptInstallPlugin(this, 'woo-razorpay')",
 					],
 					[
 						'action' => 'settings',
-						'label'  => 'Settings',
+						'label'  => __( 'Settings', 'subscription' ),
 						'type'   => 'link',
 						'url'    => admin_url( 'admin.php?page=wc-settings&tab=checkout&section=razorpay' ),
 					],
 					[
-						'label' => 'More Details',
+						'label' => __( 'More Details', 'subscription' ),
 						'type'  => 'external_link',
 						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-razorpay?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
@@ -358,7 +359,7 @@ class Integrations {
 			],
 			'xendit'   => [
 				'title'              => 'Xendit',
-				'description'        => 'Pay for subscriptions securely with Xendit for WooCommerce.',
+				'description'        => __( 'Pay for subscriptions securely with Xendit for WooCommerce.', 'subscription' ),
 				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/xendit.png',
 				'type'               => 'payment_gateway',
 				'is_pro'             => true,
@@ -369,18 +370,18 @@ class Integrations {
 				'actions'            => [
 					[
 						'action'   => 'install',
-						'label'    => 'Install Now',
+						'label'    => __( 'Install Now', 'subscription' ),
 						'type'     => 'function',
 						'function' => "subscrptInstallPlugin(this, 'woo-xendit-virtual-accounts')",
 					],
 					[
 						'action' => 'settings',
-						'label'  => 'Settings',
+						'label'  => __( 'Settings', 'subscription' ),
 						'type'   => 'link',
 						'url'    => admin_url( 'admin.php?page=wc-settings&tab=checkout&section=xendit_gateway' ),
 					],
 					[
-						'label' => 'More Details',
+						'label' => __( 'More Details', 'subscription' ),
 						'type'  => 'external_link',
 						'url'   => 'https://docs.wpsubscription.co/en/wpsubscription-payment-with-xendit?utm_source=plugin&utm_medium=admin&utm_campaign=docs',
 					],
@@ -393,7 +394,7 @@ class Integrations {
 			// LMS.
 			'tutor_lms'   => [
 				'title'        => 'Tutor LMS',
-				'description'  => 'Restrict course access based on subscription status. Enroll and unenroll students automatically.',
+				'description'  => __( 'Restrict course access based on subscription status. Enroll and unenroll students automatically.', 'subscription' ),
 				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/tutor-lms.jpeg',
 				'type'         => 'third_party',
 				'is_pro'       => true,
@@ -416,7 +417,7 @@ class Integrations {
 			],
 			'learnpress'  => [
 				'title'        => 'LearnPress',
-				'description'  => 'Connect subscriptions with LearnPress courses. Enroll users automatically when subscriptions are active.',
+				'description'  => __( 'Connect subscriptions with LearnPress courses. Enroll users automatically when subscriptions are active.', 'subscription' ),
 				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/learnpress.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
@@ -439,7 +440,7 @@ class Integrations {
 			],
 			'learndash'   => [
 				'title'        => 'LearnDash',
-				'description'  => 'Sync subscription status with LearnDash group enrollment and course access.',
+				'description'  => __( 'Sync subscription status with LearnDash group enrollment and course access.', 'subscription' ),
 				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/learndash.jpeg',
 				'type'         => 'third_party',
 				'is_pro'       => true,
@@ -463,7 +464,7 @@ class Integrations {
 			// CRM.
 			'fluentcrm'   => [
 				'title'        => 'FluentCRM',
-				'description'  => 'Trigger email sequences and manage contacts based on subscription events and status changes.',
+				'description'  => __( 'Trigger email sequences and manage contacts based on subscription events and status changes.', 'subscription' ),
 				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/fluentcrm.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
@@ -487,7 +488,7 @@ class Integrations {
 			// Automation.
 			'automatorwp' => [
 				'title'        => 'AutomatorWP',
-				'description'  => 'Build powerful automations triggered by subscription events without writing any code.',
+				'description'  => __( 'Build powerful automations triggered by subscription events without writing any code.', 'subscription' ),
 				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/automatorwp.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
@@ -510,7 +511,7 @@ class Integrations {
 			],
 			'wpfusion'    => [
 				'title'        => 'WP Fusion',
-				'description'  => 'Sync subscription data with your CRM and marketing platforms through WP Fusion.',
+				'description'  => __( 'Sync subscription data with your CRM and marketing platforms through WP Fusion.', 'subscription' ),
 				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/wp-fusion.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
@@ -534,7 +535,7 @@ class Integrations {
 			// Email Marketing.
 			'mailpoet'    => [
 				'title'        => 'MailPoet',
-				'description'  => 'Add subscribers to MailPoet lists and trigger email automations based on subscription lifecycle events.',
+				'description'  => __( 'Add subscribers to MailPoet lists and trigger email automations based on subscription lifecycle events.', 'subscription' ),
 				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/mailpoet.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
@@ -558,7 +559,7 @@ class Integrations {
 			// License Management.
 			'wp_soft_lic' => [
 				'title'        => 'WP Software License',
-				'description'  => 'Issue and validate software licenses for subscription-based digital products.',
+				'description'  => __( 'Issue and validate software licenses for subscription-based digital products.', 'subscription' ),
 				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/wp-software-license.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
@@ -581,7 +582,7 @@ class Integrations {
 			],
 			'license_mgr' => [
 				'title'        => 'License Manager for WooCommerce',
-				'description'  => 'Generate and manage software license keys that are automatically tied to active subscriptions.',
+				'description'  => __( 'Generate and manage software license keys that are automatically tied to active subscriptions.', 'subscription' ),
 				'icon_url'     => SUBSCRPT_ASSETS . '/images/integrations/license-manager.png',
 				'type'         => 'third_party',
 				'is_pro'       => true,
