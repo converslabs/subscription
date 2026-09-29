@@ -306,13 +306,10 @@ class Subscriptions {
 	public static function process_status_change( $post_id, $action ) {
 		$old_status = get_post_status( $post_id );
 
-		wp_update_post(
-			array(
-				'ID'          => $post_id,
-				'post_status' => $action,
-			)
-		);
-
+		// Do not wp_update_post() the status here: Action::status() and the order
+		// cascade below both skip their hooks (incl. next-date generation) when
+		// the post_status already equals the target, so this must stay the only
+		// place a real transition happens.
 		if ( $old_status !== $action ) {
 			$old_status_object = get_post_status_object( $old_status );
 			$new_status_object = get_post_status_object( $action );

@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -334,6 +334,11 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.1.0 - Sep 29, 2026 =
+-   new: Quickly update connected product prices of a plan.
+-   improved: Managing plan products.
+-   improved: Cart limitations.
 
 = 2.0.0 - Sep 14, 2026 =
 -   new: Plans. Build reusable plans with multiple durations.
