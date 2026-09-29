@@ -40,7 +40,7 @@ Need help? [Read our full documentation and setup guide here.](https://docs.wpsu
 
 ### Subscription Management
 
-Every subscription on your online store is managed from one place. See who is active, who is paused and who is about to renew, then change a billing cycle, switch a plan or cancel on a customer's behalf without leaving WordPress. Customers get the same subscription management tools in their account area, so most routine changes never reach your inbox.
+Every subscription on your online store is managed from one place. See who is active and who is about to renew, then change a billing cycle, switch a plan or cancel on a customer's behalf without leaving WordPress. Customers get the same subscription management tools in their account area, so most routine changes never reach your inbox.
 
 Subscription management also covers the quieter side of recurring billing: activity logs for every subscription, renewal order history, and email notifications that fire automatically at each stage of the subscription lifecycle.
 
@@ -68,7 +68,7 @@ Explore all features and get started at [**WooCommerce Subscriptions & Recurring
 - Offer free trials before the first payment is charged
 - Set custom billing cycles — daily, weekly, monthly, or yearly
 - Add one-time sign-up fees for new subscribers
-- Let customers pause, cancel, or resume their plan at any time
+- Let customers cancel their plan at any time
 - Manage all subscriptions easily from your WordPress admin panel
 - Let customers self-manage subscriptions from their own account dashboard
 - Accept payments via Stripe, PayPal, Paddle, Mollie, Razorpay, and Xendit
@@ -78,7 +78,7 @@ Explore all features and get started at [**WooCommerce Subscriptions & Recurring
 
 The **Subscription for WooCommerce plugin** gives both you and your customers full control over subscription management. From your dashboard, you can view all subscriptions and manage them with ease.
 
-Customers have the flexibility to pause, cancel, or update their plans at any time. This level of control, combined with automated recurring billing for WooCommerce, ensures that your subscription-based business runs smoothly and customers have a seamless experience managing their subscriptions.
+Customers have the flexibility to cancel or update their plans at any time. This level of control, combined with automated recurring billing for WooCommerce, ensures that your subscription-based business runs smoothly and customers have a seamless experience managing their subscriptions.
 
 That's why it ranks as an excellent WooCommerce recurring payment plugin on the market today.
 
@@ -96,7 +96,7 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
 4. **Subscription Management for Admins**: Manage all subscriptions from one dashboard — view active plans, track payments, and make changes quickly. Everything's in one place, making it easy to run your subscription business without jumping between screens.
     [youtube https://www.youtube.com/watch?v=21e58x6yI2E]
 
-5. **Customer Subscription Dashboard**: Your customers get their own dashboard where they can manage everything themselves — check billing dates, update payment info, and pause or cancel subscriptions. Giving them control means fewer support requests for you.
+5. **Customer Subscription Dashboard**: Your customers get their own dashboard where they can manage everything themselves — check billing dates, update payment info, and cancel subscriptions. Giving them control means fewer support requests for you.
     [youtube https://www.youtube.com/watch?v=LROx-KUbRho]
 
 6. **Guest Checkout**: Allow non-registered users to purchase subscription products through guest checkout, reducing friction at the point of sale and increasing overall conversion rates.
@@ -117,15 +117,13 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
 
 6. **Installment Plans & Split Payments**: Let customers pay for products in [**easy installments**](https://docs.wpsubscription.co/en/wpsubscription-split-pay-installment?utm_source=wporg&utm_medium=readme&utm_campaign=docs) instead of all at once, making expensive items more accessible and affordable. Set fully custom payment schedules — weekly, monthly, or any custom interval — to boost sales and improve cash flow.
 
-7. **Subscription Pause**: Let customers temporarily pause their subscription instead of cancelling outright. This significantly reduces churn by keeping subscribers in your ecosystem until they're ready to resume, rather than losing them permanently.
+7. **Early Renewal & Manual Renewal**: Allow subscribers to renew early before their billing date is due. For customers who prefer more control, manual renewal mode sends an invoice they can pay on demand — rather than relying on automatic billing.
 
-8. **Early Renewal & Manual Renewal**: Allow subscribers to renew early before their billing date is due. For customers who prefer more control, manual renewal mode sends an invoice they can pay on demand — rather than relying on automatic billing.
+8. **Custom Renewal Pricing**: Set a renewal price that differs from the initial subscription price. Offer discounted renewals to reward loyalty, or increase renewal prices as your product grows in value.
 
-9. **Custom Renewal Pricing**: Set a renewal price that differs from the initial subscription price. Offer discounted renewals to reward loyalty, or increase renewal prices as your product grows in value.
+9. **Subscription Health Monitoring**: Get a real-time bird's-eye view of your entire subscription business. Detect at-risk subscribers, flag overdue renewals, track **Monthly Recurring Revenue (MRR)**, monitor **churn rate**, and calculate **Revenue at Risk** — so you can act before problems affect your bottom line.
 
-10. **Subscription Health Monitoring**: Get a real-time bird's-eye view of your entire subscription business. Detect at-risk subscribers, flag overdue renewals, track **Monthly Recurring Revenue (MRR)**, monitor **churn rate**, and calculate **Revenue at Risk** — so you can act before problems affect your bottom line.
-
-11. **Recurring Coupons**: Offer discounts that stick around — apply percentage or fixed-amount coupons on the first payment only, or carry them through every renewal for a set number of billing cycles. Combine with free trials to maximize sign-up conversions and reward long-term subscribers.
+10. **Recurring Coupons**: Offer discounts that stick around — apply percentage or fixed-amount coupons on the first payment only, or carry them through every renewal for a set number of billing cycles. Combine with free trials to maximize sign-up conversions and reward long-term subscribers.
 
 12. **Role-Based Product Visibility**: Show or hide specific subscription products based on user roles, perfect for creating exclusive member-only offers. Control who sees what in your store and easily create targeted subscription plans for different customer segments.
 
@@ -259,7 +257,7 @@ Are you checking out a subscription with a free trial? Subscriptions with free t
 This plugin supports Stripe, PayPal, Paddle, Mollie, Razorpay, Xendit, and WooEpay. These integrations make it easy to process recurring payments and manage subscriptions globally.
 
 =Can customers cancel or change their subscription plans?=
-Yes, customers can easily cancel, pause, or update their subscription plans directly from their account dashboard.
+Yes, customers can easily cancel or update their subscription plans directly from their account dashboard.
 
 =Is this plugin suitable for digital products or courses?=
 Absolutely! It's perfect for digital downloads, memberships, and online courses. It integrates with LearnDash, LearnPress, Tutor LMS, and Academy LMS.
@@ -275,9 +273,6 @@ If a payment fails, the system will automatically retry the payment and send ale
 
 =Can I offer subscription discounts and coupons?=
 Yes, the plugin supports recurring coupons — apply percentage or fixed-amount discounts on the first payment only, or carry them through every renewal for a configurable number of billing cycles.
-
-=Can customers pause their subscriptions?=
-Yes, customers can pause their subscription instead of cancelling. This reduces churn by keeping subscribers in your ecosystem until they're ready to resume.
 
 =Where can I find the full documentation and setup steps?=
 You can find the complete guide, configuration tutorials, and troubleshooting help in our [Subscriptions for WooCommerce Docs](https://docs.wpsubscription.co/en?utm_source=wporg&utm_medium=readme&utm_campaign=docs) section.

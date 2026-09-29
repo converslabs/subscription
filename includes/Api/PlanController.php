@@ -148,6 +148,18 @@ class PlanController {
 
 		register_rest_route(
 			self::NS,
+			'/plans/bulk-price',
+			[
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'bulk_price' ],
+					'permission_callback' => $perm,
+				],
+			]
+		);
+
+		register_rest_route(
+			self::NS,
 			'/plans/products',
 			array(
 				array(
@@ -584,6 +596,73 @@ class PlanController {
 				'id'      => $id,
 			)
 		);
+	}
+
+	/**
+	 * POST /plans/bulk-price - set one price on many product/duration relations.
+	 *
+	 * Upserts the regular (and optional sale) price onto the existing relations
+	 * for each selected product across each selected duration. Only relations
+	 * that already exist are touched, so bulk pricing never attaches a product to
+	 * a term it was not already on. Free is simple-only: variation targets
+	 * (vid != 0) are skipped unless Pro is active.
+	 *
+	 * Body: { plan_ids: int[], products: [{ oid, vid }], regular_price, sale_price? }.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function bulk_price( WP_REST_Request $request ) {
+		$params = $this->read_params( $request );
+
+		$plan_ids = isset( $params['plan_ids'] ) && is_array( $params['plan_ids'] ) ? array_filter( array_map( 'absint', $params['plan_ids'] ) ) : [];
+		$products = isset( $params['products'] ) && is_array( $params['products'] ) ? $params['products'] : [];
+
+		if ( empty( $plan_ids ) ) {
+			return new WP_Error( 'subscrpt_bulk_no_terms', __( 'Select at least one duration.', 'subscription' ), [ 'status' => 400 ] );
+		}
+
+		if ( empty( $products ) ) {
+			return new WP_Error( 'subscrpt_bulk_no_products', __( 'Select at least one product.', 'subscription' ), [ 'status' => 400 ] );
+		}
+
+		if ( ! isset( $params['regular_price'] ) || '' === $params['regular_price'] ) {
+			return new WP_Error( 'subscrpt_bulk_no_price', __( 'Enter a regular price.', 'subscription' ), [ 'status' => 400 ] );
+		}
+
+		$data = [
+			'regular_price' => (string) wc_format_decimal( $params['regular_price'] ),
+			'sale_price'    => isset( $params['sale_price'] ) && '' !== $params['sale_price'] ? (string) wc_format_decimal( $params['sale_price'] ) : '',
+		];
+
+		$updated = 0;
+
+		foreach ( $products as $product ) {
+			$oid = isset( $product['oid'] ) ? absint( $product['oid'] ) : 0;
+			$vid = isset( $product['vid'] ) ? absint( $product['vid'] ) : 0;
+
+			if ( ! $oid ) {
+				continue;
+			}
+
+			if ( is_wp_error( $this->guard_simple_only( [ 'vid' => $vid ] ) ) ) {
+				continue;
+			}
+
+			foreach ( $plan_ids as $plan_id ) {
+				$relation_id = PlanRepository::find_relation( $plan_id, $oid, $vid );
+
+				if ( ! $relation_id ) {
+					continue;
+				}
+
+				PlanRepository::update_relation( $relation_id, [ 'data' => $data ] );
+				++$updated;
+			}
+		}
+
+		return rest_ensure_response( [ 'updated' => $updated ] );
 	}
 
 	/**
