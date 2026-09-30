@@ -74,6 +74,17 @@
       noteEl.innerHTML = btn.getAttribute("data-note") || "";
     }
 
+    // The badge reports what *this* term saves, so it moves with the selection.
+    // Terms discount by different amounts; one figure for the whole card was
+    // only ever right for one of them. Hidden outright when the chosen term is
+    // not discounted, so no empty pill is left behind.
+    var badgeEl = wrap.querySelector("[data-subscrpt-badge]");
+    if (badgeEl) {
+      var badge = btn.getAttribute("data-badge") || "";
+      badgeEl.textContent = badge;
+      badgeEl.hidden = badge === "";
+    }
+
     var radio = wrap.querySelector('input[name="subscrpt_plan_group"]');
     if (radio && !radio.checked) {
       radio.checked = true;
