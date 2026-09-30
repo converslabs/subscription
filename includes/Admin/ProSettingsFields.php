@@ -50,6 +50,7 @@ class ProSettingsFields {
 			$this->payment_failure_fields(),
 			$this->api_fields(),
 			$this->health_queue_fields(),
+			$this->box_fields(),
 			$this->order_fields(),
 			$this->switch_fields(),
 			$this->role_management_fields(),
@@ -337,6 +338,87 @@ class ProSettingsFields {
 						'never'            => __( 'Never', 'subscription' ),
 					],
 					'selected'    => esc_attr( get_option( 'subscrpt_health_queue_email_frequency', 'subscrpt_weekly' ) ),
+				],
+			],
+		];
+	}
+
+	/**
+	 * Module: Subscription Boxes (Illuminate/Box) — packing window and cadence.
+	 *
+	 * @return array
+	 */
+	private function box_fields() {
+		return [
+			[
+				'type'       => 'heading',
+				'group'      => 'boxes',
+				'priority'   => 10,
+				'field_data' => [
+					'title' => __( 'Subscription Boxes', 'subscription' ),
+				],
+			],
+			[
+				'type'       => 'input',
+				'group'      => 'boxes',
+				'priority'   => 1,
+				'field_data' => [
+					'id'          => 'subscrpt_box_lock_days',
+					'title'       => __( 'Lock Box Contents (Days Before Renewal)', 'subscription' ),
+					'description' => __( 'Lock box contents this many days before renewal, so there is time to pick and pack. (0 = never lock)', 'subscription' ),
+					'value'       => esc_attr( get_option( 'subscrpt_box_lock_days', '3' ) ),
+					'type'        => 'number',
+					'attributes'  => [
+						'min' => 0,
+						'max' => 30,
+					],
+				],
+			],
+			[
+				'type'       => 'input',
+				'group'      => 'boxes',
+				'priority'   => 2,
+				'field_data' => [
+					'id'          => 'subscrpt_box_email_days',
+					'title'       => __( 'Upcoming Box Email (Days Before Renewal)', 'subscription' ),
+					'description' => __( 'Send the upcoming-box email this many days before renewal, while the customer can still change the contents. (0 = do not send)', 'subscription' ),
+					'value'       => esc_attr( get_option( 'subscrpt_box_email_days', '10' ) ),
+					'type'        => 'number',
+					'attributes'  => [
+						'min' => 0,
+						'max' => 60,
+					],
+				],
+			],
+			[
+				'type'       => 'select',
+				'group'      => 'boxes',
+				'priority'   => 3,
+				'field_data' => [
+					'id'          => 'subscrpt_box_renewal_shipping',
+					'title'       => __( 'Box Renewal Shipping', 'subscription' ),
+					'description' => __( 'How shipping is charged when a box subscription renews. Applies to box subscriptions only — every other subscription is unaffected.', 'subscription' ),
+					'options'     => [
+						'copy' => __( 'Copy shipping from the first order', 'subscription' ),
+						'none' => __( 'Do not charge shipping on renewals', 'subscription' ),
+					],
+					'selected'    => esc_attr( get_option( 'subscrpt_box_renewal_shipping', 'copy' ) ),
+				],
+			],
+			[
+				'type'       => 'input',
+				'group'      => 'boxes',
+				'priority'   => 4,
+				'field_data' => [
+					'id'          => 'subscrpt_box_list_horizon',
+					'title'       => __( 'Upcoming Boxes Horizon (Days)', 'subscription' ),
+					'description' => __( 'Show boxes renewing within this many days on the Boxes screen.', 'subscription' ),
+					'value'       => esc_attr( get_option( 'subscrpt_box_list_horizon', '14' ) ),
+					'type'        => 'number',
+					'attributes'  => [
+						'min' => 1,
+						'max' => 90,
+					],
 				],
 			],
 		];
