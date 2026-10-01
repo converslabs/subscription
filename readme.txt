@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -334,6 +334,14 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.2.0 - Oct 1, 2026 =
+-   new: Subscription products are marked with an icon in the WooCommerce products list.
+-   new: Reorder plan durations and products by drag and drop, with keyboard support.
+-   new: Install and activate the Stripe gateway from the Stripe Auto Renewal setting.
+-   new: License settings to choose whether renewals keep the existing license key or issue a new one.
+-   fix: Integration cards show installed but inactive plugins as Inactive, with an Activate button.
+-   fix: Installing a payment gateway that is already installed but inactive no longer fails.
 
 = 2.1.0 - Sep 29, 2026 =
 -   new: Quickly update connected product prices of a plan.
