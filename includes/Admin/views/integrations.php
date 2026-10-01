@@ -268,6 +268,10 @@ $subscrpt_tag_labels = [
 			<div class="notice notice-success is-dismissible" style="margin:0 0 16px;"><p><?php esc_html_e( 'Plugin installed and activated successfully.', 'subscription' ); ?></p></div>
 		<?php endif; ?>
 
+		<?php if ( ! empty( $_GET['subscrpt_activated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+			<div class="notice notice-success is-dismissible" style="margin:0 0 16px;"><p><?php esc_html_e( 'Plugin activated successfully.', 'subscription' ); ?></p></div>
+		<?php endif; ?>
+
 		<!-- Payment Gateways -->
 		<div style="margin-bottom:32px;" data-subscrpt-int-section>
 			<div style="margin-bottom:12px;">
@@ -403,6 +407,7 @@ $subscrpt_tag_labels = [
 			<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
 				<?php foreach ( $cat_integrations as $integration ) : ?>
 					<?php
+					$is_installed = ! empty( $integration['is_installed'] );
 					$is_active    = ! empty( $integration['is_active'] );
 					$is_pro       = ! empty( $integration['is_pro'] );
 					$icon_url     = $integration['icon_url'] ?? '';
@@ -415,8 +420,16 @@ $subscrpt_tag_labels = [
 						'color' => '#475569',
 					];
 
-					$status_dot  = $is_active ? '#16a34a' : '#9ca3af';
-					$status_text = $is_active ? __( 'Active', 'subscription' ) : __( 'Not Installed', 'subscription' );
+					if ( $is_active ) {
+						$status_dot  = '#16a34a';
+						$status_text = __( 'Active', 'subscription' );
+					} elseif ( $is_installed ) {
+						$status_dot  = '#d97706';
+						$status_text = __( 'Inactive', 'subscription' );
+					} else {
+						$status_dot  = '#9ca3af';
+						$status_text = __( 'Not Installed', 'subscription' );
+					}
 
 					$subscrpt_card_status = $subscrpt_status_of( $integration );
 					$subscrpt_card_tags   = array_keys(

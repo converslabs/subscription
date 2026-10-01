@@ -46,6 +46,7 @@ class ProSettingsFields {
 	public function add_pro_preview_fields( $settings_fields ) {
 		$pro_fields = array_merge(
 			$this->pro_core_fields(),
+			$this->license_fields(),
 			$this->grace_period_fields(),
 			$this->payment_failure_fields(),
 			$this->api_fields(),
@@ -103,6 +104,48 @@ class ProSettingsFields {
 					'description' => __( 'With early renewals enabled, customers can renew their subscriptions before the next payment date.', 'subscription' ),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'subscrpt_early_renew', '1' ),
+				],
+			],
+		];
+	}
+
+	/**
+	 * Module: License integrations (Integrations/LicenseManagerWoo.php).
+	 *
+	 * @return array
+	 */
+	private function license_fields() {
+		return [
+			[
+				'type'       => 'heading',
+				'group'      => 'license_settings',
+				'priority'   => 4,
+				'field_data' => [
+					'title' => __( 'License Settings', 'subscription' ),
+				],
+			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'license_settings',
+				'priority'   => 1,
+				'field_data' => [
+					'id'          => 'subscrpt_regenerate_license_on_renewal',
+					'title'       => __( 'Regenerate License on Renewal', 'subscription' ),
+					'description' => __( 'Enable this option if you want to invalidate the old key and issue a fresh license key whenever a subscription renews.', 'subscription' ),
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'subscrpt_regenerate_license_on_renewal', '0' ),
+				],
+			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'license_settings',
+				'priority'   => 2,
+				'field_data' => [
+					'id'          => 'subscrpt_deactivate_old_license_on_renewal',
+					'title'       => __( 'Deactivate Previous License', 'subscription' ),
+					'description' => __( 'When a fresh license key is issued on renewal, deactivate the previous key. Turn off to let the previous key keep working until it expires.', 'subscription' ),
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'subscrpt_deactivate_old_license_on_renewal', '1' ),
 				],
 			],
 		];

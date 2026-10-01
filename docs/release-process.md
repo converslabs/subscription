@@ -1,21 +1,29 @@
 # Release Process
 
-Generic release flow for our WordPress plugins. Plugin-specific distribution steps (wp.org SVN, updater manifests, marketplace uploads) are **not** covered here — each plugin documents its own in the [Distribution](#5-distribution) section at the bottom.
+Generic release flow for our WordPress plugins. Plugin-specific distribution steps (wp.org SVN, updater manifests, marketplace uploads) are **not** covered here — each plugin documents its own in the [Distribution](#6-distribution) section at the bottom.
 
 ---
 
-## 1. Release cadence
+## 1. Branches and cadence
 
-| Day       | What happens                                                     |
-| --------- | ---------------------------------------------------------------- |
-| Mon – Sat | Development. One branch per feature/fix, one PR each.            |
-| Sunday    | Release day. Cut the release branch, build, PR to `main`, merge. |
+| Branch   | Holds                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------ |
+| `main`   | Released code only. Every merge into `main` is a release and gets a tag.                         |
+| `dev`    | The next release. Every work branch starts here and every PR targets it.                         |
+| `feat/…` | One unit of work, branched from `dev`, merged back into `dev` through a PR. See the table below. |
 
-A release period is normally one week (Mon–Sat). Anything not reviewed and merge-ready by Saturday rolls into the next period — do not hold the release for it.
+| Day       | What happens                                                                                       |
+| --------- | -------------------------------------------------------------------------------------------------- |
+| Mon – Sat | Development. One branch per feature/fix, one PR each, all with base `dev`.                         |
+| Sunday    | Release day. Merge the selected PRs into `dev`, prepare the release, merge `dev` into `main`, tag. |
+
+A release period is normally one week (Mon–Sat). Anything not reviewed and merge-ready by Saturday stays open and rolls into the next period — do not hold the release for it.
+
+**Everything merged into `dev` ships in the next release.** Merge a PR into `dev` only when it is selected for the release; leave the rest open.
 
 ### Branch naming
 
-Work branches are typed, one unit of work per branch:
+Work branches are typed, one unit of work per branch, always created from `dev`:
 
 | Type            | Branch prefix | Example                     |
 | --------------- | ------------- | --------------------------- |
@@ -25,7 +33,15 @@ Work branches are typed, one unit of work per branch:
 | Docs            | `docs/`       | `docs/release-process`      |
 | Chore / tooling | `chore/`      | `chore/bump-phpcs`          |
 
-Release branches: `release/vX.Y.Z` — e.g. `release/v1.11.3`.
+```bash
+git checkout dev
+git pull origin dev
+git checkout -b feat/subs-plans
+# … work, commit, push …
+gh pr create --base dev
+```
+
+There are no release branches. `dev` is the release candidate.
 
 ### Choosing the version
 
@@ -41,7 +57,7 @@ Rules:
 - Patch-only release → bump `Z`.
 - `Z` never goes past `9`: if the current version is `1.1.9` and the release is patch-only, the next version is `1.2.0`, not `1.1.10`.
 
-Decide this version **before** creating the release branch — the branch name carries it.
+Decide the version from what is selected for the release, before step 2.
 
 ---
 
@@ -49,43 +65,23 @@ Decide this version **before** creating the release branch — the branch name c
 
 Run everything from the plugin directory.
 
-### Step 1 — Create the release branch
+### Step 1 — Merge the selected PRs into `dev`
 
-Branch off the current `main`. `vX.Y.Z` in the branch name is the actual version this release will ship as — the same number that goes into `package.json` in step 3 and into the changelog header in step 4:
-
-```bash
-git checkout main
-git pull origin main
-git checkout -b release/v1.11.3
-git push -u origin release/v1.11.3
-```
-
-### Step 2 — Merge the completed PRs into the release branch
-
-Retarget each finished PR's base to the release branch and merge it there — not into `main`. Only merge PRs that are reviewed and complete; anything unfinished stays on its own branch for the next period.
-
-Do this on GitHub, per PR:
-
-1. Open the PR.
-2. Next to the title, click **Edit** and change the base branch from `main` to `release/v1.11.3`.
-3. Confirm the diff now shows only that PR's own commits.
-4. **Merge pull request**.
-
-Alternatively, with the `gh` CLI:
+Merge each reviewed, complete PR that is going out. Leave everything else open for the next period.
 
 ```bash
-gh pr edit <number> --base release/v1.11.3
 gh pr merge <number> --merge
 ```
 
 Pull the merges down and review what is going out:
 
 ```bash
-git pull origin release/v1.11.3
-git log --oneline main..release/v1.11.3
+git checkout dev
+git pull origin dev
+git log --oneline --first-parent main..dev
 ```
 
-### Step 3 — Bump the version in `package.json`
+### Step 2 — Bump the version in `package.json`
 
 `package.json` is the **single source of truth** for the release version. The release script reads it and substitutes it into every file that carries a version placeholder (main plugin file, readme template, translation template, updater manifest, …). Do not hand-edit version numbers anywhere else, and leave the `#..._VERSION` placeholders in the repo intact.
 
@@ -95,7 +91,7 @@ git log --oneline main..release/v1.11.3
 }
 ```
 
-### Step 4 — Add the changelog entry
+### Step 3 — Add the changelog entry
 
 Add a new block at the **top** of `changelog.txt`, directly under the `*** ... Changelog ***` header. Newest release first, blank line between blocks.
 
@@ -129,7 +125,7 @@ Example:
 
 The release script parses this file, so the shape matters: a line starting with a 4-digit year is read as a version header, and every `*` line becomes a readme bullet.
 
-### Step 5 — Build the release
+### Step 4 — Build the release
 
 ```bash
 yarn release
@@ -144,22 +140,27 @@ The release script:
 5. **Zips** the package as `releases/<plugin>_vX.Y.Z.zip`.
 6. **Reinstalls dev dependencies.**
 
-Needs on PATH: `jq`, `zip`, `composer`, `yarn`, `wp` (WP-CLI).
+Needs on PATH: `jq`, `zip`, `composer`, `yarn`, `wp` (WP-CLI). On the WPSubscription bench, `./wps release free` or `./wps release pro` runs the same script inside the container.
 
 > **`readme.txt` is generated.** Every release build overwrites it. Never edit it directly — edit `readme-template.txt` (description, tags, screenshots, tested-up-to, …) and let the build produce `readme.txt`. Changelog content comes from `changelog.txt`, not from the template.
 
-Commit the release changes (build output in `releases/` stays out of git):
+Install the zip on a clean site and check that it activates before going further.
+
+Commit the release changes on `dev` (build output in `releases/` stays out of git):
 
 ```bash
-git add package.json changelog.txt readme.txt
-git commit -m "chore: 🔧 release v1.11.3"
-git push origin release/v1.11.3
+git add package.json changelog.txt readme.txt languages/
+git commit -m "release: 🎉 v1.11.3"
+git push origin dev
 ```
 
-### Step 6 — Open the PR to `main`
+### Step 5 — Merge `dev` into `main`
+
+Open a PR from `dev` to `main`. This is the recommended path: it leaves a reviewable record of the release and runs CI.
 
 ```bash
-gh pr create --base main --head release/v1.11.3 --title "Release v1.11.3"
+gh pr create --base main --head dev --title "Release v1.11.3"
+gh pr merge <number> --merge
 ```
 
 The PR description is the changelog for this release, **copied from the generated `readme.txt`** (WordPress readme format):
@@ -170,40 +171,76 @@ The PR description is the changelog for this release, **copied from the generate
 -   fix: Subscription list filters.
 ```
 
-### Step 7 — Merge
+A direct merge is allowed when the release has already been reviewed on `dev`. Always use `--no-ff`, so every release is one merge commit on `main`:
 
-Merge the PR into `main` once review and CI are green. The zip built in step 5 is the release artifact.
+```bash
+git checkout main
+git pull origin main
+git merge --no-ff dev -m "Release v1.11.3"
+git push origin main
+```
+
+Always merge — never squash or rebase `dev` into `main`. A merge keeps `main` a strict ancestor of `dev`, so the next release merges cleanly without bringing `main` back into `dev`.
+
+### Step 6 — Tag and publish
+
+Tag the merge commit on `main` with the bare version, no prefix (`1.11.3`, not `v1.11.3`), and attach the zip from step 4:
+
+```bash
+git checkout main
+git pull origin main
+gh release create 1.11.3 releases/<plugin>_v1.11.3.zip \
+  --target main --title "v1.11.3" --notes-file <changelog-block>
+```
+
+Then complete the plugin's [Distribution](#6-distribution) steps.
 
 ---
 
-## 3. Checklist
+## 3. Hotfixes
+
+A fix that cannot wait for the next release goes straight to `main`:
+
+1. Branch from `main`: `git checkout -b fix/<name> origin/main`.
+2. Open the PR with base `main`, merge it, then follow steps 2–6 on `main` with a patch version.
+3. Merge `main` back into `dev` so the fix and the version bump are not lost:
+
+   ```bash
+   git checkout dev && git pull origin dev
+   git merge origin/main
+   git push origin dev
+   ```
+
+---
+
+## 4. Checklist
 
 ```
-[ ] All release PRs reviewed and merged into release/vX.Y.Z
+[ ] Selected PRs reviewed and merged into dev; everything else left open
 [ ] Version bumped in package.json (and only there)
 [ ] changelog.txt entry added at the top, correct date + version, `* tag: description` lines
-[ ] yarn release ran clean
+[ ] yarn release ran clean, and the zip installs and activates
 [ ] readme.txt regenerated (not hand-edited)
-[ ] package.json + changelog.txt + readme.txt committed and pushed
-[ ] PR opened to main, description = changelog from readme.txt
-[ ] PR merged
+[ ] package.json + changelog.txt + readme.txt + languages/ committed and pushed to dev
+[ ] dev merged into main (PR or --no-ff merge)
+[ ] Tag X.Y.Z created on main, zip attached to the GitHub release
 [ ] Distribution steps done (see below)
 ```
 
 ---
 
-## 4. Notes
+## 5. Notes
 
-- Never release directly from `main` or from a feature branch — always through `release/vX.Y.Z`.
+- Never release from a work branch, and never commit directly to `main` except through a hotfix.
 - Never edit generated files (`readme.txt`, built assets, `.pot` output) by hand.
-- If a merged PR turns out to be broken after step 2, revert it on the release branch rather than delaying the release.
-- Updating anything on the main branch triggers the `Update Plugin Assets/Readme` action. It checks any changes in the `readme.txt` and publishes them to WordPress Org.
+- If a PR merged into `dev` turns out to be broken, revert it on `dev` rather than delaying the release.
+- Updating anything on the `main` branch triggers the `Update Plugin Assets/Readme` action. It checks any changes in the `readme.txt` and publishes them to WordPress Org. With this flow that happens only at release time.
 
 ---
 
-## 5. Distribution
+## 6. Distribution
 
-- After merging the `release` branch into the `main` branch, create a release tag. 
+- After merging `dev` into `main`, create a release tag on `main`.
   > Make sure you do not add any prefix to the version tag. E.g.: `2.0.1`.
 - Add the file generated when you ran `yarn release` to the GitHub release draft.
 - After publishing the release, the new version will be automatically synced to the WordPress Org.

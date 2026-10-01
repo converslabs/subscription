@@ -17,6 +17,7 @@ class Ajax {
 		add_action( 'wp_ajax_subscrpt_install_woocommerce_plugin', array( $this, 'install_woocommerce_plugin' ) );
 		add_action( 'wp_ajax_subscrpt_activate_woocommerce_plugin', array( $this, 'wps_subscription_activate_woocommerce_plugin' ) );
 		add_action( 'wp_ajax_subscrpt_install_integration_plugin', array( $this, 'install_integration_plugin' ) );
+		add_action( 'wp_ajax_subscrpt_activate_integration_plugin', array( $this, 'activate_integration_plugin' ) );
 	}
 
 	/**
@@ -113,10 +114,40 @@ class Ajax {
 			wp_send_json_error( array( 'message' => __( 'Plugin slug is required.', 'subscription' ) ), 400 );
 		}
 
+		// Already installed but inactive: the upgrader would refuse with
+		// "Destination folder already exists", so activate it instead.
+		$installed_file = self::get_installed_plugin_file( $plugin_slug );
+
+		if ( $installed_file ) {
+			if ( ! current_user_can( 'activate_plugins' ) ) {
+				wp_send_json_error( array( 'message' => __( 'Permission denied.', 'subscription' ) ), 403 );
+			}
+
+			$activate = activate_plugin( $installed_file );
+
+			if ( is_wp_error( $activate ) ) {
+				wp_send_json_error( array( 'message' => $activate->get_error_message() ), 500 );
+			}
+
+			wp_send_json_success();
+		}
+
 		include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		include_once ABSPATH . 'wp-admin/includes/file.php';
 		include_once ABSPATH . 'wp-admin/includes/misc.php';
+
+		// Already on disk: installing again fails on the existing folder, so
+		// activate what is there instead.
+		foreach ( array_keys( get_plugins() ) as $installed_file ) {
+			if ( 0 === strpos( $installed_file, $plugin_slug . '/' ) ) {
+				$activate = activate_plugin( $installed_file );
+				if ( is_wp_error( $activate ) ) {
+					wp_send_json_error( array( 'message' => $activate->get_error_message() ), 500 );
+				}
+				wp_send_json_success();
+			}
+		}
 
 		$cache_key = 'subscrpt_plugin_api_' . sanitize_key( $plugin_slug );
 		$api       = get_transient( $cache_key );
@@ -155,17 +186,21 @@ class Ajax {
 			set_transient( $cache_key, $api, 12 * HOUR_IN_SECONDS );
 		}
 
-		$upgrader = new \Plugin_Upgrader( new \WP_Ajax_Upgrader_Skin() );
+		$skin     = new \WP_Ajax_Upgrader_Skin();
+		$upgrader = new \Plugin_Upgrader( $skin );
 		$result   = $upgrader->install( $api->download_link );
-
-		ob_end_clean();
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ), 500 );
 		}
 
+		// The skin collects the reason (folder exists, no filesystem access, …)
+		// while install() itself only returns null.
 		if ( ! $result ) {
-			wp_send_json_error( array( 'message' => __( 'Plugin installation failed.', 'subscription' ) ), 500 );
+			$message = $skin->get_errors()->has_errors()
+				? $skin->get_error_messages()
+				: __( 'Plugin installation failed.', 'subscription' );
+			wp_send_json_error( array( 'message' => $message ), 500 );
 		}
 
 		$plugin_file = $upgrader->plugin_info();
@@ -178,6 +213,55 @@ class Ajax {
 
 		if ( is_wp_error( $activate ) ) {
 			wp_send_json_success( array( 'warning' => __( 'Plugin installed but could not be activated automatically.', 'subscription' ) ) );
+		}
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Main file of an installed plugin, looked up by its wp.org slug.
+	 *
+	 * @param string $plugin_slug The wp.org plugin slug, i.e. its directory name.
+	 * @return string Plugin file relative to the plugins directory, or an empty string when not installed.
+	 */
+	public static function get_installed_plugin_file( $plugin_slug ) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			include_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		foreach ( array_keys( get_plugins() ) as $plugin_file ) {
+			if ( strtok( $plugin_file, '/' ) === $plugin_slug ) {
+				return $plugin_file;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Activate an already installed integration plugin from the integrations page.
+	 */
+	public function activate_integration_plugin() {
+		check_ajax_referer( 'subscrpt_integration_install_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'subscription' ) ), 403 );
+		}
+
+		$plugin_file = isset( $_POST['plugin_file'] ) ? sanitize_text_field( wp_unslash( $_POST['plugin_file'] ) ) : '';
+
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		if ( empty( $plugin_file ) || ! array_key_exists( $plugin_file, get_plugins() ) ) {
+			wp_send_json_error( array( 'message' => __( 'Plugin is not installed.', 'subscription' ) ), 400 );
+		}
+
+		$activate = activate_plugin( $plugin_file );
+
+		if ( is_wp_error( $activate ) ) {
+			wp_send_json_error( array( 'message' => $activate->get_error_message() ), 500 );
 		}
 
 		wp_send_json_success();

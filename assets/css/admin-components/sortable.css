@@ -1,0 +1,83 @@
+/* --------------------------------------------------------------------------
+   Sortable  (wpsubs-sort-handle)
+
+   Vertical drag-and-drop reordering. The handle is the only place a drag
+   starts; the item lifts while dragged and its siblings slide out of the way.
+
+   JS: the plan detail page wires this in admin/plans.js
+   (data-subscrpt-sortable / -sort-item / -sort-handle).
+   -------------------------------------------------------------------------- */
+.wpsubs-sort-handle {
+  appearance: none;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: var(--wpsubs-radius-sm, 5px);
+  background: transparent;
+  color: var(--wpsubs-text-subtle, #9ca3af);
+  cursor: grab;
+  touch-action: none;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.wpsubs-sort-handle:hover {
+  color: var(--wpsubs-text, #374151);
+  background: var(--wpsubs-border, #e5e7eb);
+}
+
+.wpsubs-sort-handle:focus-visible {
+  outline: none;
+  color: var(--wpsubs-brand, #ff4d00);
+  box-shadow: 0 0 0 3px var(--wpsubs-brand-ring, rgba(255, 77, 0, 0.2));
+}
+
+.wpsubs-sort-handle:active {
+  cursor: grabbing;
+}
+
+/* Nothing to reorder with a single item. */
+[data-subscrpt-sortable] > [data-subscrpt-sort-item]:only-child .wpsubs-sort-handle {
+  display: none;
+}
+
+/* The item being dragged: lifted above its siblings. */
+.wpsubs-sort-item--dragging {
+  position: relative;
+  z-index: 20;
+  box-shadow:
+    var(--wpsubs-shadow-md, 0 4px 16px rgba(0, 0, 0, 0.1)),
+    0 0 0 1px var(--wpsubs-brand-ring, rgba(255, 77, 0, 0.2));
+  transition: box-shadow 0.18s ease;
+  will-change: transform;
+}
+
+/* Dropping: glides into its slot. */
+.wpsubs-sort-item--settling {
+  position: relative;
+  z-index: 20;
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.22s ease;
+}
+
+/* While dragging, the whole page shows the closed hand and text stays put. */
+body.wpsubs-sorting,
+body.wpsubs-sorting * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wpsubs-sort-item--dragging,
+  .wpsubs-sort-item--settling {
+    transition: none;
+  }
+}

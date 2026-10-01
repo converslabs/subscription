@@ -2,6 +2,8 @@
 
 namespace SpringDevs\Subscription\Admin;
 
+use SpringDevs\Subscription\Ajax;
+
 /**
  * Class Settings
  *
@@ -25,6 +27,7 @@ class Settings {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wc_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_installer_script' ) );
 	}
 
 	/**
@@ -102,12 +105,20 @@ class Settings {
 					'id'          => 'wp_subscription_stripe_auto_renew',
 					'title'       => __( 'Stripe Auto Renewal', 'subscription' ),
 					'label'       => __( 'Accept Stripe Auto Renewals', 'subscription' ),
-					'description' => sprintf(
-						/* translators: HTML tags */
-						__( '%1$s WooCommerce Stripe Payment Gateway %2$s plugin is required!', 'subscription' ),
-						'<a href="https://wordpress.org/plugins/woocommerce-gateway-stripe/" target="_blank">',
-						'</a>'
-					),
+					'description' => class_exists( 'WC_Stripe' )
+						? sprintf(
+							/* translators: 1: opening plugin link tag, 2: closing link tag, 3: opening settings link tag */
+							__( '&#10003; %1$sWooCommerce Stripe Payment Gateway%2$s is active. %3$sConfigure%2$s', 'subscription' ),
+							'<a href="https://wordpress.org/plugins/woocommerce-gateway-stripe/" target="_blank">',
+							'</a>',
+							'<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=stripe' ) ) . '">'
+						)
+						: sprintf(
+							/* translators: HTML tags */
+							__( '%1$s WooCommerce Stripe Payment Gateway %2$s plugin is required!', 'subscription' ),
+							'<a href="https://wordpress.org/plugins/woocommerce-gateway-stripe/" target="_blank">',
+							'</a>'
+						) . $this->get_stripe_plugin_action(),
 					'value'       => '1',
 					'checked'     => '1' === get_option( 'wp_subscription_stripe_auto_renew', '1' ),
 				],
@@ -159,6 +170,59 @@ class Settings {
 
 		// Set the settings fields.
 		$this->settings_fields = $settings_fields;
+	}
+
+	/**
+	 * Install / Activate link for the Stripe gateway plugin.
+	 *
+	 * Rendered inside a field description, which goes through `wp_kses_post()`,
+	 * so the link carries data attributes rather than an inline handler;
+	 * `integration_settings.js` picks it up.
+	 *
+	 * @return string Link HTML, or an empty string when the user cannot act on it.
+	 */
+	private function get_stripe_plugin_action() {
+		$slug     = 'woocommerce-gateway-stripe';
+		$installed = '' !== Ajax::get_installed_plugin_file( $slug );
+
+		if ( $installed && current_user_can( 'activate_plugins' ) ) {
+			$label      = __( 'Activate', 'subscription' );
+			$busy_label = __( 'Activating…', 'subscription' );
+		} elseif ( ! $installed && current_user_can( 'install_plugins' ) ) {
+			$label      = __( 'Install & Activate', 'subscription' );
+			$busy_label = __( 'Installing…', 'subscription' );
+		} else {
+			return '';
+		}
+
+		return sprintf(
+			' <a href="#" data-subscrpt-install-plugin="%1$s" data-busy-label="%2$s">%3$s</a>',
+			esc_attr( $slug ),
+			esc_attr( $busy_label ),
+			esc_html( $label )
+		);
+	}
+
+	/**
+	 * Enqueue the plugin installer on the settings page.
+	 *
+	 * @param string $hook The current admin page hook.
+	 */
+	public function enqueue_installer_script( $hook ) {
+		if ( false === strpos( $hook, 'wp-subscription-settings' ) ) {
+			return;
+		}
+
+		wp_enqueue_script( 'subscrpt-integrations', SUBSCRPT_ASSETS . '/js/integration_settings.js', [], SUBSCRPT_VERSION, true );
+
+		wp_localize_script(
+			'subscrpt-integrations',
+			'subscrptIntegrations',
+			array(
+				'nonce'   => wp_create_nonce( 'subscrpt_integration_install_nonce' ),
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			)
+		);
 	}
 
 	/**
