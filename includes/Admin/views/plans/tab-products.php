@@ -245,12 +245,17 @@ $has_terms = ! empty( $plan['terms'] );
 				</button>
 			</div>
 
-			<div class="wpsubs-accordion" data-multi="1" data-subscrpt-product-list>
+			<div class="wpsubs-accordion" data-multi="1" data-subscrpt-product-list data-subscrpt-sortable="products">
 			<?php $subscrpt_is_first = true; ?>
 			<?php foreach ( $plan['products'] as $product ) : ?>
 				<?php $subscrpt_panel_id = 'subscrpt-prod-' . (int) $product['id']; ?>
-				<div class="wpsubs-accordion__item" data-subscrpt-browse-item data-name="<?php echo esc_attr( strtolower( $product['name'] ) ); ?>" data-pid="<?php echo esc_attr( $product['id'] ); ?>">
+				<div class="wpsubs-accordion__item" data-subscrpt-browse-item data-subscrpt-sort-item="<?php echo esc_attr( $product['id'] ); ?>" data-name="<?php echo esc_attr( strtolower( $product['name'] ) ); ?>" data-pid="<?php echo esc_attr( $product['id'] ); ?>">
 					<div style="display:flex;align-items:stretch;background:var(--wpsubs-surface-muted,#f9fafb);">
+						<span style="display:flex;align-items:center;padding-left:10px;">
+							<button type="button" class="wpsubs-sort-handle" data-subscrpt-sort-handle title="<?php esc_attr_e( 'Drag to reorder', 'subscription' ); ?>" aria-label="<?php esc_attr_e( 'Drag to reorder', 'subscription' ); ?>">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
+							</button>
+						</span>
 						<button type="button" class="wpsubs-accordion__header wpsubs-accordion__header--chevron-start" style="flex:1 1 auto;min-width:0;background:transparent;" aria-controls="<?php echo esc_attr( $subscrpt_panel_id ); ?>" aria-expanded="<?php echo $subscrpt_is_first ? 'true' : 'false'; ?>">
 							<span style="display:flex;align-items:center;gap:10px;min-width:0;">
 								<span style="flex:0 0 auto;width:44px;height:44px;border-radius:6px;background:var(--wpsubs-surface,#fff);border:1px solid var(--wpsubs-border,#e5e7eb);overflow:hidden;display:flex;align-items:center;justify-content:center;">

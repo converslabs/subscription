@@ -73,6 +73,52 @@ document.addEventListener("click", function (event) {
   subscrptInstallPlugin(btn, btn.dataset.subscrptInstallPlugin);
 });
 
+/**
+ * Activate an already installed integration plugin from the integrations page.
+ *
+ * @param {HTMLButtonElement} btn        The clicked button element.
+ * @param {string}            pluginFile The plugin basename, e.g. "tutor/tutor.php".
+ */
+function subscrptActivatePlugin(btn, pluginFile) {
+  var originalHTML = btn.innerHTML;
+  var originalCursor = btn.style.cursor;
+
+  btn.disabled = true;
+  btn.style.cursor = "wait";
+  btn.innerHTML = SUBSCRPT_SPINNER_SVG + "Activating…";
+
+  var data = new FormData();
+  data.append("action", "subscrpt_activate_integration_plugin");
+  data.append("plugin_file", pluginFile);
+  data.append("nonce", subscrptIntegrations.nonce);
+
+  fetch(subscrptIntegrations.ajaxUrl, { method: "POST", body: data })
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (result) {
+      if (result.success) {
+        var url = new URL(window.location.href);
+        url.searchParams.delete("subscrpt_installed");
+        url.searchParams.set("subscrpt_activated", "1");
+        window.location.href = url.toString();
+      } else {
+        btn.disabled = false;
+        btn.style.cursor = originalCursor;
+        btn.innerHTML = originalHTML;
+        // eslint-disable-next-line no-alert
+        window.alert((result.data && result.data.message) || "Activation failed. Please try again.");
+      }
+    })
+    .catch(function () {
+      btn.disabled = false;
+      btn.style.cursor = originalCursor;
+      btn.innerHTML = originalHTML;
+      // eslint-disable-next-line no-alert
+      window.alert("Activation failed. Please try again.");
+    });
+}
+
 function wpSubsInstallPaypalIntegration() {
   jQuery
     .post(wpSubsIntegrations.ajax_url, {
