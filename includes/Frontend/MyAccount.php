@@ -113,7 +113,7 @@ class MyAccount {
 		$start_date = ! empty( $start_date ) ? wp_date( 'F j, Y', strtotime( $start_date ) ) : '-';
 
 		$next_date = $subscription_data['next_date'] ?? '';
-		$next_date = ! empty( $next_date ) ? wp_date( 'F j, Y', strtotime( $next_date ) ) : '-';
+		$next_date = ! empty( $next_date ) && Helper::has_next_payment( $status ) ? wp_date( 'F j, Y', strtotime( $next_date ) ) : '-';
 
 		$trial      = get_post_meta( $id, '_subscrpt_trial', true );
 		$trial_mode = get_post_meta( $id, '_subscrpt_trial_mode', true );

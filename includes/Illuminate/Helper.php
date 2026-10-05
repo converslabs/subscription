@@ -90,6 +90,20 @@ class Helper {
 	}
 
 	/**
+	 * Whether a subscription in this status still has a payment ahead.
+	 *
+	 * Cancelling or expiring keeps `_subscrpt_next_date` (the cancellation sweep
+	 * and reactivation read it), so views check the status before showing it.
+	 *
+	 * @param string $status Status.
+	 *
+	 * @return bool
+	 */
+	public static function has_next_payment( $status ) {
+		return ! in_array( $status, array( 'cancelled', 'expired' ), true );
+	}
+
+	/**
 	 * Generate start date
 	 *
 	 * @param null|string $trial Trial.
