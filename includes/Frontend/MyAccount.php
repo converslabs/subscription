@@ -212,6 +212,11 @@ class MyAccount {
 
 		$action_buttons = apply_filters( 'subscrpt_single_action_buttons', $action_buttons, $id, $subscrpt_nonce, $status );
 
+		// Nothing renews once a subscription has ended, so drop the auto-renewal toggle — Pro adds it through the filter too.
+		if ( ! Helper::has_next_payment( $status ) ) {
+			unset( $action_buttons['auto-renew-on'], $action_buttons['auto-renew-off'] );
+		}
+
 		wc_get_template(
 			'myaccount/single.php',
 			array(
