@@ -197,9 +197,13 @@ Merge the PR into `main` once review and CI are green. The zip built in step 5 i
 - Never release directly from `main` or from a feature branch — always through `release/vX.Y.Z`.
 - Never edit generated files (`readme.txt`, built assets, `.pot` output) by hand.
 - If a merged PR turns out to be broken after step 2, revert it on the release branch rather than delaying the release.
+- Updating anything on the main branch triggers the `Update Plugin Assets/Readme` action. It checks any changes in the `readme.txt` and publishes them to WordPress Org.
 
 ---
 
 ## 5. Distribution
 
-_Plugin-specific. Fill in per plugin: where the built zip goes, SVN deploy, updater manifest, tagging, release notes, etc._
+- After merging the `release` branch into the `main` branch, create a release tag. 
+  > Make sure you do not add any prefix to the version tag. E.g.: `2.0.1`.
+- Add the file generated when you ran `yarn release` to the GitHub release draft.
+- After publishing the release, the new version will be automatically synced to the WordPress Org.
