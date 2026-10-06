@@ -263,7 +263,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 						$customer_email = $order ? $order->get_billing_email() : '';
 
 						$start_date   = $subscription_data['start_date'] ? strtotime( $subscription_data['start_date'] ) : 0;
-						$renewal_date = $subscription_data['next_date'] ? strtotime( $subscription_data['next_date'] ) : 0;
+						$renewal_date = $subscription_data['next_date'] && SpringDevs\Subscription\Illuminate\Helper::has_next_payment( $subscrpt_status ) ? strtotime( $subscription_data['next_date'] ) : 0;
 
 						$is_trash        = 'trash' === $subscription->post_status;
 						$is_grace_period = isset( $subscription_data['grace_period'] );
