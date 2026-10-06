@@ -148,6 +148,57 @@ namespace {
 		}
 	}
 
+	if ( ! function_exists( 'esc_html__' ) ) {
+		function esc_html__( $text, $domain = 'default' ) {
+			return esc_html( $text );
+		}
+	}
+
+	if ( ! function_exists( 'wp_kses_post' ) ) {
+		function wp_kses_post( $text ) {
+			return (string) $text;
+		}
+	}
+
+	if ( ! function_exists( 'sanitize_html_class' ) ) {
+		function sanitize_html_class( $classname ) {
+			return preg_replace( '|%[a-fA-F0-9][a-fA-F0-9]|', '', preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $classname ) );
+		}
+	}
+
+	if ( ! function_exists( 'checked' ) ) {
+		function checked( $checked, $current = true, $display = true ) {
+			$result = (string) $checked === (string) $current ? " checked='checked'" : '';
+			if ( $display ) {
+				echo $result; // phpcs:ignore WordPress.Security.EscapeOutput
+			}
+			return $result;
+		}
+	}
+
+	if ( ! function_exists( 'is_product' ) ) {
+		function is_product() {
+			return ! empty( $GLOBALS['wp_is_product'] );
+		}
+	}
+
+	// Object cache: tests prime `subscrpt_plans` / `product_<id>` with plan rows
+	// so PlanRepository::resolve_for_product() never reaches the database.
+	$GLOBALS['wp_object_cache'] = []; // [group][key] => value.
+
+	if ( ! function_exists( 'wp_cache_get' ) ) {
+		function wp_cache_get( $key, $group = '' ) {
+			return $GLOBALS['wp_object_cache'][ $group ][ $key ] ?? false;
+		}
+	}
+
+	if ( ! function_exists( 'wp_cache_set' ) ) {
+		function wp_cache_set( $key, $data, $group = '' ) {
+			$GLOBALS['wp_object_cache'][ $group ][ $key ] = $data;
+			return true;
+		}
+	}
+
 	if ( ! function_exists( 'wc_get_template' ) ) {
 		/**
 		 * Include a plugin template with its args extracted as variables.
