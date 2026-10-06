@@ -136,12 +136,9 @@
       if (card.hasAttribute("data-subscrpt-only-selected")) {
         card.hidden = !selected;
       }
-      // An accordion card opens its panel only while selected; its radio says so.
+      // An accordion card opens its panel only while selected.
       card.querySelectorAll("[data-subscrpt-panel]").forEach(function (panel) {
         panel.hidden = !selected;
-      });
-      card.querySelectorAll('input[name="subscrpt_plan_group"][aria-expanded]').forEach(function (radio) {
-        radio.setAttribute("aria-expanded", selected ? "true" : "false");
       });
       card.querySelectorAll("input[data-subscrpt-term], select[data-subscrpt-term-select]").forEach(function (term) {
         term.disabled = !selected;
