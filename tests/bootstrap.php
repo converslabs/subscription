@@ -148,6 +148,12 @@ namespace {
 		}
 	}
 
+	if ( ! function_exists( 'esc_url' ) ) {
+		function esc_url( $url ) {
+			return esc_url_raw( $url ) === '' ? '' : htmlspecialchars( (string) $url, ENT_QUOTES, 'UTF-8' );
+		}
+	}
+
 	if ( ! function_exists( 'wp_json_encode' ) ) {
 		function wp_json_encode( $data, $flags = 0, $depth = 512 ) {
 			return json_encode( $data, $flags, $depth );

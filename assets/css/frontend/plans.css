@@ -266,6 +266,95 @@
   white-space: nowrap;
 }
 
+/* The merchant's tag, top-left so it never meets the discount badge on the right. */
+.subscrpt-buybox__ribbon {
+  position: absolute;
+  top: -12px;
+  left: 14px;
+  z-index: 1;
+  padding: 3px 11px;
+  border-radius: 4px;
+  background: var(--subscrpt-ink, #1d2327);
+  color: var(--subscrpt-surface, #fff);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.subscrpt-buybox__benefits-heading {
+  margin: 4px 0 0;
+  padding-left: 28px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.subscrpt-buybox__benefits {
+  margin: 4px 0 0;
+  padding: 0 0 0 28px;
+  list-style: none;
+  color: var(--subscrpt-muted);
+  font-size: 13px;
+}
+
+.subscrpt-buybox__benefits li {
+  position: relative;
+  margin: 2px 0;
+  padding-left: 18px;
+}
+
+.subscrpt-buybox__benefits li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--subscrpt-accent);
+  font-weight: 700;
+}
+
+.subscrpt-buybox .subscrpt-buybox__learn-more {
+  display: inline-block;
+  margin: 6px 0 0 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--subscrpt-accent);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.subscrpt-buybox .subscrpt-buybox__learn-more:hover {
+  background: none;
+  color: var(--subscrpt-accent);
+  text-decoration: none;
+}
+
+.subscrpt-buybox .subscrpt-buybox__learn-more:focus-visible {
+  outline: 2px solid var(--subscrpt-accent);
+  outline-offset: 2px;
+}
+
+.subscrpt-buybox__details {
+  margin: 6px 0 0 28px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--subscrpt-surface);
+  border: 1px solid var(--subscrpt-line);
+  color: var(--subscrpt-muted);
+  font-size: 13px;
+  white-space: pre-line;
+}
+
+.subscrpt-buybox__details[hidden] {
+  display: none;
+}
+
 /* The card body holds controls of its own; a click there does not select. */
 .subscrpt-buybox__body {
   cursor: auto;

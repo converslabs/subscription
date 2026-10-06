@@ -286,4 +286,117 @@ class PlanSelectorMarkupTest extends TestCase {
 		$plain = $xpath->query( ".//label[@data-term-id='11']", $card )->item( 0 );
 		$this->assertSame( 'Every month', trim( $plain->textContent ), 'no interval_label falls back to the label' );
 	}
+
+	/**
+	 * A fixture group carrying storefront fields.
+	 *
+	 * @param array $storefront Storefront fields.
+	 * @param array $overrides  Group keys to override.
+	 */
+	private function with_storefront( array $storefront ): array {
+		$groups                  = $this->fixture_groups();
+		$groups[0]['storefront'] = $storefront;
+		$groups[0]['badge']      = 'Save 20%';
+
+		return $groups;
+	}
+
+	public function test_benefits_render_with_heading() {
+		$xpath = $this->render(
+			$this->with_storefront(
+				[
+					'benefits_heading' => 'How it works',
+					'benefits'         => [ 'One', 'Two <b>x</b>', 'Three', 'Four', 'Five', 'Six' ],
+				]
+			)
+		);
+		$card  = $this->card( $xpath, 'grp_1' );
+
+		$list = $xpath->query( ".//ul[contains(concat(' ', @class, ' '), ' subscrpt-buybox__benefits ')]", $card );
+		$this->assertSame( 1, $list->length );
+		$this->assertSame( 5, $xpath->query( './li', $list->item( 0 ) )->length, 'at most five lines' );
+		$this->assertSame( 'Two <b>x</b>', $xpath->query( './li', $list->item( 0 ) )->item( 1 )->textContent, 'a line is text, never markup' );
+
+		$heading = $xpath->query( ".//*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__benefits-heading ')]", $card );
+		$this->assertSame( 1, $heading->length );
+		$this->assertSame( 'How it works', trim( $heading->item( 0 )->textContent ) );
+		$this->assertSame( 0, $xpath->query( "//*[@data-subscrpt-card][.//input[@value='grp_2']]//ul[contains(@class,'subscrpt-buybox__benefits')]" )->length, 'another group shows none' );
+
+		$no_heading = $this->render( $this->with_storefront( [ 'benefits' => [ 'Only' ] ] ) );
+		$this->assertSame( 1, $no_heading->query( '//ul[contains(@class,"subscrpt-buybox__benefits")]' )->length );
+		$this->assertSame( 0, $no_heading->query( '//*[contains(@class,"subscrpt-buybox__benefits-heading")]' )->length );
+	}
+
+	public function test_tag_renders_as_ribbon_separate_from_badge() {
+		$xpath = $this->render( $this->with_storefront( [ 'tag' => 'Cancel anytime' ] ) );
+		$card  = $this->card( $xpath, 'grp_1' );
+
+		$ribbon = $xpath->query( ".//*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__ribbon ')]", $card );
+		$this->assertSame( 1, $ribbon->length );
+		$this->assertSame( 'Cancel anytime', trim( $ribbon->item( 0 )->textContent ) );
+
+		$badge = $xpath->query( ".//*[@data-subscrpt-badge]", $card );
+		$this->assertSame( 1, $badge->length, 'the discount badge is still there' );
+		$this->assertSame( 'Save 20%', trim( $badge->item( 0 )->textContent ) );
+		$this->assertNotSame( $ribbon->item( 0 ), $badge->item( 0 ) );
+	}
+
+	public function test_learn_more_link_or_panel() {
+		$link  = $this->render(
+			$this->with_storefront(
+				[
+					'learn_more' => [
+						'label' => 'Read the terms',
+						'url'   => 'https://example.com/terms',
+						'panel' => '',
+					],
+				]
+			)
+		);
+		$anchor = $link->query( '//a[contains(@class,"subscrpt-buybox__learn-more")]' );
+		$this->assertSame( 1, $anchor->length );
+		$this->assertSame( 'https://example.com/terms', $anchor->item( 0 )->getAttribute( 'href' ) );
+		$this->assertSame( 'Read the terms', trim( $anchor->item( 0 )->textContent ) );
+		$this->assertSame( 0, $link->query( '//button[@aria-expanded]' )->length );
+
+		$panel  = $this->render( $this->with_storefront( [ 'learn_more' => [ 'label' => '', 'url' => '', 'panel' => 'Billed on the day you join.' ] ] ) );
+		$button = $panel->query( '//button[@aria-expanded][@aria-controls]' );
+		$this->assertSame( 1, $button->length );
+		$this->assertSame( 'false', $button->item( 0 )->getAttribute( 'aria-expanded' ) );
+		$this->assertNotSame( '', trim( $button->item( 0 )->textContent ), 'an empty label falls back to a default' );
+
+		$region = $panel->query( '//*[@id="' . $button->item( 0 )->getAttribute( 'aria-controls' ) . '"]' );
+		$this->assertSame( 1, $region->length );
+		$this->assertTrue( $region->item( 0 )->hasAttribute( 'hidden' ), 'the panel starts closed' );
+		$this->assertStringContainsString( 'Billed on the day you join.', $region->item( 0 )->textContent );
+		$this->assertSame( 0, $panel->query( '//a[contains(@class,"subscrpt-buybox__learn-more")]' )->length );
+	}
+
+	public function test_storefront_values_are_escaped_on_output() {
+		$xpath = $this->render(
+			$this->with_storefront(
+				[
+					'tag'        => '"><script>alert(1)</script>',
+					'benefits'   => [ '<img src=x onerror=alert(1)>' ],
+					'learn_more' => [ 'label' => '<i>x</i>', 'url' => '"><script>alert(2)</script>', 'panel' => '' ],
+				]
+			)
+		);
+
+		$this->assertSame( 0, $xpath->query( '//script | //img | //i' )->length );
+	}
+
+	public function test_nothing_renders_when_empty() {
+		foreach ( [ null, [], [ 'benefits' => [], 'tag' => '', 'benefits_heading' => 'Orphan heading', 'learn_more' => [ 'label' => 'Orphan', 'url' => '', 'panel' => '' ] ] ] as $storefront ) {
+			$groups = $this->fixture_groups();
+			if ( null !== $storefront ) {
+				$groups[0]['storefront'] = $storefront;
+			}
+			$xpath = $this->render( $groups );
+
+			foreach ( [ 'benefits', 'benefits-heading', 'ribbon', 'learn-more', 'details' ] as $part ) {
+				$this->assertSame( 0, $xpath->query( $this->with_class( 'subscrpt-buybox__' . $part ) )->length, "no {$part} for an empty storefront" );
+			}
+		}
+	}
 }

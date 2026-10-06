@@ -73,4 +73,32 @@ class PlanStorefrontDataTest extends TestCase {
 		$this->assertSame( 'Cancel anytime', $merged['storefront']['tag'] );
 		$this->assertSame( 'chips', $merged['storefront']['intervals'], 'a field the form did not send is not erased' );
 	}
+
+	public function test_only_http_urls_and_relative_paths_are_kept() {
+		foreach ( [ 'ftp://example.com/x', 'data:text/html,x', 'javascript:alert(1)' ] as $bad ) {
+			$this->assertSame( '', PlanController::sanitize_storefront( [ 'learn_more' => [ 'url' => $bad ] ] )['learn_more']['url'], $bad );
+		}
+		$this->assertSame( '/terms/', PlanController::sanitize_storefront( [ 'learn_more' => [ 'url' => '/terms/' ] ] )['learn_more']['url'] );
+		$this->assertSame( 'http://example.com/a', PlanController::sanitize_storefront( [ 'learn_more' => [ 'url' => 'http://example.com/a' ] ] )['learn_more']['url'] );
+	}
+
+	public function test_merged_storefront_is_sanitised_again() {
+		$merged = PlanController::merge_storefront(
+			[ 'storefront' => [ 'intervals' => 'grid', 'evil' => 'x' ] ],
+			[ 'benefits' => [ 'One' ] ]
+		);
+
+		$this->assertSame( '', $merged['storefront']['intervals'], 'a stored value is cleaned too' );
+		$this->assertArrayNotHasKey( 'evil', $merged['storefront'] );
+		$this->assertSame( [ 'One' ], $merged['storefront']['benefits'] );
+	}
+
+	public function test_a_raw_data_storefront_is_sanitised() {
+		$clean = PlanController::sanitize_data_storefront( [ 'x' => 1, 'storefront' => [ 'tag' => '<b>T</b>', 'junk' => 1 ] ] );
+
+		$this->assertSame( 1, $clean['x'] );
+		$this->assertSame( 'T', $clean['storefront']['tag'] );
+		$this->assertArrayNotHasKey( 'junk', $clean['storefront'] );
+		$this->assertSame( [ 'x' => 1 ], PlanController::sanitize_data_storefront( [ 'x' => 1 ] ), 'no storefront, nothing added' );
+	}
 }

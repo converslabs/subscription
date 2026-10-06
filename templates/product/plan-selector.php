@@ -19,6 +19,10 @@
  * term has a badge, hidden while the selected term has none, so a term that is
  * discounted can still show its saving after starting from one that is not.
  *
+ * A group's `storefront` fields add a tag ribbon, a benefits list and a learn-more
+ * link or details panel. The link or button sits in the body, so using it does
+ * not select the card.
+ *
  * Override by copying to <your_theme>/subscription/product/plan-selector.php
  *
  * @var array       $groups  Plan groups (id, type, label, price, old_price, badge, terms_heading, terms[]).
@@ -71,8 +75,33 @@ if ( ! empty( $groups[0]['terms'] ) ) {
 			return wp_strip_all_tags( $regular ) === wp_strip_all_tags( $offer ) ? '' : $regular;
 		};
 		$first_regular = $has_terms ? $term_regular( $group['terms'][0] ) : '';
+
+		// What the merchant wrote for the card. Every value is escaped where it prints.
+		$storefront = isset( $group['storefront'] ) && is_array( $group['storefront'] ) ? $group['storefront'] : [];
+		$sf_text    = static function ( $value ): string {
+			return is_scalar( $value ) ? trim( (string) $value ) : '';
+		};
+		$sf_tag     = $sf_text( isset( $storefront['tag'] ) ? $storefront['tag'] : '' );
+		$sf_heading = $sf_text( isset( $storefront['benefits_heading'] ) ? $storefront['benefits_heading'] : '' );
+		$sf_lines   = [];
+		foreach ( isset( $storefront['benefits'] ) && is_array( $storefront['benefits'] ) ? $storefront['benefits'] : [] as $sf_line ) {
+			if ( '' !== $sf_text( $sf_line ) ) {
+				$sf_lines[] = $sf_text( $sf_line );
+			}
+		}
+		$sf_lines = array_slice( $sf_lines, 0, 5 );
+		$sf_learn = isset( $storefront['learn_more'] ) && is_array( $storefront['learn_more'] ) ? $storefront['learn_more'] : [];
+		$sf_url   = $sf_text( isset( $sf_learn['url'] ) ? $sf_learn['url'] : '' );
+		$sf_panel = $sf_text( isset( $sf_learn['panel'] ) ? $sf_learn['panel'] : '' );
+		$sf_label = $sf_text( isset( $sf_learn['label'] ) ? $sf_learn['label'] : '' );
+		if ( '' === $sf_label ) {
+			$sf_label = __( 'Learn more', 'subscription' );
+		}
 		?>
 		<div class="subscrpt-buybox__card<?php echo $is_first ? ' is-selected' : ''; ?>" data-subscrpt-card<?php echo 1 === $term_count ? ' data-subscrpt-single-term="' . esc_attr( $group['terms'][0]['id'] ) . '"' : ''; ?>>
+			<?php if ( '' !== $sf_tag ) : ?>
+				<span class="subscrpt-buybox__ribbon"><?php echo esc_html( $sf_tag ); ?></span>
+			<?php endif; ?>
 			<div class="subscrpt-buybox__head">
 				<input type="radio" class="subscrpt-buybox__radio" id="<?php echo esc_attr( $gid ); ?>" name="subscrpt_plan_group" value="<?php echo esc_attr( $group['id'] ); ?>"<?php echo $has_badge ? ' aria-describedby="' . esc_attr( $gid . '-badge' ) . '"' : ''; ?> <?php checked( $is_first ); ?> />
 				<label class="subscrpt-buybox__label subscrpt-buybox__title" for="<?php echo esc_attr( $gid ); ?>"><?php echo esc_html( $group['label'] ); ?></label>
@@ -117,7 +146,23 @@ if ( ! empty( $groups[0]['terms'] ) ) {
 					<?php endforeach; ?>
 				</fieldset>
 			<?php endif; ?>
+			<?php if ( ! empty( $sf_lines ) ) : ?>
+				<?php if ( '' !== $sf_heading ) : ?>
+					<p class="subscrpt-buybox__benefits-heading" id="<?php echo esc_attr( $gid . '-benefits' ); ?>"><?php echo esc_html( $sf_heading ); ?></p>
+				<?php endif; ?>
+				<ul class="subscrpt-buybox__benefits"<?php echo '' !== $sf_heading ? ' aria-labelledby="' . esc_attr( $gid . '-benefits' ) . '"' : ''; ?>>
+					<?php foreach ( $sf_lines as $sf_line ) : ?>
+						<li><?php echo esc_html( $sf_line ); ?></li>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
 			<div class="subscrpt-buybox__body" data-subscrpt-card-body>
+				<?php if ( '' !== $sf_url ) : ?>
+					<a class="subscrpt-buybox__learn-more" href="<?php echo esc_url( $sf_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $sf_label ); ?></a>
+				<?php elseif ( '' !== $sf_panel ) : ?>
+					<button type="button" class="subscrpt-buybox__learn-more" aria-expanded="false" aria-controls="<?php echo esc_attr( $gid . '-details' ); ?>" data-subscrpt-details-toggle><?php echo esc_html( $sf_label ); ?></button>
+					<div class="subscrpt-buybox__details" id="<?php echo esc_attr( $gid . '-details' ); ?>" hidden><?php echo esc_html( $sf_panel ); ?></div>
+				<?php endif; ?>
 				<?php
 				/**
 				 * Fires inside every purchase option card, after its terms.

@@ -114,6 +114,20 @@
     }
   });
 
+  // A card's details panel opens and closes from its button.
+  box.addEventListener("click", function (e) {
+    var toggle = e.target.closest("[data-subscrpt-details-toggle]");
+    if (!toggle) {
+      return;
+    }
+    var panel = document.getElementById(toggle.getAttribute("aria-controls"));
+    var open = toggle.getAttribute("aria-expanded") !== "true";
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    if (panel) {
+      panel.hidden = !open;
+    }
+  });
+
   // A click anywhere on a card selects it, except inside its body, which holds
   // controls of its own. A click on a term of an unselected card selects the
   // card first, which enables the term before the label checks it.

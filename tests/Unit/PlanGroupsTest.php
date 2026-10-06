@@ -294,4 +294,17 @@ class PlanGroupsTest extends TestCase {
 		$this->assertSame( '1 month · 3 payments', $terms[0]['interval_label'] );
 		$this->assertSame( '1 month · 1 payment', $terms[1]['interval_label'] );
 	}
+
+	public function test_storefront_fields_are_copied_onto_the_group_only_when_set() {
+		$with = $this->row( 1, 2, 11, [ 'regular_price' => '10' ] );
+
+		$with['group_data'] = [ 'storefront' => [ 'tag' => 'Cancel anytime', 'benefits' => [ 'A' ] ] ];
+		$plain              = $this->row( 2, 2, 21, [ 'regular_price' => '10' ] );
+
+		$groups = PlanGroups::from_rows( [ $with, $plain ], $this->product() );
+
+		$this->assertSame( 'Cancel anytime', $groups[0]['storefront']['tag'] );
+		$this->assertSame( [ 'A' ], $groups[0]['storefront']['benefits'] );
+		$this->assertArrayNotHasKey( 'storefront', $groups[1], 'a group without any adds no key' );
+	}
 }

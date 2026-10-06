@@ -55,7 +55,8 @@ class PlanGroups {
 	 *
 	 * One entry per plan group, each with its terms (id, label, interval_label, price,
 	 * regular_price, note, discount_percent, saving_label, badge) and the
-	 * `terms_heading` that introduces them, followed by the One-Time card when the product
+	 * `terms_heading` that introduces them, and the group's `storefront` fields (benefits_heading,
+	 * benefits, learn_more, tag) when it sets any, followed by the One-Time card when the product
 	 * offers one.
 	 *
 	 * @param array       $rows    Rows from `PlanRepository::resolve_for_product()`.
@@ -86,6 +87,12 @@ class PlanGroups {
 					'badge'            => '',
 					'discount_percent' => 0,
 				];
+
+				// Only a group that sets any carries the key, so a plain group is unchanged.
+				$storefront = isset( $row['group_data']['storefront'] ) ? $row['group_data']['storefront'] : [];
+				if ( is_array( $storefront ) && ! empty( $storefront ) ) {
+					$groups[ $gid ]['storefront'] = $storefront;
+				}
 			}
 
 			$price_num = self::term_price( $row, $type_key );
