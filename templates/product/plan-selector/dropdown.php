@@ -46,19 +46,8 @@ foreach ( $groups as $index => $group ) {
 		<div class="subscrpt-buybox__option<?php echo $view['is_first'] ? ' is-selected' : ''; ?>" data-subscrpt-card data-subscrpt-group="<?php echo esc_attr( $group['id'] ); ?>" data-subscrpt-only-selected<?php echo 1 === $view['term_count'] ? ' data-subscrpt-single-term="' . esc_attr( $group['terms'][0]['id'] ) . '"' : ''; ?><?php echo $view['is_first'] ? '' : ' hidden'; ?>>
 			<?php if ( '' !== $view['price'] || $view['has_badge'] || '' !== $view['tag'] ) : ?>
 				<div class="subscrpt-buybox__head">
-					<?php if ( '' !== $view['price'] ) : ?>
-						<span class="subscrpt-buybox__price">
-							<?php if ( $view['has_terms'] ) : ?>
-								<del data-subscrpt-card-regular<?php echo '' === $view['first_regular'] ? ' hidden' : ''; ?>><?php echo wp_kses_post( $view['first_regular'] ); ?></del>
-							<?php elseif ( ! empty( $group['old_price'] ) ) : ?>
-								<del><?php echo wp_kses_post( $group['old_price'] ); ?></del>
-							<?php endif; ?>
-							<ins data-subscrpt-card-price><?php echo wp_kses_post( $view['price'] ); ?></ins>
-						</span>
-					<?php endif; ?>
-					<?php if ( $view['has_badge'] ) : ?>
-						<span class="subscrpt-buybox__badge" data-subscrpt-badge<?php echo '' === $view['badge_text'] ? ' hidden' : ''; ?>><?php echo esc_html( $view['badge_text'] ); ?></span>
-					<?php endif; ?>
+					<?php wc_get_template( 'product/plan-selector/parts/price.php', [ 'group' => $group, 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
+					<?php wc_get_template( 'product/plan-selector/parts/badge.php', [ 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
 					<?php if ( '' !== $view['tag'] ) : ?>
 						<span class="subscrpt-buybox__ribbon"><?php echo esc_html( $view['tag'] ); ?></span>
 					<?php endif; ?>
