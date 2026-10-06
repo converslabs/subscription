@@ -176,6 +176,22 @@ class PlanGroupsTest extends TestCase {
 		$this->assertSame( $product, $received[1][3] );
 	}
 
+	public function test_term_filter_returning_a_non_array_keeps_the_term() {
+		add_filter(
+			'subscrpt_plan_term',
+			static function () {
+				return null;
+			}
+		);
+
+		$groups = PlanGroups::from_rows( [ $this->row( 1, 2, 11, [ 'regular_price' => '10' ] ) ], $this->product() );
+
+		$this->assertCount( 1, $groups );
+		$this->assertSame( 11, $groups[0]['terms'][0]['id'] );
+		$this->assertSame( 'Billed $10.00 / month', $groups[0]['terms'][0]['note'] );
+		$this->assertSame( '$10.00', $groups[0]['price'] );
+	}
+
 	public function test_groups_filter_receives_context() {
 		$GLOBALS['wp_post_meta'][10]['_subscrpt_one_time_enabled'] = 'yes';
 		$product = $this->product();
