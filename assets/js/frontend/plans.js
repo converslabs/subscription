@@ -106,12 +106,16 @@
 
   /**
    * Replace the cards, announcing it on the box so a node parked inside one
-   * (the box builder) can be moved out first and put back after.
+   * (the box builder) can be moved out first and put back after. Nothing
+   * happens, and nothing is announced, when the cards would not change.
    *
    * @param {string} html    Inner markup to show.
    * @param {string} context The `data-subscrpt-context` of that markup, or "".
    */
   function swap(html, context) {
+    if (html === box.innerHTML && (context || null) === box.getAttribute("data-subscrpt-context")) {
+      return;
+    }
     box.dispatchEvent(new CustomEvent("subscrpt_cards_before_swap", { bubbles: true }));
     box.innerHTML = html;
     if (context) {
