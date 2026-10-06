@@ -69,6 +69,33 @@ class PlanPresenter {
 			'edited'   => self::ago( $tree['updated_at'] ),
 			'terms'    => $terms,
 			'products' => self::products( $tree, $type_key ),
+			'storefront' => self::storefront( $tree ),
+		);
+	}
+
+	/**
+	 * The group's storefront fields (benefits, learn-more link, tag, intervals), with defaults.
+	 *
+	 * @param array $tree Group tree.
+	 *
+	 * @return array
+	 */
+	protected static function storefront( $tree ) {
+		$stored = isset( $tree['data']['storefront'] ) && is_array( $tree['data']['storefront'] ) ? $tree['data']['storefront'] : array();
+
+		return array_replace_recursive(
+			array(
+				'benefits_heading' => '',
+				'benefits'         => array(),
+				'learn_more'       => array(
+					'label' => '',
+					'url'   => '',
+					'panel' => '',
+				),
+				'tag'              => '',
+				'intervals'        => '',
+			),
+			$stored
 		);
 	}
 

@@ -1,8 +1,8 @@
 /**
  * Storefront plan selector styles — base (free).
  *
- * A radio card per plan group; the group's terms render as pill buttons with a
- * billing note beneath. This is the shared base used by both plugins: Pro reuses
+ * A radio card per plan group; the group's terms render as pills (a radio group)
+ * with a billing note above them. This is the shared base used by both plugins: Pro reuses
  * this stylesheet and layers a small discount-badge overlay on top of it.
  *
  * Override-friendly: tunable values are CSS custom properties on `.subscrpt-buybox`,
@@ -10,12 +10,14 @@
  */
 
 .subscrpt-buybox {
-  --subscrpt-line: #e2e4e7;
+  --subscrpt-line: var(--subscrpt-border, #e2e4e7);
   --subscrpt-accent: #2271b1;
+  --subscrpt-accent-ink: #fff;
   --subscrpt-muted: #6a6f76;
   --subscrpt-surface: #fff;
-  --subscrpt-selected-bg: #f7fbff;
+  --subscrpt-selected-bg: #e8f1fa;
   --subscrpt-radius: 10px;
+  color: var(--subscrpt-ink, inherit);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -48,11 +50,9 @@
   background: var(--subscrpt-selected-bg);
 }
 
-/* Show focus on the whole card instead of the default square outline on the
-   radio (removed below) — keeps keyboard focus visible without the box. */
-.subscrpt-buybox__card:focus-within {
-  border-color: var(--subscrpt-accent);
-  box-shadow: 0 0 0 1px var(--subscrpt-accent);
+/* The selected card is filled; the others are outlined on the plain surface. */
+.subscrpt-buybox__card:not(.is-selected) {
+  background: transparent;
 }
 
 /* Radio + control on one centered row so they line up. */
@@ -70,12 +70,25 @@
   accent-color: var(--subscrpt-accent);
 }
 
-.subscrpt-buybox__radio:focus {
+/* Keyboard focus gets a ring; a mouse click does not. */
+.subscrpt-buybox__radio:focus:not(:focus-visible) {
   outline: none;
   box-shadow: none;
 }
 
+.subscrpt-buybox__radio:focus-visible {
+  outline: 2px solid var(--subscrpt-accent);
+  outline-offset: 2px;
+}
+
+/* A `<label for>` beside the radio. Themes space a label that follows a radio
+   (`input[type=radio] + label`), so the reset needs the parent class. */
+.subscrpt-buybox__head .subscrpt-buybox__label {
+  margin: 0;
+}
+
 .subscrpt-buybox__label {
+  cursor: pointer;
   font-weight: 600;
   font-size: 16px;
 }
@@ -85,6 +98,10 @@
   margin-left: auto;
   white-space: nowrap;
   font-size: 16px;
+}
+
+.subscrpt-buybox__price del[hidden] {
+  display: none;
 }
 
 .subscrpt-buybox__price del {
@@ -99,17 +116,45 @@
   text-decoration: none;
 }
 
-/* Term options as pill buttons, aligned under the head (past the radio). */
+/* The terms' heading ("Deliver every"), the fieldset's legend. */
+.subscrpt-buybox__terms-heading {
+  flex: 0 0 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--subscrpt-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.subscrpt-buybox__term-saving {
+  font-weight: 600;
+}
+
+/* Term options as pills, aligned under the head (past the radio). A fieldset
+   of radios, each hidden behind the `<label>` that draws its pill. */
 .subscrpt-buybox__terms {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 10px;
-  padding-left: 28px;
+  min-width: 0;
+  margin: 10px 0 0;
+  padding: 0 0 0 28px;
+  border: 0;
+  background: none;
+}
+
+.subscrpt-buybox__terms .subscrpt-buybox__term {
+  margin: 0;
 }
 
 .subscrpt-buybox__term {
+  display: block;
   flex: 1 1 0;
+  margin: 0;
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
@@ -138,16 +183,16 @@
   outline: none;
 }
 
+.subscrpt-buybox__term-radio:focus-visible + .subscrpt-buybox__term,
 .subscrpt-buybox__term:focus-visible {
-  outline: none;
-  border-color: var(--subscrpt-accent);
-  box-shadow: 0 0 0 2px rgba(34, 113, 177, 0.25);
+  outline: 2px solid var(--subscrpt-accent);
+  outline-offset: 2px;
 }
 
 .subscrpt-buybox__term.is-active {
   border-color: var(--subscrpt-accent);
   background: var(--subscrpt-accent);
-  color: #fff;
+  color: var(--subscrpt-accent-ink);
   font-weight: 600;
 }
 
@@ -197,8 +242,8 @@
 
 /* Discount badge — the card is already position: relative above. */
 .subscrpt-buybox {
-  --subscrpt-badge-bg: var(--subscrpt-accent);
-  --subscrpt-badge-text: #fff;
+  --subscrpt-badge-bg: var(--subscrpt-badge, var(--subscrpt-accent));
+  --subscrpt-badge-text: var(--subscrpt-accent-ink);
 }
 
 /* Empty while the selected term is not discounted — the slot stays in the DOM
@@ -220,4 +265,409 @@
   font-weight: 600;
   line-height: 1.5;
   white-space: nowrap;
+}
+
+/* The merchant's tag, top-left so it never meets the discount badge on the right. */
+.subscrpt-buybox__ribbon {
+  position: absolute;
+  top: -12px;
+  left: 14px;
+  z-index: 1;
+  padding: 3px 11px;
+  border-radius: 4px;
+  background: var(--subscrpt-ribbon, #1d2327);
+  color: var(--subscrpt-surface, #fff);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.subscrpt-buybox__benefits-heading {
+  margin: 4px 0 0;
+  padding-left: 28px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.subscrpt-buybox__benefits {
+  margin: 4px 0 0;
+  padding: 0 0 0 28px;
+  list-style: none;
+  color: var(--subscrpt-muted);
+  font-size: 13px;
+}
+
+.subscrpt-buybox__benefits li {
+  position: relative;
+  margin: 2px 0;
+  padding-left: 18px;
+}
+
+.subscrpt-buybox__benefits li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--subscrpt-accent);
+  font-weight: 700;
+}
+
+.subscrpt-buybox .subscrpt-buybox__learn-more {
+  display: inline-block;
+  margin: 6px 0 0 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--subscrpt-accent);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.subscrpt-buybox .subscrpt-buybox__learn-more:hover {
+  background: none;
+  color: var(--subscrpt-accent);
+  text-decoration: none;
+}
+
+.subscrpt-buybox .subscrpt-buybox__learn-more:focus-visible {
+  outline: 2px solid var(--subscrpt-accent);
+  outline-offset: 2px;
+}
+
+.subscrpt-buybox__details {
+  margin: 6px 0 0 28px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--subscrpt-surface);
+  border: 1px solid var(--subscrpt-line);
+  color: var(--subscrpt-muted);
+  font-size: 13px;
+}
+
+.subscrpt-buybox__details[hidden] {
+  display: none;
+}
+
+/* The card body holds controls of its own; a click there does not select. */
+.subscrpt-buybox__body {
+  cursor: auto;
+}
+
+/* Read by screen readers, not drawn: the terms' legend, the saving in a term's
+   name, and the term radios behind their pills. */
+.subscrpt-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Intervals as a dropdown: the heading labels the select, under the note. */
+.subscrpt-buybox__terms--select {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+
+.subscrpt-buybox__term-select,
+.subscrpt-buybox__select {
+  width: 100%;
+  max-width: 100%;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--subscrpt-line);
+  border-radius: 6px;
+  background-color: var(--subscrpt-surface);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+}
+
+.subscrpt-buybox__term-select:focus-visible,
+.subscrpt-buybox__select:focus-visible {
+  outline: 2px solid var(--subscrpt-accent);
+  outline-offset: 2px;
+}
+
+/* Classic layout: a plain radio list, a row per option, the price on the right. */
+.subscrpt-buybox__list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--subscrpt-line);
+  border-radius: var(--subscrpt-radius);
+  background: var(--subscrpt-surface);
+}
+
+.subscrpt-buybox__row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.subscrpt-buybox__row + .subscrpt-buybox__row {
+  border-top: 1px solid var(--subscrpt-line);
+}
+
+.subscrpt-buybox__row .subscrpt-buybox__label {
+  font-size: 15px;
+}
+
+.subscrpt-buybox__row:not(.is-selected) .subscrpt-buybox__label {
+  font-weight: 500;
+}
+
+/* Only the selected row shows its interval choice. */
+.subscrpt-buybox__row:not(.is-selected) .subscrpt-buybox__terms {
+  display: none;
+}
+
+.subscrpt-buybox__row .subscrpt-buybox__terms {
+  margin-top: 8px;
+}
+
+/* In a row or a dropdown panel the badge and tag sit in the line, not on an edge. */
+.subscrpt-buybox__row .subscrpt-buybox__badge,
+.subscrpt-buybox__row .subscrpt-buybox__ribbon,
+.subscrpt-buybox__option .subscrpt-buybox__badge,
+.subscrpt-buybox__option .subscrpt-buybox__ribbon {
+  position: static;
+}
+
+/* Compact dropdown: one select for the option, the chosen option's details under it. */
+.subscrpt-buybox__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subscrpt-buybox__field-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.subscrpt-buybox__option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subscrpt-buybox__option[hidden] {
+  display: none;
+}
+
+.subscrpt-buybox__option .subscrpt-buybox__head {
+  flex-wrap: wrap;
+}
+
+.subscrpt-buybox__option .subscrpt-buybox__price {
+  margin-left: 0;
+}
+
+.subscrpt-buybox__option .subscrpt-buybox__note,
+.subscrpt-buybox__option .subscrpt-buybox__terms {
+  padding-left: 0;
+}
+
+/* A body rendered below the options, shown for the selected one only. */
+.subscrpt-buybox__body[data-subscrpt-body-for] .subscrpt-buybox__benefits-heading,
+.subscrpt-buybox__body[data-subscrpt-body-for] .subscrpt-buybox__benefits,
+.subscrpt-buybox__body[data-subscrpt-body-for] .subscrpt-buybox__learn-more,
+.subscrpt-buybox__body[data-subscrpt-body-for] .subscrpt-buybox__details {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.subscrpt-buybox__body[hidden] {
+  display: none;
+}
+
+/* Accordion: cards collapsed to one line; the selected one opens its panel. */
+.subscrpt-buybox[data-subscrpt-layout="accordion"] {
+  gap: 8px;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="accordion"] .subscrpt-buybox__card {
+  padding: 12px 16px;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="accordion"] .subscrpt-buybox__head {
+  flex-wrap: wrap;
+  row-gap: 4px;
+  padding-right: 22px;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="accordion"] .subscrpt-buybox__badge,
+.subscrpt-buybox[data-subscrpt-layout="accordion"] .subscrpt-buybox__ribbon {
+  position: static;
+}
+
+/* A chevron at the card's top right, turned while the card is open. */
+.subscrpt-buybox[data-subscrpt-layout="accordion"] .subscrpt-buybox__head::after {
+  content: "";
+  position: absolute;
+  top: 19px;
+  right: 18px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--subscrpt-muted);
+  border-bottom: 2px solid var(--subscrpt-muted);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="accordion"] .subscrpt-buybox__card.is-selected .subscrpt-buybox__head::after {
+  top: 23px;
+  transform: rotate(-135deg);
+}
+
+.subscrpt-buybox__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+}
+
+.subscrpt-buybox__panel[hidden] {
+  display: none;
+}
+
+/* Grid, and grid with savings: equal-width tiles side by side, stacked when narrow. */
+.subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tiles,
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tile,
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tile {
+  gap: 4px;
+  padding: 16px 14px 14px;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tile .subscrpt-buybox__price,
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tile .subscrpt-buybox__price {
+  margin: 4px 0 0;
+  font-size: 18px;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tile .subscrpt-buybox__note,
+.subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tile .subscrpt-buybox__terms,
+.subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tile .subscrpt-buybox__benefits-heading,
+.subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tile .subscrpt-buybox__benefits,
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tile .subscrpt-buybox__note,
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tile .subscrpt-buybox__terms,
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tile .subscrpt-buybox__benefits-heading,
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tile .subscrpt-buybox__benefits {
+  padding-left: 0;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tile .subscrpt-buybox__learn-more,
+.subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tile .subscrpt-buybox__details,
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tile .subscrpt-buybox__learn-more,
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tile .subscrpt-buybox__details {
+  margin-left: 0;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tile .subscrpt-buybox__term,
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tile .subscrpt-buybox__term {
+  flex: 1 1 auto;
+  padding: 6px 10px;
+}
+
+/* Grid with savings: every tile keeps the band, so the tiles line up. */
+.subscrpt-buybox__lead {
+  min-height: 24px;
+  margin-bottom: 4px;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__lead .subscrpt-buybox__badge {
+  position: static;
+  display: inline-block;
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .subscrpt-buybox[data-subscrpt-layout="grid"] .subscrpt-buybox__tiles,
+  .subscrpt-buybox[data-subscrpt-layout="grid_savings"] .subscrpt-buybox__tiles {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stacked, the tiles need no band to line up. */
+  .subscrpt-buybox__lead {
+    min-height: 0;
+  }
+}
+
+/* Buttons: a segmented row picks the option; its details sit under the row. */
+.subscrpt-buybox[data-subscrpt-layout="buttons"] .subscrpt-buybox__segments {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="buttons"] .subscrpt-buybox__segments legend {
+  margin: 0 0 4px;
+  padding: 0;
+  background: none;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="buttons"] .subscrpt-buybox__segment-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--subscrpt-line);
+  border-radius: var(--subscrpt-radius);
+  background: #f6f7f7;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="buttons"] .subscrpt-buybox__segment {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: calc(var(--subscrpt-radius) - 3px);
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.subscrpt-buybox[data-subscrpt-layout="buttons"] .subscrpt-buybox__segment:hover {
+  background: var(--subscrpt-selected-bg);
+}
+
+.subscrpt-buybox[data-subscrpt-layout="buttons"] .subscrpt-buybox__segment-radio:checked + .subscrpt-buybox__segment {
+  background: var(--subscrpt-accent);
+  color: var(--subscrpt-accent-ink);
+}
+
+.subscrpt-buybox[data-subscrpt-layout="buttons"]
+  .subscrpt-buybox__segment-radio:focus-visible
+  + .subscrpt-buybox__segment {
+  outline: 2px solid var(--subscrpt-accent);
+  outline-offset: 2px;
 }

@@ -145,6 +145,64 @@
   }
 
   /* ------------------------------------------------------------------ *
+   * Plan group: the "On the product page" tab.
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Read the storefront fields off the tab into the REST shape.
+   *
+   * @param {Element} root The tab's wrapper.
+   * @return {Object} The `storefront` payload.
+   */
+  function storefrontPayload(root) {
+    function field(name) {
+      var el = root.querySelector('[data-subscrpt-sf="' + name + '"]');
+      return el ? el.value : "";
+    }
+
+    return {
+      tag: field("tag"),
+      benefits_heading: field("benefits_heading"),
+      benefits: Array.prototype.map.call(root.querySelectorAll("[data-subscrpt-sf-benefit]"), function (input) {
+        return input.value;
+      }),
+      learn_more: {
+        label: field("learn_label"),
+        url: field("learn_url"),
+        panel: field("learn_panel"),
+      },
+      intervals: field("intervals"),
+    };
+  }
+
+  document.addEventListener("click", function (e) {
+    var button = e.target.closest("[data-subscrpt-sf-save]");
+    if (!button) {
+      return;
+    }
+    e.preventDefault();
+
+    var root = button.closest("[data-subscrpt-storefront]");
+    var host = button.closest("[data-plan-id]");
+    if (!root || !host) {
+      return;
+    }
+
+    setLoading(button, true);
+
+    api("PUT", "/groups/" + host.getAttribute("data-plan-id"), { storefront: storefrontPayload(root) })
+      .then(function () {
+        save.notify(i18n.saved);
+      })
+      .catch(function (err) {
+        save.notify(err.message || i18n.genericError, "error");
+      })
+      .then(function () {
+        setLoading(button, false);
+      });
+  });
+
+  /* ------------------------------------------------------------------ *
    * Plan group: inline rename of the detail page title.
    * ------------------------------------------------------------------ */
 
@@ -580,6 +638,166 @@
   }
 
   /* ------------------------------------------------------------------ *
+   * Products tab: bulk-set one price across products x durations.
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Reflect a variable product's variations in its parent control checkbox:
+   * on when all are ticked, indeterminate when some are.
+   *
+   * @param {HTMLElement} group The [data-subscrpt-bulk-group] wrapper.
+   */
+  function syncBulkParent(group) {
+    var parent = group && group.querySelector("[data-subscrpt-bulk-parent]");
+    if (!parent) {
+      return;
+    }
+    var kids = group.querySelectorAll("[data-subscrpt-bulk-product]");
+    var checked = 0;
+    kids.forEach(function (cb) {
+      if (cb.checked) {
+        checked += 1;
+      }
+    });
+    parent.checked = kids.length > 0 && checked === kids.length;
+    parent.indeterminate = checked > 0 && checked < kids.length;
+  }
+
+  /**
+   * Update the "N selected" tally beside each column header.
+   *
+   * @param {HTMLElement} modal The bulk-price modal.
+   */
+  function syncBulkCounts(modal) {
+    [
+      ["term", "[data-subscrpt-bulk-term]"],
+      ["product", "[data-subscrpt-bulk-product]"],
+    ].forEach(function (pair) {
+      var out = modal.querySelector('[data-subscrpt-bulk-count="' + pair[0] + '"]');
+      if (!out) {
+        return;
+      }
+      var n = modal.querySelectorAll(pair[1] + ":checked").length;
+      out.textContent = n ? (i18n.bulkSelected || "%d selected").replace("%d", n) : "";
+    });
+  }
+
+  // Any change inside the modal refreshes the per-column tallies.
+  document.addEventListener("change", function (e) {
+    var modal = e.target.closest("[data-subscrpt-bulk-price]");
+    if (modal) {
+      syncBulkCounts(modal);
+    }
+  });
+
+  // A column's "All" checkbox ticks/unticks every row in that column.
+  document.addEventListener("change", function (e) {
+    var all = e.target.closest("[data-subscrpt-bulk-toggle-all]");
+    var modal = all && all.closest("[data-subscrpt-bulk-price]");
+    if (!modal) {
+      return;
+    }
+    var col = all.getAttribute("data-subscrpt-bulk-toggle-all");
+    var sel = "product" === col ? "[data-subscrpt-bulk-product]" : "[data-subscrpt-bulk-term]";
+    modal.querySelectorAll(sel).forEach(function (cb) {
+      if (!cb.disabled) {
+        cb.checked = all.checked;
+      }
+    });
+    if ("product" === col) {
+      modal.querySelectorAll("[data-subscrpt-bulk-parent]").forEach(function (parent) {
+        parent.checked = all.checked;
+        parent.indeterminate = false;
+      });
+    }
+  });
+
+  // A variable product's parent control ticks/unticks all its variations.
+  document.addEventListener("change", function (e) {
+    var parent = e.target.closest("[data-subscrpt-bulk-parent]");
+    var group = parent && parent.closest("[data-subscrpt-bulk-group]");
+    if (!group || !parent.closest("[data-subscrpt-bulk-price]")) {
+      return;
+    }
+    group.querySelectorAll("[data-subscrpt-bulk-product]").forEach(function (cb) {
+      if (!cb.disabled) {
+        cb.checked = parent.checked;
+      }
+    });
+    parent.indeterminate = false;
+  });
+
+  // A variation tick keeps its parent control in sync.
+  document.addEventListener("change", function (e) {
+    var child = e.target.closest("[data-subscrpt-bulk-product]");
+    var group = child && child.closest("[data-subscrpt-bulk-group]");
+    if (!group || !child.closest("[data-subscrpt-bulk-price]")) {
+      return;
+    }
+    syncBulkParent(group);
+  });
+
+  // Apply the entered price to every selected product on every selected duration.
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-subscrpt-bulk-apply]");
+    var modal = btn && btn.closest("[data-subscrpt-bulk-price]");
+    if (!modal) {
+      return;
+    }
+
+    var regInput = modal.querySelector("[data-subscrpt-bulk-regular]");
+    var saleInput = modal.querySelector("[data-subscrpt-bulk-sale]");
+    var regular = regInput ? regInput.value.trim() : "";
+    if ("" === regular) {
+      save.notify(i18n.bulkNoPrice || i18n.genericError, "error");
+      return;
+    }
+
+    var products = Array.prototype.map.call(
+      modal.querySelectorAll("[data-subscrpt-bulk-product]:checked"),
+      function (cb) {
+        return { oid: cb.getAttribute("data-oid"), vid: cb.getAttribute("data-vid") || 0 };
+      },
+    );
+    if (!products.length) {
+      save.notify(i18n.bulkNoProducts || i18n.genericError, "error");
+      return;
+    }
+
+    var planIds = Array.prototype.map.call(modal.querySelectorAll("[data-subscrpt-bulk-term]:checked"), function (cb) {
+      return cb.value;
+    });
+    if (!planIds.length) {
+      save.notify(i18n.bulkNoTerms || i18n.genericError, "error");
+      return;
+    }
+
+    setLoading(btn, true);
+    api("POST", "/bulk-price", {
+      plan_ids: planIds,
+      products: products,
+      regular_price: regular,
+      sale_price: saleInput ? saleInput.value.trim() : "",
+    })
+      .then(function () {
+        // Close before the panel refresh replaces (and orphans) the modal —
+        // otherwise its body-scroll lock is never released.
+        if (window.WPSubsModal && window.WPSubsModal.close) {
+          window.WPSubsModal.close("subscrpt-bulk-price");
+        }
+        return refreshProducts(currentGroupId());
+      })
+      .then(function () {
+        setLoading(btn, false);
+        save.notify(i18n.bulkApplied || i18n.pricesSaved);
+      })
+      .catch(function (err) {
+        setLoading(btn, false);
+        save.notify(err.message || i18n.genericError, "error");
+      });
+  });
+
+  /* ------------------------------------------------------------------ *
    * Products tab (Pro): bulk-add products to the plan group.
    * ------------------------------------------------------------------ */
 
@@ -785,6 +1003,7 @@
           list.lastElementChild.style.borderBottom = "none";
         }
         syncPickerCount(modal);
+        syncSelectAll(modal);
       })
       .catch(function () {
         list.innerHTML =
@@ -816,13 +1035,71 @@
     out.textContent = n ? (i18n.picked || "%d on this plan").replace("%d", n) : i18n.pickedNone || "";
   }
 
-  // Any tick in the picker updates the tally.
+  /**
+   * The picker's attachable, non-locked checkboxes — what select-all acts on.
+   * Rows locked to another plan are disabled and left out.
+   *
+   * @param {HTMLElement} modal The add-product modal.
+   * @return {HTMLElement[]} Enabled row checkboxes.
+   */
+  function selectableBoxes(modal) {
+    var boxes = modal.querySelectorAll("[data-subscrpt-product-list] input[data-oid]");
+    return Array.prototype.filter.call(boxes, function (box) {
+      return !box.disabled;
+    });
+  }
+
+  /**
+   * Reflect the rows in the select-all checkbox: on when all are ticked,
+   * indeterminate when some are, off when none (disabled when nothing to pick).
+   *
+   * @param {HTMLElement} modal The add-product modal.
+   */
+  function syncSelectAll(modal) {
+    var toggle = modal && modal.querySelector("[data-subscrpt-picker-all]");
+    if (!toggle) {
+      return;
+    }
+    var boxes = selectableBoxes(modal);
+    var checked = boxes.filter(function (box) {
+      return box.checked;
+    }).length;
+    toggle.disabled = 0 === boxes.length;
+    toggle.checked = boxes.length > 0 && checked === boxes.length;
+    toggle.indeterminate = checked > 0 && checked < boxes.length;
+  }
+
+  // Any tick in the picker updates the tally and the select-all state.
   document.addEventListener("change", function (e) {
     var box = e.target.closest("[data-subscrpt-product-list] input[type=checkbox]");
     var modal = box && box.closest("[data-subscrpt-add-product]");
     if (modal) {
       syncPickerCount(modal);
+      syncSelectAll(modal);
     }
+  });
+
+  // Select-all ticks/unticks every enabled row. Select-all makes the picker
+  // uniform, so parent controls and children all take the same state directly —
+  // no synthetic change events (which would re-enter syncSelectAll mid-loop).
+  document.addEventListener("change", function (e) {
+    var toggle = e.target.closest("[data-subscrpt-picker-all]");
+    var modal = toggle && toggle.closest("[data-subscrpt-add-product]");
+    if (!modal) {
+      return;
+    }
+    var checked = toggle.checked;
+    var boxes = modal.querySelectorAll("[data-subscrpt-product-list] input[type=checkbox]");
+    Array.prototype.forEach.call(boxes, function (box) {
+      if (box.disabled) {
+        return;
+      }
+      box.checked = checked;
+      box.indeterminate = false;
+    });
+    toggle.checked = checked;
+    toggle.indeterminate = false;
+    syncPickerCount(modal);
   });
 
   // Load the picker when the modal opens (pre-checking attached products).

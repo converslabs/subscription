@@ -3,13 +3,17 @@
  * Storefront plan selector (free).
  *
  * Renders the plan selector — a radio card per plan group, with the group's
- * terms as buttons — on a simple product tied to a plan, and carries the chosen
- * plan-term id onto the add-to-cart request. Guarded by `subscrpt_plan_offered()`:
+ * terms as a radio group — on a product tied to a plan, and carries the chosen
+ * plan-term id onto the add-to-cart request. A variable product gets an empty
+ * container; each variation's selector is rendered on the server into its
+ * `woocommerce_available_variation` data and swapped in by plans.js. Guarded by `subscrpt_plan_offered()`:
  * with no tied plan this class does nothing and the classic price suffix stands.
  *
- * Runs only when Pro is inactive (see Frontend::__construct). Pro ships a superset
- * on the same hooks — One-Time card, discount badges, variable products and the
- * Subscribe & Save / Installments plan types.
+ * The single source of the purchase options, with or without Pro; Pro may add
+ * to them through the `subscrpt_plan_term` and `subscrpt_plan_selector_groups`
+ * filters. Two things depend on Pro: a variable product's options render only
+ * with it, since free's checkout cannot sell a variation's plan, and the plan
+ * price HTML is free's only without it, since Pro rewrites the same price.
  *
  * The storefront never calls REST; plan data is read directly through
  * `PlanRepository::resolve_for_product()` (object cache → DB).
@@ -23,7 +27,7 @@ use SpringDevs\Subscription\Admin\PlanPresenter;
 use SpringDevs\Subscription\Illuminate\Plans\PlanRepository;
 
 /**
- * Frontend plan selector for simple products.
+ * Frontend plan selector for simple and variable products.
  */
 class Plans {
 
@@ -32,9 +36,13 @@ class Plans {
 	 */
 	public function __construct() {
 		// Runs after Frontend\Product::change_price_html (priority 10) so the plan
-		// price replaces the classic suffix rather than appending to it.
-		add_filter( 'woocommerce_get_price_html', array( $this, 'plan_price_html' ), 20, 2 );
+		// price replaces the classic suffix rather than appending to it. Pro filters
+		// the same price at the same priority, so with Pro it is Pro's alone.
+		if ( ! subscrpt_pro_activated() ) {
+			add_filter( 'woocommerce_get_price_html', array( $this, 'plan_price_html' ), 20, 2 );
+		}
 		add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'render_selector' ) );
+		add_filter( 'woocommerce_available_variation', array( __CLASS__, 'push_variation_html' ), 10, 3 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
@@ -48,16 +56,26 @@ class Plans {
 	}
 
 	/**
-	 * Whether a simple product offers a subscription: tied to a plan AND
-	 * subscription-enabled. Free is simple-only.
+	 * Whether a simple or variable product offers a subscription: tied to a plan
+	 * AND subscription-enabled (for a variable product, on any variation).
+	 *
+	 * A variable product counts only with Pro active: free's checkout cannot sell
+	 * a variation's plan, even when relations are left over from Pro.
 	 *
 	 * @param mixed $product Product object.
 	 *
 	 * @return bool
 	 */
-	private function product_has_plans( $product ) {
-		return $product instanceof \WC_Product
-			&& $product->is_type( 'simple' )
+	public static function product_has_plans( $product ) {
+		if ( ! $product instanceof \WC_Product ) {
+			return false;
+		}
+
+		if ( $product->is_type( 'variable' ) && ! subscrpt_pro_activated() ) {
+			return false;
+		}
+
+		return $product->is_type( array( 'simple', 'variable' ) )
 			&& subscrpt_plan_offered( $product->get_id() );
 	}
 
@@ -73,7 +91,7 @@ class Plans {
 
 		// global $product is not set yet at wp_enqueue_scripts; resolve from the query.
 		$product = wc_get_product( get_queried_object_id() );
-		if ( ! $this->product_has_plans( $product ) ) {
+		if ( ! self::product_has_plans( $product ) ) {
 			return;
 		}
 
@@ -87,7 +105,7 @@ class Plans {
 		wp_enqueue_script(
 			'subscrpt_plans_selector_js',
 			SUBSCRPT_ASSETS . '/js/frontend/plans.js',
-			array(),
+			array( 'jquery' ),
 			SUBSCRPT_VERSION,
 			true
 		);
@@ -107,7 +125,8 @@ class Plans {
 	 * @return string
 	 */
 	public function plan_price_html( $price_html, $product ) {
-		if ( ! $this->product_has_plans( $product ) ) {
+		// A variable product's price stays WooCommerce's own range.
+		if ( ! self::product_has_plans( $product ) || ! $product->is_type( 'simple' ) ) {
 			return $price_html;
 		}
 
@@ -154,7 +173,15 @@ class Plans {
 		}
 
 		global $product;
-		if ( ! $this->product_has_plans( $product ) ) {
+		if ( ! self::product_has_plans( $product ) ) {
+			return;
+		}
+
+		// Filled by plans.js from the chosen variation's `subscrpt_plans_html`.
+		if ( $product->is_type( 'variable' ) ) {
+			echo '<div class="subscrpt-buybox" data-subscrpt-buybox data-subscrpt-variable="1" data-subscrpt-layout="' . esc_attr( self::layout_for( $product ) ) . '">';
+			echo '<p class="subscrpt-buybox__placeholder">' . esc_html__( 'Select options to see available plans.', 'subscription' ) . '</p>';
+			echo '</div>';
 			return;
 		}
 
@@ -163,106 +190,128 @@ class Plans {
 			return;
 		}
 
-		wc_get_template(
+		echo self::selector_html( $groups, $product ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the template.
+	}
+
+	/**
+	 * The plan selector markup for a set of groups.
+	 *
+	 * @param array       $groups  Groups from `PlanGroups`.
+	 * @param \WC_Product $product Product, or the variation on the variation path.
+	 * @param string      $context Where the selector renders: 'page' or 'variation'.
+	 *
+	 * @return string
+	 */
+	public static function selector_html( array $groups, \WC_Product $product, string $context = 'page' ): string {
+		return wc_get_template_html(
 			'product/plan-selector.php',
-			array( 'groups' => $groups ),
+			array(
+				'groups'  => $groups,
+				'product' => $product,
+				'context' => $context,
+			),
 			'subscription',
 			SUBSCRPT_TEMPLATES
 		);
 	}
 
 	/**
-	 * Build the selector groups for a simple product from resolved plan data.
+	 * The purchase option layouts: key => partial, relative to the templates
+	 * directory and overridable from a theme's `subscription/` like any template.
 	 *
-	 * One entry per plan group, each with its terms (id, label, price, note)
-	 * and a discount badge when its offer price beats the regular one, followed
-	 * by the One-Time card when the merchant offers one.
+	 * @return array
+	 */
+	public static function layouts(): array {
+		$defaults = [
+			'stacked'      => 'product/plan-selector/stacked.php',
+			'classic'      => 'product/plan-selector/classic.php',
+			'dropdown'     => 'product/plan-selector/dropdown.php',
+			'accordion'    => 'product/plan-selector/accordion.php',
+			'grid'         => 'product/plan-selector/grid.php',
+			'grid_savings' => 'product/plan-selector/grid_savings.php',
+			'buttons'      => 'product/plan-selector/buttons.php',
+		];
+
+		/**
+		 * Filters the purchase option layouts a product page can use.
+		 *
+		 * `stacked` is the fallback for any layout not in the list, so it is
+		 * always kept.
+		 *
+		 * @param array $layouts Layout key => template path, relative to the plugin's
+		 *                       `templates/` and overridable from the theme.
+		 */
+		$layouts = apply_filters( 'subscrpt_plan_selector_layouts', $defaults );
+		$layouts = is_array( $layouts ) ? array_filter( $layouts, 'is_string' ) : [];
+
+		return array_merge( [ 'stacked' => $defaults['stacked'] ], $layouts );
+	}
+
+	/**
+	 * The layout a product's purchase options render in — the one place it is
+	 * decided: the product's own choice, else the store's, else stacked. A value
+	 * that names no known layout is skipped, so a stale override falls back to
+	 * the store's layout.
+	 *
+	 * @param \WC_Product $product Product, or a variation (its parent decides).
+	 * @param array|null  $layouts `layouts()`, when the caller already has it.
+	 *
+	 * @return string
+	 */
+	public static function layout_for( \WC_Product $product, ?array $layouts = null ): string {
+		$layouts = null === $layouts ? self::layouts() : $layouts;
+		$id      = $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id();
+
+		foreach ( [ get_post_meta( $id, '_subscrpt_plan_selector_layout', true ), get_option( 'subscrpt_plan_selector_layout', '' ) ] as $layout ) {
+			if ( is_string( $layout ) && '' !== $layout && array_key_exists( $layout, $layouts ) ) {
+				return $layout;
+			}
+		}
+
+		return 'stacked';
+	}
+
+	/**
+	 * Add a variation's rendered plan selector to its variation data.
+	 *
+	 * Never gated on `is_product()`: above WooCommerce's variation threshold the
+	 * data loads over `wc-ajax=get_variation`, where it is false.
+	 *
+	 * @param array                 $data           Variation data passed to JS.
+	 * @param \WC_Product           $parent_product Variable product.
+	 * @param \WC_Product_Variation $variation      Variation.
+	 *
+	 * @return array
+	 */
+	public static function push_variation_html( $data, $parent_product, $variation ) {
+		if ( ! $variation instanceof \WC_Product ) {
+			return $data;
+		}
+
+		// No container on the page to swap the cards into.
+		if ( ! self::product_has_plans( $parent_product ) || ! $parent_product->is_type( 'variable' ) ) {
+			return $data;
+		}
+
+		$groups = PlanGroups::for_product( $variation, $parent_product->get_id(), 'variation' );
+		if ( empty( $groups ) ) {
+			return $data;
+		}
+
+		$data['subscrpt_plans_html'] = self::selector_html( $groups, $variation, 'variation' );
+
+		return $data;
+	}
+
+	/**
+	 * Build the selector groups for a simple product.
 	 *
 	 * @param \WC_Product $product Simple product.
 	 *
 	 * @return array
 	 */
 	private function build_groups( $product ) {
-		$resolved = PlanRepository::resolve_for_product( $product->get_id() );
-		if ( empty( $resolved ) ) {
-			return array();
-		}
-
-		$groups = array();
-		foreach ( $resolved as $row ) {
-			$gid = (int) $row['plan_group_id'];
-
-			if ( ! isset( $groups[ $gid ] ) ) {
-				$groups[ $gid ] = array(
-					'id'               => 'grp_' . $gid,
-					'type'             => PlanRepository::type_to_string( (int) $row['group_type'] ),
-					'label'            => $row['group_title'],
-					'price'            => '',
-					'terms'            => array(),
-					'badge'            => '',
-					'discount_percent' => 0,
-					'pcts'             => array(),
-				);
-			}
-
-			$price_num = $this->term_price( $row );
-
-			// Each term's discount (offer below regular). Installments price on a
-			// different basis, so they never contribute a percentage.
-			$row_regular = isset( $row['relation_data']['regular_price'] ) ? (float) $row['relation_data']['regular_price'] : 0.0;
-			$term_pct    = 0;
-			if ( 'installments' !== $groups[ $gid ]['type'] && $row_regular > 0 && $price_num < $row_regular ) {
-				$term_pct                 = (int) round( ( $row_regular - $price_num ) / $row_regular * 100 );
-				$groups[ $gid ]['pcts'][] = $term_pct;
-			}
-
-			$groups[ $gid ]['terms'][] = array(
-				'id'               => (int) $row['plan_id'],
-				'label'            => $row['plan_title'],
-				'price'            => wc_price( $price_num ),
-				'note'             => $this->term_note( $row, $price_num ),
-				'discount_percent' => $term_pct,
-				'badge'            => '',
-			);
-		}
-
-		// Card header price = the first term of each group.
-		//
-		// The badge is per term, not per group. A group whose terms discount by
-		// different amounts has no single true figure, and the card only ever
-		// shows one term at a time — the selected one — so a group-wide "Save
-		// 20%" was wrong for two of the three terms behind it. Each term carries
-		// its own text and the selector swaps it on selection; the card starts on
-		// the first term's, which is the one pre-selected.
-		foreach ( $groups as &$group ) {
-			$group['price'] = $group['terms'][0]['price'];
-
-			if ( ! empty( $group['pcts'] ) ) {
-				$group['discount_percent'] = max( $group['pcts'] );
-			}
-			unset( $group['pcts'] );
-
-			foreach ( $group['terms'] as &$term ) {
-				$term['badge'] = $term['discount_percent'] > 0
-					? subscrpt_card_badge_text( $group, $product, $term['discount_percent'] )
-					: '';
-			}
-			unset( $term );
-
-			$group['badge'] = $group['terms'][0]['badge'];
-		}
-		unset( $group );
-
-		$groups = array_values( $groups );
-
-		// One-Time purchase card, after the plans so a subscription stays the
-		// pre-selected default. The base template already renders this type.
-		$one_time = subscrpt_one_time_group( $product );
-		if ( $one_time ) {
-			$groups[] = $one_time;
-		}
-
-		return $groups;
+		return PlanGroups::for_product( $product );
 	}
 
 	/**
@@ -280,45 +329,5 @@ class Plans {
 		$dvalue  = isset( $data['discount_value'] ) ? (string) $data['discount_value'] : '0';
 
 		return (float) PlanPresenter::offer_price( $regular, $selling, $dtype, $dvalue );
-	}
-
-	/**
-	 * Build the billing-cadence note shown under a term ("Billed $10 / month").
-	 *
-	 * @param array $row       Resolved plan row.
-	 * @param float $price_num Computed term price.
-	 *
-	 * @return string
-	 */
-	private function term_note( $row, $price_num ) {
-		$interval = PlanPresenter::interval_label( (int) $row['billing_interval'] );
-		$freq     = max( 1, (int) $row['billing_frequency'] );
-		$every    = 1 === $freq ? strtolower( $interval ) : $freq . ' ' . strtolower( $interval ) . 's';
-
-		$data    = is_array( $row['relation_data'] ) ? $row['relation_data'] : array();
-		$regular = isset( $data['regular_price'] ) && '' !== $data['regular_price'] ? (float) $data['regular_price'] : null;
-
-		$price_disp = ( null !== $regular && $price_num < $regular )
-			? '<del>' . $this->price_text( $regular ) . '</del> ' . $this->price_text( $price_num )
-			: $this->price_text( $price_num );
-
-		return sprintf(
-			/* translators: 1: price (may include a struck-through regular price), 2: billing interval. */
-			__( 'Billed %1$s / %2$s', 'subscription' ),
-			$price_disp,
-			$every
-		);
-	}
-
-	/**
-	 * Plain-text formatted price (currency symbol as a real character, not an
-	 * HTML entity) so it renders cleanly inside the note / data attributes.
-	 *
-	 * @param float $amount Amount.
-	 *
-	 * @return string
-	 */
-	private function price_text( $amount ) {
-		return html_entity_decode( wp_strip_all_tags( wc_price( (float) $amount ) ), ENT_QUOTES, 'UTF-8' );
 	}
 }
