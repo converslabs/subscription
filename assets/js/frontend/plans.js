@@ -1,11 +1,13 @@
 /**
- * Storefront plan selector (free) — simple products.
+ * Storefront plan selector (free).
  *
  * Pick a plan group (radio card), then a term (buttons). The chosen plan-term id
- * is written to a hidden field that posts with add-to-cart. Simple products only;
- * Pro adds variable-product support + extra plan types on top. Pure DOM, no API.
+ * is written to a hidden field that posts with add-to-cart. Simple products are
+ * rendered on the server; a variable product starts with a placeholder and swaps
+ * in the chosen variation's server-rendered cards (`subscrpt_plans_html`).
+ * Pure DOM apart from WooCommerce's jQuery variation events; no API.
  */
-(function () {
+(function ($) {
   "use strict";
 
   var box = document.querySelector("[data-subscrpt-buybox]");
@@ -95,4 +97,63 @@
 
   // Initialise the hidden plan id from the pre-selected (first) card.
   syncPlanId();
-})();
+
+  if (box.getAttribute("data-subscrpt-variable") !== "1" || typeof $ !== "function") {
+    return;
+  }
+
+  var placeholder = box.innerHTML;
+
+  /**
+   * Replace the cards, announcing it on the box so a node parked inside one
+   * (the box builder) can be moved out first and put back after.
+   *
+   * @param {string} html    Inner markup to show.
+   * @param {string} context The `data-subscrpt-context` of that markup, or "".
+   */
+  function swap(html, context) {
+    box.dispatchEvent(new CustomEvent("subscrpt_cards_before_swap", { bubbles: true }));
+    box.innerHTML = html;
+    if (context) {
+      box.setAttribute("data-subscrpt-context", context);
+    } else {
+      box.removeAttribute("data-subscrpt-context");
+    }
+    syncPlanId();
+    box.dispatchEvent(new CustomEvent("subscrpt_cards_after_swap", { bubbles: true }));
+  }
+
+  /**
+   * Show a variation's server-rendered selector inside the existing box, so
+   * the listeners bound to it keep working.
+   *
+   * @param {string} html The template's markup, its own buybox wrapper included.
+   */
+  function showVariation(html) {
+    var holder = document.createElement("div");
+    holder.innerHTML = html;
+    var rendered = holder.querySelector("[data-subscrpt-buybox]");
+    if (!rendered) {
+      swap(placeholder, "");
+      return;
+    }
+    swap(rendered.innerHTML, rendered.getAttribute("data-subscrpt-context") || "");
+  }
+
+  var $form = $(box).closest("form.variations_form");
+  if (!$form.length) {
+    $form = $("form.variations_form").first();
+  }
+
+  $form.on("found_variation", function (event, variation) {
+    if (variation && variation.subscrpt_plans_html) {
+      showVariation(variation.subscrpt_plans_html);
+    } else {
+      swap(placeholder, "");
+    }
+  });
+
+  $form.on("reset_data hide_variation", function () {
+    swap(placeholder, "");
+  });
+})(window.jQuery);

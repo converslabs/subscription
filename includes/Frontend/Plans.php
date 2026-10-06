@@ -3,8 +3,10 @@
  * Storefront plan selector (free).
  *
  * Renders the plan selector — a radio card per plan group, with the group's
- * terms as buttons — on a simple product tied to a plan, and carries the chosen
- * plan-term id onto the add-to-cart request. Guarded by `subscrpt_plan_offered()`:
+ * terms as buttons — on a product tied to a plan, and carries the chosen
+ * plan-term id onto the add-to-cart request. A variable product gets an empty
+ * container; each variation's selector is rendered on the server into its
+ * `woocommerce_available_variation` data and swapped in by plans.js. Guarded by `subscrpt_plan_offered()`:
  * with no tied plan this class does nothing and the classic price suffix stands.
  *
  * Runs only when Pro is inactive (see Frontend::__construct). Pro ships a superset
@@ -23,7 +25,7 @@ use SpringDevs\Subscription\Admin\PlanPresenter;
 use SpringDevs\Subscription\Illuminate\Plans\PlanRepository;
 
 /**
- * Frontend plan selector for simple products.
+ * Frontend plan selector for simple and variable products.
  */
 class Plans {
 
@@ -35,6 +37,7 @@ class Plans {
 		// price replaces the classic suffix rather than appending to it.
 		add_filter( 'woocommerce_get_price_html', array( $this, 'plan_price_html' ), 20, 2 );
 		add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'render_selector' ) );
+		add_filter( 'woocommerce_available_variation', array( __CLASS__, 'push_variation_html' ), 10, 3 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
@@ -48,8 +51,8 @@ class Plans {
 	}
 
 	/**
-	 * Whether a simple product offers a subscription: tied to a plan AND
-	 * subscription-enabled. Free is simple-only.
+	 * Whether a simple or variable product offers a subscription: tied to a plan
+	 * AND subscription-enabled (for a variable product, on any variation).
 	 *
 	 * @param mixed $product Product object.
 	 *
@@ -57,7 +60,7 @@ class Plans {
 	 */
 	private function product_has_plans( $product ) {
 		return $product instanceof \WC_Product
-			&& $product->is_type( 'simple' )
+			&& $product->is_type( array( 'simple', 'variable' ) )
 			&& subscrpt_plan_offered( $product->get_id() );
 	}
 
@@ -87,7 +90,7 @@ class Plans {
 		wp_enqueue_script(
 			'subscrpt_plans_selector_js',
 			SUBSCRPT_ASSETS . '/js/frontend/plans.js',
-			array(),
+			array( 'jquery' ),
 			SUBSCRPT_VERSION,
 			true
 		);
@@ -107,7 +110,8 @@ class Plans {
 	 * @return string
 	 */
 	public function plan_price_html( $price_html, $product ) {
-		if ( ! $this->product_has_plans( $product ) ) {
+		// A variable product's price stays WooCommerce's own range.
+		if ( ! $this->product_has_plans( $product ) || ! $product->is_type( 'simple' ) ) {
 			return $price_html;
 		}
 
@@ -158,17 +162,73 @@ class Plans {
 			return;
 		}
 
+		// Filled by plans.js from the chosen variation's `subscrpt_plans_html`.
+		if ( $product->is_type( 'variable' ) ) {
+			echo '<div class="subscrpt-buybox" data-subscrpt-buybox data-subscrpt-variable="1">';
+			echo '<p class="subscrpt-buybox__placeholder">' . esc_html__( 'Select options to see available plans.', 'subscription' ) . '</p>';
+			echo '</div>';
+			return;
+		}
+
 		$groups = $this->build_groups( $product );
 		if ( empty( $groups ) ) {
 			return;
 		}
 
-		wc_get_template(
+		echo self::selector_html( $groups, $product ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the template.
+	}
+
+	/**
+	 * The plan selector markup for a set of groups.
+	 *
+	 * @param array       $groups  Groups from `PlanGroups`.
+	 * @param \WC_Product $product Product, or the variation on the variation path.
+	 * @param string      $context Where the selector renders: 'page' or 'variation'.
+	 *
+	 * @return string
+	 */
+	public static function selector_html( array $groups, \WC_Product $product, string $context = 'page' ): string {
+		return wc_get_template_html(
 			'product/plan-selector.php',
-			array( 'groups' => $groups ),
+			array(
+				'groups'  => $groups,
+				'product' => $product,
+				'context' => $context,
+			),
 			'subscription',
 			SUBSCRPT_TEMPLATES
 		);
+	}
+
+	/**
+	 * Add a variation's rendered plan selector to its variation data.
+	 *
+	 * Never gated on `is_product()`: above WooCommerce's variation threshold the
+	 * data loads over `wc-ajax=get_variation`, where it is false.
+	 *
+	 * @param array                 $data           Variation data passed to JS.
+	 * @param \WC_Product           $parent_product Variable product.
+	 * @param \WC_Product_Variation $variation      Variation.
+	 *
+	 * @return array
+	 */
+	public static function push_variation_html( $data, $parent_product, $variation ) {
+		if ( ! $parent_product instanceof \WC_Product || ! $variation instanceof \WC_Product ) {
+			return $data;
+		}
+
+		if ( ! subscrpt_plan_offered( $parent_product->get_id(), $variation->get_id() ) ) {
+			return $data;
+		}
+
+		$groups = PlanGroups::for_product( $variation, $parent_product->get_id(), 'variation' );
+		if ( empty( $groups ) ) {
+			return $data;
+		}
+
+		$data['subscrpt_plans_html'] = self::selector_html( $groups, $variation, 'variation' );
+
+		return $data;
 	}
 
 	/**

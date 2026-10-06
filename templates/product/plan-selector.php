@@ -15,12 +15,16 @@
  *
  * Override by copying to <your_theme>/subscription/product/plan-selector.php
  *
- * @var array $groups Plan groups (id, type, label, price, old_price, badge, terms[]).
+ * @var array       $groups  Plan groups (id, type, label, price, old_price, badge, terms[]).
+ * @var \WC_Product $product Product, or the variation when `$context` is 'variation'.
+ * @var string      $context Where the selector renders: 'page' or 'variation'.
  *
  * @package SpringDevs\Subscription
  */
 
 defined( 'ABSPATH' ) || exit;
+
+$context = isset( $context ) ? (string) $context : 'page';
 
 // The first card is pre-selected; seed the posted plan id from its first term
 // so the submitted value always matches the visible selection (One-Time = empty).
@@ -29,7 +33,7 @@ if ( ! empty( $groups[0]['terms'] ) ) {
 	$default_plan_id = $groups[0]['terms'][0]['id'];
 }
 ?>
-<div class="subscrpt-buybox" data-subscrpt-buybox>
+<div class="subscrpt-buybox" data-subscrpt-buybox data-subscrpt-context="<?php echo esc_attr( $context ); ?>">
 	<input type="hidden" name="subscrpt_plan_id" value="<?php echo esc_attr( $default_plan_id ); ?>" data-subscrpt-plan-id />
 	<?php foreach ( $groups as $index => $group ) : ?>
 		<?php
