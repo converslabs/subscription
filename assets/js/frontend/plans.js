@@ -1,8 +1,9 @@
 /**
  * Storefront plan selector (free).
  *
- * Pick a plan group (radio card), then a term (buttons). The chosen plan-term id
- * is written to a hidden field that posts with add-to-cart. Simple products are
+ * Pick a plan group (radio card), then a term (a radio group inside the card).
+ * The chosen plan-term id is written to a hidden field that posts with
+ * add-to-cart. Simple products are
  * rendered on the server; a variable product starts with a placeholder and swaps
  * in the chosen variation's server-rendered cards (`subscrpt_plans_html`).
  * Pure DOM apart from WooCommerce's jQuery variation events; no API.
@@ -28,9 +29,13 @@
     var card = checked ? checked.closest("[data-subscrpt-card]") : null;
     var planId = "";
     if (card) {
-      var activeBtn = card.querySelector("[data-subscrpt-term-btn].is-active");
-      if (activeBtn) {
-        planId = activeBtn.getAttribute("data-term-id");
+      var term = card.querySelector("input[data-subscrpt-term]:checked");
+      // A theme's copy of the older template marks its term buttons instead.
+      var legacy = card.querySelector("button[data-subscrpt-term-btn].is-active");
+      if (term) {
+        planId = term.value;
+      } else if (legacy) {
+        planId = legacy.getAttribute("data-term-id");
       } else if (card.hasAttribute("data-subscrpt-single-term")) {
         planId = card.getAttribute("data-subscrpt-single-term");
       }
@@ -38,65 +43,93 @@
     hidden.value = planId || "";
   }
 
-  // Selecting a card (radio) marks it and syncs the posted plan id.
-  box.addEventListener("change", function (e) {
-    if (e.target.name !== "subscrpt_plan_group") {
-      return;
-    }
+  /**
+   * Mark the card whose radio is checked and enable only its terms, so a term
+   * of an unselected card is neither posted nor reached with Tab.
+   */
+  function syncCards() {
     box.querySelectorAll("[data-subscrpt-card]").forEach(function (card) {
-      card.classList.remove("is-selected");
+      var radio = card.querySelector('input[name="subscrpt_plan_group"]');
+      var selected = !!(radio && radio.checked);
+      card.classList.toggle("is-selected", selected);
+      card.querySelectorAll("input[data-subscrpt-term]").forEach(function (term) {
+        term.disabled = !selected;
+      });
     });
-    var card = e.target.closest("[data-subscrpt-card]");
-    if (card) {
-      card.classList.add("is-selected");
-    }
     syncPlanId();
-  });
+  }
 
-  // Choosing a term button updates that card's note and selects the card.
-  box.addEventListener("click", function (e) {
-    var btn = e.target.closest("[data-subscrpt-term-btn]");
-    if (!btn) {
+  /**
+   * Show what the chosen term of a card costs and saves.
+   *
+   * @param {HTMLElement} term The checked term radio, or the clicked term
+   *                           button of an older template.
+   */
+  function showTerm(term) {
+    var card = term.closest("[data-subscrpt-card]");
+    if (!card) {
       return;
     }
-    e.preventDefault();
-    var wrap = btn.closest("[data-subscrpt-card]");
-    if (!wrap) {
-      return;
-    }
 
-    wrap.querySelectorAll("[data-subscrpt-term-btn]").forEach(function (b) {
-      b.classList.remove("is-active");
+    card.querySelectorAll("[data-subscrpt-term-btn]").forEach(function (chip) {
+      chip.classList.toggle("is-active", chip === term || chip.getAttribute("for") === term.id);
     });
-    btn.classList.add("is-active");
 
-    var noteEl = wrap.querySelector("[data-subscrpt-note]");
+    var noteEl = card.querySelector("[data-subscrpt-note]");
     if (noteEl) {
       // Note is server-built HTML (may include a struck-through regular price).
-      noteEl.innerHTML = btn.getAttribute("data-note") || "";
+      noteEl.innerHTML = term.getAttribute("data-note") || "";
+    }
+
+    var priceEl = card.querySelector("[data-subscrpt-card-price]");
+    if (priceEl) {
+      priceEl.textContent = term.getAttribute("data-price") || "";
     }
 
     // The badge reports what *this* term saves, so it moves with the selection.
-    // Terms discount by different amounts; one figure for the whole card was
-    // only ever right for one of them. Hidden outright when the chosen term is
-    // not discounted, so no empty pill is left behind.
-    var badgeEl = wrap.querySelector("[data-subscrpt-badge]");
+    // Hidden outright when the chosen term is not discounted, so no empty pill
+    // is left behind.
+    var badgeEl = card.querySelector("[data-subscrpt-badge]");
     if (badgeEl) {
-      var badge = btn.getAttribute("data-badge") || "";
+      var badge = term.getAttribute("data-badge") || "";
       badgeEl.textContent = badge;
       badgeEl.hidden = badge === "";
     }
+  }
 
-    var radio = wrap.querySelector('input[name="subscrpt_plan_group"]');
+  box.addEventListener("change", function (e) {
+    if (e.target.name === "subscrpt_plan_group") {
+      syncCards();
+    } else if (e.target.hasAttribute && e.target.hasAttribute("data-subscrpt-term")) {
+      showTerm(e.target);
+      syncPlanId();
+    }
+  });
+
+  // A click anywhere on a card selects it, except inside its body, which holds
+  // controls of its own. A click on a term of an unselected card selects the
+  // card first, which enables the term before the label checks it.
+  box.addEventListener("click", function (e) {
+    if (e.target.closest("[data-subscrpt-card-body]")) {
+      return;
+    }
+    var card = e.target.closest("[data-subscrpt-card]");
+    var radio = card ? card.querySelector('input[name="subscrpt_plan_group"]') : null;
     if (radio && !radio.checked) {
       radio.checked = true;
       radio.dispatchEvent(new Event("change", { bubbles: true }));
     }
-    syncPlanId();
+
+    var legacy = e.target.closest("button[data-subscrpt-term-btn]");
+    if (legacy) {
+      e.preventDefault();
+      showTerm(legacy);
+      syncPlanId();
+    }
   });
 
-  // Initialise the hidden plan id from the pre-selected (first) card.
-  syncPlanId();
+  // Initialise from the pre-selected (first) card.
+  syncCards();
 
   if (box.getAttribute("data-subscrpt-variable") !== "1" || typeof $ !== "function") {
     return;
@@ -123,7 +156,7 @@
     } else {
       box.removeAttribute("data-subscrpt-context");
     }
-    syncPlanId();
+    syncCards();
     box.dispatchEvent(new CustomEvent("subscrpt_cards_after_swap", { bubbles: true }));
   }
 
