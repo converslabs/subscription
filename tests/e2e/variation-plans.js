@@ -3,10 +3,8 @@
  *
  *     NODE_PATH=docs/node_modules node subscription/tests/e2e/variation-plans.js
  *
- * EXPECTED TO FAIL UNTIL TASK 17. Free renders each variation's cards on the
- * server, but with pro active free's selector stays switched off and pro's
- * JS-built copy runs instead; Task 17 switches pro over. Not part of the gate
- * before then.
+ * Needs pro active: free renders a variable product's purchase options only
+ * then, since free's checkout cannot sell a variation's plan.
  *
  * Run from the bench root. It creates a variable product with 31 variations —
  * one past WooCommerce's threshold, so variations load over
