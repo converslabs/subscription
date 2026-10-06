@@ -1,0 +1,253 @@
+<?php
+/**
+ * Tests for the purchase option card markup.
+ *
+ * @package SpringDevs\Subscription
+ */
+
+namespace SpringDevs\Subscription\Tests\Unit;
+
+use PHPUnit\Framework\TestCase;
+use SpringDevs\Subscription\Frontend\Plans;
+
+/**
+ * The card is a `<div>` with a labelled radio, terms are a radio group, and
+ * every card carries a body pro can fill through `subscrpt_plan_card_body`.
+ */
+class PlanSelectorMarkupTest extends TestCase {
+
+	/**
+	 * Start every test with no meta, listeners or recorded hooks.
+	 */
+	protected function setUp(): void {
+		$GLOBALS['wp_post_meta']      = [];
+		$GLOBALS['wp_filter_returns'] = [];
+		$GLOBALS['wp_hooks_registry'] = [];
+		$GLOBALS['applied_filters']   = [];
+		$GLOBALS['applied_actions']   = [];
+	}
+
+	/**
+	 * One group of each kind the template meets: two terms, one term,
+	 * one-time, and a type free does not know.
+	 */
+	private function fixture_groups(): array {
+		return [
+			[
+				'id'        => 'grp_1',
+				'type'      => 'subscribe_save',
+				'label'     => 'Subscribe & Save',
+				'price'     => '$20.00',
+				'old_price' => '',
+				'badge'     => '',
+				'terms'     => [
+					[
+						'id'    => 11,
+						'label' => 'Every month',
+						'price' => '$20.00',
+						'note'  => '$20.00 / month',
+						'badge' => '',
+					],
+					[
+						'id'    => 12,
+						'label' => 'Every 2 months',
+						'price' => '$16.00',
+						'note'  => '<del>$20.00</del> $16.00 / 2 months',
+						'badge' => 'Save 20%',
+					],
+				],
+			],
+			[
+				'id'        => 'grp_2',
+				'type'      => 'recurring',
+				'label'     => 'Monthly',
+				'price'     => '$18.00',
+				'old_price' => '',
+				'badge'     => '',
+				'terms'     => [
+					[
+						'id'    => 21,
+						'label' => 'Monthly',
+						'price' => '$18.00',
+						'note'  => '$18.00 / month',
+						'badge' => '',
+					],
+				],
+			],
+			[
+				'id'        => 'one_time',
+				'type'      => 'one_time',
+				'label'     => 'One Time Purchase',
+				'price'     => '$15.00',
+				'old_price' => '$20.00',
+				'terms'     => [],
+				'note'      => '',
+				'badge'     => 'Save 25%',
+			],
+			[
+				'id'        => 'box_add',
+				'type'      => 'box_add',
+				'label'     => 'Add to a box',
+				'price'     => '',
+				'old_price' => '',
+				'terms'     => [],
+				'badge'     => '',
+			],
+		];
+	}
+
+	/**
+	 * The product the selector renders for.
+	 */
+	private function product(): \WC_Product {
+		return new \WC_Product_Stub( 10, 'Beans', [ 'regular_price' => '20' ] );
+	}
+
+	/**
+	 * Render the fixture groups and parse the markup.
+	 *
+	 * @param array|null $groups Groups to render, the fixtures when null.
+	 */
+	private function render( ?array $groups = null ): \DOMXPath {
+		$html = Plans::selector_html( $groups ?? $this->fixture_groups(), $this->product(), 'page' );
+
+		$doc      = new \DOMDocument();
+		$previous = libxml_use_internal_errors( true );
+		$doc->loadHTML( '<?xml encoding="utf-8"?><body>' . $html . '</body>' );
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous );
+
+		return new \DOMXPath( $doc );
+	}
+
+	/**
+	 * XPath for elements carrying a class.
+	 *
+	 * @param string $class_name Class name.
+	 */
+	private function with_class( string $class_name ): string {
+		return "//*[contains(concat(' ', normalize-space(@class), ' '), ' {$class_name} ')]";
+	}
+
+	/**
+	 * The card element whose group radio has this value.
+	 *
+	 * @param \DOMXPath $xpath Parsed selector.
+	 * @param string    $group Group id.
+	 */
+	private function card( \DOMXPath $xpath, string $group ): \DOMElement {
+		$card = $xpath->query( "//*[@data-subscrpt-card][.//input[@name='subscrpt_plan_group'][@value='{$group}']]" )->item( 0 );
+		$this->assertInstanceOf( \DOMElement::class, $card, "a card for {$group}" );
+
+		return $card;
+	}
+
+	public function test_card_is_a_div_with_a_labelled_radio() {
+		$xpath = $this->render();
+
+		$cards = $xpath->query( '//*[@data-subscrpt-card]' );
+		$this->assertSame( 4, $cards->length );
+		foreach ( $cards as $card ) {
+			$this->assertSame( 'div', $card->nodeName );
+		}
+
+		$this->assertSame( 0, $xpath->query( '//label[.//input or .//select or .//textarea or .//button]' )->length, 'no label holds a form control' );
+
+		$radios = $xpath->query( "//input[@type='radio']" );
+		$this->assertGreaterThan( 4, $radios->length );
+		foreach ( $radios as $radio ) {
+			$id = $radio->getAttribute( 'id' );
+			$this->assertNotSame( '', $id );
+			$this->assertSame( 1, $xpath->query( "//label[@for='{$id}']" )->length, "radio {$id} has one label" );
+		}
+	}
+
+	public function test_terms_are_a_radio_group_with_a_legend() {
+		$xpath = $this->render();
+		$card  = $this->card( $xpath, 'grp_1' );
+
+		$fieldset = $xpath->query( ".//fieldset[contains(concat(' ', @class, ' '), ' subscrpt-buybox__terms ')]", $card );
+		$this->assertSame( 1, $fieldset->length );
+		$this->assertNotSame( '', trim( $xpath->query( './legend', $fieldset->item( 0 ) )->item( 0 )->textContent ?? '' ) );
+
+		$terms = $xpath->query( ".//input[@type='radio']", $fieldset->item( 0 ) );
+		$this->assertSame( 2, $terms->length );
+		foreach ( $terms as $term ) {
+			$this->assertSame( 'subscrpt_plan_term[grp_1]', $term->getAttribute( 'name' ) );
+		}
+		$this->assertSame( [ '11', '12' ], [ $terms->item( 0 )->getAttribute( 'value' ), $terms->item( 1 )->getAttribute( 'value' ) ] );
+		$this->assertTrue( $terms->item( 0 )->hasAttribute( 'checked' ), 'the first term starts checked' );
+
+		$this->assertSame( 0, $xpath->query( './/fieldset', $this->card( $xpath, 'grp_2' ) )->length, 'a single term needs no group' );
+		$this->assertSame( 0, $xpath->query( '//button' )->length, 'terms are no longer buttons' );
+	}
+
+	public function test_saving_is_in_the_accessible_name() {
+		$xpath = $this->render();
+
+		$radio = $xpath->query( "//input[@name='subscrpt_plan_term[grp_1]'][@value='12']" )->item( 0 );
+		$this->assertInstanceOf( \DOMElement::class, $radio );
+		$label = $xpath->query( "//label[@for='" . $radio->getAttribute( 'id' ) . "']" )->item( 0 );
+
+		$this->assertStringContainsString( 'Every 2 months', $label->textContent );
+		$this->assertStringContainsString( 'Save 20%', $label->textContent );
+	}
+
+	public function test_old_classes_survive() {
+		$xpath = $this->render();
+
+		foreach ( [ 'card', 'head', 'radio', 'label', 'price', 'note', 'terms', 'term', 'badge' ] as $suffix ) {
+			$this->assertGreaterThan( 0, $xpath->query( $this->with_class( 'subscrpt-buybox__' . $suffix ) )->length, "subscrpt-buybox__{$suffix}" );
+		}
+		$this->assertSame( 'label', $xpath->query( $this->with_class( 'subscrpt-buybox__label' ) )->item( 0 )->nodeName );
+		$this->assertSame( 1, $xpath->query( $this->with_class( 'is-selected' ) )->length );
+		$this->assertSame( 2, $xpath->query( '//*[@data-subscrpt-term-btn][@data-term-id]' )->length );
+	}
+
+	public function test_card_body_action_fires_in_every_card() {
+		$groups  = $this->fixture_groups();
+		$GLOBALS['wp_hooks_registry']['subscrpt_plan_card_body'][10][] = [
+			static function ( $group ) {
+				echo '<span class="test-body">' . esc_html( $group['id'] ) . '</span>';
+			},
+			1,
+		];
+
+		$xpath = $this->render( $groups );
+
+		$calls = $GLOBALS['applied_actions']['subscrpt_plan_card_body'] ?? [];
+		$this->assertCount( 4, $calls );
+		foreach ( $groups as $i => $group ) {
+			$this->assertSame( $group, $calls[ $i ][0] );
+			$this->assertInstanceOf( \WC_Product::class, $calls[ $i ][1] );
+			$this->assertSame( 10, $calls[ $i ][1]->get_id() );
+			$this->assertSame( 'page', $calls[ $i ][2] );
+
+			$card = $this->card( $xpath, $group['id'] );
+			$body = $xpath->query( ".//div[@data-subscrpt-card-body][contains(concat(' ', @class, ' '), ' subscrpt-buybox__body ')]", $card );
+			$this->assertSame( 1, $body->length, "{$group['id']} has a body" );
+			$this->assertSame( $group['id'], trim( $body->item( 0 )->textContent ) );
+		}
+	}
+
+	public function test_unknown_type_renders_generic_card() {
+		$groups             = $this->fixture_groups();
+		$groups[3]['price'] = '$9.00';
+		$groups[3]['badge'] = 'New';
+		$xpath              = $this->render( $groups );
+
+		$card  = $this->card( $xpath, 'box_add' );
+		$radio = $xpath->query( ".//input[@name='subscrpt_plan_group']", $card )->item( 0 );
+		$label = $xpath->query( ".//label[@for='" . $radio->getAttribute( 'id' ) . "']", $card )->item( 0 );
+
+		$this->assertInstanceOf( \DOMElement::class, $label );
+		$this->assertSame( 'Add to a box', trim( $label->textContent ) );
+		$this->assertStringContainsString( '$9.00', $xpath->query( ".//*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__price ')]", $card )->item( 0 )->textContent ?? '' );
+		$this->assertSame( 'New', trim( $xpath->query( ".//*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__badge ')]", $card )->item( 0 )->textContent ?? '' ) );
+		$this->assertSame( 1, $xpath->query( './/*[@data-subscrpt-card-body]', $card )->length );
+		$this->assertSame( 0, $xpath->query( './/fieldset', $card )->length );
+
+		$bare = $this->card( $this->render(), 'box_add' );
+		$this->assertSame( 0, $bare->getElementsByTagName( 'del' )->length + $bare->getElementsByTagName( 'ins' )->length, 'no price, no price block' );
+	}
+}

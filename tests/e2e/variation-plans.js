@@ -142,7 +142,7 @@ function cleanup(pid) {
     check((await box.getAttribute("data-subscrpt-context")) === "variation", "the selector is the variation's");
     check(
       (await box.locator(`[data-subscrpt-term-btn][data-term-id="${terms[1]}"]`).count()) === 1,
-      "both terms render as buttons",
+      "both terms render as choices",
     );
     check(
       (await box
@@ -152,13 +152,10 @@ function cleanup(pid) {
       "the first term is posted",
     );
     const paired = await box.evaluate((el) => {
-      const labels = Array.from(el.querySelectorAll("label[data-subscrpt-card]"));
+      const radios = Array.from(el.querySelectorAll('[data-subscrpt-card] input[name="subscrpt_plan_group"]'));
       return (
-        labels.length > 0 &&
-        labels.every((label) => {
-          const radio = label.querySelector('input[name="subscrpt_plan_group"]');
-          return radio && label.getAttribute("for") === radio.id;
-        })
+        radios.length > 0 &&
+        radios.every((radio) => radio.id && el.querySelectorAll(`label[for="${radio.id}"]`).length === 1)
       );
     });
     check(paired, "every card's label is paired with its radio");
