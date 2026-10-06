@@ -246,20 +246,25 @@ class Plans {
 	/**
 	 * The layout a product's purchase options render in — the one place it is
 	 * decided: the product's own choice, else the store's, else stacked. A value
-	 * that names no known layout is stacked too.
+	 * that names no known layout is skipped, so a stale override falls back to
+	 * the store's layout.
 	 *
 	 * @param \WC_Product $product Product, or a variation (its parent decides).
+	 * @param array|null  $layouts `layouts()`, when the caller already has it.
 	 *
 	 * @return string
 	 */
-	public static function layout_for( \WC_Product $product ): string {
-		$id     = $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id();
-		$layout = (string) get_post_meta( $id, '_subscrpt_plan_selector_layout', true );
-		if ( '' === $layout ) {
-			$layout = (string) get_option( 'subscrpt_plan_selector_layout', '' );
+	public static function layout_for( \WC_Product $product, ?array $layouts = null ): string {
+		$layouts = null === $layouts ? self::layouts() : $layouts;
+		$id      = $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id();
+
+		foreach ( [ get_post_meta( $id, '_subscrpt_plan_selector_layout', true ), get_option( 'subscrpt_plan_selector_layout', '' ) ] as $layout ) {
+			if ( is_string( $layout ) && '' !== $layout && array_key_exists( $layout, $layouts ) ) {
+				return $layout;
+			}
 		}
 
-		return array_key_exists( $layout, self::layouts() ) ? $layout : 'stacked';
+		return 'stacked';
 	}
 
 	/**

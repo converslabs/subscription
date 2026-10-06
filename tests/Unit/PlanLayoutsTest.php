@@ -342,7 +342,10 @@ class PlanLayoutsTest extends TestCase {
 
 		$GLOBALS['wp_options']['subscrpt_plan_selector_layout']        = 'classic';
 		$GLOBALS['wp_post_meta'][10]['_subscrpt_plan_selector_layout'] = 'carousel';
-		$this->assertSame( 'stacked', Plans::layout_for( $this->product() ), 'an unknown override' );
+		$this->assertSame( 'classic', Plans::layout_for( $this->product() ), 'an unknown override falls back to the store layout' );
+
+		$GLOBALS['wp_options']['subscrpt_plan_selector_layout'] = 'carousel';
+		$this->assertSame( 'stacked', Plans::layout_for( $this->product() ), 'an unknown override and an unknown option' );
 	}
 
 	public function test_unknown_layout_falls_back_to_stacked() {
