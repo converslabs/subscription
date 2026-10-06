@@ -142,6 +142,12 @@ namespace {
 		}
 	}
 
+	if ( ! function_exists( 'esc_url_raw' ) ) {
+		function esc_url_raw( $url ) {
+			return preg_match( '#^(https?://|/)#i', (string) $url ) ? trim( (string) $url ) : '';
+		}
+	}
+
 	if ( ! function_exists( 'wp_json_encode' ) ) {
 		function wp_json_encode( $data, $flags = 0, $depth = 512 ) {
 			return json_encode( $data, $flags, $depth );

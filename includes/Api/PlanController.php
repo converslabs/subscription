@@ -351,6 +351,65 @@ class PlanController {
 	}
 
 	/**
+	 * Sanitise the storefront fields of a plan group.
+	 *
+	 * Stored under `data.storefront`. Whitelist only: anything else is dropped.
+	 *
+	 * @param array $raw Raw request value.
+	 *
+	 * @return array
+	 */
+	public static function sanitize_storefront( array $raw ) {
+		$benefits = array();
+		foreach ( isset( $raw['benefits'] ) && is_array( $raw['benefits'] ) ? $raw['benefits'] : array() as $line ) {
+			$line = is_scalar( $line ) ? sanitize_text_field( (string) $line ) : '';
+			if ( '' !== $line ) {
+				$benefits[] = $line;
+			}
+		}
+
+		$learn = isset( $raw['learn_more'] ) && is_array( $raw['learn_more'] ) ? $raw['learn_more'] : array();
+		$text  = static function ( $value ) {
+			return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : '';
+		};
+		$tag   = $text( isset( $raw['tag'] ) ? $raw['tag'] : '' );
+
+		$clean = array(
+			'benefits_heading' => $text( isset( $raw['benefits_heading'] ) ? $raw['benefits_heading'] : '' ),
+			'benefits'         => array_slice( $benefits, 0, 5 ),
+			'learn_more'       => array(
+				'label' => $text( isset( $learn['label'] ) ? $learn['label'] : '' ),
+				'url'   => isset( $learn['url'] ) && is_string( $learn['url'] ) ? esc_url_raw( trim( $learn['url'] ) ) : '',
+				'panel' => $text( isset( $learn['panel'] ) ? $learn['panel'] : '' ),
+			),
+			'tag'              => function_exists( 'mb_substr' ) ? mb_substr( $tag, 0, 30 ) : substr( $tag, 0, 30 ),
+		);
+
+		// How the storefront lists a group's intervals; the product page reads it.
+		if ( isset( $raw['intervals'] ) ) {
+			$clean['intervals'] = in_array( $raw['intervals'], array( 'chips', 'dropdown' ), true ) ? $raw['intervals'] : '';
+		}
+
+		return $clean;
+	}
+
+	/**
+	 * Merge storefront fields into a group's existing data.
+	 *
+	 * @param array $existing Existing group `data`.
+	 * @param array $raw      Raw storefront request value.
+	 *
+	 * @return array
+	 */
+	public static function merge_storefront( array $existing, array $raw ) {
+		$current = isset( $existing['storefront'] ) && is_array( $existing['storefront'] ) ? $existing['storefront'] : array();
+
+		$existing['storefront'] = array_merge( $current, self::sanitize_storefront( $raw ) );
+
+		return $existing;
+	}
+
+	/**
 	 * PUT /plans/groups/{id} - update a plan group.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -369,6 +428,13 @@ class PlanController {
 		$guard = $this->guard_recurring_only( $params );
 		if ( is_wp_error( $guard ) ) {
 			return $guard;
+		}
+
+		if ( isset( $params['storefront'] ) && is_array( $params['storefront'] ) ) {
+			// `data` is written whole, so the storefront fields ride on top of what is stored.
+			$stored         = PlanRepository::get_group( $id );
+			$base           = isset( $params['data'] ) && is_array( $params['data'] ) ? $params['data'] : ( is_array( $stored['data'] ) ? $stored['data'] : array() );
+			$params['data'] = self::merge_storefront( $base, $params['storefront'] );
 		}
 
 		PlanRepository::update_group( $id, $params );

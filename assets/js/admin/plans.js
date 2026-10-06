@@ -145,6 +145,63 @@
   }
 
   /* ------------------------------------------------------------------ *
+   * Plan group: the "On the product page" tab.
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Read the storefront fields off the tab into the REST shape.
+   *
+   * @param {Element} root The tab's wrapper.
+   * @return {Object} The `storefront` payload.
+   */
+  function storefrontPayload(root) {
+    function field(name) {
+      var el = root.querySelector('[data-subscrpt-sf="' + name + '"]');
+      return el ? el.value : "";
+    }
+
+    return {
+      tag: field("tag"),
+      benefits_heading: field("benefits_heading"),
+      benefits: Array.prototype.map.call(root.querySelectorAll("[data-subscrpt-sf-benefit]"), function (input) {
+        return input.value;
+      }),
+      learn_more: {
+        label: field("learn_label"),
+        url: field("learn_url"),
+        panel: field("learn_panel"),
+      },
+    };
+  }
+
+  document.addEventListener("click", function (e) {
+    var button = e.target.closest("[data-subscrpt-sf-save]");
+    if (!button) {
+      return;
+    }
+    e.preventDefault();
+
+    var root = button.closest("[data-subscrpt-storefront]");
+    var host = button.closest("[data-plan-id]");
+    if (!root || !host) {
+      return;
+    }
+
+    setLoading(button, true);
+
+    api("PUT", "/groups/" + host.getAttribute("data-plan-id"), { storefront: storefrontPayload(root) })
+      .then(function () {
+        save.notify(i18n.saved);
+      })
+      .catch(function (err) {
+        save.notify(err.message || i18n.genericError, "error");
+      })
+      .then(function () {
+        setLoading(button, false);
+      });
+  });
+
+  /* ------------------------------------------------------------------ *
    * Plan group: inline rename of the detail page title.
    * ------------------------------------------------------------------ */
 
