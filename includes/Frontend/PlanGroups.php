@@ -107,7 +107,10 @@ class PlanGroups {
 			 * @param string      $type_key Plan type: recurring, subscribe_save or installments.
 			 * @param \WC_Product $product  Product or variation being rendered.
 			 */
-			$groups[ $gid ]['terms'][] = apply_filters( 'subscrpt_plan_term', $term, $row, $type_key, $product );
+			$filtered = apply_filters( 'subscrpt_plan_term', $term, $row, $type_key, $product );
+
+			// A listener that returns nothing must not take the storefront down.
+			$groups[ $gid ]['terms'][] = is_array( $filtered ) ? $filtered : $term;
 		}
 
 		// The card shows one term at a time, the selected one, so the badge is
