@@ -10,7 +10,8 @@
  *   1. Tab reaches the group radios; arrow keys move between the cards.
  *   2. Tab moves on to the terms; arrow keys move between them.
  *   3. Focus is visible on both.
- *   4. A click on the card's padding selects it; a click inside its body does not.
+ *   4. A click on the card's padding selects it; a click inside its body — an
+ *      input, a <label for> or a link — does not.
  */
 const { chromium } = require("playwright");
 const { execSync } = require("child_process");
@@ -198,6 +199,33 @@ const selected = (page) =>
     check(
       await page.evaluate(() => document.activeElement && document.activeElement.id === "e2e-body-input"),
       "the body's input takes the focus",
+    );
+
+    // A label points its click at its input, and a link is a click of its own;
+    // neither is the card's.
+    await page.evaluate(() => {
+      const body = document.querySelector("[data-subscrpt-card] [data-subscrpt-card-body]");
+      const label = document.createElement("label");
+      label.htmlFor = "e2e-body-input";
+      label.id = "e2e-body-label";
+      label.textContent = "How many";
+      const link = document.createElement("a");
+      link.href = "#e2e-body-link";
+      link.id = "e2e-body-link";
+      link.textContent = "More";
+      // Stays on the page; the click still bubbles to the selector.
+      link.addEventListener("click", (e) => e.preventDefault());
+      body.append(label, link);
+    });
+    await page.click("#e2e-body-label");
+    check(
+      JSON.stringify(await selected(page)) === "[false,true]",
+      "clicking a <label for> inside the body leaves One-Time selected",
+    );
+    await page.click("#e2e-body-link");
+    check(
+      JSON.stringify(await selected(page)) === "[false,true]",
+      "clicking a link inside the body leaves One-Time selected",
     );
 
     // Its terms are disabled until the card is selected, which Playwright reads
