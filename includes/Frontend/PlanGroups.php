@@ -8,6 +8,13 @@
  * `subscrpt_plan_term` and `subscrpt_plan_selector_groups` filters rather than
  * building a second copy.
  *
+ * `$context` says where the selector renders, so a listener can tell them apart:
+ *
+ * - `'page'`      the product page's own selector (a simple product);
+ * - `'variation'` one variation's selector, rendered on the server for
+ *                 `woocommerce_available_variation` and swapped in when the
+ *                 shopper picks that variation.
+ *
  * @package SpringDevs\Subscription
  */
 
@@ -26,7 +33,7 @@ class PlanGroups {
 	 *
 	 * @param \WC_Product $product   Product, or the variation when `$parent_id` is set.
 	 * @param int         $parent_id Parent product id for a variation, 0 otherwise.
-	 * @param string      $context   Where the selector renders, passed to the filters.
+	 * @param string      $context   Where the selector renders: 'page' or 'variation'.
 	 *
 	 * @return array Groups in plan-selector.php shape; empty when no plan is offered.
 	 */
@@ -52,7 +59,7 @@ class PlanGroups {
 	 *
 	 * @param array       $rows    Rows from `PlanRepository::resolve_for_product()`.
 	 * @param \WC_Product $product Product or variation being rendered.
-	 * @param string      $context Where the selector renders, passed to the filters.
+	 * @param string      $context Where the selector renders: 'page' or 'variation'.
 	 *
 	 * @return array
 	 */
@@ -144,7 +151,8 @@ class PlanGroups {
 		 *
 		 * @param array       $groups  Groups (id, type, label, price, old_price, terms, badge, discount_percent).
 		 * @param \WC_Product $product Product or variation being rendered.
-		 * @param string      $context Where the selector renders; 'page' for the product page.
+		 * @param string      $context Where the selector renders: 'page' on the product page,
+		 *                             'variation' for one variation's selector.
 		 */
 		return (array) apply_filters( 'subscrpt_plan_selector_groups', $groups, $product, $context );
 	}
