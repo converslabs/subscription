@@ -227,4 +227,59 @@ class PlanGroupsTest extends TestCase {
 		$this->assertSame( [ 'grp_1', 'one_time' ], array_column( $groups, 'id' ) );
 		$this->assertSame( '$40.00', $groups[1]['price'] );
 	}
+
+	public function test_term_carries_regular_price() {
+		$rows   = [ $this->row( 1, 3, 11, [ 'regular_price' => '90' ], [ 'installment_count' => 3 ] ) ];
+		$groups = PlanGroups::from_rows( $rows, $this->product() );
+
+		$this->assertSame( wc_price( 30 ), $groups[0]['terms'][0]['regular_price'], 'the per-payment regular price' );
+
+		$discounted = [
+			$this->row( 1, 1, 11, [ 'regular_price' => '100', 'discount_type' => 'percentage', 'discount_value' => '20' ] ),
+		];
+		$term       = PlanGroups::from_rows( $discounted, $this->product() )[0]['terms'][0];
+		$this->assertSame( wc_price( 100 ), $term['regular_price'] );
+		$this->assertSame( wc_price( 80 ), $term['price'] );
+	}
+
+	public function test_chip_label_carries_its_saving() {
+		$rows                  = [
+			$this->row( 1, 1, 11, [ 'regular_price' => '100', 'discount_type' => 'percentage', 'discount_value' => '20' ] ),
+			$this->row( 1, 1, 12, [ 'regular_price' => '100' ] ),
+		];
+		$rows[0]['plan_title'] = 'Monthly';
+		$rows[1]['plan_title'] = 'Monthly';
+		$terms = PlanGroups::from_rows( $rows, $this->product() )[0]['terms'];
+
+		$this->assertSame( '1 month', $terms[0]['interval_label'] );
+		$this->assertSame( 'Save 20%', $terms[0]['saving_label'] );
+		$this->assertSame( '1 month · Save 20%', $terms[0]['interval_label'] . ' · ' . $terms[0]['saving_label'] );
+		$this->assertSame( '', $terms[1]['saving_label'], 'no saving, no suffix' );
+	}
+
+	public function test_heading_by_type() {
+		$rows   = [
+			$this->row( 1, 1, 11, [ 'regular_price' => '10' ] ),
+			$this->row( 2, 2, 21, [ 'regular_price' => '10' ] ),
+			$this->row( 3, 3, 31, [ 'regular_price' => '30' ], [ 'installment_count' => 3 ] ),
+		];
+		$groups = PlanGroups::from_rows( $rows, $this->product() );
+
+		$this->assertSame( [ 'Deliver every', 'Billed every', 'Pay in' ], array_column( $groups, 'terms_heading' ) );
+	}
+
+	public function test_chip_label_from_interval_unless_title_is_not_an_interval_phrase() {
+		$monthly           = $this->row( 1, 2, 11, [ 'regular_price' => '10' ] );
+		$monthly['plan_title'] = 'Monthly';
+		$two_weeks             = $this->row( 1, 2, 12, [ 'regular_price' => '10' ] );
+		$two_weeks['plan_title']        = 'Every 2 weeks';
+		$two_weeks['billing_interval']  = 2;
+		$two_weeks['billing_frequency'] = 2;
+		$pick                  = $this->row( 1, 2, 13, [ 'regular_price' => '10' ] );
+		$pick['plan_title']    = "Barista's pick";
+
+		$terms = PlanGroups::from_rows( [ $monthly, $two_weeks, $pick ], $this->product() )[0]['terms'];
+
+		$this->assertSame( [ '1 month', '2 weeks', "Barista's pick" ], array_column( $terms, 'interval_label' ) );
+	}
 }

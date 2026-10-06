@@ -52,8 +52,11 @@ class PlanSelectorMarkupTest extends TestCase {
 						'id'    => 12,
 						'label' => 'Every 2 months',
 						'price' => '$16.00',
-						'note'  => '<del>$20.00</del> $16.00 / 2 months',
+						'note'  => '$16.00 / 2 months',
 						'badge' => 'Save 20%',
+						'regular_price' => '$20.00',
+						'interval_label' => '2 months',
+						'saving_label'   => 'Save 20%',
 					],
 				],
 			],
@@ -189,7 +192,7 @@ class PlanSelectorMarkupTest extends TestCase {
 		$this->assertInstanceOf( \DOMElement::class, $radio );
 		$label = $xpath->query( "//label[@for='" . $radio->getAttribute( 'id' ) . "']" )->item( 0 );
 
-		$this->assertStringContainsString( 'Every 2 months', $label->textContent );
+		$this->assertStringContainsString( '2 months', $label->textContent );
 		$this->assertStringContainsString( 'Save 20%', $label->textContent );
 	}
 
@@ -249,5 +252,38 @@ class PlanSelectorMarkupTest extends TestCase {
 
 		$bare = $this->card( $this->render(), 'box_add' );
 		$this->assertSame( 0, $bare->getElementsByTagName( 'del' )->length + $bare->getElementsByTagName( 'ins' )->length, 'no price, no price block' );
+	}
+
+	public function test_card_shows_struck_regular_price() {
+		$groups                         = $this->fixture_groups();
+		$groups[0]['terms']             = array_reverse( $groups[0]['terms'] );
+		$groups[0]['price']             = '$16.00';
+		$groups[0]['terms'][0]['price'] = '$16.00';
+		$xpath                          = $this->render( $groups );
+		$card                           = $this->card( $xpath, 'grp_1' );
+
+		$del = $xpath->query( './/del[@data-subscrpt-card-regular]', $card );
+		$ins = $xpath->query( './/ins[@data-subscrpt-card-price]', $card );
+		$this->assertSame( 1, $del->length );
+		$this->assertSame( '$20.00', trim( $del->item( 0 )->textContent ) );
+		$this->assertSame( '$16.00', trim( $ins->item( 0 )->textContent ) );
+
+		$offer = $xpath->query( ".//input[@data-subscrpt-term][@value='12']", $card )->item( 0 );
+		$this->assertSame( '$20.00', $offer->getAttribute( 'data-regular' ) );
+		$plain = $xpath->query( ".//input[@data-subscrpt-term][@value='11']", $card )->item( 0 );
+		$this->assertSame( '', $plain->getAttribute( 'data-regular' ), 'no saving, nothing to strike' );
+	}
+
+	public function test_chip_shows_interval_and_saving_and_legend_the_heading() {
+		$groups                         = $this->fixture_groups();
+		$groups[0]['terms_heading']     = 'Deliver every';
+		$xpath                          = $this->render( $groups );
+		$card                           = $this->card( $xpath, 'grp_1' );
+
+		$this->assertSame( 'Deliver every', trim( $xpath->query( './/legend', $card )->item( 0 )->textContent ) );
+		$chip = $xpath->query( ".//label[@data-term-id='12']", $card )->item( 0 );
+		$this->assertSame( '2 months · Save 20%', trim( preg_replace( '/\s+/', ' ', $chip->textContent ) ) );
+		$plain = $xpath->query( ".//label[@data-term-id='11']", $card )->item( 0 );
+		$this->assertSame( 'Every month', trim( $plain->textContent ), 'no interval_label falls back to the label' );
 	}
 }
