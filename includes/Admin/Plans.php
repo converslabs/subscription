@@ -133,6 +133,8 @@ class Plans {
 					'bulkSelected'           => __( '%d selected', 'subscription' ),
 					'oneTimeOn'              => __( 'One-time purchase turned on.', 'subscription' ),
 					'oneTimeOff'             => __( 'One-time purchase turned off.', 'subscription' ),
+					'userCancelOn'           => __( 'User cancellation turned on.', 'subscription' ),
+					'userCancelOff'          => __( 'User cancellation turned off.', 'subscription' ),
 					/* translators: %d: number of products ticked in the picker. */
 					'picked'                 => __( '%d product(s) on this plan', 'subscription' ),
 					'pickedNone'             => __( 'No products on this plan', 'subscription' ),

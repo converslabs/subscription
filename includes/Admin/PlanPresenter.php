@@ -11,6 +11,7 @@
 
 namespace SpringDevs\Subscription\Admin;
 
+use SpringDevs\Subscription\Illuminate\Helper;
 use SpringDevs\Subscription\Illuminate\Plans\PlanRepository;
 
 /**
@@ -151,6 +152,7 @@ class PlanPresenter {
 						'one_time_on' => $product ? ( 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' ) ) : false,
 						'ot_regular'  => ( $product && ! $is_variable ) ? self::one_time_price( $product ) : '',
 						'ot_offer'    => ( $product && ! $is_variable ) ? (string) $product->get_sale_price() : '',
+						'user_cancel' => $product ? Helper::can_user_cancel( $product->get_meta( '_subscrpt_user_cancel' ) ) : true,
 						'edit_url'    => get_edit_post_link( $oid, 'raw' ),
 						'view_url'    => get_permalink( $oid ),
 						'rows'        => array(),

@@ -1013,7 +1013,7 @@ class Helper {
 						'trial_status'    => ! is_null( $cart_subscription['trial'] ),
 						'start_date'      => self::start_date( $cart_subscription['trial'] ),
 						'next_date'       => self::next_date( ( $cart_subscription['time'] ?? 1 ) . ' ' . $cart_subscription['type'], $cart_subscription['trial'] ),
-						'can_user_cancel' => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
+						'can_user_cancel' => self::can_user_cancel( $cart_item['data']->get_meta( '_subscrpt_user_cancel' ) ) ? 'yes' : 'no',
 						'max_no_payment'  => ! empty( $cart_item['subscrpt_max_no_payment'] )
 							? (int) $cart_item['subscrpt_max_no_payment']
 							: $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
@@ -1404,6 +1404,20 @@ class Helper {
 	}
 
 	/**
+	 * Whether a stored `_subscrpt_user_cancel` value lets the customer cancel.
+	 *
+	 * Only an explicit "no" forbids it. An empty value means the option was never
+	 * saved - plan-connected products never store it - and the product form shows
+	 * "Yes" for that case, so the answer here has to be yes too.
+	 *
+	 * @param mixed $value Stored meta value.
+	 * @return bool
+	 */
+	public static function can_user_cancel( $value ): bool {
+		return 'no' !== $value;
+	}
+
+	/**
 	 * Get a subscription data.
 	 *
 	 * @param int $subscription_id Subscription ID.
@@ -1434,8 +1448,7 @@ class Helper {
 		$order_id      = get_post_meta( $subscription_id, '_subscrpt_order_id', true );
 		$order_item_id = get_post_meta( $subscription_id, '_subscrpt_order_item_id', true );
 
-		// Cancelling is allowed unless it was explicitly switched off — plan subscriptions are created without the setting.
-		$can_user_cancel = ! in_array( get_post_meta( $subscription_id, '_subscrpt_user_cancel', true ), array( 0, '0', 'false', 'no' ), true );
+		$can_user_cancel = self::can_user_cancel( get_post_meta( $subscription_id, '_subscrpt_user_cancel', true ) );
 
 		$start_datetime = (int) get_post_meta( $subscription_id, '_subscrpt_start_date', true );
 		$start_date     = ! empty( $start_datetime ) ? gmdate( DATE_RFC2822, $start_datetime ) : null;

@@ -1471,6 +1471,28 @@
       });
   });
 
+  // "Allow User Cancellation" saves itself too; on failure the switch goes back
+  // to what is stored.
+  document.addEventListener("change", function (e) {
+    var toggle = e.target.closest("[data-subscrpt-user-cancel-card] [data-subscrpt-user-cancel-enable]");
+    if (!toggle) {
+      return;
+    }
+    var card = toggle.closest("[data-subscrpt-user-cancel-card]");
+
+    toggle.disabled = true;
+    api("PUT", "/product-user-cancel/" + card.getAttribute("data-product-id"), { enabled: toggle.checked })
+      .then(function () {
+        toggle.disabled = false;
+        save.notify(toggle.checked ? i18n.userCancelOn : i18n.userCancelOff);
+      })
+      .catch(function (err) {
+        toggle.disabled = false;
+        toggle.checked = !toggle.checked;
+        save.notify(err.message || i18n.genericError, "error");
+      });
+  });
+
   /* ------------------------------------------------------------------ *
    * Drag-and-drop reorder: durations + products (vertical only).
    *
