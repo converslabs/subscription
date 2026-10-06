@@ -203,6 +203,12 @@ namespace {
 		}
 	}
 
+	if ( ! function_exists( 'esc_html_e' ) ) {
+		function esc_html_e( $text, $domain = 'default' ) {
+			echo esc_html( $text ); // phpcs:ignore WordPress.Security.EscapeOutput
+		}
+	}
+
 	if ( ! function_exists( 'wp_kses_post' ) ) {
 		function wp_kses_post( $text ) {
 			return (string) $text;
@@ -285,6 +291,7 @@ namespace {
 			public $sale_price    = '';
 			public $price         = '';
 			public $meta          = [];
+			public $parent_id     = 0;
 
 			public function __construct( int $id = 0, string $name = '', array $props = [] ) {
 				$this->id   = $id;
@@ -320,6 +327,10 @@ namespace {
 
 			public function get_meta( $key, $single = true ) {
 				return $this->meta[ $key ] ?? '';
+			}
+
+			public function get_parent_id() {
+				return $this->parent_id;
 			}
 		}
 	}
