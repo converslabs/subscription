@@ -60,11 +60,11 @@ function createFixture() {
   );
 }
 
-// A body listener for this product only: one text input per option's body.
+// A body listener for this product only, and only with ?e2e_body (kept out of the screenshots): one text input per option's body.
 const MU = "docker/mu-plugins/e2e-plan-layouts-body.php";
 const MU_CODE = `<?php
 add_action( "subscrpt_plan_card_body", function ( $group, $product ) {
-	if ( $product && "Plan layouts e2e" === $product->get_name() ) {
+	if ( isset( $_GET["e2e_body"] ) && $product && "Plan layouts e2e" === $product->get_name() ) {
 		echo '<input type="text" name="e2e_body_' . esc_attr( $group["id"] ) . '" value="x" />';
 	}
 }, 10, 2 );
@@ -193,7 +193,7 @@ async function pickOneTime(page, layout) {
       console.log(`${layout}`);
       setLayout(fx, layout);
       const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, ignoreHTTPSErrors: true });
-      await page.goto(fx.url, { waitUntil: "domcontentloaded", timeout: 90000 });
+      await page.goto(`${fx.url}?e2e_body=1`, { waitUntil: "domcontentloaded", timeout: 90000 });
       await page.waitForSelector("[data-subscrpt-buybox]", { timeout: 15000 });
 
       const box = page.locator("[data-subscrpt-buybox]");
