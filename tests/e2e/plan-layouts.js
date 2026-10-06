@@ -113,6 +113,16 @@ const shownPrice = (page) =>
     return ins ? ins.textContent.trim() : "";
   });
 
+/** The text a grid-with-savings tile leads with, "" when its lead shows nothing. */
+const lead = (page, fx) =>
+  page.evaluate((g) => {
+    const tile = document.querySelector(`[data-subscrpt-group="${g}"]`);
+    const band = tile && tile.firstElementChild;
+    const badge =
+      band && band.classList.contains("subscrpt-buybox__lead") ? band.querySelector("[data-subscrpt-badge]") : null;
+    return badge && !badge.hidden ? badge.textContent.trim() : "";
+  }, `grp_${fx.group}`);
+
 /** Groups whose accordion panel is open. */
 const openPanels = (page) =>
   page.evaluate(() =>
@@ -349,6 +359,10 @@ async function pickOneTime(page, layout) {
         );
       }
 
+      if (layout === "grid_savings") {
+        check((await lead(page, fx)) === "Save up to 20%", "the tile leads with the best saving", await lead(page, fx));
+      }
+
       await pickSecondTerm(page, fx, layout);
       check((await planId(page)) === String(fx.terms[1]), "the second term is posted");
       check((await shownPrice(page)).includes("16"), "its price shows", await shownPrice(page));
@@ -366,18 +380,12 @@ async function pickOneTime(page, layout) {
       }
 
       if (layout === "grid_savings") {
+        check((await lead(page, fx)) === "Save 20%", "the tile leads with Save 20%", await lead(page, fx));
+        await page.click(`label[data-term-id="${fx.terms[0]}"]`);
         check(
-          await page
-            .evaluate((g) => {
-              const tile = document.querySelector(`[data-subscrpt-group="${g}"]`);
-              const lead = tile && tile.firstElementChild;
-              const badge = lead ? lead.querySelector("[data-subscrpt-badge]") : null;
-              return !!badge && lead.classList.contains("subscrpt-buybox__lead") && !badge.hidden
-                ? badge.textContent.trim()
-                : "";
-            }, `grp_${fx.group}`)
-            .then((t) => t === "Save 20%"),
-          "the tile leads with Save 20%",
+          (await lead(page, fx)) === "Save up to 20%",
+          "back on a term that saves nothing, it leads with the best saving",
+          await lead(page, fx),
         );
       }
 

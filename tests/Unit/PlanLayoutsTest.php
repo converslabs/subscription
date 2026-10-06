@@ -10,6 +10,7 @@ namespace SpringDevs\Subscription\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use SpringDevs\Subscription\Api\PlanController;
 use SpringDevs\Subscription\Frontend\Plans;
+use SpringDevs\Subscription\Frontend\PlanSelectorView;
 
 /**
  * One set of groups, several layouts: stacked cards, a classic radio list and a
@@ -499,9 +500,31 @@ class PlanLayoutsTest extends TestCase {
 		$this->assertStringContainsString( '$20.00', $xpath->query( "//*[@data-subscrpt-card][1]/*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__head ')]" )->item( 0 )->textContent, 'the price is on the line' );
 	}
 
+	/**
+	 * The fixtures, with the terms' discounts as `PlanGroups` sets them.
+	 */
+	private function discounted_groups(): array {
+		$groups = $this->fixture_groups();
+
+		$groups[0]['terms'][0]['discount_percent'] = 0;
+		$groups[0]['terms'][1]['discount_percent'] = 20;
+		$groups[1]['terms'][0]['discount_percent'] = 0;
+
+		return $groups;
+	}
+
+	public function test_best_saving_names_the_groups_best_term() {
+		$groups = $this->discounted_groups();
+
+		$this->assertSame( 'Save up to 20%', PlanSelectorView::group( $groups[0], 0 )['best_saving'] );
+		$this->assertSame( '', PlanSelectorView::group( $groups[1], 1 )['best_saving'], 'no term saves' );
+		$this->assertSame( '', PlanSelectorView::group( $groups[2], 2 )['best_saving'], 'One-Time has no terms' );
+		$this->assertSame( '', PlanSelectorView::group( $this->fixture_groups()[0], 0 )['best_saving'], 'no discounts known' );
+	}
+
 	public function test_grid_equal_width_tiles() {
 		$this->listen_on_body();
-		$xpath = $this->render( 'grid' );
+		$xpath = $this->render( 'grid', $this->discounted_groups() );
 
 		$this->assertSame( 'grid', $this->layout_of( $xpath ) );
 		$tiles = $xpath->query( "//*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__tiles ')]/*[@data-subscrpt-card]" );
@@ -512,12 +535,13 @@ class PlanLayoutsTest extends TestCase {
 
 		$this->assertSame( 2, $xpath->query( "//input[@data-subscrpt-term][@name='subscrpt_plan_term[grp_1]']" )->length, 'the terms are offered' );
 		$this->assertSame( 0, $xpath->query( '//*[@data-subscrpt-panel]' )->length, 'nothing folds away' );
+		$this->assertSame( 0, $xpath->query( '//*[@data-subscrpt-badge-fallback]' )->length, 'only grid with savings names the best saving' );
 		$this->assertSame( '11', $xpath->query( '//input[@data-subscrpt-plan-id]' )->item( 0 )->getAttribute( 'value' ) );
 	}
 
 	public function test_grid_savings_tiles_led_by_the_saving() {
 		$this->listen_on_body();
-		$xpath = $this->render( 'grid_savings' );
+		$xpath = $this->render( 'grid_savings', $this->discounted_groups() );
 
 		$this->assertSame( 'grid_savings', $this->layout_of( $xpath ) );
 		$tiles = $xpath->query( "//*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__tiles ')]/*[@data-subscrpt-card]" );
@@ -531,7 +555,12 @@ class PlanLayoutsTest extends TestCase {
 		}
 		$one_time = $xpath->query( './*', $tiles->item( 2 ) )->item( 0 );
 		$this->assertSame( 'Save 25%', trim( $xpath->query( './/*[@data-subscrpt-badge]', $one_time )->item( 0 )->textContent ) );
-		$this->assertSame( 1, $xpath->query( './/*[@data-subscrpt-badge][@hidden]', $xpath->query( './*', $tiles->item( 0 ) )->item( 0 ) )->length, 'the badge slot waits for a term that saves' );
+		// The first term saves nothing, so the lead names the best term's saving.
+		$plan = $xpath->query( './/*[@data-subscrpt-badge]', $xpath->query( './*', $tiles->item( 0 ) )->item( 0 ) )->item( 0 );
+		$this->assertInstanceOf( \DOMElement::class, $plan );
+		$this->assertFalse( $plan->hasAttribute( 'hidden' ), 'the lead shows' );
+		$this->assertSame( 'Save up to 20%', trim( $plan->textContent ) );
+		$this->assertSame( 'Save up to 20%', $plan->getAttribute( 'data-subscrpt-badge-fallback' ), 'and falls back to it when a term saves nothing' );
 		$this->assertSame( 0, $xpath->query( './/*[@data-subscrpt-badge]', $xpath->query( './*', $tiles->item( 1 ) )->item( 0 ) )->length, 'no saving, no badge' );
 	}
 
