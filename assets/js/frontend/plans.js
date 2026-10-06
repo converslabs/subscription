@@ -96,8 +96,34 @@
   }
 
   /**
-   * Mark the selected group's option and enable only its terms, so a term of
-   * another group is neither posted nor reached with Tab. An option marked
+   * Enable or disable the form controls in an option's body, so only the chosen
+   * option's body posts. A control that was already disabled by its own logic
+   * is left alone and stays disabled; the details toggle never posts and stays
+   * usable.
+   *
+   * @param {HTMLElement} body    A `[data-subscrpt-card-body]` element.
+   * @param {boolean}     enabled Whether its option is the selected one.
+   */
+  function syncBodyControls(body, enabled) {
+    body.querySelectorAll("input, select, textarea, button").forEach(function (el) {
+      if (el.hasAttribute("data-subscrpt-details-toggle")) {
+        return;
+      }
+      if (enabled) {
+        if (el.hasAttribute("data-subscrpt-body-disabled")) {
+          el.removeAttribute("data-subscrpt-body-disabled");
+          el.disabled = false;
+        }
+      } else if (!el.disabled) {
+        el.disabled = true;
+        el.setAttribute("data-subscrpt-body-disabled", "");
+      }
+    });
+  }
+
+  /**
+   * Mark the selected group's option and enable only its terms and its body's
+   * controls, so nothing of another group is posted or reached with Tab. An option marked
    * `data-subscrpt-only-selected` shows only while selected, and the body
    * rendered below the control for each group shows only for the selected one.
    */
@@ -112,9 +138,14 @@
       card.querySelectorAll("input[data-subscrpt-term], select[data-subscrpt-term-select]").forEach(function (term) {
         term.disabled = !selected;
       });
+      card.querySelectorAll("[data-subscrpt-card-body]").forEach(function (body) {
+        syncBodyControls(body, selected);
+      });
     });
     box.querySelectorAll("[data-subscrpt-body-for]").forEach(function (body) {
-      body.hidden = body.getAttribute("data-subscrpt-body-for") !== group;
+      var selected = body.getAttribute("data-subscrpt-body-for") === group;
+      body.hidden = !selected;
+      syncBodyControls(body, selected);
     });
     syncPlanId();
   }
