@@ -10,10 +10,17 @@
  *   1. The buybox renders in that layout.
  *   2. Picking the second term posts its id; picking One-Time posts none.
  *   3. Only the selected option's body shows (layouts with no card).
- *   4. Add to cart sends the chosen `subscrpt_plan_id`.
+ *   4. Only the chosen option's body controls are enabled, and only they post.
+ *   5. Add to cart sends the chosen `subscrpt_plan_id`.
+ *
+ * Per layout, too: the accordion opens only the selected card (`aria-expanded`
+ * follows), the grids put their tiles side by side and stack them at 390 px,
+ * grid with savings leads with the saving, and the accordion and button row
+ * work from the keyboard with a visible focus ring.
  *
  * Then, in the stacked layout, the group's intervals set to a dropdown.
- * Screenshots go to research/box-storefront/proof/23-*.
+ * Screenshots go to research/box-storefront/proof/23-* (the first three layouts)
+ * and 24-* (the other four).
  */
 const { chromium } = require("playwright");
 const { execSync } = require("child_process");
@@ -106,6 +113,116 @@ const shownPrice = (page) =>
     return ins ? ins.textContent.trim() : "";
   });
 
+/** Groups whose accordion panel is open. */
+const openPanels = (page) =>
+  page.evaluate(() =>
+    Array.from(document.querySelectorAll("[data-subscrpt-card]"))
+      .filter((c) => {
+        const panel = c.querySelector("[data-subscrpt-panel]");
+        return panel && !panel.hidden && getComputedStyle(panel).display !== "none";
+      })
+      .map((c) => c.getAttribute("data-subscrpt-group")),
+  );
+
+/** Groups whose radio says it is expanded. */
+const expanded = (page) =>
+  page.evaluate(() =>
+    Array.from(document.querySelectorAll('input[name="subscrpt_plan_group"][aria-expanded="true"]')).map(
+      (r) => r.value,
+    ),
+  );
+
+/** What has focus: its name, value, whether it is checked, and whether a ring shows on it or its label. */
+const focused = (page) =>
+  page.evaluate(() => {
+    const el = document.activeElement;
+    const label = el && el.id ? document.querySelector(`label[for="${el.id}"]`) : null;
+    const ring = (node) => {
+      const style = node ? getComputedStyle(node) : null;
+      return !!style && style.outlineStyle !== "none" && parseFloat(style.outlineWidth) > 0;
+    };
+    return {
+      name: el ? el.getAttribute("name") : null,
+      value: el ? el.value : null,
+      checked: !!(el && el.checked),
+      ring: ring(el) || ring(label),
+    };
+  });
+
+/** Tab into the options, then move along them with the arrow keys. */
+async function keyboard(browser, fx, layout) {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, ignoreHTTPSErrors: true });
+  await page.goto(fx.url, { waitUntil: "domcontentloaded", timeout: 90000 });
+  await page.waitForSelector("[data-subscrpt-buybox]", { timeout: 15000 });
+  await page.evaluate(() => {
+    const start = document.createElement("button");
+    start.type = "button";
+    start.id = "e2e-start";
+    document.querySelector("[data-subscrpt-buybox]").before(start);
+  });
+  await page.focus("#e2e-start");
+  await page.keyboard.press("Tab");
+  let f = await focused(page);
+  check(
+    f.name === "subscrpt_plan_group" && f.value === `grp_${fx.group}` && f.checked,
+    "keyboard: Tab lands on the checked option",
+    JSON.stringify(f),
+  );
+  check(f.ring, "keyboard: its focus ring shows");
+  await page.keyboard.press(layout === "buttons" ? "ArrowRight" : "ArrowDown");
+  f = await focused(page);
+  check(f.value === "one_time" && f.checked, "keyboard: an arrow key moves to One-Time", JSON.stringify(f));
+  check((await planId(page)) === "", "keyboard: and One-Time posts no plan");
+  if (layout === "accordion") {
+    check(JSON.stringify(await openPanels(page)) === '["one_time"]', "keyboard: One-Time's card opens");
+  } else {
+    const shown = await page.evaluate(() =>
+      Array.from(document.querySelectorAll("[data-subscrpt-card]"))
+        .filter((c) => !c.hidden)
+        .map((c) => c.getAttribute("data-subscrpt-group")),
+    );
+    check(JSON.stringify(shown) === '["one_time"]', "keyboard: One-Time's details show");
+  }
+  await page.keyboard.press(layout === "buttons" ? "ArrowLeft" : "ArrowUp");
+  await page.keyboard.press("Tab");
+  f = await focused(page);
+  check(
+    f.name === `subscrpt_plan_term[grp_${fx.group}]`,
+    "keyboard: back on the plan, Tab moves on to its intervals",
+    JSON.stringify(f),
+  );
+  await page.close();
+}
+
+/** The tiles sit side by side, equally wide, at 1440 and stack at 390. */
+async function tiles(browser, fx) {
+  for (const width of [1440, 390]) {
+    const page = await browser.newPage({ viewport: { width, height: 1000 }, ignoreHTTPSErrors: true });
+    await page.goto(fx.url, { waitUntil: "domcontentloaded", timeout: 90000 });
+    await page.waitForSelector("[data-subscrpt-buybox]", { timeout: 15000 });
+    const boxes = await page.evaluate(() =>
+      Array.from(document.querySelectorAll("[data-subscrpt-card]")).map((c) => {
+        const r = c.getBoundingClientRect();
+        return { top: Math.round(r.top), left: Math.round(r.left), width: Math.round(r.width) };
+      }),
+    );
+    if (width === 1440) {
+      check(
+        boxes.length === 2 && boxes[0].top === boxes[1].top && Math.abs(boxes[0].width - boxes[1].width) <= 1,
+        "the tiles are side by side, equally wide",
+        JSON.stringify(boxes),
+      );
+    } else {
+      check(
+        boxes.length === 2 && boxes[1].top > boxes[0].top && boxes[0].left === boxes[1].left,
+        "at 390 px the tiles stack",
+        JSON.stringify(boxes),
+      );
+    }
+    await page.close();
+  }
+}
+
 /** The fields an add-to-cart request carried, as name => value. */
 async function postedFields(page) {
   const req = page.waitForRequest((r) => r.method() === "POST" && /add-to-cart/.test(r.postData() || ""), {
@@ -140,8 +257,16 @@ const enabledBodyFields = (page) =>
       .map((i) => i.name),
   );
 
+/** The first four layouts were Task 23's; the rest are Task 24's. */
+const LAYOUTS = ["stacked", "classic", "dropdown", "accordion", "grid", "grid_savings", "buttons"];
+const TASK = { accordion: 24, grid: 24, grid_savings: 24, buttons: 24 };
+/** Layouts that render each group's body below the control, not in an option. */
+const BODY_BELOW = ["classic", "dropdown", "buttons"];
+/** Layouts whose option panel shows only while selected, with the intervals as a select. */
+const ONLY_SELECTED = ["dropdown", "buttons"];
+
 /** Screenshots of the buybox at both widths. */
-async function shoot(browser, url, name, prepare) {
+async function shoot(browser, url, name, prepare, task = 23) {
   for (const width of [1440, 390]) {
     const page = await browser.newPage({ viewport: { width, height: 1000 }, ignoreHTTPSErrors: true });
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 90000 });
@@ -153,7 +278,7 @@ async function shoot(browser, url, name, prepare) {
     // Let the chips' colour transition finish.
     await page.mouse.move(0, 0);
     await page.waitForTimeout(400);
-    await page.screenshot({ path: `${SHOT}/23-${name}-${width}.png` });
+    await page.screenshot({ path: `${SHOT}/${task}-${name}-${width}.png` });
     await page.close();
   }
 }
@@ -162,6 +287,9 @@ async function shoot(browser, url, name, prepare) {
 async function pickSecondTerm(page, fx, layout) {
   if (layout === "dropdown") {
     await page.selectOption('select[name="subscrpt_plan_group"]', `grp_${fx.group}`);
+    await page.selectOption(`select[name="subscrpt_plan_term[grp_${fx.group}]"]`, String(fx.terms[1]));
+  } else if (layout === "buttons") {
+    await page.click(`label[for="subscrpt-grp-grp_${fx.group}"]`);
     await page.selectOption(`select[name="subscrpt_plan_term[grp_${fx.group}]"]`, String(fx.terms[1]));
   } else {
     await page.click(`label[for="subscrpt-grp-grp_${fx.group}"]`);
@@ -189,7 +317,7 @@ async function pickOneTime(page, layout) {
   const browser = await chromium.launch();
 
   try {
-    for (const layout of ["stacked", "classic", "dropdown"]) {
+    for (const layout of LAYOUTS) {
       console.log(`${layout}`);
       setLayout(fx, layout);
       const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, ignoreHTTPSErrors: true });
@@ -199,17 +327,28 @@ async function pickOneTime(page, layout) {
       const box = page.locator("[data-subscrpt-buybox]");
       check((await box.getAttribute("data-subscrpt-layout")) === layout, `renders as ${layout}`);
       check((await planId(page)) === String(fx.terms[0]), "starts on the first term");
-      if (layout !== "stacked") {
+      if (BODY_BELOW.includes(layout)) {
         check(
           JSON.stringify(await shownBodies(page)) === JSON.stringify([`grp_${fx.group}`]),
           "only the group's body shows",
+        );
+      }
+      if (layout === "accordion") {
+        check(
+          JSON.stringify(await openPanels(page)) === JSON.stringify([`grp_${fx.group}`]),
+          "only the selected card is open",
+          JSON.stringify(await openPanels(page)),
+        );
+        check(
+          JSON.stringify(await expanded(page)) === JSON.stringify([`grp_${fx.group}`]),
+          "its radio alone is aria-expanded",
         );
       }
 
       await pickSecondTerm(page, fx, layout);
       check((await planId(page)) === String(fx.terms[1]), "the second term is posted");
       check((await shownPrice(page)).includes("16"), "its price shows", await shownPrice(page));
-      if (layout !== "dropdown") {
+      if (!ONLY_SELECTED.includes(layout)) {
         const active = await page.evaluate(() =>
           Array.from(document.querySelectorAll(".is-selected [data-subscrpt-term-btn].is-active")).map((l) =>
             l.getAttribute("data-term-id"),
@@ -222,12 +361,32 @@ async function pickOneTime(page, layout) {
         );
       }
 
+      if (layout === "grid_savings") {
+        check(
+          await page
+            .evaluate((g) => {
+              const tile = document.querySelector(`[data-subscrpt-group="${g}"]`);
+              const lead = tile && tile.firstElementChild;
+              const badge = lead ? lead.querySelector("[data-subscrpt-badge]") : null;
+              return !!badge && lead.classList.contains("subscrpt-buybox__lead") && !badge.hidden
+                ? badge.textContent.trim()
+                : "";
+            }, `grp_${fx.group}`)
+            .then((t) => t === "Save 20%"),
+          "the tile leads with Save 20%",
+        );
+      }
+
       await pickOneTime(page, layout);
       check((await planId(page)) === "", "One-Time posts no plan");
-      if (layout !== "stacked") {
+      if (BODY_BELOW.includes(layout)) {
         check(JSON.stringify(await shownBodies(page)) === '["one_time"]', "One-Time's body shows instead");
       }
-      if (layout === "dropdown") {
+      if (layout === "accordion") {
+        check(JSON.stringify(await openPanels(page)) === '["one_time"]', "One-Time opens, the plan folds");
+        check(JSON.stringify(await expanded(page)) === '["one_time"]', "aria-expanded moves with it");
+      }
+      if (ONLY_SELECTED.includes(layout)) {
         const shown = await page.evaluate(() =>
           Array.from(document.querySelectorAll("[data-subscrpt-card]"))
             .filter((c) => !c.hidden)
@@ -258,7 +417,20 @@ async function pickOneTime(page, layout) {
       );
       await page.close();
 
-      await shoot(browser, fx.url, `layout-${layout}`, (p) => pickSecondTerm(p, fx, layout));
+      if (layout === "accordion" || layout === "buttons") {
+        await keyboard(browser, fx, layout);
+      }
+      if (layout === "grid" || layout === "grid_savings") {
+        await tiles(browser, fx);
+      }
+
+      await shoot(
+        browser,
+        fx.url,
+        `layout-${layout.replace("_", "-")}`,
+        (p) => pickSecondTerm(p, fx, layout),
+        TASK[layout],
+      );
     }
 
     console.log("stacked, intervals as a dropdown");
