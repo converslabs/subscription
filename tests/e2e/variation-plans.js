@@ -13,7 +13,8 @@
  *
  *   1. The page shows one selector, holding only the placeholder.
  *   2. Picking a variation swaps in its server-rendered cards.
- *   3. Resetting the choice clears them back to the placeholder.
+ *   3. After the swap, a card's details panel opens and Escape closes it.
+ *   4. Resetting the choice clears them back to the placeholder.
  */
 const { chromium } = require("playwright");
 const { execSync } = require("child_process");
@@ -103,6 +104,18 @@ function cleanup(pid) {
   }
   const product = createProduct(terms);
 
+  // Give the plan group a details panel for the swap check, and put its data back after.
+  const groupId = parseInt(
+    php(
+      `global $wpdb; echo (int) $wpdb->get_var( "SELECT plan_group_id FROM {$wpdb->prefix}subscrpt_plan WHERE id = ${terms[0]}" );`,
+    ),
+    10,
+  );
+  const originalData = php(`echo wp_json_encode( ${REPO}::get_group( ${groupId} )["data"] );`);
+  php(
+    `${REPO}::update_group( ${groupId}, array( "data" => array( "storefront" => array( "tag" => "Tagged", "learn_more" => array( "label" => "Details", "url" => "", "panel" => "Panel text" ) ) ) ) );`,
+  );
+
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, ignoreHTTPSErrors: true });
 
@@ -172,8 +185,21 @@ function cleanup(pid) {
       "choosing the second term posts it",
     );
 
-    // ── 3. Reset ────────────────────────────────────────────────────────────
-    console.log("3. Resetting clears the cards");
+    // ── 3. Details panel after the swap ─────────────────────────────────────
+    console.log("3. The details panel works on swapped-in cards");
+    const toggle = box.locator("[data-subscrpt-details-toggle]").first();
+    check((await toggle.count()) === 1, "the swapped-in card has a details button");
+    check((await box.locator(".subscrpt-buybox__ribbon").first().textContent()) === "Tagged", "and its ribbon");
+    await toggle.click();
+    check((await toggle.getAttribute("aria-expanded")) === "true", "a click opens the panel");
+    check(await box.locator(".subscrpt-buybox__details").first().isVisible(), "the panel shows");
+    await page.keyboard.press("Escape");
+    check((await toggle.getAttribute("aria-expanded")) === "false", "Escape closes it");
+    check(!(await box.locator(".subscrpt-buybox__details").first().isVisible()), "the panel is hidden again");
+    check(await toggle.evaluate((el) => el === document.activeElement), "focus is back on its button");
+
+    // ── 4. Reset ────────────────────────────────────────────────────────────
+    console.log("4. Resetting clears the cards");
     await page.locator(".reset_variations").click();
     await page.waitForTimeout(500);
     check((await page.locator("[data-subscrpt-buybox] [data-subscrpt-card]").count()) === 0, "the cards are gone");
@@ -185,6 +211,9 @@ function cleanup(pid) {
     check(false, "run", e.message);
   } finally {
     await browser.close();
+    php(
+      `${REPO}::update_group( ${groupId}, array( "data" => json_decode( '${originalData.replace(/'/g, "\\'")}', true ) ?: array() ) );`,
+    );
     cleanup(product.id);
   }
 

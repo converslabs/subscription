@@ -143,8 +143,15 @@ namespace {
 	}
 
 	if ( ! function_exists( 'esc_url_raw' ) ) {
-		function esc_url_raw( $url ) {
-			return preg_match( '#^(https?://|/)#i', (string) $url ) ? trim( (string) $url ) : '';
+		function esc_url_raw( $url, $protocols = null ) {
+			$url       = trim( (string) $url );
+			$protocols = null === $protocols ? [ 'http', 'https', 'ftp', 'ftps', 'mailto', 'tel' ] : (array) $protocols;
+
+			if ( preg_match( '#^([a-z][a-z0-9+.-]*):#i', $url, $m ) ) {
+				return in_array( strtolower( $m[1] ), $protocols, true ) ? $url : '';
+			}
+
+			return 0 === strpos( $url, '/' ) ? $url : 'http://' . $url;
 		}
 	}
 

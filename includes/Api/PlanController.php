@@ -378,12 +378,18 @@ class PlanController {
 		};
 		$tag   = $text( isset( $raw['tag'] ) ? $raw['tag'] : '' );
 
+		$url = isset( $learn['url'] ) && is_string( $learn['url'] ) ? trim( $learn['url'] ) : '';
+		// Absolute http(s), or a path on this site: not `//host`, not a bare word.
+		if ( ! preg_match( '#^(https?://|/(?!/))#i', $url ) ) {
+			$url = '';
+		}
+
 		$clean = array(
 			'benefits_heading' => $text( isset( $raw['benefits_heading'] ) ? $raw['benefits_heading'] : '' ),
 			'benefits'         => array_slice( $benefits, 0, 5 ),
 			'learn_more'       => array(
 				'label' => $text( isset( $learn['label'] ) ? $learn['label'] : '' ),
-				'url'   => isset( $learn['url'] ) && is_string( $learn['url'] ) ? esc_url_raw( trim( $learn['url'] ), array( 'http', 'https' ) ) : '',
+				'url'   => '' !== $url ? esc_url_raw( $url, array( 'http', 'https' ) ) : '',
 				'panel' => $text( isset( $learn['panel'] ) ? $learn['panel'] : '' ),
 			),
 			'tag'              => function_exists( 'mb_substr' ) ? mb_substr( $tag, 0, 30 ) : substr( $tag, 0, 30 ),

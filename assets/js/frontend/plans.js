@@ -128,6 +128,29 @@
     }
   });
 
+  // Escape closes an open details panel and hands focus back to its button.
+  box.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") {
+      return;
+    }
+    var panel = e.target.closest(".subscrpt-buybox__details");
+    var toggle = e.target.closest("[data-subscrpt-details-toggle]");
+    if (panel) {
+      toggle = box.querySelector('[aria-controls="' + panel.id + '"]');
+    } else if (toggle && toggle.getAttribute("aria-expanded") !== "true") {
+      return;
+    }
+    if (!toggle) {
+      return;
+    }
+    toggle.setAttribute("aria-expanded", "false");
+    var target = document.getElementById(toggle.getAttribute("aria-controls"));
+    if (target) {
+      target.hidden = true;
+    }
+    toggle.focus();
+  });
+
   // A click anywhere on a card selects it, except inside its body, which holds
   // controls of its own. A click on a term of an unselected card selects the
   // card first, which enables the term before the label checks it.

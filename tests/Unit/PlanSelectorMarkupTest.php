@@ -291,7 +291,6 @@ class PlanSelectorMarkupTest extends TestCase {
 	 * A fixture group carrying storefront fields.
 	 *
 	 * @param array $storefront Storefront fields.
-	 * @param array $overrides  Group keys to override.
 	 */
 	private function with_storefront( array $storefront ): array {
 		$groups                  = $this->fixture_groups();
@@ -339,6 +338,7 @@ class PlanSelectorMarkupTest extends TestCase {
 		$this->assertSame( 1, $badge->length, 'the discount badge is still there' );
 		$this->assertSame( 'Save 20%', trim( $badge->item( 0 )->textContent ) );
 		$this->assertNotSame( $ribbon->item( 0 ), $badge->item( 0 ) );
+		$this->assertSame( 1, $xpath->query( $this->with_class( 'subscrpt-buybox__ribbon' ) )->length, 'the other cards show no ribbon' );
 	}
 
 	public function test_learn_more_link_or_panel() {
@@ -358,6 +358,7 @@ class PlanSelectorMarkupTest extends TestCase {
 		$this->assertSame( 'https://example.com/terms', $anchor->item( 0 )->getAttribute( 'href' ) );
 		$this->assertSame( 'Read the terms', trim( $anchor->item( 0 )->textContent ) );
 		$this->assertSame( 0, $link->query( '//button[@aria-expanded]' )->length );
+		$this->assertSame( 1, $link->query( '//*[contains(@class,"subscrpt-buybox__learn-more")]' )->length, 'the other cards show no link' );
 
 		$panel  = $this->render( $this->with_storefront( [ 'learn_more' => [ 'label' => '', 'url' => '', 'panel' => 'Billed on the day you join.' ] ] ) );
 		$button = $panel->query( '//button[@aria-expanded][@aria-controls]' );

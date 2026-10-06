@@ -74,12 +74,22 @@ class PlanStorefrontDataTest extends TestCase {
 		$this->assertSame( 'chips', $merged['storefront']['intervals'], 'a field the form did not send is not erased' );
 	}
 
-	public function test_only_http_urls_and_relative_paths_are_kept() {
-		foreach ( [ 'ftp://example.com/x', 'data:text/html,x', 'javascript:alert(1)' ] as $bad ) {
-			$this->assertSame( '', PlanController::sanitize_storefront( [ 'learn_more' => [ 'url' => $bad ] ] )['learn_more']['url'], $bad );
+	public function test_only_http_urls_and_site_paths_are_kept() {
+		$url = static function ( string $in ): string {
+			return PlanController::sanitize_storefront( [ 'learn_more' => [ 'url' => $in ] ] )['learn_more']['url'];
+		};
+
+		foreach ( [ 'ftp://example.com/x', 'data:text/html,x', 'javascript:alert(1)', '//evil.com/x', 'terms', 'www.example.com' ] as $bad ) {
+			$this->assertSame( '', $url( $bad ), $bad );
 		}
-		$this->assertSame( '/terms/', PlanController::sanitize_storefront( [ 'learn_more' => [ 'url' => '/terms/' ] ] )['learn_more']['url'] );
-		$this->assertSame( 'http://example.com/a', PlanController::sanitize_storefront( [ 'learn_more' => [ 'url' => 'http://example.com/a' ] ] )['learn_more']['url'] );
+		$this->assertSame( '/terms/', $url( '/terms/' ) );
+		$this->assertSame( 'http://example.com/a', $url( 'http://example.com/a' ) );
+		$this->assertSame( 'https://example.com/a', $url( ' https://example.com/a ' ) );
+	}
+
+	public function test_the_protocol_list_is_what_drops_other_schemes() {
+		$this->assertSame( '', esc_url_raw( 'ftp://example.com', [ 'http', 'https' ] ), 'the stub honours the list' );
+		$this->assertSame( 'ftp://example.com', esc_url_raw( 'ftp://example.com' ), 'and allows ftp without one' );
 	}
 
 	public function test_merged_storefront_is_sanitised_again() {
