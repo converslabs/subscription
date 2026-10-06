@@ -100,7 +100,7 @@ class PlanGroups {
 			$term = [
 				'id'               => (int) $row['plan_id'],
 				'label'            => $row['plan_title'],
-				'interval_label'   => self::interval_text( $row ),
+				'interval_label'   => self::interval_text( $row, $type_key ),
 				'price'            => wc_price( $price_num ),
 				'regular_price'    => self::term_regular_price( $row, $type_key ),
 				'note'             => self::term_note( $row, $type_key, $price_num ),
@@ -266,7 +266,7 @@ class PlanGroups {
 			case 'subscribe_save':
 				return __( 'Deliver every', 'subscription' );
 			case 'installments':
-				return __( 'Pay in', 'subscription' );
+				return __( 'Pay every', 'subscription' );
 			default:
 				return __( 'Billed every', 'subscription' );
 		}
@@ -299,11 +299,12 @@ class PlanGroups {
 	 * What a term's chip reads: the interval ("1 month", "2 weeks"), unless the
 	 * merchant's plan title is a name of its own ("Barista's pick"), which is kept.
 	 *
-	 * @param array $row Resolved plan row.
+	 * @param array  $row      Resolved plan row.
+	 * @param string $type_key Plan type key; installments add their payment count.
 	 *
 	 * @return string
 	 */
-	private static function interval_text( array $row ): string {
+	private static function interval_text( array $row, string $type_key = 'recurring' ): string {
 		$title = trim( (string) $row['plan_title'] );
 		$freq  = max( 1, (int) $row['billing_frequency'] );
 		$unit  = strtolower( PlanPresenter::interval_label( (int) $row['billing_interval'] ) );
@@ -311,7 +312,19 @@ class PlanGroups {
 
 		$phrase = '/^(every\s+)?(\d+\s*)?(day|week|month|year)s?$|^(daily|weekly|monthly|yearly|annual|annually|quarterly)$/i';
 
-		return ( '' === $title || preg_match( $phrase, $title ) ) ? $every : $title;
+		$text = ( '' === $title || preg_match( $phrase, $title ) ) ? $every : $title;
+
+		if ( 'installments' === $type_key ) {
+			$count = self::installment_count( $row );
+			$text  = sprintf(
+				/* translators: 1: billing interval, e.g. "1 month", 2: number of payments. */
+				_n( '%1$s · %2$d payment', '%1$s · %2$d payments', $count, 'subscription' ),
+				$text,
+				$count
+			);
+		}
+
+		return $text;
 	}
 
 	/**
