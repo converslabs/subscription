@@ -372,3 +372,124 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* Intervals as a dropdown: the heading labels the select, under the note. */
+.subscrpt-buybox__terms--select {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+
+.subscrpt-buybox__term-select,
+.subscrpt-buybox__select {
+  width: 100%;
+  max-width: 100%;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--subscrpt-line);
+  border-radius: 6px;
+  background-color: var(--subscrpt-surface);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+}
+
+.subscrpt-buybox__term-select:focus-visible,
+.subscrpt-buybox__select:focus-visible {
+  outline: 2px solid var(--subscrpt-accent);
+  outline-offset: 2px;
+}
+
+/* Classic layout: a plain radio list, a row per option, the price on the right. */
+.subscrpt-buybox__list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--subscrpt-line);
+  border-radius: var(--subscrpt-radius);
+  background: var(--subscrpt-surface);
+}
+
+.subscrpt-buybox__row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.subscrpt-buybox__row + .subscrpt-buybox__row {
+  border-top: 1px solid var(--subscrpt-line);
+}
+
+.subscrpt-buybox__row .subscrpt-buybox__label {
+  font-size: 15px;
+}
+
+.subscrpt-buybox__row:not(.is-selected) .subscrpt-buybox__label {
+  font-weight: 500;
+}
+
+/* Only the selected row shows its interval choice. */
+.subscrpt-buybox__row:not(.is-selected) .subscrpt-buybox__terms {
+  display: none;
+}
+
+.subscrpt-buybox__row .subscrpt-buybox__terms {
+  margin-top: 8px;
+}
+
+/* In a row or a dropdown panel the badge and tag sit in the line, not on an edge. */
+.subscrpt-buybox__row .subscrpt-buybox__badge,
+.subscrpt-buybox__row .subscrpt-buybox__ribbon,
+.subscrpt-buybox__option .subscrpt-buybox__badge,
+.subscrpt-buybox__option .subscrpt-buybox__ribbon {
+  position: static;
+}
+
+/* Compact dropdown: one select for the option, the chosen option's details under it. */
+.subscrpt-buybox__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subscrpt-buybox__field-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.subscrpt-buybox__option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subscrpt-buybox__option[hidden] {
+  display: none;
+}
+
+.subscrpt-buybox__option .subscrpt-buybox__head {
+  flex-wrap: wrap;
+}
+
+.subscrpt-buybox__option .subscrpt-buybox__price {
+  margin-left: 0;
+}
+
+.subscrpt-buybox__option .subscrpt-buybox__note,
+.subscrpt-buybox__option .subscrpt-buybox__terms {
+  padding-left: 0;
+}
+
+/* A body rendered below the options, shown for the selected one only. */
+.subscrpt-buybox__body[data-subscrpt-body-for] .subscrpt-buybox__benefits-heading,
+.subscrpt-buybox__body[data-subscrpt-body-for] .subscrpt-buybox__benefits,
+.subscrpt-buybox__body[data-subscrpt-body-for] .subscrpt-buybox__learn-more,
+.subscrpt-buybox__body[data-subscrpt-body-for] .subscrpt-buybox__details {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.subscrpt-buybox__body[hidden] {
+  display: none;
+}

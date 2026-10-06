@@ -51,6 +51,14 @@ $subscrpt_hint     = 'margin:5px 0 0;color:var(--wpsubs-text-muted);font-size:13
 	<textarea id="subscrpt-sf-learn-panel" class="wpsubs-input" rows="3" data-subscrpt-sf="learn_panel"><?php echo esc_textarea( $subscrpt_sf['learn_more']['panel'] ); ?></textarea>
 	<p style="<?php echo esc_attr( $subscrpt_hint ); ?>"><?php esc_html_e( 'Give a link, or text to show in a panel on the page.', 'subscription' ); ?></p>
 
+	<label for="subscrpt-sf-intervals" style="<?php echo esc_attr( $subscrpt_label ); ?>margin-top:20px;"><?php esc_html_e( 'Show the intervals as', 'subscription' ); ?></label>
+	<select id="subscrpt-sf-intervals" class="wpsubs-input" data-subscrpt-sf="intervals">
+		<option value="" <?php selected( $subscrpt_sf['intervals'], '' ); ?>><?php esc_html_e( 'Store default', 'subscription' ); ?></option>
+		<option value="chips" <?php selected( $subscrpt_sf['intervals'], 'chips' ); ?>><?php esc_html_e( 'Chips', 'subscription' ); ?></option>
+		<option value="dropdown" <?php selected( $subscrpt_sf['intervals'], 'dropdown' ); ?>><?php esc_html_e( 'Dropdown', 'subscription' ); ?></option>
+	</select>
+	<p style="<?php echo esc_attr( $subscrpt_hint ); ?>"><?php esc_html_e( 'How shoppers pick how often, when this plan has more than one interval.', 'subscription' ); ?></p>
+
 	<div style="margin-top:20px;">
 		<button type="button" class="wpsubs-btn wpsubs-btn--primary" data-subscrpt-sf-save><?php esc_html_e( 'Save', 'subscription' ); ?></button>
 	</div>

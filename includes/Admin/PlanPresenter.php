@@ -74,7 +74,7 @@ class PlanPresenter {
 	}
 
 	/**
-	 * The group's storefront fields (benefits, learn-more link, tag), with defaults.
+	 * The group's storefront fields (benefits, learn-more link, tag, intervals), with defaults.
 	 *
 	 * @param array $tree Group tree.
 	 *
@@ -93,6 +93,7 @@ class PlanPresenter {
 					'panel' => '',
 				),
 				'tag'              => '',
+				'intervals'        => '',
 			),
 			$stored
 		);

@@ -179,7 +179,7 @@ class Plans {
 
 		// Filled by plans.js from the chosen variation's `subscrpt_plans_html`.
 		if ( $product->is_type( 'variable' ) ) {
-			echo '<div class="subscrpt-buybox" data-subscrpt-buybox data-subscrpt-variable="1">';
+			echo '<div class="subscrpt-buybox" data-subscrpt-buybox data-subscrpt-variable="1" data-subscrpt-layout="' . esc_attr( self::layout_for( $product ) ) . '">';
 			echo '<p class="subscrpt-buybox__placeholder">' . esc_html__( 'Select options to see available plans.', 'subscription' ) . '</p>';
 			echo '</div>';
 			return;
@@ -213,6 +213,53 @@ class Plans {
 			'subscription',
 			SUBSCRPT_TEMPLATES
 		);
+	}
+
+	/**
+	 * The purchase option layouts: key => partial, relative to the templates
+	 * directory and overridable from a theme's `subscription/` like any template.
+	 *
+	 * @return array
+	 */
+	public static function layouts(): array {
+		$defaults = [
+			'stacked'  => 'product/plan-selector/stacked.php',
+			'classic'  => 'product/plan-selector/classic.php',
+			'dropdown' => 'product/plan-selector/dropdown.php',
+		];
+
+		/**
+		 * Filters the purchase option layouts a product page can use.
+		 *
+		 * `stacked` is the fallback for any layout not in the list, so it is
+		 * always kept.
+		 *
+		 * @param array $layouts Layout key => template path, relative to the plugin's
+		 *                       `templates/` and overridable from the theme.
+		 */
+		$layouts = apply_filters( 'subscrpt_plan_selector_layouts', $defaults );
+		$layouts = is_array( $layouts ) ? array_filter( $layouts, 'is_string' ) : [];
+
+		return array_merge( [ 'stacked' => $defaults['stacked'] ], $layouts );
+	}
+
+	/**
+	 * The layout a product's purchase options render in — the one place it is
+	 * decided: the product's own choice, else the store's, else stacked. A value
+	 * that names no known layout is stacked too.
+	 *
+	 * @param \WC_Product $product Product, or a variation (its parent decides).
+	 *
+	 * @return string
+	 */
+	public static function layout_for( \WC_Product $product ): string {
+		$id     = $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id();
+		$layout = (string) get_post_meta( $id, '_subscrpt_plan_selector_layout', true );
+		if ( '' === $layout ) {
+			$layout = (string) get_option( 'subscrpt_plan_selector_layout', '' );
+		}
+
+		return array_key_exists( $layout, self::layouts() ) ? $layout : 'stacked';
 	}
 
 	/**

@@ -1,9 +1,12 @@
 /**
  * Storefront plan selector (free).
  *
- * Pick a plan group (radio card), then a term (a radio group inside the card).
- * The chosen plan-term id is written to a hidden field that posts with
- * add-to-cart. Simple products are
+ * Pick a plan group, then a term. One script drives every layout through data
+ * attributes: a group is chosen by a `subscrpt_plan_group` radio or select, each
+ * option is a `[data-subscrpt-card]`, its terms are radios or a select, and a
+ * layout with no room in its options renders each group's body below them as
+ * `[data-subscrpt-body-for]`. The chosen plan-term id is written to a hidden
+ * field that posts with add-to-cart. Simple products are
  * rendered on the server; a variable product starts with a placeholder and swaps
  * in the chosen variation's server-rendered cards (`subscrpt_plans_html`).
  * Pure DOM apart from WooCommerce's jQuery variation events; no API.
@@ -17,6 +20,53 @@
   }
 
   /**
+   * The group a purchase option belongs to: its `data-subscrpt-group`, or the
+   * value of the group radio inside it (stacked cards, and a theme's copy of
+   * the older template).
+   *
+   * @param {HTMLElement} card A `[data-subscrpt-card]` option.
+   * @return {string} The group id, or "".
+   */
+  function groupOf(card) {
+    if (card.hasAttribute("data-subscrpt-group")) {
+      return card.getAttribute("data-subscrpt-group");
+    }
+    var radio = card.querySelector('input[name="subscrpt_plan_group"]');
+    return radio ? radio.value : "";
+  }
+
+  /**
+   * The selected group: the purchase-option select's value in the dropdown
+   * layout, the checked group radio in the others.
+   *
+   * @return {string} The group id, or "".
+   */
+  function selectedGroup() {
+    var select = box.querySelector('select[name="subscrpt_plan_group"]');
+    if (select) {
+      return select.value;
+    }
+    var checked = box.querySelector('input[name="subscrpt_plan_group"]:checked');
+    return checked ? checked.value : "";
+  }
+
+  /**
+   * The option element of the selected group.
+   *
+   * @return {?HTMLElement} The `[data-subscrpt-card]`, or null.
+   */
+  function selectedCard() {
+    var group = selectedGroup();
+    var found = null;
+    box.querySelectorAll("[data-subscrpt-card]").forEach(function (card) {
+      if (!found && groupOf(card) === group) {
+        found = card;
+      }
+    });
+    return found;
+  }
+
+  /**
    * Write the chosen plan-term id into the hidden field that posts with
    * add-to-cart.
    */
@@ -25,15 +75,17 @@
     if (!hidden) {
       return;
     }
-    var checked = box.querySelector('input[name="subscrpt_plan_group"]:checked');
-    var card = checked ? checked.closest("[data-subscrpt-card]") : null;
+    var card = selectedCard();
     var planId = "";
     if (card) {
       var term = card.querySelector("input[data-subscrpt-term]:checked");
+      var select = card.querySelector("select[data-subscrpt-term-select]");
       // A theme's copy of the older template marks its term buttons instead.
       var legacy = card.querySelector("button[data-subscrpt-term-btn].is-active");
       if (term) {
         planId = term.value;
+      } else if (select) {
+        planId = select.value;
       } else if (legacy) {
         planId = legacy.getAttribute("data-term-id");
       } else if (card.hasAttribute("data-subscrpt-single-term")) {
@@ -44,17 +96,25 @@
   }
 
   /**
-   * Mark the card whose radio is checked and enable only its terms, so a term
-   * of an unselected card is neither posted nor reached with Tab.
+   * Mark the selected group's option and enable only its terms, so a term of
+   * another group is neither posted nor reached with Tab. An option marked
+   * `data-subscrpt-only-selected` shows only while selected, and the body
+   * rendered below the control for each group shows only for the selected one.
    */
   function syncCards() {
+    var group = selectedGroup();
     box.querySelectorAll("[data-subscrpt-card]").forEach(function (card) {
-      var radio = card.querySelector('input[name="subscrpt_plan_group"]');
-      var selected = !!(radio && radio.checked);
+      var selected = groupOf(card) === group;
       card.classList.toggle("is-selected", selected);
-      card.querySelectorAll("input[data-subscrpt-term]").forEach(function (term) {
+      if (card.hasAttribute("data-subscrpt-only-selected")) {
+        card.hidden = !selected;
+      }
+      card.querySelectorAll("input[data-subscrpt-term], select[data-subscrpt-term-select]").forEach(function (term) {
         term.disabled = !selected;
       });
+    });
+    box.querySelectorAll("[data-subscrpt-body-for]").forEach(function (body) {
+      body.hidden = body.getAttribute("data-subscrpt-body-for") !== group;
     });
     syncPlanId();
   }
@@ -110,6 +170,12 @@
       syncCards();
     } else if (e.target.hasAttribute && e.target.hasAttribute("data-subscrpt-term")) {
       showTerm(e.target);
+      syncPlanId();
+    } else if (e.target.hasAttribute && e.target.hasAttribute("data-subscrpt-term-select")) {
+      var option = e.target.options[e.target.selectedIndex];
+      if (option) {
+        showTerm(option);
+      }
       syncPlanId();
     }
   });
@@ -189,9 +255,14 @@
    *
    * @param {string} html    Inner markup to show.
    * @param {string} context The `data-subscrpt-context` of that markup, or "".
+   * @param {string} layout  The `data-subscrpt-layout` of that markup, or "" to keep the box's.
    */
-  function swap(html, context) {
-    if (html === box.innerHTML && (context || null) === box.getAttribute("data-subscrpt-context")) {
+  function swap(html, context, layout) {
+    if (
+      html === box.innerHTML &&
+      (context || null) === box.getAttribute("data-subscrpt-context") &&
+      (!layout || layout === box.getAttribute("data-subscrpt-layout"))
+    ) {
       return;
     }
     box.dispatchEvent(new CustomEvent("subscrpt_cards_before_swap", { bubbles: true }));
@@ -200,6 +271,9 @@
       box.setAttribute("data-subscrpt-context", context);
     } else {
       box.removeAttribute("data-subscrpt-context");
+    }
+    if (layout) {
+      box.setAttribute("data-subscrpt-layout", layout);
     }
     syncCards();
     box.dispatchEvent(new CustomEvent("subscrpt_cards_after_swap", { bubbles: true }));
@@ -219,7 +293,11 @@
       swap(placeholder, "");
       return;
     }
-    swap(rendered.innerHTML, rendered.getAttribute("data-subscrpt-context") || "");
+    swap(
+      rendered.innerHTML,
+      rendered.getAttribute("data-subscrpt-context") || "",
+      rendered.getAttribute("data-subscrpt-layout") || "",
+    );
   }
 
   var $form = $(box).closest("form.variations_form");

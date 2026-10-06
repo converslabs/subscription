@@ -171,6 +171,7 @@
         url: field("learn_url"),
         panel: field("learn_panel"),
       },
+      intervals: field("intervals"),
     };
   }
 
