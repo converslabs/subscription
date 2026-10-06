@@ -66,7 +66,7 @@ class Plans {
 	 *
 	 * @return bool
 	 */
-	private static function product_has_plans( $product ) {
+	public static function product_has_plans( $product ) {
 		if ( ! $product instanceof \WC_Product ) {
 			return false;
 		}

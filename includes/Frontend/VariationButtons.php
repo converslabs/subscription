@@ -56,7 +56,8 @@ class VariationButtons {
 	}
 
 	/**
-	 * Whether a product gets buttons: a variable product that sells a plan,
+	 * Whether a product gets buttons: a variable product whose plan cards show
+	 * (`Plans::product_has_plans()`, which for a variable product needs pro),
 	 * with the setting on.
 	 *
 	 * @param mixed $product Product object.
@@ -67,7 +68,7 @@ class VariationButtons {
 		return $product instanceof \WC_Product
 			&& $product->is_type( 'variable' )
 			&& self::is_enabled()
-			&& subscrpt_plan_offered( $product->get_id() );
+			&& Plans::product_has_plans( $product );
 	}
 
 	/**

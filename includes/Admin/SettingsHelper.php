@@ -181,12 +181,12 @@ class SettingsHelper {
 	 */
 	public static function categories() {
 		return array(
-			'renewals'  => __( 'Renewals', 'subscription' ),
-			'payments'  => __( 'Payments', 'subscription' ),
-			'switching' => __( 'Switching & Upgrades', 'subscription' ),
+			'renewals'     => __( 'Renewals', 'subscription' ),
+			'payments'     => __( 'Payments', 'subscription' ),
+			'switching'    => __( 'Switching & Upgrades', 'subscription' ),
 			'product_page' => __( 'Product page', 'subscription' ),
-			'customers' => __( 'Customers', 'subscription' ),
-			'advanced'  => __( 'Advanced', 'subscription' ),
+			'customers'    => __( 'Customers', 'subscription' ),
+			'advanced'     => __( 'Advanced', 'subscription' ),
 		);
 	}
 
