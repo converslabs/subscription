@@ -10,10 +10,9 @@ namespace SpringDevs\Subscription\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use SpringDevs\Subscription\Frontend\PlanGroups;
 use SpringDevs\Subscription\Frontend\Plans;
-use SpringDevs\Subscription\Illuminate\Plans\PlanRepository;
 
 /**
- * Plans::selector_html() and Plans::push_variation_html().
+ * Plans::selector_html() renders the same cards for both contexts.
  */
 class PlanVariationHtmlTest extends TestCase {
 
@@ -26,7 +25,6 @@ class PlanVariationHtmlTest extends TestCase {
 		$GLOBALS['wp_hooks_registry'] = [];
 		$GLOBALS['applied_filters']   = [];
 		$GLOBALS['wp_object_cache']   = [];
-		$GLOBALS['wp_is_product']     = false;
 	}
 
 	/**
@@ -66,36 +64,6 @@ class PlanVariationHtmlTest extends TestCase {
 		);
 	}
 
-	/**
-	 * A variable parent (30) and two of its variations: 31 has a plan, 32 none.
-	 */
-	private function variable(): array {
-		$GLOBALS['wp_object_cache'][ PlanRepository::CACHE_GROUP ]['product_30'] = [
-			$this->row( 11, 31, 10 ),
-			$this->row( 12, 31, 25 ),
-		];
-
-		return [
-			new \WC_Product_Stub( 30, 'Beans', [ 'type' => 'variable' ] ),
-			new \WC_Product_Stub(
-				31,
-				'Beans - Large',
-				[
-					'type'          => 'variation',
-					'regular_price' => '40',
-				]
-			),
-			new \WC_Product_Stub(
-				32,
-				'Beans - Small',
-				[
-					'type'          => 'variation',
-					'regular_price' => '15',
-				]
-			),
-		];
-	}
-
 	public function test_variation_card_html_equals_simple_card_html_for_the_same_groups() {
 		$groups  = $this->sample_groups();
 		$product = new \WC_Product_Stub( 10, 'Beans', [ 'regular_price' => '20' ] );
@@ -111,14 +79,5 @@ class PlanVariationHtmlTest extends TestCase {
 			str_replace( 'data-subscrpt-context="page"', '', $page ),
 			str_replace( 'data-subscrpt-context="variation"', '', $variation )
 		);
-	}
-
-	public function test_variation_without_plans_gets_no_html() {
-		list( $parent, , $variation ) = $this->variable();
-		$GLOBALS['wp_is_product']     = true;
-
-		$data = Plans::push_variation_html( [ 'variation_id' => 32 ], $parent, $variation );
-
-		$this->assertSame( [ 'variation_id' => 32 ], $data );
 	}
 }
