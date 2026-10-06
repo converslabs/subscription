@@ -191,7 +191,7 @@ class PlanLayoutsTest extends TestCase {
 	public function test_layouts_filter_registers_defaults() {
 		$layouts = Plans::layouts();
 
-		$this->assertSame( [ 'stacked', 'classic', 'dropdown' ], array_keys( $layouts ) );
+		$this->assertSame( [ 'stacked', 'classic', 'dropdown', 'accordion', 'grid', 'grid_savings', 'buttons' ], array_keys( $layouts ) );
 		foreach ( $layouts as $key => $path ) {
 			$this->assertSame( "product/plan-selector/{$key}.php", $path );
 			$this->assertFileExists( SUBSCRPT_TEMPLATES . $path );
@@ -388,7 +388,7 @@ class PlanLayoutsTest extends TestCase {
 	}
 
 	public function test_card_body_fires_once_per_group_and_one_is_visible() {
-		foreach ( [ 'dropdown', 'classic' ] as $layout ) {
+		foreach ( [ 'dropdown', 'classic', 'buttons' ] as $layout ) {
 			$GLOBALS['applied_actions']   = [];
 			$GLOBALS['wp_hooks_registry'] = [];
 			$GLOBALS['wp_hooks_registry']['subscrpt_plan_card_body'][10][] = [
@@ -422,5 +422,145 @@ class PlanLayoutsTest extends TestCase {
 			$last    = $options->item( $options->length - 1 );
 			$this->assertSame( 4, $xpath->query( 'following::div[@data-subscrpt-body-for]', $last )->length, "{$layout}: the bodies sit after the options" );
 		}
+	}
+
+	/**
+	 * Listen on `subscrpt_plan_card_body`, printing the group it fired for.
+	 */
+	private function listen_on_body(): void {
+		$GLOBALS['wp_hooks_registry']['subscrpt_plan_card_body'][10][] = [
+			static function ( $group ) {
+				echo '<span class="test-body">' . esc_html( $group['id'] ) . '</span>';
+			},
+			1,
+		];
+	}
+
+	/**
+	 * Every option's group radio: one per card, labelled, the first checked.
+	 *
+	 * @param \DOMXPath    $xpath Parsed selector.
+	 * @param \DOMNodeList $cards The options.
+	 */
+	private function assert_labelled_radios( \DOMXPath $xpath, \DOMNodeList $cards ): void {
+		foreach ( $cards as $i => $card ) {
+			$radio = $xpath->query( ".//input[@type='radio'][@name='subscrpt_plan_group']", $card );
+			$this->assertSame( 1, $radio->length, "option {$i} has its radio" );
+			$this->assertSame( 0 === $i, $radio->item( 0 )->hasAttribute( 'checked' ), 'the first option starts checked' );
+			$this->assertSame( 1, $xpath->query( "//label[@for='" . $radio->item( 0 )->getAttribute( 'id' ) . "']" )->length, "option {$i} is labelled" );
+		}
+	}
+
+	/**
+	 * Each card holds its own group's body, and the action fired once per group.
+	 *
+	 * @param \DOMXPath    $xpath Parsed selector.
+	 * @param \DOMNodeList $cards The options.
+	 */
+	private function assert_body_in_each_card( \DOMXPath $xpath, \DOMNodeList $cards ): void {
+		$this->assertCount( 4, $GLOBALS['applied_actions']['subscrpt_plan_card_body'] ?? [], 'once per group' );
+		$this->assertSame( 0, $xpath->query( '//*[@data-subscrpt-body-for]' )->length, 'no body below the options' );
+		foreach ( $this->fixture_groups() as $i => $group ) {
+			$body = $xpath->query( './/*[@data-subscrpt-card-body]', $cards->item( $i ) );
+			$this->assertSame( 1, $body->length, "{$group['id']} has a body in its card" );
+			$this->assertSame( $group['id'], trim( $body->item( 0 )->textContent ), "the body of {$group['id']}" );
+		}
+	}
+
+	public function test_accordion_cards_collapse_to_one_line_and_the_selected_opens() {
+		$this->listen_on_body();
+		$groups                     = $this->fixture_groups();
+		$groups[0]['storefront']    = [ 'benefits' => [ 'Skip any time' ] ];
+		$xpath                      = $this->render( 'accordion', $groups );
+
+		$this->assertSame( 'accordion', $this->layout_of( $xpath ) );
+		$cards = $xpath->query( '//*[@data-subscrpt-card]' );
+		$this->assertSame( 4, $cards->length );
+		$this->assert_labelled_radios( $xpath, $cards );
+		$this->assert_body_in_each_card( $xpath, $cards );
+
+		foreach ( $cards as $i => $card ) {
+			// One line: the head holds the radio, label and price; the rest folds away.
+			$head  = $xpath->query( "./*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__head ')]", $card )->item( 0 );
+			$radio = $xpath->query( ".//input[@name='subscrpt_plan_group']", $head )->item( 0 );
+			$this->assertInstanceOf( \DOMElement::class, $radio, "option {$i}: its radio is on the line" );
+
+			$panel_id = $radio->getAttribute( 'aria-controls' );
+			$panel    = $xpath->query( "./*[@id='{$panel_id}'][@data-subscrpt-panel]", $card )->item( 0 );
+			$this->assertInstanceOf( \DOMElement::class, $panel, "option {$i}: the radio controls its panel" );
+			$this->assertSame( 0 === $i ? 'true' : 'false', $radio->getAttribute( 'aria-expanded' ), "option {$i}: aria-expanded" );
+			$this->assertSame( 0 !== $i, $panel->hasAttribute( 'hidden' ), "option {$i}: only the selected one opens" );
+			$this->assertSame( 1, $xpath->query( './/*[@data-subscrpt-card-body]', $panel )->length, "option {$i}: the body is in the panel" );
+		}
+
+		$first = $xpath->query( "//*[@data-subscrpt-panel][not(@hidden)]" )->item( 0 );
+		$this->assertSame( 2, $xpath->query( ".//input[@data-subscrpt-term][@name='subscrpt_plan_term[grp_1]']", $first )->length, 'the open panel shows the intervals' );
+		$this->assertSame( 1, $xpath->query( ".//*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__benefits ')]", $first )->length, 'and the benefits' );
+		$this->assertStringContainsString( '$20.00', $xpath->query( "//*[@data-subscrpt-card][1]/*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__head ')]" )->item( 0 )->textContent, 'the price is on the line' );
+	}
+
+	public function test_grid_equal_width_tiles() {
+		$this->listen_on_body();
+		$xpath = $this->render( 'grid' );
+
+		$this->assertSame( 'grid', $this->layout_of( $xpath ) );
+		$tiles = $xpath->query( "//*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__tiles ')]/*[@data-subscrpt-card]" );
+		$this->assertSame( 4, $tiles->length, 'the options are tiles in one row' );
+		$this->assertSame( 4, $xpath->query( '//*[@data-subscrpt-card]' )->length );
+		$this->assert_labelled_radios( $xpath, $tiles );
+		$this->assert_body_in_each_card( $xpath, $tiles );
+
+		$this->assertSame( 2, $xpath->query( "//input[@data-subscrpt-term][@name='subscrpt_plan_term[grp_1]']" )->length, 'the terms are offered' );
+		$this->assertSame( 0, $xpath->query( '//*[@data-subscrpt-panel]' )->length, 'nothing folds away' );
+		$this->assertSame( '11', $xpath->query( '//input[@data-subscrpt-plan-id]' )->item( 0 )->getAttribute( 'value' ) );
+	}
+
+	public function test_grid_savings_tiles_led_by_the_saving() {
+		$this->listen_on_body();
+		$xpath = $this->render( 'grid_savings' );
+
+		$this->assertSame( 'grid_savings', $this->layout_of( $xpath ) );
+		$tiles = $xpath->query( "//*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__tiles ')]/*[@data-subscrpt-card]" );
+		$this->assertSame( 4, $tiles->length );
+		$this->assert_labelled_radios( $xpath, $tiles );
+		$this->assert_body_in_each_card( $xpath, $tiles );
+
+		foreach ( $tiles as $i => $tile ) {
+			$lead = $xpath->query( './*', $tile )->item( 0 );
+			$this->assertStringContainsString( 'subscrpt-buybox__lead', $lead->getAttribute( 'class' ), "tile {$i} leads with the saving" );
+		}
+		$one_time = $xpath->query( './*', $tiles->item( 2 ) )->item( 0 );
+		$this->assertSame( 'Save 25%', trim( $xpath->query( './/*[@data-subscrpt-badge]', $one_time )->item( 0 )->textContent ) );
+		$this->assertSame( 1, $xpath->query( './/*[@data-subscrpt-badge][@hidden]', $xpath->query( './*', $tiles->item( 0 ) )->item( 0 ) )->length, 'the badge slot waits for a term that saves' );
+		$this->assertSame( 0, $xpath->query( './/*[@data-subscrpt-badge]', $xpath->query( './*', $tiles->item( 1 ) )->item( 0 ) )->length, 'no saving, no badge' );
+	}
+
+	public function test_buttons_segmented_row_intervals_dropdown_below() {
+		$xpath = $this->render( 'buttons' );
+
+		$this->assertSame( 'buttons', $this->layout_of( $xpath ) );
+
+		$row = $xpath->query( "//fieldset[contains(concat(' ', @class, ' '), ' subscrpt-buybox__segments ')]" );
+		$this->assertSame( 1, $row->length, 'one segmented row' );
+		$this->assertNotSame( '', trim( $xpath->query( './legend', $row->item( 0 ) )->item( 0 )->textContent ), 'the row is named' );
+
+		$radios = $xpath->query( ".//input[@type='radio'][@name='subscrpt_plan_group']", $row->item( 0 ) );
+		$this->assertSame( 4, $radios->length, 'a segment per option' );
+		foreach ( $radios as $i => $radio ) {
+			$this->assertSame( 0 === $i, $radio->hasAttribute( 'checked' ) );
+			$this->assertSame( 1, $xpath->query( "//label[@for='" . $radio->getAttribute( 'id' ) . "']" )->length, "segment {$i} is labelled" );
+			$this->assertSame( 0, $xpath->query( 'ancestor::*[@data-subscrpt-card]', $radio )->length, 'the segments are the control, not inside an option' );
+		}
+
+		$options = $xpath->query( '//*[@data-subscrpt-card][@data-subscrpt-only-selected]' );
+		$this->assertSame( 4, $options->length, 'each option has details below the row' );
+		$this->assertSame( 1, $xpath->query( '//*[@data-subscrpt-card][not(@hidden)]' )->length, 'only the selected one shows' );
+		$this->assertSame( 4, $xpath->query( 'following::*[@data-subscrpt-card]', $row->item( 0 ) )->length, 'below the row' );
+
+		$this->assertSame( 0, $xpath->query( '//input[@data-subscrpt-term]' )->length, 'no chips' );
+		$select = $xpath->query( "//select[@data-subscrpt-term-select][@name='subscrpt_plan_term[grp_1]']" );
+		$this->assertSame( 1, $select->length, 'the intervals are a dropdown' );
+		$this->assertSame( 1, $xpath->query( "//label[@for='" . $select->item( 0 )->getAttribute( 'id' ) . "']" )->length, 'the dropdown is labelled' );
+		$this->assertSame( '11', $xpath->query( '//input[@data-subscrpt-plan-id]' )->item( 0 )->getAttribute( 'value' ) );
 	}
 }
