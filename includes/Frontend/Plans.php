@@ -172,97 +172,14 @@ class Plans {
 	}
 
 	/**
-	 * Build the selector groups for a simple product from resolved plan data.
-	 *
-	 * One entry per plan group, each with its terms (id, label, price, note)
-	 * and a discount badge when its offer price beats the regular one, followed
-	 * by the One-Time card when the merchant offers one.
+	 * Build the selector groups for a simple product.
 	 *
 	 * @param \WC_Product $product Simple product.
 	 *
 	 * @return array
 	 */
 	private function build_groups( $product ) {
-		$resolved = PlanRepository::resolve_for_product( $product->get_id() );
-		if ( empty( $resolved ) ) {
-			return array();
-		}
-
-		$groups = array();
-		foreach ( $resolved as $row ) {
-			$gid = (int) $row['plan_group_id'];
-
-			if ( ! isset( $groups[ $gid ] ) ) {
-				$groups[ $gid ] = array(
-					'id'               => 'grp_' . $gid,
-					'type'             => PlanRepository::type_to_string( (int) $row['group_type'] ),
-					'label'            => $row['group_title'],
-					'price'            => '',
-					'terms'            => array(),
-					'badge'            => '',
-					'discount_percent' => 0,
-					'pcts'             => array(),
-				);
-			}
-
-			$price_num = $this->term_price( $row );
-
-			// Each term's discount (offer below regular). Installments price on a
-			// different basis, so they never contribute a percentage.
-			$row_regular = isset( $row['relation_data']['regular_price'] ) ? (float) $row['relation_data']['regular_price'] : 0.0;
-			$term_pct    = 0;
-			if ( 'installments' !== $groups[ $gid ]['type'] && $row_regular > 0 && $price_num < $row_regular ) {
-				$term_pct                 = (int) round( ( $row_regular - $price_num ) / $row_regular * 100 );
-				$groups[ $gid ]['pcts'][] = $term_pct;
-			}
-
-			$groups[ $gid ]['terms'][] = array(
-				'id'               => (int) $row['plan_id'],
-				'label'            => $row['plan_title'],
-				'price'            => wc_price( $price_num ),
-				'note'             => $this->term_note( $row, $price_num ),
-				'discount_percent' => $term_pct,
-				'badge'            => '',
-			);
-		}
-
-		// Card header price = the first term of each group.
-		//
-		// The badge is per term, not per group. A group whose terms discount by
-		// different amounts has no single true figure, and the card only ever
-		// shows one term at a time — the selected one — so a group-wide "Save
-		// 20%" was wrong for two of the three terms behind it. Each term carries
-		// its own text and the selector swaps it on selection; the card starts on
-		// the first term's, which is the one pre-selected.
-		foreach ( $groups as &$group ) {
-			$group['price'] = $group['terms'][0]['price'];
-
-			if ( ! empty( $group['pcts'] ) ) {
-				$group['discount_percent'] = max( $group['pcts'] );
-			}
-			unset( $group['pcts'] );
-
-			foreach ( $group['terms'] as &$term ) {
-				$term['badge'] = $term['discount_percent'] > 0
-					? subscrpt_card_badge_text( $group, $product, $term['discount_percent'] )
-					: '';
-			}
-			unset( $term );
-
-			$group['badge'] = $group['terms'][0]['badge'];
-		}
-		unset( $group );
-
-		$groups = array_values( $groups );
-
-		// One-Time purchase card, after the plans so a subscription stays the
-		// pre-selected default. The base template already renders this type.
-		$one_time = subscrpt_one_time_group( $product );
-		if ( $one_time ) {
-			$groups[] = $one_time;
-		}
-
-		return $groups;
+		return PlanGroups::for_product( $product );
 	}
 
 	/**
@@ -280,45 +197,5 @@ class Plans {
 		$dvalue  = isset( $data['discount_value'] ) ? (string) $data['discount_value'] : '0';
 
 		return (float) PlanPresenter::offer_price( $regular, $selling, $dtype, $dvalue );
-	}
-
-	/**
-	 * Build the billing-cadence note shown under a term ("Billed $10 / month").
-	 *
-	 * @param array $row       Resolved plan row.
-	 * @param float $price_num Computed term price.
-	 *
-	 * @return string
-	 */
-	private function term_note( $row, $price_num ) {
-		$interval = PlanPresenter::interval_label( (int) $row['billing_interval'] );
-		$freq     = max( 1, (int) $row['billing_frequency'] );
-		$every    = 1 === $freq ? strtolower( $interval ) : $freq . ' ' . strtolower( $interval ) . 's';
-
-		$data    = is_array( $row['relation_data'] ) ? $row['relation_data'] : array();
-		$regular = isset( $data['regular_price'] ) && '' !== $data['regular_price'] ? (float) $data['regular_price'] : null;
-
-		$price_disp = ( null !== $regular && $price_num < $regular )
-			? '<del>' . $this->price_text( $regular ) . '</del> ' . $this->price_text( $price_num )
-			: $this->price_text( $price_num );
-
-		return sprintf(
-			/* translators: 1: price (may include a struck-through regular price), 2: billing interval. */
-			__( 'Billed %1$s / %2$s', 'subscription' ),
-			$price_disp,
-			$every
-		);
-	}
-
-	/**
-	 * Plain-text formatted price (currency symbol as a real character, not an
-	 * HTML entity) so it renders cleanly inside the note / data attributes.
-	 *
-	 * @param float $amount Amount.
-	 *
-	 * @return string
-	 */
-	private function price_text( $amount ) {
-		return html_entity_decode( wp_strip_all_tags( wc_price( (float) $amount ) ), ENT_QUOTES, 'UTF-8' );
 	}
 }
