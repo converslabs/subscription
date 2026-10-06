@@ -28,10 +28,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Fires once per purchase option, in its body.
  *
- * In the stacked layout the body is inside the option's card, after its terms.
- * A layout with no room in its options (classic, dropdown) renders one body per
- * group below the control, in `<div data-subscrpt-body-for="<group id>">`, and
- * shows only the selected group's — so the output follows the shopper's choice.
+ * In the stacked, accordion and grid layouts the body is inside the option's
+ * card, after its terms. A layout with no room in its options (classic,
+ * dropdown, buttons) renders one body per group below the control, in
+ * `<div data-subscrpt-body-for="<group id>">`, and shows only the selected
+ * group's — so the output follows the shopper's choice.
  * Either way a click in the body does not select the option. On the variation
  * path the markup is rendered per variation and swapped in, so render heavy UI
  * only for 'page'.

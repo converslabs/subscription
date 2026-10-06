@@ -3,8 +3,9 @@
  * Storefront plan selector — picks the layout.
  *
  * The purchase options render in one of several layouts, each a partial in
- * `product/plan-selector/`: stacked cards (the default), a classic radio list
- * or a compact dropdown. `Plans::layout_for()` decides which; the
+ * `product/plan-selector/`: stacked cards (the default), a classic radio list,
+ * a compact dropdown, an accordion, a grid of tiles, a grid led by the savings
+ * or a segmented button row. `Plans::layout_for()` decides which; the
  * `subscrpt_plan_selector_layouts` filter lists them.
  *
  * Override a layout by copying its partial to

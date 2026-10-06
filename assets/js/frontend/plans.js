@@ -124,7 +124,8 @@
   /**
    * Mark the selected group's option and enable only its terms and its body's
    * controls, so nothing of another group is posted or reached with Tab. An option marked
-   * `data-subscrpt-only-selected` shows only while selected, and the body
+   * `data-subscrpt-only-selected` shows only while selected, as does an option's
+   * `data-subscrpt-panel` (the accordion), and the body
    * rendered below the control for each group shows only for the selected one.
    */
   function syncCards() {
@@ -135,6 +136,13 @@
       if (card.hasAttribute("data-subscrpt-only-selected")) {
         card.hidden = !selected;
       }
+      // An accordion card opens its panel only while selected; its radio says so.
+      card.querySelectorAll("[data-subscrpt-panel]").forEach(function (panel) {
+        panel.hidden = !selected;
+      });
+      card.querySelectorAll('input[name="subscrpt_plan_group"][aria-expanded]').forEach(function (radio) {
+        radio.setAttribute("aria-expanded", selected ? "true" : "false");
+      });
       card.querySelectorAll("input[data-subscrpt-term], select[data-subscrpt-term-select]").forEach(function (term) {
         term.disabled = !selected;
       });

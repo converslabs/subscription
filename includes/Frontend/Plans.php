@@ -223,9 +223,13 @@ class Plans {
 	 */
 	public static function layouts(): array {
 		$defaults = [
-			'stacked'  => 'product/plan-selector/stacked.php',
-			'classic'  => 'product/plan-selector/classic.php',
-			'dropdown' => 'product/plan-selector/dropdown.php',
+			'stacked'      => 'product/plan-selector/stacked.php',
+			'classic'      => 'product/plan-selector/classic.php',
+			'dropdown'     => 'product/plan-selector/dropdown.php',
+			'accordion'    => 'product/plan-selector/accordion.php',
+			'grid'         => 'product/plan-selector/grid.php',
+			'grid_savings' => 'product/plan-selector/grid_savings.php',
+			'buttons'      => 'product/plan-selector/buttons.php',
 		];
 
 		/**
