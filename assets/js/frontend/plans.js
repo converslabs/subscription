@@ -142,6 +142,15 @@
         syncBodyControls(body, selected);
       });
     });
+    // The dropdown layout's option select is described by the chosen option's badge.
+    var groupSelect = box.querySelector("select[data-subscrpt-group-select]");
+    var chosen = selectedCard();
+    var badge = chosen ? chosen.querySelector("[data-subscrpt-badge][id]") : null;
+    if (groupSelect && badge) {
+      groupSelect.setAttribute("aria-describedby", badge.id);
+    } else if (groupSelect) {
+      groupSelect.removeAttribute("aria-describedby");
+    }
     box.querySelectorAll("[data-subscrpt-body-for]").forEach(function (body) {
       var selected = body.getAttribute("data-subscrpt-body-for") === group;
       body.hidden = !selected;

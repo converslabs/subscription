@@ -8,7 +8,8 @@
  * (`data-subscrpt-only-selected`). Each group's body — benefits, learn-more and
  * `subscrpt_plan_card_body` — renders below in
  * `<div data-subscrpt-body-for="<group id>">`, hidden unless that group is the
- * selected one.
+ * selected one. The option select is described by the selected group's badge;
+ * plans.js moves `aria-describedby` with the selection.
  *
  * Override by copying to <your_theme>/subscription/product/plan-selector/dropdown.php
  *
@@ -35,7 +36,7 @@ foreach ( $groups as $index => $group ) {
 	<input type="hidden" name="subscrpt_plan_id" value="<?php echo esc_attr( PlanSelectorView::default_plan_id( $groups ) ); ?>" data-subscrpt-plan-id />
 	<div class="subscrpt-buybox__field">
 		<label class="subscrpt-buybox__field-label" for="<?php echo esc_attr( $select_id ); ?>"><?php esc_html_e( 'Purchase option', 'subscription' ); ?></label>
-		<select class="subscrpt-buybox__select" id="<?php echo esc_attr( $select_id ); ?>" name="subscrpt_plan_group" data-subscrpt-group-select>
+		<select class="subscrpt-buybox__select" id="<?php echo esc_attr( $select_id ); ?>" name="subscrpt_plan_group" data-subscrpt-group-select<?php echo ! empty( $views[0]['has_badge'] ) ? ' aria-describedby="' . esc_attr( $views[0]['gid'] . '-badge' ) . '"' : ''; ?>>
 			<?php foreach ( $groups as $index => $group ) : ?>
 				<option value="<?php echo esc_attr( $group['id'] ); ?>"<?php echo 0 === $index ? ' selected' : ''; ?>><?php echo esc_html( $group['label'] ); ?></option>
 			<?php endforeach; ?>
