@@ -63,6 +63,23 @@ class PlanSelectorView {
 	/**
 	 * The values a partial prints for one group.
 	 *
+	 * Keys:
+	 * - `gid`              string  HTML id base, `subscrpt-grp-<group id>`.
+	 * - `is_first`         bool    The pre-selected option.
+	 * - `has_terms`        bool    The group has any terms.
+	 * - `term_count`       int     How many.
+	 * - `badge_text`       string  The badge shown first ('' when none).
+	 * - `has_badge`        bool    A badge slot is needed (the group or any term has one).
+	 * - `price`            string  Price HTML.
+	 * - `first_regular`    string  The first term's struck regular price, '' when it saves nothing.
+	 * - `tag`              string  The merchant's tag.
+	 * - `benefits_heading` string  Heading over the benefits.
+	 * - `benefits`         array   Up to five benefit lines.
+	 * - `learn_url`        string  Learn-more link.
+	 * - `learn_panel`      string  Details panel text, used when there is no link.
+	 * - `learn_label`      string  Learn-more label, defaulted.
+	 * - `intervals`        string  'chips' or 'dropdown', from `intervals()`.
+	 *
 	 * @param array $group Plan group.
 	 * @param int   $index Its position; the first is pre-selected.
 	 *
