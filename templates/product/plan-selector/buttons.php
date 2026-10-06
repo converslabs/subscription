@@ -56,9 +56,7 @@ foreach ( $groups as $index => $group ) {
 					<?php endif; ?>
 				</div>
 			<?php endif; ?>
-			<?php if ( $view['has_terms'] ) : ?>
-				<span class="subscrpt-buybox__note" data-subscrpt-note><?php echo wp_kses_post( $group['terms'][0]['note'] ); ?></span>
-			<?php endif; ?>
+			<?php wc_get_template( 'product/plan-selector/parts/note.php', [ 'group' => $group, 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
 			<?php
 			wc_get_template(
 				'product/plan-selector/parts/terms.php',
