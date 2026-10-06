@@ -9,9 +9,11 @@
  * `woocommerce_available_variation` data and swapped in by plans.js. Guarded by `subscrpt_plan_offered()`:
  * with no tied plan this class does nothing and the classic price suffix stands.
  *
- * Runs only when Pro is inactive (see Frontend::__construct). Pro ships a superset
- * on the same hooks — One-Time card, discount badges, variable products and the
- * Subscribe & Save / Installments plan types.
+ * The single source of the purchase options, with or without Pro; Pro adds to
+ * them only through the `subscrpt_plan_term` and `subscrpt_plan_selector_groups`
+ * filters. Two things depend on Pro: a variable product's options render only
+ * with it, since free's checkout cannot sell a variation's plan, and the plan
+ * price HTML is free's only without it, since Pro rewrites the same price.
  *
  * The storefront never calls REST; plan data is read directly through
  * `PlanRepository::resolve_for_product()` (object cache → DB).
@@ -34,8 +36,11 @@ class Plans {
 	 */
 	public function __construct() {
 		// Runs after Frontend\Product::change_price_html (priority 10) so the plan
-		// price replaces the classic suffix rather than appending to it.
-		add_filter( 'woocommerce_get_price_html', array( $this, 'plan_price_html' ), 20, 2 );
+		// price replaces the classic suffix rather than appending to it. Pro filters
+		// the same price at the same priority, so with Pro it is Pro's alone.
+		if ( ! subscrpt_pro_activated() ) {
+			add_filter( 'woocommerce_get_price_html', array( $this, 'plan_price_html' ), 20, 2 );
+		}
 		add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'render_selector' ) );
 		add_filter( 'woocommerce_available_variation', array( __CLASS__, 'push_variation_html' ), 10, 3 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -54,13 +59,23 @@ class Plans {
 	 * Whether a simple or variable product offers a subscription: tied to a plan
 	 * AND subscription-enabled (for a variable product, on any variation).
 	 *
+	 * A variable product counts only with Pro active: free's checkout cannot sell
+	 * a variation's plan, even when relations are left over from Pro.
+	 *
 	 * @param mixed $product Product object.
 	 *
 	 * @return bool
 	 */
-	private function product_has_plans( $product ) {
-		return $product instanceof \WC_Product
-			&& $product->is_type( array( 'simple', 'variable' ) )
+	private static function product_has_plans( $product ) {
+		if ( ! $product instanceof \WC_Product ) {
+			return false;
+		}
+
+		if ( $product->is_type( 'variable' ) && ! subscrpt_pro_activated() ) {
+			return false;
+		}
+
+		return $product->is_type( array( 'simple', 'variable' ) )
 			&& subscrpt_plan_offered( $product->get_id() );
 	}
 
@@ -76,7 +91,7 @@ class Plans {
 
 		// global $product is not set yet at wp_enqueue_scripts; resolve from the query.
 		$product = wc_get_product( get_queried_object_id() );
-		if ( ! $this->product_has_plans( $product ) ) {
+		if ( ! self::product_has_plans( $product ) ) {
 			return;
 		}
 
@@ -111,7 +126,7 @@ class Plans {
 	 */
 	public function plan_price_html( $price_html, $product ) {
 		// A variable product's price stays WooCommerce's own range.
-		if ( ! $this->product_has_plans( $product ) || ! $product->is_type( 'simple' ) ) {
+		if ( ! self::product_has_plans( $product ) || ! $product->is_type( 'simple' ) ) {
 			return $price_html;
 		}
 
@@ -158,7 +173,7 @@ class Plans {
 		}
 
 		global $product;
-		if ( ! $this->product_has_plans( $product ) ) {
+		if ( ! self::product_has_plans( $product ) ) {
 			return;
 		}
 
@@ -213,11 +228,12 @@ class Plans {
 	 * @return array
 	 */
 	public static function push_variation_html( $data, $parent_product, $variation ) {
-		if ( ! $parent_product instanceof \WC_Product || ! $variation instanceof \WC_Product ) {
+		if ( ! $variation instanceof \WC_Product ) {
 			return $data;
 		}
 
-		if ( ! subscrpt_plan_offered( $parent_product->get_id(), $variation->get_id() ) ) {
+		// No container on the page to swap the cards into.
+		if ( ! self::product_has_plans( $parent_product ) || ! $parent_product->is_type( 'variable' ) ) {
 			return $data;
 		}
 

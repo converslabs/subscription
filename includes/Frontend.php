@@ -25,12 +25,7 @@ class Frontend {
 	 */
 	public function __construct() {
 		new Product();
-		// Pro ships a superset storefront plan UI (multi-plan selector, per-variation
-		// swap) on the same hooks, so free's single-line display runs only when Pro is
-		// absent — otherwise the two would double-render.
-		if ( ! subscrpt_pro_activated() ) {
-			new Plans();
-		}
+		new Plans();
 		new Cart();
 		new FrontendOrder();
 		new ActionController();
