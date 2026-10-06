@@ -86,6 +86,14 @@
       priceEl.textContent = term.getAttribute("data-price") || "";
     }
 
+    // The struck regular price, hidden when the chosen term has no saving.
+    var regularEl = card.querySelector("[data-subscrpt-card-regular]");
+    if (regularEl) {
+      var regular = term.getAttribute("data-regular") || "";
+      regularEl.textContent = regular;
+      regularEl.hidden = regular === "";
+    }
+
     // The badge reports what *this* term saves, so it moves with the selection.
     // Hidden outright when the chosen term is not discounted, so no empty pill
     // is left behind.

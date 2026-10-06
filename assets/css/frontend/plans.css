@@ -12,9 +12,10 @@
 .subscrpt-buybox {
   --subscrpt-line: #e2e4e7;
   --subscrpt-accent: #2271b1;
+  --subscrpt-accent-ink: #fff;
   --subscrpt-muted: #6a6f76;
   --subscrpt-surface: #fff;
-  --subscrpt-selected-bg: #f7fbff;
+  --subscrpt-selected-bg: #e8f1fa;
   --subscrpt-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -46,6 +47,11 @@
   border-color: var(--subscrpt-accent);
   box-shadow: 0 0 0 1px var(--subscrpt-accent);
   background: var(--subscrpt-selected-bg);
+}
+
+/* The selected card is filled; the others are outlined on the plain surface. */
+.subscrpt-buybox__card:not(.is-selected) {
+  background: transparent;
 }
 
 /* Radio + control on one centered row so they line up. */
@@ -93,6 +99,10 @@
   font-size: 16px;
 }
 
+.subscrpt-buybox__price del[hidden] {
+  display: none;
+}
+
 .subscrpt-buybox__price del {
   margin-right: 6px;
   color: var(--subscrpt-muted);
@@ -103,6 +113,24 @@
 .subscrpt-buybox__price ins {
   font-weight: 700;
   text-decoration: none;
+}
+
+/* The terms' heading ("Deliver every"), the fieldset's legend. */
+.subscrpt-buybox__terms-heading {
+  flex: 0 0 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--subscrpt-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.subscrpt-buybox__term-saving {
+  font-weight: 600;
 }
 
 /* Term options as pills, aligned under the head (past the radio). A fieldset
@@ -163,7 +191,7 @@
 .subscrpt-buybox__term.is-active {
   border-color: var(--subscrpt-accent);
   background: var(--subscrpt-accent);
-  color: #fff;
+  color: var(--subscrpt-accent-ink);
   font-weight: 600;
 }
 
@@ -214,7 +242,7 @@
 /* Discount badge — the card is already position: relative above. */
 .subscrpt-buybox {
   --subscrpt-badge-bg: var(--subscrpt-accent);
-  --subscrpt-badge-text: #fff;
+  --subscrpt-badge-text: var(--subscrpt-accent-ink);
 }
 
 /* Empty while the selected term is not discounted — the slot stays in the DOM

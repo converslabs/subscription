@@ -53,8 +53,9 @@ class PlanGroups {
 	/**
 	 * Groups from resolved plan rows.
 	 *
-	 * One entry per plan group, each with its terms (id, label, price, note,
-	 * discount_percent, badge), followed by the One-Time card when the product
+	 * One entry per plan group, each with its terms (id, label, interval_label, price,
+	 * regular_price, note, discount_percent, saving_label, badge) and the
+	 * `terms_heading` that introduces them, followed by the One-Time card when the product
 	 * offers one.
 	 *
 	 * @param array       $rows    Rows from `PlanRepository::resolve_for_product()`.
@@ -81,6 +82,7 @@ class PlanGroups {
 					'price'            => '',
 					'old_price'        => '',
 					'terms'            => [],
+					'terms_heading'    => self::terms_heading( $type_key ),
 					'badge'            => '',
 					'discount_percent' => 0,
 				];
@@ -98,9 +100,15 @@ class PlanGroups {
 			$term = [
 				'id'               => (int) $row['plan_id'],
 				'label'            => $row['plan_title'],
+				'interval_label'   => self::interval_text( $row ),
 				'price'            => wc_price( $price_num ),
+				'regular_price'    => self::term_regular_price( $row, $type_key ),
 				'note'             => self::term_note( $row, $type_key, $price_num ),
 				'discount_percent' => $term_pct,
+				'saving_label'     => $term_pct > 0
+					/* translators: %d: discount percentage. */
+					? sprintf( __( 'Save %d%%', 'subscription' ), $term_pct )
+					: '',
 				'badge'            => '',
 			];
 
@@ -109,7 +117,8 @@ class PlanGroups {
 			 *
 			 * Pro appends its trial and signup-fee text to the note here.
 			 *
-			 * @param array       $term     Term (id, label, price, note, discount_percent, badge).
+			 * @param array       $term     Term (id, label, interval_label, price, regular_price, note,
+			 *                              discount_percent, saving_label, badge).
 			 * @param array       $row      The resolved plan row the term was built from.
 			 * @param string      $type_key Plan type: recurring, subscribe_save or installments.
 			 * @param \WC_Product $product  Product or variation being rendered.
@@ -149,7 +158,8 @@ class PlanGroups {
 		/**
 		 * Filters the storefront plan selector groups, One-Time card included.
 		 *
-		 * @param array       $groups  Groups (id, type, label, price, old_price, terms, badge, discount_percent).
+		 * @param array       $groups  Groups (id, type, label, price, old_price, terms, terms_heading, badge,
+		 *                             discount_percent).
 		 * @param \WC_Product $product Product or variation being rendered.
 		 * @param string      $context Where the selector renders: 'page' on the product page,
 		 *                             'variation' for one variation's selector.
@@ -236,19 +246,72 @@ class PlanGroups {
 			);
 		}
 
-		$data    = is_array( $row['relation_data'] ) ? $row['relation_data'] : [];
-		$regular = isset( $data['regular_price'] ) && '' !== $data['regular_price'] ? (float) $data['regular_price'] : null;
-
-		$price_disp = ( null !== $regular && $price_num < $regular )
-			? '<del>' . self::price_text( $regular ) . '</del> ' . self::price_text( $price_num )
-			: self::price_text( $price_num );
-
 		return sprintf(
-			/* translators: 1: price (may include a struck-through regular price), 2: billing interval. */
+			/* translators: 1: price, 2: billing interval. */
 			__( 'Billed %1$s / %2$s', 'subscription' ),
-			$price_disp,
+			self::price_text( $price_num ),
 			$every
 		);
+	}
+
+	/**
+	 * The heading that introduces a group's terms.
+	 *
+	 * @param string $type_key Plan type key.
+	 *
+	 * @return string
+	 */
+	private static function terms_heading( string $type_key ): string {
+		switch ( $type_key ) {
+			case 'subscribe_save':
+				return __( 'Deliver every', 'subscription' );
+			case 'installments':
+				return __( 'Pay in', 'subscription' );
+			default:
+				return __( 'Billed every', 'subscription' );
+		}
+	}
+
+	/**
+	 * The regular price a term is struck against, per payment for installments.
+	 *
+	 * @param array  $row      Resolved plan row.
+	 * @param string $type_key Plan type key.
+	 *
+	 * @return string Formatted price, empty when the plan has no regular price.
+	 */
+	private static function term_regular_price( array $row, string $type_key ): string {
+		$data    = is_array( $row['relation_data'] ) ? $row['relation_data'] : [];
+		$regular = isset( $data['regular_price'] ) && '' !== $data['regular_price'] ? (float) $data['regular_price'] : 0.0;
+
+		if ( $regular <= 0 ) {
+			return '';
+		}
+
+		if ( 'installments' === $type_key ) {
+			$regular = (float) subscrpt_split_amounts( $regular, self::installment_count( $row ) )['per_installment'];
+		}
+
+		return wc_price( $regular );
+	}
+
+	/**
+	 * What a term's chip reads: the interval ("1 month", "2 weeks"), unless the
+	 * merchant's plan title is a name of its own ("Barista's pick"), which is kept.
+	 *
+	 * @param array $row Resolved plan row.
+	 *
+	 * @return string
+	 */
+	private static function interval_text( array $row ): string {
+		$title = trim( (string) $row['plan_title'] );
+		$freq  = max( 1, (int) $row['billing_frequency'] );
+		$unit  = strtolower( PlanPresenter::interval_label( (int) $row['billing_interval'] ) );
+		$every = $freq . ' ' . $unit . ( 1 === $freq ? '' : 's' );
+
+		$phrase = '/^(every\s+)?(\d+\s*)?(day|week|month|year)s?$|^(daily|weekly|monthly|yearly|annual|annually|quarterly)$/i';
+
+		return ( '' === $title || preg_match( $phrase, $title ) ) ? $every : $title;
 	}
 
 	/**

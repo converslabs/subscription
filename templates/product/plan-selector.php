@@ -21,7 +21,7 @@
  *
  * Override by copying to <your_theme>/subscription/product/plan-selector.php
  *
- * @var array       $groups  Plan groups (id, type, label, price, old_price, badge, terms[]).
+ * @var array       $groups  Plan groups (id, type, label, price, old_price, badge, terms_heading, terms[]).
  * @var \WC_Product $product Product, or the variation when `$context` is 'variation'.
  * @var string      $context Where the selector renders: 'page' or 'variation'.
  *
@@ -61,6 +61,16 @@ if ( ! empty( $groups[0]['terms'] ) ) {
 			}
 		}
 		$price = isset( $group['price'] ) ? (string) $group['price'] : '';
+
+		// What a term strikes through: its regular price when it differs from
+		// the offer, so a term without a saving shows no struck price.
+		$term_regular = static function ( array $plan_term ): string {
+			$regular = isset( $plan_term['regular_price'] ) ? (string) $plan_term['regular_price'] : '';
+			$offer   = isset( $plan_term['price'] ) ? (string) $plan_term['price'] : '';
+
+			return wp_strip_all_tags( $regular ) === wp_strip_all_tags( $offer ) ? '' : $regular;
+		};
+		$first_regular = $has_terms ? $term_regular( $group['terms'][0] ) : '';
 		?>
 		<div class="subscrpt-buybox__card<?php echo $is_first ? ' is-selected' : ''; ?>" data-subscrpt-card<?php echo 1 === $term_count ? ' data-subscrpt-single-term="' . esc_attr( $group['terms'][0]['id'] ) . '"' : ''; ?>>
 			<div class="subscrpt-buybox__head">
@@ -69,9 +79,11 @@ if ( ! empty( $groups[0]['terms'] ) ) {
 				<?php if ( $has_badge ) : ?>
 					<span class="subscrpt-buybox__badge" id="<?php echo esc_attr( $gid . '-badge' ); ?>" data-subscrpt-badge<?php echo '' === $badge_text ? ' hidden' : ''; ?>><?php echo esc_html( $badge_text ); ?></span>
 				<?php endif; ?>
-				<?php if ( ! $has_terms && '' !== $price ) : ?>
+				<?php if ( '' !== $price ) : ?>
 					<span class="subscrpt-buybox__price">
-						<?php if ( ! empty( $group['old_price'] ) ) : ?>
+						<?php if ( $has_terms ) : ?>
+							<del data-subscrpt-card-regular<?php echo '' === $first_regular ? ' hidden' : ''; ?>><?php echo wp_kses_post( $first_regular ); ?></del>
+						<?php elseif ( ! empty( $group['old_price'] ) ) : ?>
 							<del><?php echo wp_kses_post( $group['old_price'] ); ?></del>
 						<?php endif; ?>
 						<ins data-subscrpt-card-price><?php echo wp_kses_post( $price ); ?></ins>
@@ -83,19 +95,25 @@ if ( ! empty( $groups[0]['terms'] ) ) {
 			<?php endif; ?>
 			<?php if ( $term_count > 1 ) : ?>
 				<fieldset class="subscrpt-buybox__terms" data-subscrpt-terms>
-					<legend class="subscrpt-visually-hidden">
+					<legend class="subscrpt-buybox__terms-heading">
 						<?php
-						/* translators: %s: plan group name. */
-						echo esc_html( sprintf( __( '%s: billing period', 'subscription' ), $group['label'] ) );
+						if ( ! empty( $group['terms_heading'] ) ) {
+							echo esc_html( $group['terms_heading'] );
+						} else {
+							/* translators: %s: plan group name. */
+							echo esc_html( sprintf( __( '%s: billing period', 'subscription' ), $group['label'] ) );
+						}
 						?>
 					</legend>
 					<?php foreach ( $group['terms'] as $subscrpt_ti => $plan_term ) : ?>
 						<?php
 						$term_id    = $gid . '-term-' . sanitize_html_class( (string) $plan_term['id'] );
 						$term_badge = isset( $plan_term['badge'] ) ? (string) $plan_term['badge'] : '';
+						$chip_text  = ! empty( $plan_term['interval_label'] ) ? (string) $plan_term['interval_label'] : (string) $plan_term['label'];
+						$chip_save  = isset( $plan_term['saving_label'] ) ? (string) $plan_term['saving_label'] : '';
 						?>
-						<input type="radio" class="subscrpt-buybox__term-radio subscrpt-visually-hidden" id="<?php echo esc_attr( $term_id ); ?>" name="subscrpt_plan_term[<?php echo esc_attr( $group['id'] ); ?>]" value="<?php echo esc_attr( $plan_term['id'] ); ?>" data-subscrpt-term data-price="<?php echo esc_attr( wp_strip_all_tags( $plan_term['price'] ) ); ?>" data-note="<?php echo esc_attr( $plan_term['note'] ); ?>" data-badge="<?php echo esc_attr( $term_badge ); ?>" <?php checked( 0 === $subscrpt_ti ); ?><?php echo $is_first ? '' : ' disabled'; ?> />
-						<label class="subscrpt-buybox__term<?php echo 0 === $subscrpt_ti ? ' is-active' : ''; ?>" for="<?php echo esc_attr( $term_id ); ?>" data-subscrpt-term-btn data-term-id="<?php echo esc_attr( $plan_term['id'] ); ?>"><?php echo esc_html( $plan_term['label'] ); ?><?php if ( '' !== $term_badge ) : ?><span class="subscrpt-visually-hidden"> (<?php echo esc_html( $term_badge ); ?>)</span><?php endif; ?></label>
+						<input type="radio" class="subscrpt-buybox__term-radio subscrpt-visually-hidden" id="<?php echo esc_attr( $term_id ); ?>" name="subscrpt_plan_term[<?php echo esc_attr( $group['id'] ); ?>]" value="<?php echo esc_attr( $plan_term['id'] ); ?>" data-subscrpt-term data-price="<?php echo esc_attr( wp_strip_all_tags( $plan_term['price'] ) ); ?>" data-note="<?php echo esc_attr( $plan_term['note'] ); ?>" data-regular="<?php echo esc_attr( wp_strip_all_tags( $term_regular( $plan_term ) ) ); ?>" data-badge="<?php echo esc_attr( $term_badge ); ?>" <?php checked( 0 === $subscrpt_ti ); ?><?php echo $is_first ? '' : ' disabled'; ?> />
+						<label class="subscrpt-buybox__term<?php echo 0 === $subscrpt_ti ? ' is-active' : ''; ?>" for="<?php echo esc_attr( $term_id ); ?>" data-subscrpt-term-btn data-term-id="<?php echo esc_attr( $plan_term['id'] ); ?>"><?php echo esc_html( $chip_text ); ?><?php if ( '' !== $chip_save ) : ?><span class="subscrpt-buybox__term-saving"> · <?php echo esc_html( $chip_save ); ?></span><?php elseif ( '' !== $term_badge ) : ?><span class="subscrpt-visually-hidden"> (<?php echo esc_html( $term_badge ); ?>)</span><?php endif; ?></label>
 					<?php endforeach; ?>
 				</fieldset>
 			<?php endif; ?>
