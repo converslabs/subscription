@@ -289,7 +289,8 @@ class VariationButtons {
 	}
 
 	/**
-	 * Add the setting to the Product page group of the settings screen.
+	 * Add the setting to the Product page group of the settings screen. The
+	 * group's heading is added by `Admin\ProductPageSettings`.
 	 *
 	 * @param array $settings_fields Settings fields.
 	 *
@@ -297,19 +298,9 @@ class VariationButtons {
 	 */
 	public function add_settings_fields( $settings_fields ) {
 		$settings_fields[] = array(
-			'type'       => 'heading',
-			'group'      => 'product_page',
-			'priority'   => 3,
-			'field_data' => array(
-				'title'       => __( 'Product page', 'subscription' ),
-				'description' => __( 'How a product page shows its options.', 'subscription' ),
-			),
-		);
-
-		$settings_fields[] = array(
 			'type'       => 'toggle',
 			'group'      => 'product_page',
-			'priority'   => 10,
+			'priority'   => 20,
 			'field_data' => array(
 				'id'          => self::OPTION,
 				'title'       => __( 'Show variations as buttons', 'subscription' ),

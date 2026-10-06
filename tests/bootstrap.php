@@ -166,6 +166,27 @@ namespace {
 		}
 	}
 
+	if ( ! function_exists( 'register_setting' ) ) {
+		/**
+		 * Record the call: [ group, option, args ] per setting.
+		 */
+		function register_setting( $group, $option, $args = [] ) {
+			$GLOBALS['registered_settings'][ $option ] = [ $group, $args ];
+		}
+	}
+
+	if ( ! function_exists( 'sanitize_hex_color' ) ) {
+		/**
+		 * WordPress's rule: '#' and three or six hex digits, else null.
+		 */
+		function sanitize_hex_color( $color ) {
+			if ( '' === $color ) {
+				return '';
+			}
+			return preg_match( '|^#([A-Fa-f0-9]{3}){1,2}$|', (string) $color ) ? $color : null;
+		}
+	}
+
 	if ( ! function_exists( 'sanitize_text_field' ) ) {
 		function sanitize_text_field( $text ) {
 			return trim( strip_tags( (string) $text ) );
@@ -342,6 +363,10 @@ namespace {
 				return $this->parent_id;
 			}
 		}
+	}
+
+	if ( ! class_exists( 'WC_Product_Simple' ) ) {
+		class WC_Product_Simple extends WC_Product {}
 	}
 
 	if ( ! class_exists( 'WC_Product_Stub' ) ) {

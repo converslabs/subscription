@@ -136,10 +136,9 @@ class VariationButtonsTest extends TestCase {
 	public function test_the_setting_is_a_field_of_the_product_page_group() {
 		$fields = ( new VariationButtons() )->add_settings_fields( [] );
 
+		// The group's heading is ProductPageSettings', so the group has exactly one.
 		$heading = array_values( array_filter( $fields, static fn( $f ) => 'heading' === $f['type'] ) );
-		$this->assertCount( 1, $heading );
-		$this->assertSame( 'product_page', $heading[0]['group'] );
-		$this->assertSame( 'Product page', $heading[0]['field_data']['title'] );
+		$this->assertCount( 0, $heading );
 
 		$toggle = array_values( array_filter( $fields, static fn( $f ) => 'toggle' === $f['type'] ) );
 		$this->assertCount( 1, $toggle );
