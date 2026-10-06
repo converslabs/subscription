@@ -365,6 +365,28 @@ class PlanLayoutsTest extends TestCase {
 		$this->assertSame( 'stacked', $this->layout_of( $this->render( 'classic' ) ) );
 	}
 
+	public function test_a_layout_whose_partial_is_missing_renders_stacked() {
+		$GLOBALS['wp_hooks_registry']['subscrpt_plan_selector_layouts'][10][] = [
+			static function ( $layouts ) {
+				$layouts['ghost'] = 'product/plan-selector/ghost.php';
+				return $layouts;
+			},
+			1,
+		];
+		$xpath = $this->render( 'ghost' );
+
+		$this->assertSame( 'stacked', $this->layout_of( $xpath ), 'no silent empty buybox' );
+		$this->assertSame( 4, $xpath->query( '//*[@data-subscrpt-card]' )->length );
+	}
+
+	public function test_dropdown_badge_describes_the_option_select() {
+		$xpath = $this->render( 'dropdown' );
+
+		$select = $xpath->query( "//select[@name='subscrpt_plan_group']" )->item( 0 );
+		$this->assertSame( 'subscrpt-grp-grp_1-badge', $select->getAttribute( 'aria-describedby' ) );
+		$this->assertSame( 1, $xpath->query( "//*[@id='subscrpt-grp-grp_1-badge'][@data-subscrpt-badge]" )->length );
+	}
+
 	public function test_card_body_fires_once_per_group_and_one_is_visible() {
 		foreach ( [ 'dropdown', 'classic' ] as $layout ) {
 			$GLOBALS['applied_actions']   = [];

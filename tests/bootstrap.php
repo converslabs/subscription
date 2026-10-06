@@ -267,6 +267,15 @@ namespace {
 		}
 	}
 
+	if ( ! function_exists( 'wc_locate_template' ) ) {
+		/**
+		 * The shipped template's path; no theme lookup, as in `wc_get_template()`.
+		 */
+		function wc_locate_template( $template_name, $template_path = '', $default_path = '' ) {
+			return SUBSCRPT_TEMPLATES . $template_name;
+		}
+	}
+
 	if ( ! function_exists( 'wc_get_template_html' ) ) {
 		function wc_get_template_html( $template_name, $args = [], $template_path = '', $default_path = '' ) {
 			ob_start();
