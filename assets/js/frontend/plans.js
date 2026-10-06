@@ -200,11 +200,11 @@
     }
 
     // The badge reports what *this* term saves, so it moves with the selection.
-    // Hidden outright when the chosen term is not discounted, so no empty pill
-    // is left behind.
+    // When the chosen term is not discounted it shows its fallback (the best
+    // saving, in grid with savings), or is hidden so no empty pill is left.
     var badgeEl = card.querySelector("[data-subscrpt-badge]");
     if (badgeEl) {
-      var badge = term.getAttribute("data-badge") || "";
+      var badge = term.getAttribute("data-badge") || badgeEl.getAttribute("data-subscrpt-badge-fallback") || "";
       badgeEl.textContent = badge;
       badgeEl.hidden = badge === "";
     }

@@ -4,7 +4,8 @@
  *
  * The grid layout (`grid.php`) with each tile led by its discount badge,
  * _Save 20%_, in a band every tile keeps. The badge follows the selected term,
- * as in every layout.
+ * as in every layout; while that term saves nothing it names the group's best
+ * saving, _Save up to 20%_.
  *
  * Override by copying to <your_theme>/subscription/product/plan-selector/grid_savings.php
  *

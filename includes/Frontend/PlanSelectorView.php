@@ -79,6 +79,7 @@ class PlanSelectorView {
 	 * - `learn_panel`      string  Details panel text, used when there is no link.
 	 * - `learn_label`      string  Learn-more label, defaulted.
 	 * - `intervals`        string  'chips' or 'dropdown', from `intervals()`.
+	 * - `best_saving`      string  "Save up to N%" from the term that saves most, '' when none saves.
 	 *
 	 * @param array $group Plan group.
 	 * @param int   $index Its position; the first is pre-selected.
@@ -112,6 +113,11 @@ class PlanSelectorView {
 		$learn = isset( $storefront['learn_more'] ) && is_array( $storefront['learn_more'] ) ? $storefront['learn_more'] : [];
 		$label = self::text( isset( $learn['label'] ) ? $learn['label'] : '' );
 
+		$best = 0;
+		foreach ( $has_terms ? $group['terms'] : [] as $plan_term ) {
+			$best = max( $best, isset( $plan_term['discount_percent'] ) ? (int) $plan_term['discount_percent'] : 0 );
+		}
+
 		return [
 			'gid'              => 'subscrpt-grp-' . sanitize_html_class( $group['id'] ),
 			'is_first'         => 0 === $index,
@@ -128,6 +134,8 @@ class PlanSelectorView {
 			'learn_panel'      => self::text( isset( $learn['panel'] ) ? $learn['panel'] : '' ),
 			'learn_label'      => '' !== $label ? $label : __( 'Learn more', 'subscription' ),
 			'intervals'        => self::intervals( $group ),
+			/* translators: %d: the largest discount among the group's terms, in percent. */
+			'best_saving'      => $best > 0 ? sprintf( __( 'Save up to %d%%', 'subscription' ), $best ) : '',
 		];
 	}
 

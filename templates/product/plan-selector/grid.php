@@ -8,7 +8,9 @@
  *
  * The grid with savings layout renders this partial with `$lead` set to
  * 'saving': each tile then leads with its discount badge, in a band of its own
- * that every tile keeps, so the tiles line up whether they save or not.
+ * that every tile keeps, so the tiles line up whether they save or not. While
+ * the selected term saves nothing, the band names the group's best saving,
+ * "Save up to 20%".
  *
  * Override by copying to <your_theme>/subscription/product/plan-selector/grid.php
  *
@@ -36,7 +38,17 @@ $lead    = isset( $lead ) && 'saving' === $lead;
 			<div class="subscrpt-buybox__card subscrpt-buybox__tile<?php echo $view['is_first'] ? ' is-selected' : ''; ?>" data-subscrpt-card data-subscrpt-group="<?php echo esc_attr( $group['id'] ); ?>"<?php echo 1 === $view['term_count'] ? ' data-subscrpt-single-term="' . esc_attr( $group['terms'][0]['id'] ) . '"' : ''; ?>>
 				<?php if ( $lead ) : ?>
 					<div class="subscrpt-buybox__lead">
-						<?php wc_get_template( 'product/plan-selector/parts/badge.php', [ 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
+						<?php
+						wc_get_template(
+							'product/plan-selector/parts/badge.php',
+							[
+								'view'     => $view,
+								'fallback' => $view['best_saving'],
+							],
+							'subscription',
+							SUBSCRPT_TEMPLATES
+						);
+						?>
 					</div>
 				<?php endif; ?>
 				<?php if ( '' !== $view['tag'] ) : ?>
