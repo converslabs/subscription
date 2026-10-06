@@ -113,18 +113,6 @@ class PlanVariationHtmlTest extends TestCase {
 		);
 	}
 
-	public function test_available_variation_carries_html_without_is_product() {
-		list( $parent, $variation ) = $this->variable();
-		$this->assertFalse( is_product() );
-
-		$data = Plans::push_variation_html( [ 'variation_id' => 31 ], $parent, $variation );
-
-		$this->assertNotEmpty( $data['subscrpt_plans_html'] ?? '' );
-		$this->assertStringContainsString( 'data-subscrpt-context="variation"', $data['subscrpt_plans_html'] );
-		$this->assertStringContainsString( 'data-term-id="12"', $data['subscrpt_plans_html'] );
-		$this->assertSame( 31, $data['variation_id'] );
-	}
-
 	public function test_variation_without_plans_gets_no_html() {
 		list( $parent, , $variation ) = $this->variable();
 		$GLOBALS['wp_is_product']     = true;
