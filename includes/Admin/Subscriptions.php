@@ -159,7 +159,7 @@ class Subscriptions {
 				<?php
 			} elseif ( 'subscrpt_next_date' === $column ) {
 				$next_date = get_post_meta( $post_id, '_subscrpt_next_date', true );
-				echo ! empty( $next_date ) ? esc_html( wp_date( 'F d, Y', $next_date ) ) : '-';
+				echo ! empty( $next_date ) && Helper::has_next_payment( get_post_status( $post_id ) ) ? esc_html( wp_date( 'F d, Y', $next_date ) ) : '-';
 			} elseif ( 'subscrpt_status' === $column ) {
 				$status_obj = get_post_status_object( get_post_status( $post_id ) );
 				?>

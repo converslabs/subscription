@@ -15,6 +15,45 @@ jQuery(document).ready(($) => {
 });
 // * ----- Disable Enforce Login based on Guest Checkout Setting ----- * //
 
+// * ----- Show Early Renew fields based on Early Renewal and Visibility Settings ----- * //
+jQuery(document).ready(($) => {
+  const earlyRenew = $("#subscrpt_early_renew");
+  // An adv-select: the value lives in a hidden input that has a name but no id.
+  const visibility = $('input[name="subscrpt_early_renew_visibility"]');
+  const row = (id) => $("#" + id).closest(".wpsubs-settings-field");
+
+  // Each row is preceded by a divider; hide it too, or hidden rows leave empty lines.
+  const showRow = (el, on) => el.add(el.prev(".subscrpt-settings__rule")).toggle(on);
+
+  // Visibility option => the input it needs. "always" needs none.
+  const visibilityFields = {
+    before_days: "subscrpt_early_renew_before_days",
+    day_of_month: "subscrpt_early_renew_day_of_month",
+    cycle_left: "subscrpt_early_renew_cycle_left",
+  };
+
+  function toggleEarlyRenewFields() {
+    const enabled = earlyRenew.is(":checked");
+
+    showRow(visibility.closest(".wpsubs-settings-field"), enabled);
+    $.each(visibilityFields, (option, id) => {
+      showRow(row(id), enabled && visibility.val() === option);
+    });
+  }
+
+  if (!earlyRenew.length || !visibility.length) {
+    return;
+  }
+
+  // Initial state
+  toggleEarlyRenewFields();
+
+  // On change
+  earlyRenew.on("change", toggleEarlyRenewFields);
+  visibility.closest(".wpsubs-adv-select").on("wpsubs:select", toggleEarlyRenewFields);
+});
+// * ----- Show Early Renew fields based on Early Renewal and Visibility Settings ----- * //
+
 /**
  * Settings rail.
  *

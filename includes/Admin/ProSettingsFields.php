@@ -106,6 +106,70 @@ class ProSettingsFields {
 					'checked'     => '1' === get_option( 'subscrpt_early_renew', '1' ),
 				],
 			],
+			[
+				'type'       => 'select',
+				'group'      => 'renewals',
+				'priority'   => 9,
+				'field_data' => [
+					'id'          => 'subscrpt_early_renew_visibility',
+					'title'       => __( 'Early Renew Button Visibility', 'subscription' ),
+					'description' => __( 'Choose when customers see the Early Renew button on an active subscription.', 'subscription' ),
+					'options'     => [
+						'always'       => __( 'Always', 'subscription' ),
+						'before_days'  => __( 'Before X days of the next renewal', 'subscription' ),
+						'day_of_month' => __( 'From a fixed day of the month', 'subscription' ),
+						'cycle_left'   => __( 'When a percentage of the billing cycle remains', 'subscription' ),
+					],
+					'selected'    => esc_attr( get_option( 'subscrpt_early_renew_visibility', 'always' ) ),
+				],
+			],
+			[
+				'type'       => 'input',
+				'group'      => 'renewals',
+				'priority'   => 10,
+				'field_data' => [
+					'id'          => 'subscrpt_early_renew_before_days',
+					'title'       => __( 'Early Renew: Days Before Renewal', 'subscription' ),
+					'description' => __( 'Used with "Before X days". The button shows this many days before the next renewal date.', 'subscription' ),
+					'value'       => esc_attr( get_option( 'subscrpt_early_renew_before_days', '7' ) ),
+					'type'        => 'number',
+					'attributes'  => [
+						'min' => 1,
+					],
+				],
+			],
+			[
+				'type'       => 'input',
+				'group'      => 'renewals',
+				'priority'   => 11,
+				'field_data' => [
+					'id'          => 'subscrpt_early_renew_day_of_month',
+					'title'       => __( 'Early Renew: Day of Month', 'subscription' ),
+					'description' => __( 'Used with "From a fixed day of the month". The button shows from this day until the end of each month. Short months use their last day.', 'subscription' ),
+					'value'       => esc_attr( get_option( 'subscrpt_early_renew_day_of_month', '25' ) ),
+					'type'        => 'number',
+					'attributes'  => [
+						'min' => 1,
+						'max' => 31,
+					],
+				],
+			],
+			[
+				'type'       => 'input',
+				'group'      => 'renewals',
+				'priority'   => 12,
+				'field_data' => [
+					'id'          => 'subscrpt_early_renew_cycle_left',
+					'title'       => __( 'Early Renew: Cycle Remaining (%)', 'subscription' ),
+					'description' => __( 'Used with "When a percentage of the billing cycle remains". The button shows once this percentage of the current cycle or less is left.', 'subscription' ),
+					'value'       => esc_attr( get_option( 'subscrpt_early_renew_cycle_left', '20' ) ),
+					'type'        => 'number',
+					'attributes'  => [
+						'min' => 1,
+						'max' => 100,
+					],
+				],
+			],
 		];
 	}
 
