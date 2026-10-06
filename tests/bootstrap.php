@@ -51,6 +51,15 @@ namespace {
 	if ( ! function_exists( 'add_filter' ) ) {
 		function add_filter( $tag, $callback, $priority = 10, $accepted_args = 1 ) {
 			$GLOBALS['wp_hooks_registry'][ $tag ][ $priority ][] = [ $callback, $accepted_args ];
+
+			// WordPress's own shape, for code that asks who else is listening.
+			if ( ! isset( $GLOBALS['wp_filter'][ $tag ] ) ) {
+				$GLOBALS['wp_filter'][ $tag ] = (object) [ 'callbacks' => [] ];
+			}
+			$GLOBALS['wp_filter'][ $tag ]->callbacks[ $priority ][] = [
+				'function'      => $callback,
+				'accepted_args' => $accepted_args,
+			];
 			return true;
 		}
 	}
@@ -121,6 +130,27 @@ namespace {
 	if ( ! function_exists( 'wc_price' ) ) {
 		function wc_price( $price ) {
 			return '$' . number_format( (float) $price, 2 );
+		}
+	}
+
+	if ( ! function_exists( 'sanitize_title' ) ) {
+		function sanitize_title( $title ) {
+			return trim( preg_replace( '/[^a-z0-9_-]+/', '-', strtolower( (string) $title ) ), '-' );
+		}
+	}
+
+	if ( ! function_exists( 'wc_attribute_label' ) ) {
+		function wc_attribute_label( $name, $product = '' ) {
+			return ucfirst( (string) $name );
+		}
+	}
+
+	// Products by id, for code that loads them: [id] => WC_Product.
+	$GLOBALS['wc_products'] = [];
+
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		function wc_get_product( $id = false ) {
+			return $GLOBALS['wc_products'][ (int) $id ] ?? false;
 		}
 	}
 

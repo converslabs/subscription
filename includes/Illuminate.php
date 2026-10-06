@@ -18,6 +18,7 @@ use SpringDevs\Subscription\Illuminate\Order;
 use SpringDevs\Subscription\Illuminate\Post;
 use SpringDevs\Subscription\Illuminate\Stats;
 use SpringDevs\Subscription\Illuminate\Gateways\Stripe\Stripe;
+use SpringDevs\Subscription\Frontend\VariationButtons;
 use SpringDevs\Subscription\Illuminate\GuestCheckout;
 use SpringDevs\Subscription\Illuminate\RoleManagement;
 use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
@@ -51,6 +52,7 @@ class Illuminate {
 			new PlanCheckout();
 		}
 		new GuestCheckout();
+		new VariationButtons();
 		new AutoRenewal();
 		new Email();
 
