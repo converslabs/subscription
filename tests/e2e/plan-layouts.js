@@ -60,6 +60,16 @@ function createFixture() {
   );
 }
 
+// A body listener for this product only: one text input per option's body.
+const MU = "docker/mu-plugins/e2e-plan-layouts-body.php";
+const MU_CODE = `<?php
+add_action( "subscrpt_plan_card_body", function ( $group, $product ) {
+	if ( $product && "Plan layouts e2e" === $product->get_name() ) {
+		echo '<input type="text" name="e2e_body_' . esc_attr( $group["id"] ) . '" value="x" />';
+	}
+}, 10, 2 );
+`;
+
 /** Delete the product, its relations and the group. */
 function cleanup(fx) {
   php(`
@@ -96,20 +106,39 @@ const shownPrice = (page) =>
     return ins ? ins.textContent.trim() : "";
   });
 
-/** The `subscrpt_plan_id` an add-to-cart request carried. */
-async function postedPlanId(page) {
+/** The fields an add-to-cart request carried, as name => value. */
+async function postedFields(page) {
   const req = page.waitForRequest((r) => r.method() === "POST" && /add-to-cart/.test(r.postData() || ""), {
     timeout: 15000,
   });
   await page.click("button.single_add_to_cart_button");
   const body = (await req).postData() || "";
-  const multipart = body.match(/name="subscrpt_plan_id"\r?\n\r?\n([^\r\n]*)/);
-  if (multipart) {
-    return multipart[1];
+  const fields = {};
+  const parts = body.matchAll(/name="([^"]+)"\r?\n\r?\n([^\r\n]*)/g);
+  let multipart = false;
+  for (const m of parts) {
+    multipart = true;
+    fields[m[1]] = m[2];
   }
-  const params = new URLSearchParams(body);
-  return params.has("subscrpt_plan_id") ? params.get("subscrpt_plan_id") : null;
+  if (!multipart) {
+    for (const [k, v] of new URLSearchParams(body)) fields[k] = v;
+  }
+  return fields;
 }
+
+/** The `subscrpt_plan_id` an add-to-cart request carried. */
+async function postedPlanId(page) {
+  const fields = await postedFields(page);
+  return "subscrpt_plan_id" in fields ? fields.subscrpt_plan_id : null;
+}
+
+/** Body field names (`e2e_body_<group>`) that are enabled right now. */
+const enabledBodyFields = (page) =>
+  page.evaluate(() =>
+    Array.from(document.querySelectorAll('[data-subscrpt-buybox] input[name^="e2e_body_"]'))
+      .filter((i) => !i.disabled)
+      .map((i) => i.name),
+  );
 
 /** Screenshots of the buybox at both widths. */
 async function shoot(browser, url, name, prepare) {
@@ -156,6 +185,7 @@ async function pickOneTime(page, layout) {
     process.exit(1);
   }
   fs.mkdirSync(SHOT, { recursive: true });
+  fs.writeFileSync(MU, MU_CODE);
   const browser = await chromium.launch();
 
   try {
@@ -206,10 +236,26 @@ async function pickOneTime(page, layout) {
         check(JSON.stringify(shown) === '["one_time"]', "only One-Time's details show");
       }
 
+      check(
+        JSON.stringify(await enabledBodyFields(page)) === '["e2e_body_one_time"]',
+        "only One-Time's body controls are enabled",
+        JSON.stringify(await enabledBodyFields(page)),
+      );
+
       await pickSecondTerm(page, fx, layout);
       check((await planId(page)) === String(fx.terms[1]), "back on the second term");
-      const posted = await postedPlanId(page);
-      check(posted === String(fx.terms[1]), "add to cart sends the second term", String(posted));
+      const fields = await postedFields(page);
+      check(
+        fields.subscrpt_plan_id === String(fx.terms[1]),
+        "add to cart sends the second term",
+        fields.subscrpt_plan_id,
+      );
+      const bodies = Object.keys(fields).filter((k) => k.startsWith("e2e_body_"));
+      check(
+        JSON.stringify(bodies) === JSON.stringify([`e2e_body_grp_${fx.group}`]),
+        "only the chosen option's body posts",
+        JSON.stringify(bodies),
+      );
       await page.close();
 
       await shoot(browser, fx.url, `layout-${layout}`, (p) => pickSecondTerm(p, fx, layout));
@@ -243,6 +289,7 @@ async function pickOneTime(page, layout) {
     console.log(`  ✗ ${e.message}`);
   } finally {
     await browser.close();
+    fs.rmSync(MU, { force: true });
     cleanup(fx);
   }
 
