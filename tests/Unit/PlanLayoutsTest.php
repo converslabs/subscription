@@ -488,7 +488,7 @@ class PlanLayoutsTest extends TestCase {
 			$panel_id = $radio->getAttribute( 'aria-controls' );
 			$panel    = $xpath->query( "./*[@id='{$panel_id}'][@data-subscrpt-panel]", $card )->item( 0 );
 			$this->assertInstanceOf( \DOMElement::class, $panel, "option {$i}: the radio controls its panel" );
-			$this->assertSame( 0 === $i ? 'true' : 'false', $radio->getAttribute( 'aria-expanded' ), "option {$i}: aria-expanded" );
+			$this->assertFalse( $radio->hasAttribute( 'aria-expanded' ), "option {$i}: a radio takes no aria-expanded" );
 			$this->assertSame( 0 !== $i, $panel->hasAttribute( 'hidden' ), "option {$i}: only the selected one opens" );
 			$this->assertSame( 1, $xpath->query( './/*[@data-subscrpt-card-body]', $panel )->length, "option {$i}: the body is in the panel" );
 		}

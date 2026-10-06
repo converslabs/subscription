@@ -13,8 +13,8 @@
  *   4. Only the chosen option's body controls are enabled, and only they post.
  *   5. Add to cart sends the chosen `subscrpt_plan_id`.
  *
- * Per layout, too: the accordion opens only the selected card (`aria-expanded`
- * follows), the grids put their tiles side by side and stack them at 390 px,
+ * Per layout, too: the accordion opens only the selected card (the panel its
+ * radio `aria-controls`), the grids put their tiles side by side and stack them at 390 px,
  * grid with savings leads with the saving, and the accordion and button row
  * work from the keyboard with a visible focus ring.
  *
@@ -124,13 +124,16 @@ const openPanels = (page) =>
       .map((c) => c.getAttribute("data-subscrpt-group")),
   );
 
-/** Groups whose radio says it is expanded. */
-const expanded = (page) =>
-  page.evaluate(() =>
-    Array.from(document.querySelectorAll('input[name="subscrpt_plan_group"][aria-expanded="true"]')).map(
-      (r) => r.value,
-    ),
-  );
+/** The checked group radio's group when the panel it `aria-controls` is open, and how many radios carry `aria-expanded`. */
+const controlled = (page) =>
+  page.evaluate(() => {
+    const radio = document.querySelector('input[name="subscrpt_plan_group"]:checked');
+    const panel = radio ? document.getElementById(radio.getAttribute("aria-controls") || "") : null;
+    return {
+      open: panel && !panel.hidden && getComputedStyle(panel).display !== "none" ? radio.value : "",
+      expanded: document.querySelectorAll('input[name="subscrpt_plan_group"][aria-expanded]').length,
+    };
+  });
 
 /** What has focus: its name, value, whether it is checked, and whether a ring shows on it or its label. */
 const focused = (page) =>
@@ -340,8 +343,9 @@ async function pickOneTime(page, layout) {
           JSON.stringify(await openPanels(page)),
         );
         check(
-          JSON.stringify(await expanded(page)) === JSON.stringify([`grp_${fx.group}`]),
-          "its radio alone is aria-expanded",
+          JSON.stringify(await controlled(page)) === JSON.stringify({ open: `grp_${fx.group}`, expanded: 0 }),
+          "the open panel is the one its radio controls, with no aria-expanded on a radio",
+          JSON.stringify(await controlled(page)),
         );
       }
 
@@ -384,7 +388,11 @@ async function pickOneTime(page, layout) {
       }
       if (layout === "accordion") {
         check(JSON.stringify(await openPanels(page)) === '["one_time"]', "One-Time opens, the plan folds");
-        check(JSON.stringify(await expanded(page)) === '["one_time"]', "aria-expanded moves with it");
+        check(
+          JSON.stringify(await controlled(page)) === JSON.stringify({ open: "one_time", expanded: 0 }),
+          "One-Time's radio controls the open panel",
+          JSON.stringify(await controlled(page)),
+        );
       }
       if (ONLY_SELECTED.includes(layout)) {
         const shown = await page.evaluate(() =>
