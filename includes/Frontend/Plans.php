@@ -3,14 +3,14 @@
  * Storefront plan selector (free).
  *
  * Renders the plan selector — a radio card per plan group, with the group's
- * terms as buttons — on a product tied to a plan, and carries the chosen
+ * terms as a radio group — on a product tied to a plan, and carries the chosen
  * plan-term id onto the add-to-cart request. A variable product gets an empty
  * container; each variation's selector is rendered on the server into its
  * `woocommerce_available_variation` data and swapped in by plans.js. Guarded by `subscrpt_plan_offered()`:
  * with no tied plan this class does nothing and the classic price suffix stands.
  *
- * The single source of the purchase options, with or without Pro; Pro adds to
- * them only through the `subscrpt_plan_term` and `subscrpt_plan_selector_groups`
+ * The single source of the purchase options, with or without Pro; Pro may add
+ * to them through the `subscrpt_plan_term` and `subscrpt_plan_selector_groups`
  * filters. Two things depend on Pro: a variable product's options render only
  * with it, since free's checkout cannot sell a variation's plan, and the plan
  * price HTML is free's only without it, since Pro rewrites the same price.
