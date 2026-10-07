@@ -31,11 +31,7 @@
   "autoload": {
     "psr-4": {
       "SpringDevs\\Subscription\\": "includes/"
-    },
-    "files": [
-      "includes/functions.php",
-      "includes/Admin/AdminComponents.php"
-    ]
+    }
   },
   "config": {
     "allow-plugins": {

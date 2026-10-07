@@ -5,8 +5,8 @@
  * @package SpringDevs\Subscription\Admin
  */
 
-// Exit if accessed directly. PHPUnit is let through: composer's autoload.files loads this file before the test bootstrap can define ABSPATH.
-if ( ! defined( 'ABSPATH' ) && ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
