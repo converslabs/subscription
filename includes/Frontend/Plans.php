@@ -11,9 +11,12 @@
  *
  * The single source of the purchase options, with or without Pro; Pro may add
  * to them through the `subscrpt_plan_term` and `subscrpt_plan_selector_groups`
- * filters. Two things depend on Pro: a variable product's options render only
- * with it, since free's checkout cannot sell a variation's plan, and the plan
- * price HTML is free's only without it, since Pro rewrites the same price.
+ * filters. With Pro active they render only when Pro says it renders through
+ * free (`subscrpt_plan_selector_from_free`): an older Pro draws its own
+ * selector, and the page would show two. Two more things depend on Pro: a
+ * variable product's options render only with it, since free's checkout
+ * cannot sell a variation's plan, and the plan price HTML is free's only
+ * without it, since Pro rewrites the same price.
  *
  * The storefront never calls REST; plan data is read directly through
  * `PlanRepository::resolve_for_product()` (object cache → DB).
@@ -60,14 +63,16 @@ class Plans {
 	 * AND subscription-enabled (for a variable product, on any variation).
 	 *
 	 * A variable product counts only with Pro active: free's checkout cannot sell
-	 * a variation's plan, even when relations are left over from Pro.
+	 * a variation's plan, even when relations are left over from Pro. No product
+	 * counts while a Pro that draws its own selector is active; see
+	 * renders_options().
 	 *
 	 * @param mixed $product Product object.
 	 *
 	 * @return bool
 	 */
 	public static function product_has_plans( $product ) {
-		if ( ! $product instanceof \WC_Product ) {
+		if ( ! $product instanceof \WC_Product || ! self::renders_options() ) {
 			return false;
 		}
 
@@ -77,6 +82,30 @@ class Plans {
 
 		return $product->is_type( array( 'simple', 'variable' ) )
 			&& subscrpt_plan_offered( $product->get_id() );
+	}
+
+	/**
+	 * Whether free renders the purchase options on this install.
+	 *
+	 * Always without Pro. With Pro, only when Pro says it renders through free:
+	 * an older Pro draws its own selector, and free's beside it would be a second.
+	 *
+	 * @return bool
+	 */
+	public static function renders_options(): bool {
+		if ( ! subscrpt_pro_activated() ) {
+			return true;
+		}
+
+		/**
+		 * Filters whether free renders the purchase options while Pro is active.
+		 *
+		 * Pro returns true from the release that renders its storefront through
+		 * free; an older Pro, which draws its own selector, does not answer it.
+		 *
+		 * @param bool $from_free Whether free renders them. Default false.
+		 */
+		return (bool) apply_filters( 'subscrpt_plan_selector_from_free', false );
 	}
 
 	/**
