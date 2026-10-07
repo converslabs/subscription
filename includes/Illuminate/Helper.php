@@ -1333,6 +1333,12 @@ class Helper {
 		$is_global_auto_renew = get_option( 'wp_subscription_stripe_auto_renew', '1' );
 		$is_global_auto_renew = in_array( $is_global_auto_renew, array( 1, '1' ), true );
 
+		// `Stripe` extends WooCommerce Stripe's gateway: reading its constant
+		// without that plugin is a fatal, and without it there is nothing to clone for.
+		if ( ! class_exists( 'WC_Stripe_Payment_Gateway' ) ) {
+			return;
+		}
+
 		$stripe_supported_methods = Stripe::WPSUBS_SUPPORTED_METHODS;
 		$old_method               = $old_order->get_payment_method();
 		$is_stripe_pm             = ! empty( $old_method ) && in_array( $old_method, $stripe_supported_methods, true );
