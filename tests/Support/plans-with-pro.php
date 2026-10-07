@@ -13,6 +13,10 @@
  * product page of that variation and of one without plans, and which Plans
  * methods the constructor hooked.
  *
+ * Run with `old` for a pro that draws its own selector and so does not answer
+ * `subscrpt_plan_selector_from_free`; by default pro answers true, as pro does
+ * from the release that renders through free.
+ *
  * @package SpringDevs\Subscription
  */
 
@@ -24,6 +28,10 @@ use SpringDevs\Subscription\Frontend\Plans;
 use SpringDevs\Subscription\Illuminate\Plans\PlanRepository;
 
 class_alias( \WC_Product_Stub::class, 'Sdevs_Wc_Subscription_Pro' );
+
+if ( 'old' !== ( $argv[1] ?? '' ) ) {
+	$GLOBALS['wp_filter_returns']['subscrpt_plan_selector_from_free'] = true;
+}
 
 $row = function ( $plan_id ) {
 	return [

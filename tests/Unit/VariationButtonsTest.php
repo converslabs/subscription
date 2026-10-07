@@ -55,6 +55,11 @@ class VariationButtonsTest extends TestCase {
 		$this->assertSame( F::dropdown(), F::render( F::product() ) );
 	}
 
+	/** An older pro, which draws its own selector, gets no buttons from free. */
+	public function test_with_an_older_pro_the_product_gets_no_buttons() {
+		$this->assertStringNotContainsString( 'role="radiogroup"', self::with_pro()['old_pro'] );
+	}
+
 	/** With pro active the same product gets them. */
 	public function test_with_pro_the_same_product_gets_buttons() {
 		$this->assertStringContainsString( 'role="radiogroup"', self::with_pro()['default'] );

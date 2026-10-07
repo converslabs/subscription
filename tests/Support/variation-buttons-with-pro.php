@@ -19,7 +19,15 @@ use SpringDevs\Subscription\Tests\Unit\VariationButtonsVariation;
 
 class_alias( \WC_Product_Stub::class, 'Sdevs_Wc_Subscription_Pro' );
 
-$out = [ 'pro' => subscrpt_pro_activated() ];
+// An older pro draws its own selector, so free puts no buttons beside it.
+F::reset();
+$out = [
+	'pro'     => subscrpt_pro_activated(),
+	'old_pro' => F::render( F::product() ),
+];
+
+// From here on, a pro that renders through free.
+$GLOBALS['pro_renders_through_free'] = true;
 
 F::reset();
 $out['default'] = F::render( F::product() );

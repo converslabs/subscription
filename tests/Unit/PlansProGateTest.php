@@ -12,9 +12,12 @@ use SpringDevs\Subscription\Frontend\Plans;
 use SpringDevs\Subscription\Illuminate\Plans\PlanRepository;
 
 /**
- * Free always renders the purchase options. A variable product's only with pro
- * active, since free's checkout cannot sell a variation's plan; and the plan
- * price HTML only without pro, which rewrites the same price itself.
+ * Free renders the purchase options without pro, and with a pro that says it
+ * renders through free (`subscrpt_plan_selector_from_free`); an older pro draws
+ * its own selector, so free stays out of its way. A variable product's options
+ * render only with pro active, since free's checkout cannot sell a variation's
+ * plan; and the plan price HTML only without pro, which rewrites the same price
+ * itself.
  *
  * The pro tests read tests/Support/plans-with-pro.php, run in a process of its
  * own: once pro's class exists it cannot be taken away again.
@@ -36,20 +39,24 @@ class PlansProGateTest extends TestCase {
 	/**
 	 * The selector with pro active, from a separate PHP process.
 	 *
+	 * @param string $pro `new` for a pro that renders through free, `old` for one with its own selector.
+	 *
 	 * @return array pro, hooked, render, variation, bare.
 	 */
-	private static function with_pro(): array {
-		static $result = null;
+	private static function with_pro( string $pro = 'new' ): array {
+		static $results = [];
 
-		if ( null === $result ) {
+		if ( ! isset( $results[ $pro ] ) ) {
 			$script = dirname( __DIR__ ) . '/Support/plans-with-pro.php';
-			$output = shell_exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script ) . ' 2>&1' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec
+			$output = shell_exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script ) . ' ' . escapeshellarg( $pro ) . ' 2>&1' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec
 			$result = json_decode( (string) $output, true );
 			self::assertIsArray( $result, 'plans-with-pro.php printed: ' . $output );
 			self::assertTrue( $result['pro'] );
+
+			$results[ $pro ] = $result;
 		}
 
-		return $result;
+		return $results[ $pro ];
 	}
 
 	/**
@@ -157,6 +164,22 @@ class PlansProGateTest extends TestCase {
 	/** With pro a variation without plans carries no cards. */
 	public function test_with_pro_a_variation_without_plans_carries_no_cards() {
 		$this->assertSame( [ 'variation_id' => 32 ], self::with_pro()['bare'] );
+	}
+
+	/** An older pro draws its own selector: free renders none, so the page never shows two. */
+	public function test_with_an_older_pro_free_renders_no_selector() {
+		$old = self::with_pro( 'old' );
+
+		$this->assertSame( '', $old['render'] );
+		$this->assertSame( [ 'variation_id' => 31 ], $old['variation'] );
+	}
+
+	/** Without pro free renders, whatever the filter says: no pro is there to answer it. */
+	public function test_without_pro_the_filter_is_not_needed() {
+		$GLOBALS['wp_filter_returns']['subscrpt_plan_selector_from_free'] = false;
+		$GLOBALS['wp_object_cache'][ PlanRepository::CACHE_GROUP ]['product_20'] = [ array_merge( $this->row( 11, 0 ), [ 'vid' => 0 ] ) ];
+
+		$this->assertStringContainsString( 'data-subscrpt-single-term="11"', $this->render( new \WC_Product_Stub( 20, 'Mug' ) ) );
 	}
 
 	/** Without pro free rewrites the plan price and renders the selector. */
