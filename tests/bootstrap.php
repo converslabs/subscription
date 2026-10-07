@@ -373,6 +373,23 @@ namespace {
 		class WC_Product_Stub extends WC_Product {}
 	}
 
+	if ( ! function_exists( 'update_post_meta' ) ) {
+		function update_post_meta( $post_id, $key, $value ) {
+			$GLOBALS['wp_post_meta'][ $post_id ][ $key ] = $value;
+			return true;
+		}
+	}
+
+	if ( ! function_exists( 'wc_get_logger' ) ) {
+		function wc_get_logger() {
+			return new class() {
+				public function add( $handle, $message ) {
+					return true;
+				}
+			};
+		}
+	}
+
 	// Lean autoloader: composer's would also load the admin files.
 	spl_autoload_register(
 		static function ( $class ) {
