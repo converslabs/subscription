@@ -34,6 +34,10 @@ Need help? [Read our full documentation and setup guide.](https://docs.wpsubscri
 
 - **Subscription Recovery**: Win back cancelled subscribers automatically with targeted email campaigns, smart discount incentives, and a dedicated Recovery Report to track reactivations and recovered MRR.
 
+- **Purchase Options That Sell**: Show subscribe and one-time options as an offer, in seven layouts with your own colours, benefits and tags.
+
+- **Subscription Boxes (Pro)**: Build-a-box and curated box products, priced by what is inside, with a lock window, a pick list and shipments.
+
 - **Growth-Oriented**: Free trials, sign-up fees, recurring coupons, and upgrade/downgrade options are all designed to boost conversions and build predictable revenue.
 
 Need help? [Read our full documentation and setup guide here.](https://docs.wpsubscription.co/en?utm_source=wporg&utm_medium=readme&utm_campaign=docs)
@@ -56,6 +60,16 @@ Not every product suits an ongoing subscription. Installment payments let a cust
 
 This makes expensive items easier to sell on a small online store without adding a third-party financing service or a separate payment gateway.
 
+### Purchase Options and Layouts
+
+A product that sells plans shows its options as cards a shopper can compare at a glance: each billing interval with its own price and saving, the regular price struck through, and a One-Time card beside them when you allow a one-off purchase. Choose how they look in **Settings > Product page** — stacked cards, a classic radio list, a dropdown, an accordion, a grid of tiles, a grid that leads with the saving, or a button row — and set the colours and corner radius with a live preview. Any product can use a layout of its own.
+
+Each plan can add a tag ribbon such as "Most popular", a list of benefits, and a "learn more" link or details panel. Themes can override every layout's template, and developers can add layouts and content through filters.
+
+### Subscription Boxes (Pro)
+
+The **Boxes** screen in the free plugin previews subscription boxes. The boxes themselves come with WPSubscription Pro: build-a-box and curated box products, a box price that follows its contents, a one-time box, "Add to a box" and "Frequently bought together" on item pages, a box contents list in the cart, customers editing their next box until it locks, editions planned ahead, and a pick list and shipments for packing.
+
 ### Start Earning with Subscriptions for WooCommerce - Recurring Payment Plugin
 
 **[Download the Plugin Now!](https://downloads.wordpress.org/plugin/subscription.zip)**
@@ -69,12 +83,14 @@ Explore all features and get started at [**WooCommerce Subscriptions & Recurring
 - Set custom billing cycles — daily, weekly, monthly, or yearly
 - Add one-time sign-up fees for new subscribers
 - Let customers cancel their plan at any time
+- Show subscribe and one-time purchase options in seven layouts, styled to match your store
 - Manage all subscriptions easily from your WordPress admin panel
 - Let customers self-manage subscriptions from their own account dashboard
 - Accept payments via Stripe, PayPal, Paddle, Mollie, Razorpay, and Xendit
 - Monitor subscription health — track MRR, churn rate, and revenue at risk
 - Apply recurring coupons that discount on first payment or on every renewal
 - Win back cancelled subscribers with automated recovery campaigns and smart discount incentives
+- Sell subscription boxes customers build and edit themselves (Pro)
 
 The **Subscription for WooCommerce plugin** gives both you and your customers full control over subscription management. From your dashboard, you can view all subscriptions and manage them with ease.
 
@@ -100,6 +116,12 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
     [youtube https://www.youtube.com/watch?v=LROx-KUbRho]
 
 6. **Guest Checkout**: Allow non-registered users to purchase subscription products through guest checkout, reducing friction at the point of sale and increasing overall conversion rates.
+
+7. **Purchase Options and Layouts**: Show a product's subscription and one-time options as cards, in one of seven layouts — stacked cards, classic radio list, dropdown, accordion, grid, grid with savings, or button row. Pick the layout and colours store-wide in Settings > Product page, override the layout per product, and add benefits, a tag and a details panel to each plan.
+
+8. **One-Time Purchase Option**: Sell a subscription product as a one-off purchase too. The One-Time card sits beside the subscription options, in every layout.
+
+9. **Subscription Swap in the Cart**: When a shopper adds a different subscription while one is already in the cart, they are asked whether to swap it, instead of seeing an error.
 
 #### PREMIUM FEATURES
 
@@ -132,6 +154,10 @@ That's why it ranks as an excellent WooCommerce recurring payment plugin on the 
 14. **Subscription Recovery**: [**Win back cancelled subscribers automatically**](https://docs.wpsubscription.co/en/wpsubscription-subscription-recovery?utm_source=wporg&utm_medium=readme&utm_campaign=docs) with targeted email campaigns and smart discount offers. Create one-time, scheduled, or recurring campaigns to reach lapsed subscribers — offer percentage discounts, fixed-amount incentives, or WooCommerce coupons redeemable only through recovery emails. Track recovered MRR, reactivations, and campaign performance from a dedicated Recovery Report dashboard, all without any manual intervention.
 
 15. **Subscription Cancellation Survey**: [**Gather insights from customers**](https://docs.wpsubscription.co/en/subscription-cancellation-survey?utm_source=wporg&utm_medium=readme&utm_campaign=docs) who cancel their subscriptions to understand why they left and improve your service. Use targeted questions to identify pain points, reveal common cancellation reasons, and spot opportunities to enhance retention. This feedback helps refine your offerings, reduce churn, and create a better experience for future subscribers.
+
+16. **Subscription Boxes**: Sell build-a-box and curated boxes. Set the size, the products to choose from and the box discount, and the price follows what is inside. Shoppers add items from any product page or from "Frequently bought together", buy a box once or on subscription, and edit their next box from My Account until it locks. You plan editions ahead and pack from the pick list and shipments screens.
+
+17. **Custom CSS for Purchase Options**: Add your own CSS to the purchase options from Settings > Product page.
 
 [**Upgrade to Subscriptions for WooCommerce Pro**](https://wpsubscription.co/?utm_source=wporg&utm_medium=readme&utm_campaign=upgrade_pro)
 
@@ -334,6 +360,21 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.4.0 - Oct 7, 2026 =
+-   new: Purchase options come in seven layouts: stacked cards, a classic radio list, a dropdown, an accordion, a grid of tiles, a grid that leads with the saving, and a button row.
+-   new: Settings > Product page: choose the layout, list billing intervals as chips or a dropdown, and set the accent, text, border, badge and ribbon colours and the corner radius, with a live preview.
+-   new: A product can use its own purchase option layout, chosen in its Subscription tab.
+-   new: A plan's "On the product page" tab adds a tag ribbon, a list of benefits, and a "learn more" link or details panel to its purchase option.
+-   new: Each billing interval shows its own price and saving, with the regular price struck through.
+-   new: Variable products that sell plans show their variations as buttons (variable products with plans need WPSubscription Pro).
+-   new: A Boxes screen under WPSubscription previews subscription boxes. Subscription boxes themselves need WPSubscription Pro.
+-   new: Adding a different subscription while one is in the cart offers to swap them, instead of failing. Adding the same subscription again updates its quantity.
+-   new: Developer hooks for the purchase options: subscrpt_plan_term, subscrpt_plan_selector_groups, subscrpt_plan_card_body, subscrpt_plan_selector_layouts, subscrpt_plan_selector_inline_css and subscrpt_plan_selector_from_free.
+-   improved: Purchase options work from the keyboard: arrow keys move between options and between intervals, with a visible focus ring. Only the chosen option's fields are sent with the order.
+-   improved: Installment options read "Pay every" and each interval shows its number of payments.
+-   fix: The discount badge follows the selected billing interval, instead of always showing the plan's best discount.
+-   fix: Creating a renewal order no longer causes a fatal error when the WooCommerce Stripe Gateway plugin is not active.
 
 = 2.3.0 - Oct 6, 2026 =
 -   new: The cancellation retention offer can be a flat amount in the store currency, as well as a percentage.
