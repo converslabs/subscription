@@ -1,9 +1,9 @@
 === Subscriptions for WooCommerce with Stripe Recurring Payments ===
-Contributors: converswp, shamsbd71, aushamim
+Contributors: converswp, shamsbd71, aushamim, parvezvai, jakariaistauk
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.1.0
+Stable tag: 2.3.0
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -334,6 +334,22 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.3.0 - Oct 6, 2026 =
+-   new: The cancellation retention offer can be a flat amount in the store currency, as well as a percentage.
+-   new: Early Renew button visibility settings: always, a set number of days before the next payment, from a day of the month, or when a percentage of the billing cycle is left.
+-   new: Turn customer cancellation on or off from the Plans page and from plan mode in the product editor.
+-   fix: Early renewal no longer shortens the billing cycle. The next payment date now moves forward from the date that was already due.
+-   fix: Cancelled and expired subscriptions no longer show a next payment date, a "First Billing" label or an auto-renewal toggle.
+-   fix: Customers can cancel plan subscriptions. The Cancel button was missing.
+
+= 2.2.0 - Oct 1, 2026 =
+-   new: Subscription products are marked with an icon in the WooCommerce products list.
+-   new: Reorder plan durations and products by drag and drop, with keyboard support.
+-   new: Install and activate the Stripe gateway from the Stripe Auto Renewal setting.
+-   new: License settings to choose whether renewals keep the existing license key or issue a new one.
+-   fix: Integration cards show installed but inactive plugins as Inactive, with an Activate button.
+-   fix: Installing a payment gateway that is already installed but inactive no longer fails.
 
 = 2.1.0 - Sep 29, 2026 =
 -   new: Quickly update connected product prices of a plan.

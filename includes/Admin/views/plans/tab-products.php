@@ -217,6 +217,31 @@ $has_terms = ! empty( $plan['terms'] );
 			</div>
 			<?php
 		};
+
+		/**
+		 * Render a simple product's "Allow User Cancellation" card. The switch
+		 * saves itself (plans.js), as the one-time switch does. Variable products
+		 * set it per variation in the product editor.
+		 *
+		 * @param array $product Product entry (PlanPresenter shape).
+		 */
+		$subscrpt_render_user_cancel = function ( $product ) {
+			?>
+			<div data-subscrpt-user-cancel-card data-product-id="<?php echo esc_attr( $product['id'] ); ?>" style="border:1px solid var(--wpsubs-border,#e5e7eb);border-radius:8px;background:var(--wpsubs-surface,#fff);margin-top:14px;">
+				<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false" style="flex:0 0 auto;color:var(--wpsubs-text-subtle);"><path d="M431.2 476.5L163.5 208.8C141.1 240.2 128 278.6 128 320C128 426 214 512 320 512C361.5 512 399.9 498.9 431.2 476.5zM476.5 431.2C498.9 399.8 512 361.4 512 320C512 214 426 128 320 128C278.5 128 240.1 141.1 208.8 163.5L476.5 431.2zM64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576C178.6 576 64 461.4 64 320z"/></svg>
+					<strong style="font-size:13px;color:var(--wpsubs-text);"><?php esc_html_e( 'User cancellation', 'subscription' ); ?></strong>
+					<?php echo wp_kses_post( wpsubs_render_hint( __( 'Allow subscribers to cancel their subscription manually from their account dashboard. Applies to subscriptions bought after the change.', 'subscription' ) ) ); ?>
+					<span class="wpsubs-toolbar__spacer"></span>
+					<label class="wpsubs-settings-toggle-label" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--wpsubs-text-muted);cursor:pointer;">
+						<input type="checkbox" class="wpsubs-toggle" data-subscrpt-user-cancel-enable <?php checked( ! empty( $product['user_cancel'] ) ); ?> />
+						<span class="wpsubs-toggle-ui" aria-hidden="true"></span>
+						<span><?php esc_html_e( 'Allow User Cancellation', 'subscription' ); ?></span>
+					</label>
+				</div>
+			</div>
+			<?php
+		};
 	?>
 
 		<div data-subscrpt-browse data-per-page="10">
@@ -245,12 +270,17 @@ $has_terms = ! empty( $plan['terms'] );
 				</button>
 			</div>
 
-			<div class="wpsubs-accordion" data-multi="1" data-subscrpt-product-list>
+			<div class="wpsubs-accordion" data-multi="1" data-subscrpt-product-list data-subscrpt-sortable="products">
 			<?php $subscrpt_is_first = true; ?>
 			<?php foreach ( $plan['products'] as $product ) : ?>
 				<?php $subscrpt_panel_id = 'subscrpt-prod-' . (int) $product['id']; ?>
-				<div class="wpsubs-accordion__item" data-subscrpt-browse-item data-name="<?php echo esc_attr( strtolower( $product['name'] ) ); ?>" data-pid="<?php echo esc_attr( $product['id'] ); ?>">
+				<div class="wpsubs-accordion__item" data-subscrpt-browse-item data-subscrpt-sort-item="<?php echo esc_attr( $product['id'] ); ?>" data-name="<?php echo esc_attr( strtolower( $product['name'] ) ); ?>" data-pid="<?php echo esc_attr( $product['id'] ); ?>">
 					<div style="display:flex;align-items:stretch;background:var(--wpsubs-surface-muted,#f9fafb);">
+						<span style="display:flex;align-items:center;padding-left:10px;">
+							<button type="button" class="wpsubs-sort-handle" data-subscrpt-sort-handle title="<?php esc_attr_e( 'Drag to reorder', 'subscription' ); ?>" aria-label="<?php esc_attr_e( 'Drag to reorder', 'subscription' ); ?>">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
+							</button>
+						</span>
 						<button type="button" class="wpsubs-accordion__header wpsubs-accordion__header--chevron-start" style="flex:1 1 auto;min-width:0;background:transparent;" aria-controls="<?php echo esc_attr( $subscrpt_panel_id ); ?>" aria-expanded="<?php echo $subscrpt_is_first ? 'true' : 'false'; ?>">
 							<span style="display:flex;align-items:center;gap:10px;min-width:0;">
 								<span style="flex:0 0 auto;width:44px;height:44px;border-radius:6px;background:var(--wpsubs-surface,#fff);border:1px solid var(--wpsubs-border,#e5e7eb);overflow:hidden;display:flex;align-items:center;justify-content:center;">
@@ -337,6 +367,7 @@ $has_terms = ! empty( $plan['terms'] );
 								<?php $subscrpt_render_rows( $product['rows'] ); ?>
 							</div>
 							<?php $subscrpt_render_onetime( $product ); ?>
+							<?php $subscrpt_render_user_cancel( $product ); ?>
 						<?php endif; ?>
 					</div>
 				</div>

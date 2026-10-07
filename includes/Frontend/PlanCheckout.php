@@ -278,7 +278,9 @@ class PlanCheckout {
 		update_post_meta( $subscription_id, '_subscrpt_price', (float) $order_item->get_meta( '_subscrpt_plan_price' ) );
 		update_post_meta( $subscription_id, '_subscrpt_plan_id', $plan_id );
 		update_post_meta( $subscription_id, '_subscrpt_plan_group_id', (int) $order_item->get_meta( '_subscrpt_plan_group_id' ) );
-		update_post_meta( $subscription_id, '_subscrpt_user_cancel', $product->get_meta( '_subscrpt_user_cancel' ) );
+		// Plans carry no cancellation setting, so fall back to the product default of allowing it.
+		$user_cancel = $product->get_meta( '_subscrpt_user_cancel' );
+		update_post_meta( $subscription_id, '_subscrpt_user_cancel', '' !== $user_cancel ? $user_cancel : 'yes' );
 		update_post_meta( $subscription_id, '_subscrpt_order_id', $order_item->get_order_id() );
 		update_post_meta( $subscription_id, '_subscrpt_order_item_id', $order_item->get_id() );
 		update_post_meta( $subscription_id, '_subscrpt_trial', $trial );

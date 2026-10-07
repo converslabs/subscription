@@ -208,6 +208,7 @@ class SettingsHelper {
 	public static function group_category( $group_id ) {
 		$map = array(
 			'renewals'            => 'renewals',
+			'license_settings'    => 'renewals',
 			'payment_gateways'    => 'payments',
 			'payment_failure'     => 'payments',
 			'grace_period'        => 'payments',

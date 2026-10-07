@@ -113,7 +113,7 @@ class MyAccount {
 		$start_date = ! empty( $start_date ) ? wp_date( 'F j, Y', strtotime( $start_date ) ) : '-';
 
 		$next_date = $subscription_data['next_date'] ?? '';
-		$next_date = ! empty( $next_date ) ? wp_date( 'F j, Y', strtotime( $next_date ) ) : '-';
+		$next_date = ! empty( $next_date ) && Helper::has_next_payment( $status ) ? wp_date( 'F j, Y', strtotime( $next_date ) ) : '-';
 
 		$trial      = get_post_meta( $id, '_subscrpt_trial', true );
 		$trial_mode = get_post_meta( $id, '_subscrpt_trial_mode', true );
@@ -211,6 +211,11 @@ class MyAccount {
 		}
 
 		$action_buttons = apply_filters( 'subscrpt_single_action_buttons', $action_buttons, $id, $subscrpt_nonce, $status );
+
+		// Nothing renews once a subscription has ended, so drop the auto-renewal toggle — Pro adds it through the filter too.
+		if ( ! Helper::has_next_payment( $status ) ) {
+			unset( $action_buttons['auto-renew-on'], $action_buttons['auto-renew-off'] );
+		}
 
 		wc_get_template(
 			'myaccount/single.php',

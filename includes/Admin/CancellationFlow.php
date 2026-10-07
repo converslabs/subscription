@@ -302,17 +302,51 @@ class CancellationFlow {
 				),
 			),
 			array(
-				'type'       => 'input',
+				'type'       => 'join',
 				'field_data' => array(
-					'id'          => 'subscrpt_cancellation_offer_percent',
 					'title'       => __( 'Discount', 'subscription' ),
-					'type'        => 'number',
-					'description' => __( 'Percentage off, applied store-wide by the generated coupon.', 'subscription' ),
-					'value'       => self::offer_percent(),
-					'attrs'       => array(
-						'min'  => '1',
-						'max'  => '100',
-						'step' => '1',
+					'description' => __( 'Percentage off, or a flat amount in the store currency, applied by the generated coupon.', 'subscription' ),
+					'elements'    => array(
+						SettingsHelper::inp_element(
+							array(
+								'id'         => 'subscrpt_cancellation_offer_percent',
+								'value'      => self::offer_percent(),
+								'type'       => 'number',
+								'style'      => 'min-width:170px;width:170px;' . ( 'fixed' === self::offer_type() ? 'display:none;' : '' ),
+								'attributes' => array(
+									'min'  => '1',
+									'max'  => '100',
+									'step' => '1',
+								),
+							),
+							true
+						),
+						SettingsHelper::inp_element(
+							array(
+								'id'         => 'subscrpt_cancellation_offer_amount',
+								'value'      => wc_format_decimal( self::offer_amount(), wc_get_price_decimals() ),
+								'type'       => 'number',
+								'style'      => 'min-width:170px;width:170px;' . ( 'fixed' === self::offer_type() ? '' : 'display:none;' ),
+								'attributes' => array(
+									'min'  => '0',
+									'step' => (string) ( 1 / pow( 10, wc_get_price_decimals() ) ),
+								),
+							),
+							true
+						),
+						SettingsHelper::select_element(
+							array(
+								'id'       => 'subscrpt_cancellation_offer_type',
+								'class'    => 'subscrpt-offer-type',
+								'options'  => array(
+									'percent' => __( 'Percentage (%)', 'subscription' ),
+									/* translators: %s: store currency symbol. */
+									'fixed'   => sprintf( __( 'Flat (%s)', 'subscription' ), get_woocommerce_currency_symbol() ),
+								),
+								'selected' => self::offer_type(),
+							),
+							true
+						),
 					),
 					'pro_locked'  => $pro_locked,
 				),
@@ -350,7 +384,27 @@ class CancellationFlow {
 			return false;
 		}
 
-		return '1' === get_option( 'subscrpt_cancellation_offer_enabled', '' ) && self::offer_percent() > 0;
+		$value = 'fixed' === self::offer_type() ? self::offer_amount() : self::offer_percent();
+
+		return '1' === get_option( 'subscrpt_cancellation_offer_enabled', '' ) && $value > 0;
+	}
+
+	/**
+	 * Configured discount type: `percent` or `fixed`.
+	 *
+	 * @return string
+	 */
+	public static function offer_type() {
+		return 'fixed' === get_option( 'subscrpt_cancellation_offer_type', 'percent' ) ? 'fixed' : 'percent';
+	}
+
+	/**
+	 * Configured flat discount amount, in the store currency.
+	 *
+	 * @return float
+	 */
+	public static function offer_amount() {
+		return max( 0, (float) get_option( 'subscrpt_cancellation_offer_amount', 0 ) );
 	}
 
 	/**

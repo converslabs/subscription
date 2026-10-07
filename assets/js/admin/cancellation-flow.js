@@ -103,3 +103,37 @@
     render((e.detail && e.detail.items) || []);
   });
 })();
+
+/**
+ * Cancellation Flow - show only the discount input the chosen type uses.
+ */
+(function () {
+  "use strict";
+
+  var type = document.querySelector('input[name="subscrpt_cancellation_offer_type"]');
+  if (!type) {
+    return;
+  }
+
+  var percent = document.getElementById("subscrpt_cancellation_offer_percent");
+  var amount = document.getElementById("subscrpt_cancellation_offer_amount");
+
+  /**
+   * Toggle the two discount inputs for a type.
+   *
+   * @param {string} value `percent` or `fixed`.
+   * @return {void}
+   */
+  function toggle(value) {
+    if (percent) {
+      percent.style.display = value === "fixed" ? "none" : "";
+    }
+    if (amount) {
+      amount.style.display = value === "fixed" ? "" : "none";
+    }
+  }
+
+  type.closest(".wpsubs-adv-select").addEventListener("wpsubs:select", function (e) {
+    toggle((e.detail && e.detail.value) || type.value);
+  });
+})();

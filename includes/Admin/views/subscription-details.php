@@ -69,7 +69,9 @@ $header_title = ( $product_name && '-' !== $product_name )
 	: sprintf( __( 'Subscription #%s', 'subscription' ), $subscription_id );
 
 $next_payment_date = $subscription_data['next_date'] ?? '';
-$next_payment_date = ! empty( $next_payment_date ) ? wp_date( get_option( 'date_format' ), strtotime( $next_payment_date ) ) : '';
+$next_payment_date = ! empty( $next_payment_date ) && Helper::has_next_payment( $subscription_data['status'] ?? '' )
+	? wp_date( get_option( 'date_format' ), strtotime( $next_payment_date ) )
+	: '';
 
 $header_badge = '<span class="wpsubs-badge wpsubs-badge--' . esc_attr( $badge_mod ) . '">' . esc_html( $verbose_status );
 if ( $is_grace_period && $grace_remaining > 0 ) {
@@ -140,9 +142,7 @@ if ( ! empty( $subscription_data['start_date'] ) ) {
 // Always show the Next Payment tile; dash when there is no next date.
 $summary_tiles[] = array(
 	'label' => __( 'Next Payment', 'subscription' ),
-	'value' => ! empty( $subscription_data['next_date'] )
-		? esc_html( wp_date( get_option( 'date_format' ), strtotime( $subscription_data['next_date'] ) ) )
-		: '-',
+	'value' => $next_payment_date ? esc_html( $next_payment_date ) : '-',
 );
 // Total payments is not part of $subscription_data; pull it from the info rows.
 if ( isset( $rows['total_payments'] ) ) {

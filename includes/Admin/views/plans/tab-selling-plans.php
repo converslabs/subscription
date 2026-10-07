@@ -25,9 +25,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	<?php else : ?>
 		<div data-subscrpt-browse data-per-page="10">
-			<div style="display:flex;flex-direction:column;gap:10px;">
+			<div data-subscrpt-sortable="terms" style="display:flex;flex-direction:column;gap:10px;">
 			<?php foreach ( $plan['terms'] as $selling_term ) : ?>
-				<div class="wpsubs-table-card" data-term-id="<?php echo esc_attr( $selling_term['id'] ); ?>" data-subscrpt-browse-item data-name="<?php echo esc_attr( strtolower( $selling_term['name'] ) ); ?>" style="display:flex;align-items:center;gap:14px;padding:14px 16px;">
+				<div class="wpsubs-table-card" data-term-id="<?php echo esc_attr( $selling_term['id'] ); ?>" data-subscrpt-browse-item data-subscrpt-sort-item="<?php echo esc_attr( $selling_term['id'] ); ?>" data-name="<?php echo esc_attr( strtolower( $selling_term['name'] ) ); ?>" style="display:flex;align-items:center;gap:14px;padding:14px 16px;">
+					<button type="button" class="wpsubs-sort-handle" data-subscrpt-sort-handle title="<?php esc_attr_e( 'Drag to reorder', 'subscription' ); ?>" aria-label="<?php esc_attr_e( 'Drag to reorder', 'subscription' ); ?>">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
+					</button>
 					<span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--wpsubs-radius);background:var(--wpsubs-brand-light);color:var(--wpsubs-brand);">
 						<span class="dashicons dashicons-calendar-alt"></span>
 					</span>

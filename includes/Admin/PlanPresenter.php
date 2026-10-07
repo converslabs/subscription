@@ -11,6 +11,7 @@
 
 namespace SpringDevs\Subscription\Admin;
 
+use SpringDevs\Subscription\Illuminate\Helper;
 use SpringDevs\Subscription\Illuminate\Plans\PlanRepository;
 
 /**
@@ -47,6 +48,12 @@ class PlanPresenter {
 			return null;
 		}
 
+		$order = is_array( $tree['data'] ) ? $tree['data'] : array();
+
+		// Saved drag-and-drop order. Sorting the tree's plans here also orders
+		// the duration rows inside every product's price table.
+		$tree['plans'] = self::apply_order( $tree['plans'], $order['term_order'] ?? array(), false );
+
 		$type_key = $tree['type_key'];
 		$terms    = array();
 
@@ -68,7 +75,7 @@ class PlanPresenter {
 			'created'  => self::ago( $tree['created_at'] ),
 			'edited'   => self::ago( $tree['updated_at'] ),
 			'terms'    => $terms,
-			'products' => self::products( $tree, $type_key ),
+			'products' => self::apply_order( self::products( $tree, $type_key ), $order['product_order'] ?? array(), true ),
 			'storefront' => self::storefront( $tree ),
 		);
 	}
@@ -97,6 +104,43 @@ class PlanPresenter {
 			),
 			$stored
 		);
+	}
+
+	/**
+	 * Reorder items by a saved list of ids (the detail page's drag-and-drop).
+	 *
+	 * Items missing from the list keep their default relative order and go
+	 * after the listed ones — or before them when $unlisted_first, so a newly
+	 * attached product still shows at the top as it did before any reorder.
+	 *
+	 * @param array $items          Items, each with an `id`.
+	 * @param array $ids            Saved order (ids).
+	 * @param bool  $unlisted_first Put unlisted items first.
+	 *
+	 * @return array
+	 */
+	protected static function apply_order( $items, $ids, $unlisted_first ) {
+		if ( empty( $ids ) || ! is_array( $ids ) ) {
+			return $items;
+		}
+
+		$position = array_flip( array_map( 'intval', array_values( $ids ) ) );
+		$listed   = array();
+		$unlisted = array();
+
+		foreach ( $items as $item ) {
+			$id = (int) $item['id'];
+			if ( isset( $position[ $id ] ) ) {
+				$listed[ $position[ $id ] ] = $item;
+			} else {
+				$unlisted[] = $item;
+			}
+		}
+
+		ksort( $listed );
+		$listed = array_values( $listed );
+
+		return $unlisted_first ? array_merge( $unlisted, $listed ) : array_merge( $listed, $unlisted );
 	}
 
 	/**
@@ -135,6 +179,7 @@ class PlanPresenter {
 						'one_time_on' => $product ? ( 'yes' === $product->get_meta( '_subscrpt_one_time_enabled' ) ) : false,
 						'ot_regular'  => ( $product && ! $is_variable ) ? self::one_time_price( $product ) : '',
 						'ot_offer'    => ( $product && ! $is_variable ) ? (string) $product->get_sale_price() : '',
+						'user_cancel' => $product ? Helper::can_user_cancel( $product->get_meta( '_subscrpt_user_cancel' ) ) : true,
 						'edit_url'    => get_edit_post_link( $oid, 'raw' ),
 						'view_url'    => get_permalink( $oid ),
 						'rows'        => array(),
