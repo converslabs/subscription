@@ -35,6 +35,80 @@ class Plans {
 	 */
 	public function __construct() {
 		add_action( 'subscrpt_simple_plan_panel', array( $this, 'render_mount' ) );
+		add_action( 'woocommerce_process_product_meta', array( $this, 'save_layout' ) );
+	}
+
+	/**
+	 * Save the product's own purchase option layout.
+	 *
+	 * Runs after WooCommerce has checked its nonce. Only a layout that exists is
+	 * kept; empty, or a name that does not exist, removes the override so the
+	 * store's layout applies.
+	 *
+	 * @param int $product_id Product being saved.
+	 *
+	 * @return void
+	 */
+	public function save_layout( $product_id ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce verified its nonce before firing the hook.
+		if ( ! isset( $_POST['subscrpt_plan_layout'] ) || ! current_user_can( 'edit_post', $product_id ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- As above.
+		$layout = sanitize_text_field( wp_unslash( $_POST['subscrpt_plan_layout'] ) );
+
+		if ( '' !== $layout && array_key_exists( $layout, \SpringDevs\Subscription\Frontend\Plans::layouts() ) ) {
+			update_post_meta( $product_id, '_subscrpt_plan_selector_layout', $layout );
+		} else {
+			delete_post_meta( $product_id, '_subscrpt_plan_selector_layout' );
+		}
+	}
+
+	/**
+	 * The product's layout choice, for the toolbar: a select of the layouts, and
+	 * which one the page is showing.
+	 *
+	 * @param \WC_Product $product Product being edited.
+	 *
+	 * @return void
+	 */
+	private static function render_layout_choice( $product ) {
+		$layouts = \SpringDevs\Subscription\Frontend\Plans::layouts();
+		$labels  = \SpringDevs\Subscription\Admin\ProductPageSettings::layout_labels();
+		$own     = get_post_meta( $product->get_id(), '_subscrpt_plan_selector_layout', true );
+		$own     = is_string( $own ) && array_key_exists( $own, $layouts ) ? $own : '';
+		$store   = get_option( 'subscrpt_plan_selector_layout', '' );
+		$store   = is_string( $store ) && array_key_exists( $store, $layouts ) ? $store : 'stacked';
+		/* translators: %s: the store's layout. */
+		$default = sprintf( __( 'Store default (%s)', 'subscription' ), $labels[ $store ] );
+
+		$options = array( array( 'value' => '', 'label' => $default ) );
+		foreach ( $labels as $key => $label ) {
+			$options[] = array( 'value' => (string) $key, 'label' => $label );
+		}
+		$showing = \SpringDevs\Subscription\Frontend\Plans::layout_for( $product, $layouts );
+		?>
+		<div class="subscrpt-layout-choice" data-subscrpt-layout-choice style="display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--wpsubs-text-muted);">
+			<span><?php esc_html_e( 'Purchase options layout', 'subscription' ); ?></span>
+			<?php
+			wpsubs_render_adv_select(
+				array(
+					'name'        => 'subscrpt_plan_layout',
+					'value'       => $own,
+					'placeholder' => $default,
+					'options'     => $options,
+				)
+			);
+			?>
+			<span data-subscrpt-layout-showing>
+				<?php
+				/* translators: %s: layout name. */
+				echo esc_html( sprintf( __( 'Showing: %s', 'subscription' ), $labels[ $showing ] ?? $showing ) );
+				?>
+			</span>
+		</div>
+		<?php
 	}
 
 	/**
@@ -416,6 +490,11 @@ class Plans {
 					<span><?php esc_html_e( 'Enable subscription', 'subscription' ); ?></span>
 				</label>
 			<?php endif; ?>
+			<?php
+			if ( $subscrpt_has_plans ) {
+				self::render_layout_choice( $product );
+			}
+			?>
 			<span style="flex:1 1 auto;"></span>
 			<?php if ( $subscrpt_has_plans ) : ?>
 				<button type="button" class="wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm" data-wpsubs-modal-open="subscrpt-checkout-link">

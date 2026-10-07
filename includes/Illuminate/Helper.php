@@ -1070,7 +1070,7 @@ class Helper {
 			// Mark subscription as expired due to limit reached
 			Action::status( 'expired', $subscription_id );
 
-			error_log( "WPS: Maximum payment limit reached for subscription #{$subscription_id}. No renewal order created." );
+			subscrpt_write_log( "Maximum payment limit reached for subscription #{$subscription_id}. No renewal order created." );
 			return false;
 		}
 
@@ -1346,6 +1346,12 @@ class Helper {
 
 		$is_global_auto_renew = get_option( 'wp_subscription_stripe_auto_renew', '1' );
 		$is_global_auto_renew = in_array( $is_global_auto_renew, array( 1, '1' ), true );
+
+		// `Stripe` extends WooCommerce Stripe's gateway: reading its constant
+		// without that plugin is a fatal, and without it there is nothing to clone for.
+		if ( ! class_exists( 'WC_Stripe_Payment_Gateway' ) ) {
+			return;
+		}
 
 		$stripe_supported_methods = Stripe::WPSUBS_SUPPORTED_METHODS;
 		$old_method               = $old_order->get_payment_method();

@@ -143,7 +143,7 @@ class Menu {
 	public function create_admin_menu() {
 		$parent_slug = 'wp-subscription';
 		// Determine if the menu is active
-		$is_active = isset( $_GET['page'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'wp-subscription' ) === 0;
+		$is_active = isset( $_GET['page'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'wp-subscription' ) === 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only menu highlighting, no state change.
 		$icon_url  = $is_active
 			? SUBSCRPT_ASSETS . '/images/icons/subscription-20.png'
 			: SUBSCRPT_ASSETS . '/images/icons/subscription-20-gray.png';
@@ -237,6 +237,16 @@ class Menu {
 			array( $this, 'render_delivery_page' )
 		);
 
+		// Subscription Boxes
+		add_submenu_page(
+			$parent_slug,
+			__( 'Boxes', 'subscription' ),
+			__( 'Boxes', 'subscription' ) . $pro_badge,
+			'manage_options',
+			'wp-subscription-boxes',
+			array( $this, 'render_boxes_page' )
+		);
+
 		// Help & Resources
 		add_submenu_page(
 			$parent_slug,
@@ -293,6 +303,7 @@ class Menu {
 		$default_order = [
 			'wp-subscription'              => 5,   // Overview
 			'wp-subscription-delivery'     => 20,  // Delivery (pro)
+			'wp-subscription-boxes'        => 25,  // Boxes (preview)
 			'wp-subscription-list'         => 30,  // Subscriptions
 			'wp-subscription-stats'        => 40,  // Reports
 			'wp-subscription-health'       => 50,  // Health
@@ -377,7 +388,7 @@ class Menu {
 	 * @param array  $breadcrumbs Ordered trail of `[ 'label', 'url' ]` items.
 	 */
 	public function render_admin_header( string $title = '', string $subtitle = '', array $breadcrumbs = [] ) {
-		$current = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-subscription';
+		$current = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-subscription'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page routing, no state change.
 
 		// Kept for backward compatibility — extensions may hook here for side-effects.
 		$menu_items = apply_filters( 'subscrpt_admin_header_menu_items', [], $current );
@@ -522,9 +533,11 @@ class Menu {
 		$status      = isset( $_GET['subscrpt_status'] ) ? sanitize_text_field( wp_unslash( $_GET['subscrpt_status'] ) ) : '';
 		$search      = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		$date_filter = isset( $_GET['date_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['date_filter'] ) ) : '';
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only list filters, no state change.
 		$per_page    = isset( $_GET['per_page'] ) ? max( 1, intval( $_GET['per_page'] ) ) : 20;
 		$paged       = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
 		$renewal_due = isset( $_GET['renewal_due'] ) ? min( 366, absint( $_GET['renewal_due'] ) ) : 0;
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Handle form submissions (both filters and bulk actions)
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
@@ -885,6 +898,32 @@ class Menu {
 		} else {
 			// Allow pro plugin to render the full delivery page content.
 			do_action( 'subscrpt_render_delivery_page' );
+		}
+
+		$this->render_admin_footer();
+	}
+
+	/**
+	 * Render the Subscription Boxes page.
+	 *
+	 * The preview is chosen with `has_action()` rather than the
+	 * `subscrpt_pro_activated()` test the other locked pages use, and that
+	 * difference is deliberate: only a Pro that renders the real Boxes screen
+	 * (2.4.0 and later) listens for `subscrpt_render_boxes_page`, so a pro check
+	 * would leave an older Pro install staring at an empty page. The preview
+	 * therefore stays visible wherever nothing registers that listener.
+	 *
+	 * @do_action subscrpt_render_boxes_page Fires in place of the preview once an extension renders the real Boxes screen.
+	 *
+	 * @return void
+	 */
+	public function render_boxes_page() {
+		$this->render_admin_header( __( 'Subscription Boxes', 'subscription' ), __( 'Plan box editions, lock contents before renewal, and pack what is due.', 'subscription' ) );
+
+		if ( has_action( 'subscrpt_render_boxes_page' ) ) {
+			do_action( 'subscrpt_render_boxes_page' );
+		} else {
+			include 'views/boxes-preview.php';
 		}
 
 		$this->render_admin_footer();

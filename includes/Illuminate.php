@@ -9,6 +9,8 @@ namespace SpringDevs\Subscription;
 
 use SpringDevs\Subscription\Frontend\Checkout;
 use SpringDevs\Subscription\Frontend\PlanCheckout;
+use SpringDevs\Subscription\Frontend\PlanStyle;
+use SpringDevs\Subscription\Frontend\VariationButtons;
 use SpringDevs\Subscription\Illuminate\AutoRenewal;
 use SpringDevs\Subscription\Illuminate\Block;
 use SpringDevs\Subscription\Illuminate\Cancellation;
@@ -51,6 +53,8 @@ class Illuminate {
 			new PlanCheckout();
 		}
 		new GuestCheckout();
+		new VariationButtons();
+		new PlanStyle();
 		new AutoRenewal();
 		new Email();
 

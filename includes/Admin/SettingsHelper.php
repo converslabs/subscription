@@ -181,11 +181,12 @@ class SettingsHelper {
 	 */
 	public static function categories() {
 		return array(
-			'renewals'  => __( 'Renewals', 'subscription' ),
-			'payments'  => __( 'Payments', 'subscription' ),
-			'switching' => __( 'Switching & Upgrades', 'subscription' ),
-			'customers' => __( 'Customers', 'subscription' ),
-			'advanced'  => __( 'Advanced', 'subscription' ),
+			'renewals'     => __( 'Renewals', 'subscription' ),
+			'payments'     => __( 'Payments', 'subscription' ),
+			'switching'    => __( 'Switching & Upgrades', 'subscription' ),
+			'product_page' => __( 'Product page', 'subscription' ),
+			'customers'    => __( 'Customers', 'subscription' ),
+			'advanced'     => __( 'Advanced', 'subscription' ),
 		);
 	}
 
@@ -212,6 +213,7 @@ class SettingsHelper {
 			'payment_failure'     => 'payments',
 			'grace_period'        => 'payments',
 			'switching'           => 'switching',
+			'product_page'        => 'product_page',
 			'role_based_settings' => 'customers',
 			'guest_checkout'      => 'customers',
 			'live_qr_settings'    => 'customers',
@@ -302,6 +304,10 @@ class SettingsHelper {
 				return self::render_joined_field( $args, $should_print );
 			case 'editlist':
 				return self::render_editlist_field( $args, $should_print );
+			case 'textarea':
+				return self::render_textarea_field( $args, $should_print );
+			case 'html':
+				return self::render_html_field( $args, $should_print );
 			case 'input':
 			default:
 				return self::render_input_field( $args, $should_print );
@@ -508,6 +514,114 @@ class SettingsHelper {
 		// Output not escaped intentionally. Breaks the HTML structure when escaped.
 		// All form elements inside $html_content are pre-escaped during generation (esc_attr, esc_html).
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $should_print ? print( $html_content ) : $html_content;
+	}
+
+	/**
+	 * Render Textarea field.
+	 *
+	 * - Args:
+	 *   - id (string) - Field ID.
+	 *   - title (string) - Field title.
+	 *   - description (string) - Field description (optional).
+	 *   - value (string) - Current value.
+	 *   - placeholder (string) - Placeholder.
+	 *   - rows (int) - Visible rows, 8 by default.
+	 *   - disabled (bool) - Disabled status.
+	 *   - attributes (array) - Extra attributes, name => value.
+	 *
+	 * @param array $args Field arguments.
+	 * @param bool  $should_print Whether to print the field or return as HTML string.
+	 */
+	public static function render_textarea_field( $args = [], $should_print = true ) {
+		$title       = $args['title'] ?? '';
+		$description = $args['description'] ?? '';
+
+		// Return error if ID is not provided.
+		if ( empty( $args['id'] ?? '' ) ) {
+			$field_hint = empty( $title ) ? 'Error' : $title;
+			$no_id_msg  = '<p><strong>' . $field_hint . ':</strong> ' . __( 'Field ID is required.', 'subscription' ) . '</p>';
+			return $should_print ? print wp_kses_post( $no_id_msg ) : $no_id_msg;
+		}
+
+		$other_attrs_html = '';
+		foreach ( ( $args['attributes'] ?? [] ) as $attr_key => $attr_value ) {
+			$other_attrs_html .= sprintf( ' %s="%s"', esc_attr( $attr_key ), esc_attr( $attr_value ) );
+		}
+
+		ob_start();
+		?>
+		<div class="wpsubs-settings-field<?php echo ! empty( $args['pro_locked'] ) ? ' wpsubs-settings-field--locked' : ''; ?>">
+			<div class="wpsubs-settings-field__label">
+				<?php
+				if ( ! empty( $args['pro_locked'] ) ) {
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped badge markup.
+					echo self::pro_badge_html();
+				}
+				?>
+				<?php echo esc_html( $title ); ?>
+			</div>
+			<div class="wpsubs-settings-field__control">
+				<textarea
+					id="<?php echo esc_attr( $args['id'] ); ?>"
+					name="<?php echo esc_attr( $args['id'] ); ?>"
+					class="wpsubs-input"
+					rows="<?php echo esc_attr( (string) ( $args['rows'] ?? 8 ) ); ?>"
+					placeholder="<?php echo esc_attr( $args['placeholder'] ?? '' ); ?>"
+					spellcheck="false"
+					<?php echo ! empty( $args['disabled'] ) ? 'disabled' : ''; ?>
+					<?php
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped as it is built above.
+					echo $other_attrs_html;
+					?>
+				><?php echo esc_textarea( $args['value'] ?? '' ); ?></textarea>
+				<?php if ( ! empty( $description ) ) : ?>
+					<p class="wpsubs-settings-field__hint"><?php echo wp_kses_post( $description ); ?></p>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+		$html_content = ob_get_clean();
+
+		// Output not escaped intentionally. Breaks the HTML structure when escaped.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $should_print ? print( $html_content ) : $html_content;
+	}
+
+	/**
+	 * Render a field that holds markup the caller built, such as a live preview.
+	 *
+	 * - Args:
+	 *   - title (string) - Field title.
+	 *   - description (string) - Field description (optional).
+	 *   - content (string) - Markup, already escaped by the caller.
+	 *
+	 * @param array $args Field arguments.
+	 * @param bool  $should_print Whether to print the field or return as HTML string.
+	 */
+	public static function render_html_field( $args = [], $should_print = true ) {
+		$title       = $args['title'] ?? '';
+		$description = $args['description'] ?? '';
+
+		ob_start();
+		?>
+		<div class="wpsubs-settings-field">
+			<div class="wpsubs-settings-field__label"><?php echo esc_html( $title ); ?></div>
+			<div class="wpsubs-settings-field__control">
+				<?php
+				// The caller built and escaped it; escaping again would break its markup.
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $args['content'] ?? '';
+				?>
+				<?php if ( ! empty( $description ) ) : ?>
+					<p class="wpsubs-settings-field__hint"><?php echo wp_kses_post( $description ); ?></p>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+		$html_content = ob_get_clean();
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $should_print ? print( $html_content ) : $html_content;
 	}
 

@@ -313,6 +313,10 @@ class PlanController {
 			return $guard;
 		}
 
+		if ( isset( $params['data'] ) && is_array( $params['data'] ) ) {
+			$params['data'] = self::sanitize_data_storefront( $params['data'] );
+		}
+
 		$id = PlanRepository::insert_group( $params );
 
 		if ( ! $id ) {
@@ -375,6 +379,90 @@ class PlanController {
 	}
 
 	/**
+	 * Sanitise the storefront fields of a plan group.
+	 *
+	 * Stored under `data.storefront`. Whitelist only: anything else is dropped.
+	 *
+	 * @param array $raw Raw request value.
+	 *
+	 * @return array
+	 */
+	public static function sanitize_storefront( array $raw ) {
+		$benefits = array();
+		foreach ( isset( $raw['benefits'] ) && is_array( $raw['benefits'] ) ? $raw['benefits'] : array() as $line ) {
+			$line = is_scalar( $line ) ? sanitize_text_field( (string) $line ) : '';
+			if ( '' !== $line ) {
+				$benefits[] = $line;
+			}
+		}
+
+		$learn = isset( $raw['learn_more'] ) && is_array( $raw['learn_more'] ) ? $raw['learn_more'] : array();
+		$text  = static function ( $value ) {
+			return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : '';
+		};
+		$tag   = $text( isset( $raw['tag'] ) ? $raw['tag'] : '' );
+
+		$url = isset( $learn['url'] ) && is_string( $learn['url'] ) ? trim( $learn['url'] ) : '';
+		// Absolute http(s), or a path on this site: not `//host`, not a bare word.
+		if ( ! preg_match( '#^(https?://|/(?!/))#i', $url ) ) {
+			$url = '';
+		}
+
+		$clean = array(
+			'benefits_heading' => $text( isset( $raw['benefits_heading'] ) ? $raw['benefits_heading'] : '' ),
+			'benefits'         => array_slice( $benefits, 0, 5 ),
+			'learn_more'       => array(
+				'label' => $text( isset( $learn['label'] ) ? $learn['label'] : '' ),
+				'url'   => '' !== $url ? esc_url_raw( $url, array( 'http', 'https' ) ) : '',
+				'panel' => $text( isset( $learn['panel'] ) ? $learn['panel'] : '' ),
+			),
+			'tag'              => function_exists( 'mb_substr' ) ? mb_substr( $tag, 0, 30 ) : substr( $tag, 0, 30 ),
+		);
+
+		// How the storefront lists a group's intervals; the product page reads it.
+		if ( isset( $raw['intervals'] ) ) {
+			$clean['intervals'] = in_array( $raw['intervals'], array( 'chips', 'dropdown' ), true ) ? $raw['intervals'] : '';
+		}
+
+		return $clean;
+	}
+
+	/**
+	 * Merge storefront fields into a group's existing data.
+	 *
+	 * @param array $existing Existing group `data`.
+	 * @param array $raw      Raw storefront request value.
+	 *
+	 * @return array
+	 */
+	public static function merge_storefront( array $existing, array $raw ) {
+		$current = isset( $existing['storefront'] ) && is_array( $existing['storefront'] ) ? $existing['storefront'] : array();
+
+		// Sanitised again whole, so a key stored before the whitelist existed cannot ride along.
+		$existing['storefront'] = self::sanitize_storefront( array_merge( $current, self::sanitize_storefront( $raw ) ) );
+
+		return $existing;
+	}
+
+	/**
+	 * Sanitise the `storefront` key of a raw `data` payload.
+	 *
+	 * `data` is written whole, so a request that sends `data.storefront` directly
+	 * must not store anything the storefront whitelist would have dropped.
+	 *
+	 * @param array $data Group data from the request.
+	 *
+	 * @return array
+	 */
+	public static function sanitize_data_storefront( array $data ) {
+		if ( isset( $data['storefront'] ) ) {
+			$data['storefront'] = is_array( $data['storefront'] ) ? self::sanitize_storefront( $data['storefront'] ) : array();
+		}
+
+		return $data;
+	}
+
+	/**
 	 * PUT /plans/groups/{id} - update a plan group.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -393,6 +481,15 @@ class PlanController {
 		$guard = $this->guard_recurring_only( $params );
 		if ( is_wp_error( $guard ) ) {
 			return $guard;
+		}
+
+		if ( isset( $params['storefront'] ) && is_array( $params['storefront'] ) ) {
+			// `data` is written whole, so the storefront fields ride on top of what is stored.
+			$stored         = PlanRepository::get_group( $id );
+			$base           = isset( $params['data'] ) && is_array( $params['data'] ) ? $params['data'] : ( is_array( $stored['data'] ) ? $stored['data'] : array() );
+			$params['data'] = self::merge_storefront( $base, $params['storefront'] );
+		} elseif ( isset( $params['data'] ) && is_array( $params['data'] ) ) {
+			$params['data'] = self::sanitize_data_storefront( $params['data'] );
 		}
 
 		PlanRepository::update_group( $id, $params );

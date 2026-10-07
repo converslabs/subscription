@@ -374,3 +374,62 @@
   font-size: 12px;
   line-height: 1.6;
 }
+
+/* Settings > Product page: the live preview and the colour fields. */
+.subscrpt-preview {
+  max-width: 560px;
+  padding: 22px 18px 6px;
+  border: 1px dashed var(--wpsubs-border, #dcdcde);
+  border-radius: 8px;
+  background: #fff;
+  color: #1d2327;
+}
+
+.subscrpt-preview .subscrpt-buybox {
+  margin-bottom: 16px;
+}
+
+.wpsubs-settings-field__control:has(.subscrpt-color-picker) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.wpsubs-settings-field__control:has(.subscrpt-color-picker) .wpsubs-input {
+  max-width: 120px;
+}
+
+.wpsubs-settings-field__control:has(.subscrpt-color-picker) .wpsubs-settings-field__hint {
+  flex: 1 0 100%;
+}
+
+.subscrpt-color-picker {
+  width: 34px;
+  height: 34px;
+  padding: 2px;
+  border: 1px solid var(--wpsubs-border, #dcdcde);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 782px) {
+  [data-subscrpt-panel="product_page"] .wpsubs-settings-field {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  [data-subscrpt-panel="product_page"] .wpsubs-settings-field__label {
+    flex: 0 0 auto;
+  }
+
+  [data-subscrpt-panel="product_page"] .wpsubs-settings-field__control {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .subscrpt-preview {
+    max-width: none;
+  }
+}

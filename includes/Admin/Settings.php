@@ -342,7 +342,7 @@ class Settings {
 	 */
 	public function enqueue_wc_admin_styles( $hook ) {
 		// Only load on our settings page
-		if ( isset( $_GET['post_type'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['post_type'] ) ), 'subscrpt_order' ) !== false ) {
+		if ( isset( $_GET['post_type'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['post_type'] ) ), 'subscrpt_order' ) !== false ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only screen check, no state change.
 			// WooCommerce admin styles
 			wp_enqueue_style( 'woocommerce_admin_styles', WC()->plugin_url() . '/assets/css/admin.css', array(), SUBSCRPT_VERSION );
 			// Optional: WooCommerce enhanced select2
