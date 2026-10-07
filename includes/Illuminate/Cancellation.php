@@ -790,7 +790,7 @@ class Cancellation {
 				<p class="subscrpt-pending-cancel-notice__text">
 					<?php
 					if ( $cancel_at ) {
-						$effective = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $cancel_at );
+						$effective = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $cancel_at );
 						printf(
 							/* translators: %s: cancellation date and time. */
 							esc_html__( 'This subscription is scheduled to be cancelled on %s. You can continue accessing it until then.', 'subscription' ),
