@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim, parvezvai, jakariaistauk
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.3.0
+Stable tag: 2.4.0
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
