@@ -13,6 +13,7 @@ use SpringDevs\Subscription\Illuminate\AutoRenewal;
 use SpringDevs\Subscription\Illuminate\Block;
 use SpringDevs\Subscription\Illuminate\Cancellation;
 use SpringDevs\Subscription\Illuminate\Cron;
+use SpringDevs\Subscription\Illuminate\StockPause;
 use SpringDevs\Subscription\Illuminate\Email;
 use SpringDevs\Subscription\Illuminate\Order;
 use SpringDevs\Subscription\Illuminate\Post;
@@ -38,6 +39,7 @@ class Illuminate {
 		new RoleManagement();
 		new Order();
 		new Cron();
+		new StockPause();
 		new Cancellation();
 		new Stats();
 		new Post();
