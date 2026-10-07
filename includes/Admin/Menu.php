@@ -906,10 +906,10 @@ class Menu {
 	 *
 	 * The preview is chosen with `has_action()` rather than the
 	 * `subscrpt_pro_activated()` test the other locked pages use, and that
-	 * difference is deliberate: Pro does not ship the real Boxes screen yet, so
-	 * a pro check would leave every Pro install staring at an empty page. The
-	 * preview therefore stays visible on Pro installs too, until Pro actually
-	 * registers a listener for `subscrpt_render_boxes_page`.
+	 * difference is deliberate: only a Pro that renders the real Boxes screen
+	 * (2.4.0 and later) listens for `subscrpt_render_boxes_page`, so a pro check
+	 * would leave an older Pro install staring at an empty page. The preview
+	 * therefore stays visible wherever nothing registers that listener.
 	 *
 	 * @do_action subscrpt_render_boxes_page Fires in place of the preview once an extension renders the real Boxes screen.
 	 *

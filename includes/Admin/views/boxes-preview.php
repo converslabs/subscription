@@ -357,7 +357,7 @@ $dummy_customer_box = array(
 	<!-- Upgrade CTA -->
 	<div style="margin-top:28px;border:1px solid var(--wpsubs-border);border-radius:12px;padding:20px;background:var(--wpsubs-surface-muted);display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
 		<div style="flex:1;min-width:260px;">
-			<h2 style="margin:0 0 6px;font-size:15px;font-weight:600;color:var(--wpsubs-text);"><?php esc_html_e( 'Subscription Boxes is what WPSubscription Pro will ship.', 'subscription' ); ?></h2>
+			<h2 style="margin:0 0 6px;font-size:15px;font-weight:600;color:var(--wpsubs-text);"><?php esc_html_e( 'Subscription Boxes come with WPSubscription Pro.', 'subscription' ); ?></h2>
 			<p style="margin:0;font-size:13px;line-height:1.6;color:var(--wpsubs-text-muted);">
 				<?php esc_html_e( 'Build-a-box and curated box products, a lock window before each renewal, the pick list your warehouse packs from, and editions planned months ahead — all of it arrives with Pro.', 'subscription' ); ?>
 			</p>
