@@ -1070,7 +1070,7 @@ class Helper {
 			// Mark subscription as expired due to limit reached
 			Action::status( 'expired', $subscription_id );
 
-			error_log( "WPS: Maximum payment limit reached for subscription #{$subscription_id}. No renewal order created." );
+			subscrpt_write_log( "Maximum payment limit reached for subscription #{$subscription_id}. No renewal order created." );
 			return false;
 		}
 
