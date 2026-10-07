@@ -143,7 +143,7 @@ class Menu {
 	public function create_admin_menu() {
 		$parent_slug = 'wp-subscription';
 		// Determine if the menu is active
-		$is_active = isset( $_GET['page'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'wp-subscription' ) === 0;
+		$is_active = isset( $_GET['page'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'wp-subscription' ) === 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only menu highlighting, no state change.
 		$icon_url  = $is_active
 			? SUBSCRPT_ASSETS . '/images/icons/subscription-20.png'
 			: SUBSCRPT_ASSETS . '/images/icons/subscription-20-gray.png';
@@ -388,7 +388,7 @@ class Menu {
 	 * @param array  $breadcrumbs Ordered trail of `[ 'label', 'url' ]` items.
 	 */
 	public function render_admin_header( string $title = '', string $subtitle = '', array $breadcrumbs = [] ) {
-		$current = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-subscription';
+		$current = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-subscription'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page routing, no state change.
 
 		// Kept for backward compatibility — extensions may hook here for side-effects.
 		$menu_items = apply_filters( 'subscrpt_admin_header_menu_items', [], $current );
@@ -533,9 +533,11 @@ class Menu {
 		$status      = isset( $_GET['subscrpt_status'] ) ? sanitize_text_field( wp_unslash( $_GET['subscrpt_status'] ) ) : '';
 		$search      = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		$date_filter = isset( $_GET['date_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['date_filter'] ) ) : '';
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only list filters, no state change.
 		$per_page    = isset( $_GET['per_page'] ) ? max( 1, intval( $_GET['per_page'] ) ) : 20;
 		$paged       = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
 		$renewal_due = isset( $_GET['renewal_due'] ) ? min( 366, absint( $_GET['renewal_due'] ) ) : 0;
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Handle form submissions (both filters and bulk actions)
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
