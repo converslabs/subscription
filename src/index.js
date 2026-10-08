@@ -31,15 +31,32 @@ const modifySubtotalPriceFormat = (defaultValue, extensions, args, validation) =
   const { sdevs_subscription: recurrings } = extensions;
 
   if (sdevs_subscription && sdevs_subscription.type) {
-    // Capitalize the first letter to match product page display
-    const capitalizedType = sdevs_subscription.type.charAt(0).toUpperCase() + sdevs_subscription.type.slice(1);
-
     // Check max_no_payment - handle string, number, null, undefined
     const maxPayments = parseInt(sdevs_subscription.max_no_payment, 10);
-    const paymentInfo = !isNaN(maxPayments) && maxPayments > 0 ? ` x ${maxPayments}` : "";
+    const paymentInfo =
+      !isNaN(maxPayments) && maxPayments > 0
+        ? "\u00A0" +
+          sprintf(
+            // translators: %d: number of instalments the subscription is billed in.
+            __("x %d", "subscription"),
+            maxPayments,
+          )
+        : "";
 
-    const timePart = sdevs_subscription.time && sdevs_subscription.time > 1 ? sdevs_subscription.time + "-" : "";
-    const priceText = "<price/>\u00A0" + __("Every", "subscription") + " " + timePart + capitalizedType + paymentInfo;
+    // The period word arrives already translated from the server.
+    const period =
+      sdevs_subscription.time && sdevs_subscription.time > 1
+        ? `${sdevs_subscription.time}-${sdevs_subscription.type}`
+        : sdevs_subscription.type;
+
+    const priceText =
+      "<price/>\u00A0" +
+      sprintf(
+        // translators: %s: billing period, e.g. "month" or "2-month".
+        __("Every %s", "subscription"),
+        period,
+      ) +
+      paymentInfo;
 
     return priceText;
   }

@@ -475,7 +475,7 @@ class Cart {
 			// (e.g. "months"), which the block would otherwise render as-is.
 			if ( ! empty( $item_data['type'] ) ) {
 				$sub_time          = max( 1, (int) ( $item_data['time'] ?? 1 ) );
-				$item_data['type'] = Helper::get_typos( $sub_time, $item_data['type'] );
+				$item_data['type'] = Helper::get_typos( $sub_time, $item_data['type'], true );
 			}
 		}
 		if ( ! subscrpt_pro_activated() ) {
