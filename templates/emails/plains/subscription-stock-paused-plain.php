@@ -1,0 +1,46 @@
+<?php
+/**
+ * Mail template for Subscription paused because of low stock (Customer).
+ *
+ * @var string $email_heading Email Heading.
+ * @var int $id Subscription id.
+ * @var string $product_name Product name.
+ * @var int $qty Subscription Quantity.
+ * @var string $amount Subscription Amount with price format.
+ * @var string $view_subscription_url Subscription view URL.
+ *
+ * @package SpringDevs\Subscription
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+echo esc_html( '= ' . $email_heading . " =\n\n" );
+
+// translators: <b></b> tag.
+$opening_paragraph = __( 'Your subscription is %1$s paused %2$s because the product is temporarily low on stock. No renewal will be charged while it is paused; it resumes automatically once the product is back in stock.', 'subscription' );
+
+echo wp_kses_post( sprintf( $opening_paragraph, '<b>', '</b>' ) . "\n\n" );
+
+echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";
+
+// translators: Subscription id.
+echo esc_html( sprintf( __( 'Subscription Id: %s', 'subscription' ), $id ) . "\n" );
+
+// translators: Product name.
+echo esc_html( sprintf( __( 'Product: %s', 'subscription' ), $product_name ) . "\n" );
+
+// translators: Subscription quantity.
+echo esc_html( sprintf( __( 'Qty: %s', 'subscription' ), $qty ) . "\n" );
+
+// translators: Subscription amount.
+echo wp_kses_post( sprintf( __( 'Amount: %s', 'subscription' ), $amount ) . "\n" );
+
+
+echo "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";
+
+echo esc_html__( 'View subscription:', 'subscription' ) . ' ' . esc_url_raw( $view_subscription_url ) . "\n\n";
+
+echo esc_html( apply_filters( 'woocommerce_email_footer_text', get_option( 'woocommerce_email_footer_text' ) ) );
