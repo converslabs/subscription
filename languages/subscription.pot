@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T08:43:38+00:00\n"
+"POT-Creation-Date: 2026-10-08T06:46:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -381,7 +381,6 @@ msgid "Insight"
 msgstr ""
 
 #: includes/Admin/Dashboard.php:385
-#: build/dashboard.js:3
 #: src/dashboard/App.js:49
 msgid "Open reports"
 msgstr ""
@@ -527,7 +526,6 @@ msgstr ""
 #: includes/Admin/views/onboarding-wizard.php:188
 #: includes/Admin/views/plans/modal-term.php:92
 #: includes/Admin/views/plans/modal-term.php:181
-#: build/dashboard.js:3
 #: src/dashboard/ProBadge.js:14
 msgid "WPSubscription Pro required"
 msgstr ""
@@ -1098,7 +1096,6 @@ msgstr ""
 #: includes/Admin/views/plans/modal-create.php:83
 #: includes/Admin/views/plans/modal-term.php:92
 #: includes/Admin/views/plans/modal-term.php:181
-#: build/dashboard.js:3
 #: src/dashboard/ProBadge.js:16
 msgid "Pro"
 msgstr ""
@@ -1883,7 +1880,6 @@ msgstr ""
 
 #: includes/Admin/SettingsHelper.php:825
 #: includes/Illuminate/Cancellation.php:189
-#: build/dashboard.js:3
 #: src/dashboard/SetupChecklist.js:103
 msgid "Done"
 msgstr ""
@@ -4219,37 +4215,32 @@ msgstr ""
 
 #: includes/Frontend/Cart.php:576
 #: includes/Frontend/Cart.php:577
-#: build/index.js:1
-#: src/index.js:72
+#: src/index.js:89
 msgid "Recurring totals"
 msgstr ""
 
 #. translators: 1: amount paid today, 2: amount charged on each renewal.
 #: includes/Frontend/Cart.php:604
-#: build/index.js:4
-#: src/index.js:125
+#: src/index.js:142
 #, php-format,js-format
 msgid "You pay %1$s today. %2$s will be charged from the next renewal."
 msgstr ""
 
 #. translators: 1: number of discounted payments, 2: full price charged afterwards.
 #: includes/Frontend/Cart.php:620
-#: build/index.js:7
-#: src/index.js:138
+#: src/index.js:155
 #, php-format,js-format
 msgid "Discount applies to your first %1$s payments. After that, %2$s."
 msgstr ""
 
 #: includes/Frontend/Cart.php:631
-#: build/index.js:7
-#: src/index.js:149
+#: src/index.js:166
 msgid "You can cancel subscription at any time!"
 msgstr ""
 
 #. translators: 1: number of installments, 2: total amount.
 #: includes/Frontend/Cart.php:642
-#: build/index.js:10
-#: src/index.js:158
+#: src/index.js:175
 #, php-format,js-format
 msgid "This subscription will be billed in %1$s installments, for a total of %2$s."
 msgstr ""
@@ -5373,72 +5364,67 @@ msgstr ""
 msgid "No matching records."
 msgstr ""
 
+#: src/dashboard/App.js:28
+msgid "Subscription pulse"
+msgstr ""
+
+#: src/dashboard/App.js:30
+msgid "Live counts of subscriptions and renewal activity in your store."
+msgstr ""
+
+#: src/dashboard/App.js:45
+msgid "Monthly sales"
+msgstr ""
+
+#: src/dashboard/App.js:46
+msgid "Revenue from subscription orders."
+msgstr ""
+
+#: src/dashboard/BuildCards.js:12
+msgid "Build with WPSubscription"
+msgstr ""
+
+#: src/dashboard/BuildCards.js:13
+msgid "Everything you need to grow recurring revenue."
+msgstr ""
+
 #. translators: %d: number of months.
-#: build/dashboard.js:2
 #: src/dashboard/SalesChart.js:29
 #, js-format
 msgid "across the last %d months"
 msgstr ""
 
-#: build/dashboard.js:2
 #: src/dashboard/SalesChart.js:37
 msgid "No subscription revenue yet. Bars appear once orders come in."
 msgstr ""
 
 #. translators: 1: steps done, 2: steps total.
-#: build/dashboard.js:3
 #: src/dashboard/SetupChecklist.js:22
 #, js-format
 msgid "%1$d of %2$d done"
 msgstr ""
 
-#: build/dashboard.js:3
 #: src/dashboard/SetupChecklist.js:63
 #: src/dashboard/SetupChecklist.js:80
 msgid "Onboarding"
 msgstr ""
 
-#: build/dashboard.js:3
 #: src/dashboard/SetupChecklist.js:81
 msgid "Your first plan, step by step."
 msgstr ""
 
-#: build/dashboard.js:3
-#: src/dashboard/BuildCards.js:12
-msgid "Build with WPSubscription"
-msgstr ""
-
-#: build/dashboard.js:3
-#: src/dashboard/BuildCards.js:13
-msgid "Everything you need to grow recurring revenue."
-msgstr ""
-
-#: build/dashboard.js:3
-#: src/dashboard/App.js:28
-msgid "Subscription pulse"
-msgstr ""
-
-#: build/dashboard.js:3
-#: src/dashboard/App.js:30
-msgid "Live counts of subscriptions and renewal activity in your store."
-msgstr ""
-
-#: build/dashboard.js:3
-#: src/dashboard/App.js:45
-msgid "Monthly sales"
-msgstr ""
-
-#: build/dashboard.js:3
-#: src/dashboard/App.js:46
-msgid "Revenue from subscription orders."
-msgstr ""
-
-#: build/index.js:1
 #: src/index.js:22
 msgid "Due Today"
 msgstr ""
 
-#: build/index.js:1
-#: src/index.js:42
-msgid "Every"
+#. translators: %d: number of instalments the subscription is billed in.
+#: src/index.js:41
+#, js-format
+msgid "x %d"
+msgstr ""
+
+#. translators: %s: billing period, e.g. "month" or "2-month".
+#: src/index.js:56
+#, js-format
+msgid "Every %s"
 msgstr ""
