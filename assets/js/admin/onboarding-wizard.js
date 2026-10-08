@@ -66,7 +66,7 @@
       }).then(function (res) {
         return res.json().then(function (data) {
           if (!res.ok) {
-            throw new Error((data && data.message) || "Request failed.");
+            throw new Error((data && data.message) || wp.i18n.__("Request failed.", "subscription"));
           }
           return data;
         });
@@ -196,7 +196,7 @@
     nextFromPlan: function (e) {
       e.preventDefault();
       if (!$.trim($("#subscrpt_plan_title").val())) {
-        window.alert("Please enter a plan name.");
+        window.alert(wp.i18n.__("Please enter a plan name.", "subscription"));
         return;
       }
       this.switchSection(2);
@@ -277,7 +277,7 @@
       var fmt = function (v) {
         return sym + v.toFixed(2);
       };
-      var text = "Price";
+      var text = wp.i18n.__("Price", "subscription");
       if (prices.length) {
         var min = Math.min.apply(null, prices);
         var max = Math.max.apply(null, prices);
@@ -289,8 +289,12 @@
     // Fill the persistent preview graph from the current form state. Each step
     // updates its own node; empty fields keep the placeholder label.
     updatePreview: function () {
-      $("#subscrpt-preview-plan").text($.trim($("#subscrpt_plan_title").val()) || "Your plan");
-      $("#subscrpt-preview-plan-type").text($(".wpsubs-plan-type-card.active").data("label") || "Recurring");
+      $("#subscrpt-preview-plan").text(
+        $.trim($("#subscrpt_plan_title").val()) || wp.i18n.__("Your plan", "subscription"),
+      );
+      $("#subscrpt-preview-plan-type").text(
+        $(".wpsubs-plan-type-card.active").data("label") || wp.i18n.__("Recurring", "subscription"),
+      );
 
       // Duration nodes: stay placeholder ghost cards until the user reaches
       // page 2, then each real duration lights up one node in fill order.
@@ -306,8 +310,8 @@
           $node.find(".wpsubs-p1-node__sub").text(self.billingEvery(dur.freq, dur.interval));
         } else {
           $node.addClass("wpsubs-p1-node--ghost");
-          $node.find(".wpsubs-p1-node__title").text("Duration");
-          $node.find(".wpsubs-p1-node__sub").text("Add more");
+          $node.find(".wpsubs-p1-node__title").text(wp.i18n.__("Duration", "subscription"));
+          $node.find(".wpsubs-p1-node__sub").text(wp.i18n.__("Add more", "subscription"));
         }
       });
 
@@ -345,15 +349,44 @@
     // The "billing every" value: "1 month", "3 days".
     billingEvery: function (freq, interval) {
       var n = parseInt(freq, 10) || 1;
-      return n + " " + (interval || "month") + (n > 1 ? "s" : "");
+      var units = {
+        /* translators: %d: number of days. */
+        day: wp.i18n._n("%d day", "%d days", n, "subscription"),
+        /* translators: %d: number of weeks. */
+        week: wp.i18n._n("%d week", "%d weeks", n, "subscription"),
+        /* translators: %d: number of months. */
+        month: wp.i18n._n("%d month", "%d months", n, "subscription"),
+        /* translators: %d: number of years. */
+        year: wp.i18n._n("%d year", "%d years", n, "subscription"),
+      };
+      return wp.i18n.sprintf(units[interval] || units.month, n);
     },
 
-    // "1 month" -> "Every Month", "3 days" -> "Every 3 Days".
+    // "1 month" -> "Every Month", "3 days" -> "Every 3 Days". A count of 1 has
+    // its own string: in some languages the singular plural form also covers
+    // 21, 31… and would drop the number.
     durationName: function (freq, interval) {
-      var labels = { day: "Day", week: "Week", month: "Month", year: "Year" };
-      var label = labels[interval] || "Month";
       var n = parseInt(freq, 10) || 1;
-      return n > 1 ? "Every " + n + " " + label + "s" : "Every " + label;
+      if (n === 1) {
+        var single = {
+          day: wp.i18n.__("Every Day", "subscription"),
+          week: wp.i18n.__("Every Week", "subscription"),
+          month: wp.i18n.__("Every Month", "subscription"),
+          year: wp.i18n.__("Every Year", "subscription"),
+        };
+        return single[interval] || single.month;
+      }
+      var many = {
+        /* translators: %d: number of days. */
+        day: wp.i18n._n("Every %d Day", "Every %d Days", n, "subscription"),
+        /* translators: %d: number of weeks. */
+        week: wp.i18n._n("Every %d Week", "Every %d Weeks", n, "subscription"),
+        /* translators: %d: number of months. */
+        month: wp.i18n._n("Every %d Month", "Every %d Months", n, "subscription"),
+        /* translators: %d: number of years. */
+        year: wp.i18n._n("Every %d Year", "Every %d Years", n, "subscription"),
+      };
+      return wp.i18n.sprintf(many[interval] || many.month, n);
     },
 
     initDurations: function () {
@@ -428,7 +461,9 @@
     onDurNameInput: function (e) {
       var card = $(e.target).closest("[data-dur]");
       card.attr("data-name-edited", "1");
-      card.find("[data-dur-title]").text($.trim(card.find("[data-dur-name]").val()) || "Duration");
+      card
+        .find("[data-dur-title]")
+        .text($.trim(card.find("[data-dur-name]").val()) || wp.i18n.__("Duration", "subscription"));
       this.updatePreview();
     },
 
@@ -473,12 +508,12 @@
     nextFromDurations: function (e) {
       e.preventDefault();
       if (!$.trim($("#subscrpt_plan_title").val())) {
-        window.alert("Please enter a plan name.");
+        window.alert(wp.i18n.__("Please enter a plan name.", "subscription"));
         this.switchSection(1);
         return;
       }
       if (!this.collectDurations().length) {
-        window.alert("Please add at least one duration.");
+        window.alert(wp.i18n.__("Please add at least one duration.", "subscription"));
         return;
       }
       this.switchSection(3);
@@ -552,7 +587,10 @@
           return w[0].toUpperCase();
         })
         .join("");
-      var meta = [sku ? "SKU " + sku : null, type].filter(Boolean).join(" · ");
+      /* translators: %s: product SKU. */
+      var meta = [sku ? wp.i18n.sprintf(wp.i18n.__("SKU %s", "subscription"), sku) : null, type]
+        .filter(Boolean)
+        .join(" · ");
 
       $("#p3-chip-avatar").text(initials || "?");
       $("#p3-chip-name").text(name);
@@ -614,7 +652,10 @@
         var $row = $frag.find("[data-connect-row]");
         $row.attr("data-connect-dur", idx);
         $row.find("[data-connect-name]").text(dur.name);
-        $row.find("[data-connect-billing]").text("Billing every " + self.billingEvery(dur.freq, dur.interval));
+        $row.find("[data-connect-billing]").text(
+          /* translators: %s: billing period, such as "3 days". */
+          wp.i18n.sprintf(wp.i18n.__("Billing every %s", "subscription"), self.billingEvery(dur.freq, dur.interval)),
+        );
         if (prev[idx]) {
           $row.find("[data-connect-price]").val(prev[idx].price);
           $row.find("[data-connect-enabled]").prop("checked", prev[idx].enabled);
@@ -637,11 +678,11 @@
 
       if (this.currentConnectMode() === "existing") {
         if (!$("#subscrpt-existing-product-hidden").val()) {
-          window.alert("Please select a product.");
+          window.alert(wp.i18n.__("Please select a product.", "subscription"));
           return;
         }
       } else if (!$.trim($("#subscrpt_new_product_name").val())) {
-        window.alert("Please enter a product name.");
+        window.alert(wp.i18n.__("Please enter a product name.", "subscription"));
         return;
       }
 
@@ -650,7 +691,7 @@
         return $(this).find("[data-connect-enabled]").is(":checked");
       });
       if (!enabledRows.length) {
-        window.alert("Please keep at least one duration on.");
+        window.alert(wp.i18n.__("Please keep at least one duration on.", "subscription"));
         return;
       }
       var badPrice = false;
@@ -661,7 +702,7 @@
         }
       });
       if (badPrice) {
-        window.alert("Please enter valid prices.");
+        window.alert(wp.i18n.__("Please enter valid prices.", "subscription"));
         return;
       }
 
@@ -706,7 +747,9 @@
         .catch(function (err) {
           self.finalizeRunning = false;
           $("#subscrpt-finalize-progress").attr("hidden", "hidden");
-          $("#subscrpt-finalize-error-msg").text(err && err.message ? err.message : "Please try again.");
+          $("#subscrpt-finalize-error-msg").text(
+            err && err.message ? err.message : wp.i18n.__("Please try again.", "subscription"),
+          );
           $("#subscrpt-finalize-error").removeAttr("hidden");
         });
     },
@@ -802,7 +845,7 @@
 
       if (this.currentConnectMode() === "existing") {
         this.finalProductId = $("#subscrpt-existing-product-hidden").val();
-        this.finalProductName = this.selectedProductName || "Product";
+        this.finalProductName = this.selectedProductName || wp.i18n.__("Product", "subscription");
         return Promise.resolve();
       }
 
@@ -822,12 +865,15 @@
               resolve();
             } else {
               reject(
-                new Error((response && response.data && response.data.message) || "Could not create the product."),
+                new Error(
+                  (response && response.data && response.data.message) ||
+                    wp.i18n.__("Could not create the product.", "subscription"),
+                ),
               );
             }
           },
         ).fail(function () {
-          reject(new Error("Server error. Please try again."));
+          reject(new Error(wp.i18n.__("Server error. Please try again.", "subscription")));
         });
       });
     },
@@ -900,13 +946,15 @@
           self.initDurations();
           self.clearProduct();
           // Reset the preview nodes back to their placeholders.
-          $("#subscrpt-preview-prod").text("Product");
+          $("#subscrpt-preview-prod").text(wp.i18n.__("Product", "subscription"));
           self.reachedDurations = false;
           $("#subscrpt-preview-graph [data-preview-dur]")
             .addClass("wpsubs-p1-node--ghost")
             .find(".wpsubs-p1-node__title")
-            .text("Duration");
-          $("#subscrpt-preview-graph [data-preview-dur] .wpsubs-p1-node__sub").text("Add more");
+            .text(wp.i18n.__("Duration", "subscription"));
+          $("#subscrpt-preview-graph [data-preview-dur] .wpsubs-p1-node__sub").text(
+            wp.i18n.__("Add more", "subscription"),
+          );
           self.switchSection(1);
         },
       );

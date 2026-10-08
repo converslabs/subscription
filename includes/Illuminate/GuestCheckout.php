@@ -163,10 +163,10 @@ class GuestCheckout {
 
 		$issues = [];
 		if ( ! $guest_checkout_enabled ) {
-			$issues[] = 'Guest checkout.';
+			$issues[] = __( 'Guest checkout.', 'subscription' );
 		}
 		if ( ! $account_during_checkout ) {
-			$issues[] = 'Account creation during checkout.';
+			$issues[] = __( 'Account creation during checkout.', 'subscription' );
 		}
 
 		if ( ! empty( $issues ) ) {
@@ -178,8 +178,11 @@ class GuestCheckout {
 			}
 
 			$requirement_html = '<div class="notice notice-error is-dismissible">' .
-				'<p>To ensure Subscriptions guest checkout functions correctly, please enable the following settings in WooCommerce. ' .
-				'Click <a href="' . $settings_url . '">here</a> to go to the settings.</p>' .
+				'<p>' . sprintf(
+					/* translators: %s: URL of the WooCommerce account settings. */
+					__( 'To ensure Subscriptions guest checkout functions correctly, please enable the following settings in WooCommerce. Click <a href="%s">here</a> to go to the settings.', 'subscription' ),
+					esc_url( $settings_url )
+				) . '</p>' .
 				'<ul>' . $list_html . '</ul></div>';
 
 			echo wp_kses_post( $requirement_html );
@@ -189,8 +192,12 @@ class GuestCheckout {
 			$settings_url = admin_url( 'admin.php?page=wc-settings&tab=account' );
 
 			$requirement_html = '<div class="notice notice-warning is-dismissible">' .
-				'<p>Enabling <strong>Account creation after checkout</strong> in WooCommerce settings may lead to issues with subscription orders for guest users.</p>' .
-				'<p>It\'s recommended to disable this option for optimal functionality with Subscriptions. Click <a href="' . $settings_url . '">here</a> to go to the settings.</p></div>';
+				'<p>' . __( 'Enabling <strong>Account creation after checkout</strong> in WooCommerce settings may lead to issues with subscription orders for guest users.', 'subscription' ) . '</p>' .
+				'<p>' . sprintf(
+					/* translators: %s: URL of the WooCommerce account settings. */
+					__( 'It\'s recommended to disable this option for optimal functionality with Subscriptions. Click <a href="%s">here</a> to go to the settings.', 'subscription' ),
+					esc_url( $settings_url )
+				) . '</p></div>';
 
 			echo wp_kses_post( $requirement_html );
 		}

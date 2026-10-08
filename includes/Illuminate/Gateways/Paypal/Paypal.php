@@ -160,7 +160,8 @@ class Paypal extends \WC_Payment_Gateway {
 		wp_enqueue_style( 'wp-subscription-gateway-settings', SUBSCRPT_ASSETS . '/css/gateway.css', [], SUBSCRPT_VERSION, 'all' );
 
 		// Settings JS.
-		wp_enqueue_script( 'wp-subscription-gateway-settings-script', SUBSCRPT_ASSETS . '/js/gateway.js', [ 'jquery' ], SUBSCRPT_VERSION, true );
+		wp_enqueue_script( 'wp-subscription-gateway-settings-script', SUBSCRPT_ASSETS . '/js/gateway.js', [ 'jquery', 'wp-i18n' ], SUBSCRPT_VERSION, true );
+		wp_set_script_translations( 'wp-subscription-gateway-settings-script', 'subscription', SUBSCRPT_PATH . '/languages' );
 
 		// Live/Sandbox toggle script.
 		wp_enqueue_script( 'wp-subscription-gateway-settings-toggle-script', SUBSCRPT_ASSETS . '/js/gateway_options_toggler.js', [ 'jquery' ], SUBSCRPT_VERSION, true );

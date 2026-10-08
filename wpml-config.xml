@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	WPML and Polylang both read this file.
+
+	Subscriptions are one record in every language: a translation of one would be
+	a second subscription, billed separately. Product settings are copied from the
+	original to each translation, except the cart button label, which is text.
+	Plans are attached to the product and found for every language of it, so they
+	need nothing here; their titles are registered as strings instead.
+-->
+<wpml-config>
+	<custom-types>
+		<custom-type translate="0">subscrpt_order</custom-type>
+		<custom-type translate="0">subscrpt_order_item</custom-type>
+	</custom-types>
+
+	<custom-fields>
+		<custom-field action="copy">_subscrpt_enabled</custom-field>
+		<custom-field action="copy">_subscrpt_timing_per</custom-field>
+		<custom-field action="copy">_subscrpt_timing_option</custom-field>
+		<custom-field action="copy">_subscrpt_trial_timing_per</custom-field>
+		<custom-field action="copy">_subscrpt_trial_timing_option</custom-field>
+		<custom-field action="copy">_subscrpt_user_cancel</custom-field>
+		<custom-field action="copy">_subscrpt_limit</custom-field>
+		<custom-field action="copy">_subscrpt_signup_fee</custom-field>
+		<custom-field action="copy">_subscrpt_max_no_payment</custom-field>
+		<custom-field action="copy">_subscrpt_payment_type</custom-field>
+		<custom-field action="copy">_subscrpt_access_ends_timing</custom-field>
+		<custom-field action="copy">_subscrpt_custom_access_duration_time</custom-field>
+		<custom-field action="copy">_subscrpt_custom_access_duration_type</custom-field>
+		<custom-field action="copy">_subscrpt_one_time_enabled</custom-field>
+		<custom-field action="copy">_subscrpt_plan_connected_before</custom-field>
+		<custom-field action="copy">_subscrpt_convertation_default_variation_for_renewal</custom-field>
+		<custom-field action="translate">_subscrpt_cart_btn_label</custom-field>
+	</custom-fields>
+
+	<admin-texts>
+		<key name="wp_subscription_manual_renew_cart_notice"/>
+		<key name="subscrpt_manual_renew_cart_notice"/>
+		<key name="subscrpt_cancellation_reasons">
+			<key name="*">
+				<key name="label"/>
+			</key>
+		</key>
+		<key name="woocommerce_subscrpt_subscription_cancelled_email_settings">
+			<key name="subject"/>
+			<key name="heading"/>
+		</key>
+		<key name="woocommerce_subscrpt_subscription_expired_email_settings">
+			<key name="subject"/>
+			<key name="heading"/>
+		</key>
+	</admin-texts>
+</wpml-config>

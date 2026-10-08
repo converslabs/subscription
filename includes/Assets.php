@@ -91,8 +91,8 @@ class Assets {
 
 			wp_register_script( $handle, $script['src'], $deps, $version, $in_footer );
 
-			// Register script translations for scripts that use wp-i18n (e.g., block assets).
-			if ( function_exists( 'wp_set_script_translations' ) && 'sdevs_subscrpt_cart_block' === $handle ) {
+			// Register script translations for scripts that use wp-i18n.
+			if ( 'sdevs_subscrpt_cart_block' === $handle || in_array( 'wp-i18n', (array) $deps, true ) ) {
 				wp_set_script_translations( $handle, 'subscription', SUBSCRPT_PATH . '/languages' );
 			}
 		}
@@ -146,7 +146,7 @@ class Assets {
 		$scripts = array(
 			'sdevs_subscription_admin'  => array(
 				'src'       => $plugin_js_assets_path . 'admin.js',
-				'deps'      => array( 'jquery' ),
+				'deps'      => array( 'jquery', 'wp-i18n' ),
 				'in_footer' => true,
 			),
 			'subscrpt_admin_components' => array(

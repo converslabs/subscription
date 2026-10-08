@@ -1138,9 +1138,11 @@ class Helper {
 		$new_order->save();
 
 		if ( ! is_admin() && function_exists( 'wc_add_notice' ) && WC()->session ) {
-			$message = 'Renewal Order(#' . $new_order->get_id() . ') Created.';
+			/* translators: %d: renewal order ID. */
+			$message = sprintf( __( 'Renewal order #%d created.', 'subscription' ), $new_order->get_id() );
 			if ( $new_order->has_status( 'pending' ) ) {
-				$message .= 'Please <a href="' . $new_order->get_checkout_payment_url() . '">Pay now</a>';
+				/* translators: %s: URL of the order payment page. */
+				$message .= ' ' . sprintf( __( 'Please <a href="%s">pay now</a>.', 'subscription' ), esc_url( $new_order->get_checkout_payment_url() ) );
 			}
 			wc_add_notice( $message, 'success' );
 		}
