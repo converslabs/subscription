@@ -176,7 +176,8 @@ class Product {
 			$item_quantity = (int) wc_get_order_item_meta( $order_item_id, '_qty', true );
 			if ( $item_quantity !== $quantity ) {
 				WC()->cart->set_quantity( $cart_item_key, $item_quantity );
-				wc_add_notice( 'You can only add ' . $item_quantity . ' ' . ( $item_quantity > 1 ? 'items' : 'item' ) . ' on cart!', 'error' );
+				/* translators: %d: the number of items allowed in the cart. */
+				wc_add_notice( sprintf( _n( 'You can only add %d item to the cart.', 'You can only add %d items to the cart.', $item_quantity, 'subscription' ), $item_quantity ), 'error' );
 			}
 		}
 	}
@@ -217,7 +218,8 @@ class Product {
 			$item_quantity = (int) wc_get_order_item_meta( $order_item_id, '_qty', true );
 			if ( $item_quantity !== $quantity ) {
 				WC()->cart->set_quantity( $cart_item_key, $item_quantity );
-				wc_add_notice( 'You can only add ' . $item_quantity . ' ' . ( $item_quantity > 1 ? 'items' : 'item' ) . ' on cart!', 'error' );
+				/* translators: %d: the number of items allowed in the cart. */
+				wc_add_notice( sprintf( _n( 'You can only add %d item to the cart.', 'You can only add %d items to the cart.', $item_quantity, 'subscription' ), $item_quantity ), 'error' );
 			}
 		}
 	}

@@ -92,7 +92,7 @@ class Action {
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
-				'comment_content' => 'Subscription completed. All payments made.',
+				'comment_content' => __( 'Subscription completed. All payments made.', 'subscription' ),
 				'comment_post_ID' => $subscription_id,
 				'comment_type'    => 'order_note',
 			)
@@ -112,7 +112,7 @@ class Action {
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
-				'comment_content' => 'Subscription is Expired',
+				'comment_content' => __( 'Subscription is Expired', 'subscription' ),
 				'comment_post_ID' => $subscription_id,
 				'comment_type'    => 'order_note',
 			)
@@ -132,7 +132,7 @@ class Action {
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
-				'comment_content' => 'Subscription activated. Next payment due date set.',
+				'comment_content' => __( 'Subscription activated. Next payment due date set.', 'subscription' ),
 				'comment_post_ID' => $subscription_id,
 				'comment_type'    => 'order_note',
 			)
@@ -152,7 +152,7 @@ class Action {
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
-				'comment_content' => 'Subscription is pending.',
+				'comment_content' => __( 'Subscription is pending.', 'subscription' ),
 				'comment_post_ID' => $subscription_id,
 				'comment_type'    => 'order_note',
 			)
@@ -172,7 +172,7 @@ class Action {
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
-				'comment_content' => 'Subscription is Cancelled.',
+				'comment_content' => __( 'Subscription is Cancelled.', 'subscription' ),
 				'comment_post_ID' => $subscription_id,
 				'comment_type'    => 'order_note',
 			)
@@ -197,7 +197,7 @@ class Action {
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
-				'comment_content' => 'Subscription is On Hold. Access suspended after payment failure.',
+				'comment_content' => __( 'Subscription is On Hold. Access suspended after payment failure.', 'subscription' ),
 				'comment_post_ID' => $subscription_id,
 				'comment_type'    => 'order_note',
 			)
@@ -217,7 +217,7 @@ class Action {
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_author'  => 'Subscription for WooCommerce',
-				'comment_content' => 'Subscription is Pending Cancellation.',
+				'comment_content' => __( 'Subscription is Pending Cancellation.', 'subscription' ),
 				'comment_post_ID' => $subscription_id,
 				'comment_type'    => 'order_note',
 			)

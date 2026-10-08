@@ -208,6 +208,7 @@ class SettingsHelper {
 		$map = array(
 			'renewals'            => 'renewals',
 			'license_settings'    => 'renewals',
+			'stock_management'    => 'renewals',
 			'payment_gateways'    => 'payments',
 			'payment_failure'     => 'payments',
 			'grace_period'        => 'payments',

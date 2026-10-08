@@ -6,6 +6,7 @@ use SpringDevs\Subscription\Illuminate\Emails\CancellationAdmin;
 use SpringDevs\Subscription\Illuminate\Emails\SavedAdmin;
 use SpringDevs\Subscription\Illuminate\Emails\StatusChangedAdmin;
 use SpringDevs\Subscription\Illuminate\Emails\SubscriptionCancelled;
+use SpringDevs\Subscription\Illuminate\Emails\SubscriptionStockPaused;
 use SpringDevs\Subscription\Illuminate\Emails\SubscriptionExpired;
 
 /**
@@ -100,6 +101,7 @@ class Email {
 		$emails['subscrpt_status_changed_admin_email']   = new StatusChangedAdmin();
 		$emails['subscrpt_subscription_expired_email']   = new SubscriptionExpired();
 		$emails['subscrpt_subscription_cancelled_email'] = new SubscriptionCancelled();
+		$emails['subscrpt_subscription_stock_paused_email'] = new SubscriptionStockPaused();
 
 		// The admin cancellation notices are free's reduced stand-ins. Pro ships
 		// richer equivalents on the same events, so registering both would list

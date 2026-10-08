@@ -1,5 +1,10 @@
 *** WPSubscription Changelog ***
 
+2026-10-08 - version 2.4.0
+* new: Pause subscriptions automatically when a product runs low on stock and resume them when stock recovers, with a new customer email and settings under Settings > Renewals > Stock Management.
+* new: Multilingual support: WPSubscription is now fully translatable and works with WPML and Polylang, including plans on translated products, translatable plan names and customer emails sent in the language the customer bought in.
+* improved: Dates throughout the plugin now use the site language's month names.
+
 2026-10-06 - version 2.3.0
 * new: The cancellation retention offer can be a flat amount in the store currency, as well as a percentage.
 * new: Early Renew button visibility settings: always, a set number of days before the next payment, from a day of the month, or when a percentage of the billing cycle is left.

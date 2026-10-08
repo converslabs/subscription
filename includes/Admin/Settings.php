@@ -137,6 +137,56 @@ class Settings {
 				],
 			],
 			[
+				'type'       => 'heading',
+				'group'      => 'stock_management',
+				'priority'   => 0,
+				'field_data' => [
+					'title' => __( 'Stock Management', 'subscription' ),
+				],
+			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'stock_management',
+				'priority'   => 1,
+				'field_data' => [
+					'id'          => 'wp_subscription_stock_pause',
+					'title'       => __( 'Pause on Low Stock', 'subscription' ),
+					'label'       => __( 'Pause subscriptions when the product runs low on stock', 'subscription' ),
+					'description' => __( 'Active subscriptions of a product are put on hold when its stock reaches the threshold, and the customer is emailed, so no renewal is charged for something you cannot ship.', 'subscription' ),
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'wp_subscription_stock_pause', '' ),
+				],
+			],
+			[
+				'type'       => 'input',
+				'group'      => 'stock_management',
+				'priority'   => 2,
+				'field_data' => [
+					'id'          => 'wp_subscription_stock_pause_threshold',
+					'title'       => __( 'Stock Threshold', 'subscription' ),
+					'description' => __( 'Pause when the stock quantity is at or below this number. Products that do not manage a quantity pause only when out of stock.', 'subscription' ),
+					'type'        => 'number',
+					'value'       => esc_attr( get_option( 'wp_subscription_stock_pause_threshold', 0 ) ),
+					'attributes'  => [
+						'min'  => 0,
+						'step' => 1,
+					],
+				],
+			],
+			[
+				'type'       => 'toggle',
+				'group'      => 'stock_management',
+				'priority'   => 3,
+				'field_data' => [
+					'id'          => 'wp_subscription_stock_auto_resume',
+					'title'       => __( 'Auto Resume', 'subscription' ),
+					'label'       => __( 'Resume paused subscriptions when stock recovers', 'subscription' ),
+					'description' => __( 'Only subscriptions paused because of stock are resumed; ones you put on hold yourself stay on hold.', 'subscription' ),
+					'value'       => '1',
+					'checked'     => '1' === get_option( 'wp_subscription_stock_auto_resume', '1' ),
+				],
+			],
+			[
 				'type'       => 'select',
 				'group'      => 'role_based_settings',
 				'priority'   => 2,
@@ -264,6 +314,30 @@ class Settings {
 		register_setting(
 			'wp_subscription_settings',
 			'wp_subscription_stripe_auto_renew',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+		register_setting(
+			'wp_subscription_settings',
+			'wp_subscription_stock_pause',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+		register_setting(
+			'wp_subscription_settings',
+			'wp_subscription_stock_pause_threshold',
+			array(
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+			)
+		);
+		register_setting(
+			'wp_subscription_settings',
+			'wp_subscription_stock_auto_resume',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',

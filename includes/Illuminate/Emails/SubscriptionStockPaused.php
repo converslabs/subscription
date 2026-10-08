@@ -2,33 +2,31 @@
 
 namespace SpringDevs\Subscription\Illuminate\Emails;
 
-use SpringDevs\Subscription\Illuminate\Multilingual;
 use SpringDevs\Subscription\Traits\Email;
 use WC_Email;
 
 /**
- * Subscription Expired Mail to Customer.
+ * Subscription paused because the product is low on stock (Customer).
  */
-class SubscriptionExpired extends WC_Email {
+class SubscriptionStockPaused extends WC_Email {
 
 	use Email;
 
 	/**
-	 *
 	 * Initialize the class.
 	 */
 	public function __construct() {
 		$this->customer_email = true;
 
-		$this->id          = 'subscrpt_subscription_expired_email';
-		$this->title       = __( 'Subscription expired', 'subscription' );
-		$this->description = __( 'This email is sent to customer when a subscription expired.', 'subscription' );
+		$this->id          = 'subscrpt_subscription_stock_paused_email';
+		$this->title       = __( 'Subscription paused (low stock)', 'subscription' );
+		$this->description = __( 'This email is sent to the customer when a subscription is paused because its product ran low on stock.', 'subscription' );
 
 		// email template path.
 		$this->set_template( $this->id );
 
 		// Triggers for this email.
-		add_action( 'subscrpt_subscription_expired_email_notification', array( $this, 'trigger' ) );
+		add_action( 'subscrpt_subscription_stock_paused_email_notification', array( $this, 'trigger' ) );
 
 		// Call parent constructor.
 		parent::__construct();
@@ -40,7 +38,7 @@ class SubscriptionExpired extends WC_Email {
 	 * @return string
 	 */
 	public function get_default_subject(): string {
-		return __( '#{subscription_id} subscription expired!', 'subscription' );
+		return __( '#{subscription_id} subscription paused', 'subscription' );
 	}
 
 	/**
@@ -66,16 +64,9 @@ class SubscriptionExpired extends WC_Email {
 		$this->placeholders['{subscription_id}'] = $subscription_id;
 		$this->subscription_id                   = $subscription_id;
 
-		// In the customer's language, not the site's or whoever triggered it.
-		$switched = Multilingual::switch_email_language( $this, $subscription_id );
-
 		$this->set_table_data();
 
 		$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
-
-		if ( $switched ) {
-			Multilingual::restore_email_language( $this );
-		}
 	}
 
 	/**
