@@ -109,6 +109,8 @@ do_action( 'before_single_subscrpt_content', $id );
 				esc_html_e( 'Start date', 'subscription' );
 			} elseif ( 'extended' === $trial_mode ) {
 				esc_html_e( 'Trial End & Subscription Start', 'subscription' );
+			} elseif ( ! Helper::has_next_payment( $status ) ) {
+				esc_html_e( 'Trial End', 'subscription' );
 			} else {
 				esc_html_e( 'Trial End & First Billing', 'subscription' );
 			}
@@ -116,7 +118,7 @@ do_action( 'before_single_subscrpt_content', $id );
 			</td>
 			<td><?php echo esc_html( $start_date ); ?></td>
 		</tr>
-		<?php if ( ( null == $trial || in_array( $trial_mode, array( 'off', 'extended' ), true ) ) && get_post_meta( $id, '_subscrpt_next_date', true ) ) : ?>
+		<?php if ( ( null == $trial || in_array( $trial_mode, array( 'off', 'extended' ), true ) ) && get_post_meta( $id, '_subscrpt_next_date', true ) && Helper::has_next_payment( $status ) ) : ?>
 			<tr>
 				<td>
 				<?php

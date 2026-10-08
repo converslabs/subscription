@@ -384,7 +384,7 @@ class Cart {
 							'time'                   => $time,
 							'type'                   => $type,
 							'description'            => $description,
-							'can_user_cancel'        => $cart_item['data']->get_meta( '_subscrpt_user_cancel' ),
+							'can_user_cancel'        => Helper::can_user_cancel( $cart_item['data']->get_meta( '_subscrpt_user_cancel' ) ) ? 'yes' : 'no',
 							'max_no_payment'         => ! empty( $cart_item['subscrpt_max_no_payment'] )
 								? (int) $cart_item['subscrpt_max_no_payment']
 								: $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),

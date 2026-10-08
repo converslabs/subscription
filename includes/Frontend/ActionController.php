@@ -74,7 +74,7 @@ class ActionController {
 		} elseif ( 'cancelled' === $action ) {
 			$status      = get_post_status( $subscrpt_id );
 			$user_cancel = get_post_meta( $subscrpt_id, '_subscrpt_user_cancel', true );
-			if ( 'no' === $user_cancel ) {
+			if ( ! Helper::can_user_cancel( $user_cancel ) ) {
 				return;
 			} elseif ( 'active' === $status ) {
 				Action::status( 'pe_cancelled', $subscrpt_id );

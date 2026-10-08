@@ -82,7 +82,8 @@ class Order {
 				delete_post_meta( $subscription_id, '_subscrpt_trial_ended' );
 			}
 
-			$next_date = sdevs_wp_strtotime( $recurr_timing, time() );
+			// Extend from the current due date so the days already paid for are kept.
+			$next_date = $this->get_anchored_next_date( $subscription_id, $recurr_timing, (int) $subscription_history->order_id );
 		}
 
 		// Split payment: no next date after the final installment.

@@ -62,7 +62,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$start_date = ! empty( $start_date ) ? wp_date( 'F j, Y', strtotime( $start_date ) ) : '-';
 
 				$next_date = $subscription_data['next_date'] ?? '';
-				$next_date = ! empty( $next_date ) ? wp_date( 'F j, Y', strtotime( $next_date ) ) : '-';
+				$next_date = ! empty( $next_date ) && SpringDevs\Subscription\Illuminate\Helper::has_next_payment( $subscrpt_status ) ? wp_date( 'F j, Y', strtotime( $next_date ) ) : '-';
 
 				$trial      = get_post_meta( get_the_ID(), '_subscrpt_trial', true );
 				$trial_mode = get_post_meta( get_the_ID(), '_subscrpt_trial_mode', true );
@@ -111,7 +111,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					
 					<td data-title="<?php echo esc_attr__( 'Product', 'subscription' ); ?>"><?php echo esc_html( $product_name ); ?></td>
 					
-					<?php if ( 'on' !== $trial_mode ) : ?>
+					<?php if ( 'on' !== $trial_mode || ! SpringDevs\Subscription\Illuminate\Helper::has_next_payment( $subscrpt_status ) ) : ?>
 						<td data-title="<?php echo esc_attr__( 'Next Payment', 'subscription' ); ?>"><?php echo esc_html( $next_date ); ?></td>
 					<?php else : ?>
 						<td data-title="<?php echo esc_attr__( 'Next Payment', 'subscription' ); ?>"><small><?php esc_html_e( 'First Billing:', 'subscription' ); ?> </small><?php echo esc_html( $start_date ); ?></td>

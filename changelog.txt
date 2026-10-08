@@ -1,5 +1,21 @@
 *** WPSubscription Changelog ***
 
+2026-10-06 - version 2.3.0
+* new: The cancellation retention offer can be a flat amount in the store currency, as well as a percentage.
+* new: Early Renew button visibility settings: always, a set number of days before the next payment, from a day of the month, or when a percentage of the billing cycle is left.
+* new: Turn customer cancellation on or off from the Plans page and from plan mode in the product editor.
+* fix: Early renewal no longer shortens the billing cycle. The next payment date now moves forward from the date that was already due.
+* fix: Cancelled and expired subscriptions no longer show a next payment date, a "First Billing" label or an auto-renewal toggle.
+* fix: Customers can cancel plan subscriptions. The Cancel button was missing.
+
+2026-10-01 - version 2.2.0
+* new: Subscription products are marked with an icon in the WooCommerce products list.
+* new: Reorder plan durations and products by drag and drop, with keyboard support.
+* new: Install and activate the Stripe gateway from the Stripe Auto Renewal setting.
+* new: License settings to choose whether renewals keep the existing license key or issue a new one.
+* fix: Integration cards show installed but inactive plugins as Inactive, with an Activate button.
+* fix: Installing a payment gateway that is already installed but inactive no longer fails.
+
 2026-09-29 - version 2.1.0
 * new: Quickly update connected product prices of a plan.
 * improved: Managing plan products.

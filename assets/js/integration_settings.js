@@ -26,7 +26,7 @@ function subscrptInstallPlugin(btn, slug) {
 
   btn.disabled = true;
   btn.style.cursor = "wait";
-  btn.innerHTML = SUBSCRPT_SPINNER_SVG + wp.i18n.__("Installing…", "subscription");
+  btn.innerHTML = SUBSCRPT_SPINNER_SVG + (btn.dataset.busyLabel || wp.i18n.__("Installing…", "subscription"));
 
   var data = new FormData();
   data.append("action", "subscrpt_install_integration_plugin");
@@ -58,6 +58,66 @@ function subscrptInstallPlugin(btn, slug) {
       btn.innerHTML = originalHTML;
       // eslint-disable-next-line no-alert
       window.alert(wp.i18n.__("Installation failed. Please try again.", "subscription"));
+    });
+}
+
+/**
+ * Links and buttons that cannot carry an inline handler — e.g. inside a settings field
+ * description, which is passed through wp_kses_post() — declare the slug in
+ * data-subscrpt-install-plugin instead.
+ */
+document.addEventListener("click", function (event) {
+  var btn = event.target.closest("[data-subscrpt-install-plugin]");
+  if (!btn || btn.disabled) {
+    return;
+  }
+  event.preventDefault();
+  subscrptInstallPlugin(btn, btn.dataset.subscrptInstallPlugin);
+});
+
+/**
+ * Activate an already installed integration plugin from the integrations page.
+ *
+ * @param {HTMLButtonElement} btn        The clicked button element.
+ * @param {string}            pluginFile The plugin basename, e.g. "tutor/tutor.php".
+ */
+function subscrptActivatePlugin(btn, pluginFile) {
+  var originalHTML = btn.innerHTML;
+  var originalCursor = btn.style.cursor;
+
+  btn.disabled = true;
+  btn.style.cursor = "wait";
+  btn.innerHTML = SUBSCRPT_SPINNER_SVG + "Activating…";
+
+  var data = new FormData();
+  data.append("action", "subscrpt_activate_integration_plugin");
+  data.append("plugin_file", pluginFile);
+  data.append("nonce", subscrptIntegrations.nonce);
+
+  fetch(subscrptIntegrations.ajaxUrl, { method: "POST", body: data })
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (result) {
+      if (result.success) {
+        var url = new URL(window.location.href);
+        url.searchParams.delete("subscrpt_installed");
+        url.searchParams.set("subscrpt_activated", "1");
+        window.location.href = url.toString();
+      } else {
+        btn.disabled = false;
+        btn.style.cursor = originalCursor;
+        btn.innerHTML = originalHTML;
+        // eslint-disable-next-line no-alert
+        window.alert((result.data && result.data.message) || "Activation failed. Please try again.");
+      }
+    })
+    .catch(function () {
+      btn.disabled = false;
+      btn.style.cursor = originalCursor;
+      btn.innerHTML = originalHTML;
+      // eslint-disable-next-line no-alert
+      window.alert("Activation failed. Please try again.");
     });
 }
 
