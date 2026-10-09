@@ -210,29 +210,46 @@ class Plans {
 			// Each term's discount (offer below regular). Installments price on a
 			// different basis, so they never contribute a percentage.
 			$row_regular = isset( $row['relation_data']['regular_price'] ) ? (float) $row['relation_data']['regular_price'] : 0.0;
+			$term_pct    = 0;
 			if ( 'installments' !== $groups[ $gid ]['type'] && $row_regular > 0 && $price_num < $row_regular ) {
-				$groups[ $gid ]['pcts'][] = (int) round( ( $row_regular - $price_num ) / $row_regular * 100 );
+				$term_pct                 = (int) round( ( $row_regular - $price_num ) / $row_regular * 100 );
+				$groups[ $gid ]['pcts'][] = $term_pct;
 			}
 
 			$groups[ $gid ]['terms'][] = array(
-				'id'    => (int) $row['plan_id'],
-				'label' => $row['plan_title'],
-				'price' => wc_price( $price_num ),
-				'note'  => $this->term_note( $row, $price_num ),
+				'id'               => (int) $row['plan_id'],
+				'label'            => $row['plan_title'],
+				'price'            => wc_price( $price_num ),
+				'note'             => $this->term_note( $row, $price_num ),
+				'discount_percent' => $term_pct,
+				'badge'            => '',
 			);
 		}
 
-		// Card header price = the first term of each group; the badge reports the
-		// group's best discount, and says "up to" when its terms differ.
+		// Card header price = the first term of each group.
+		//
+		// The badge is per term, not per group. A group whose terms discount by
+		// different amounts has no single true figure, and the card only ever
+		// shows one term at a time — the selected one — so a group-wide "Save
+		// 20%" was wrong for two of the three terms behind it. Each term carries
+		// its own text and the selector swaps it on selection; the card starts on
+		// the first term's, which is the one pre-selected.
 		foreach ( $groups as &$group ) {
 			$group['price'] = $group['terms'][0]['price'];
 
 			if ( ! empty( $group['pcts'] ) ) {
-				$max                       = max( $group['pcts'] );
-				$group['discount_percent'] = $max;
-				$group['badge']            = subscrpt_card_badge_text( $group, $product, $max, min( $group['pcts'] ) !== $max );
+				$group['discount_percent'] = max( $group['pcts'] );
 			}
 			unset( $group['pcts'] );
+
+			foreach ( $group['terms'] as &$term ) {
+				$term['badge'] = $term['discount_percent'] > 0
+					? subscrpt_card_badge_text( $group, $product, $term['discount_percent'] )
+					: '';
+			}
+			unset( $term );
+
+			$group['badge'] = $group['terms'][0]['badge'];
 		}
 		unset( $group );
 

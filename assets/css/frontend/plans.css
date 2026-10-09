@@ -201,6 +201,12 @@
   --subscrpt-badge-text: #fff;
 }
 
+/* Empty while the selected term is not discounted — the slot stays in the DOM
+   so a later term can fill it, but an empty pill must not show. */
+.subscrpt-buybox__badge[hidden] {
+  display: none;
+}
+
 .subscrpt-buybox__badge {
   position: absolute;
   top: -12px;
