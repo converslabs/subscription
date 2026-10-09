@@ -54,6 +54,9 @@ class Cancellation {
 		add_action( 'before_single_subscrpt_content', [ $this, 'maybe_render_feedback_modal' ] );
 		add_action( 'wp_ajax_subscrpt_record_cancellation_feedback', [ $this, 'record_feedback' ] );
 		add_action( 'wp_ajax_subscrpt_record_cancellation_save', [ $this, 'record_save' ] );
+		add_action( 'subscrpt_fire_subscription_saved', [ $this, 'fire_saved' ] );
+		add_action( 'subscrpt_subscription_pending_cancellation', [ $this, 'discard_pending_save' ], 5 );
+		add_action( 'subscrpt_subscription_cancelled', [ $this, 'discard_pending_save' ], 5 );
 		add_action( 'wp_ajax_subscrpt_claim_cancellation_offer', [ $this, 'claim_offer' ] );
 		add_action( 'subscrpt_details_side_bottom', [ $this, 'render_admin_feedback_card' ] );
 	}
@@ -505,6 +508,49 @@ class Cancellation {
 			'offer_accepted'  => false,
 		];
 
+		// Held back, not fired: a customer who closes the modal and then cancels
+		// in the same visit was not saved. See fire_saved().
+		set_transient( self::pending_save_key( $subscription_id ), $data, HOUR_IN_SECONDS );
+
+		/**
+		 * Filters how long a save report is held back, in seconds.
+		 *
+		 * @param int $delay           Seconds. Default 5 minutes.
+		 * @param int $subscription_id Subscription ID.
+		 */
+		$delay = (int) apply_filters( 'subscrpt_save_report_delay', 5 * MINUTE_IN_SECONDS, $subscription_id );
+
+		wp_clear_scheduled_hook( 'subscrpt_fire_subscription_saved', [ $subscription_id ] );
+		wp_schedule_single_event( time() + max( 0, $delay ), 'subscrpt_fire_subscription_saved', [ $subscription_id ] );
+
+		wp_send_json_success( [ 'saved' => true ] );
+	}
+
+	/**
+	 * Transient holding a save report waiting out its delay.
+	 *
+	 * @param int $subscription_id Subscription post ID.
+	 * @return string
+	 */
+	protected static function pending_save_key( $subscription_id ) {
+		return 'subscrpt_pending_save_' . (int) $subscription_id;
+	}
+
+	/**
+	 * Cron: report a save that no cancellation followed.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return void
+	 */
+	public function fire_saved( $subscription_id ) {
+		$subscription_id = (int) $subscription_id;
+		$data            = get_transient( self::pending_save_key( $subscription_id ) );
+		delete_transient( self::pending_save_key( $subscription_id ) );
+
+		if ( ! is_array( $data ) || in_array( get_post_status( $subscription_id ), [ 'cancelled', 'pe_cancelled' ], true ) ) {
+			return;
+		}
+
 		/**
 		 * Fires when a customer opens the cancellation modal and backs out.
 		 *
@@ -517,8 +563,17 @@ class Cancellation {
 		 *                               retention offer was accepted.
 		 */
 		do_action( 'subscrpt_subscription_saved', $subscription_id, $data );
+	}
 
-		wp_send_json_success( [ 'saved' => true ] );
+	/**
+	 * The subscription is being cancelled: its held-back save was not a save.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return void
+	 */
+	public function discard_pending_save( $subscription_id ) {
+		delete_transient( self::pending_save_key( $subscription_id ) );
+		wp_clear_scheduled_hook( 'subscrpt_fire_subscription_saved', [ (int) $subscription_id ] );
 	}
 
 	/**
