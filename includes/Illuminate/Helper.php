@@ -1152,14 +1152,22 @@ class Helper {
 		update_post_meta( $subscription_id, '_subscrpt_order_id', $new_order->get_id() );
 		update_post_meta( $subscription_id, '_subscrpt_order_item_id', $new_order_item_id );
 
-		self::clone_order_metadata( $new_order, $old_order );
+		// The order is already linked to the subscription here, so a failure keeps it for the admin to see rather than deleting it.
+		$renewal_order_id = $new_order->get_id();
+		try {
+			self::clone_order_metadata( $new_order, $old_order );
 
-		// Allow modification of the renewal order before saving.
-		$new_order = apply_filters( 'subscrpt_before_saving_renewal_order', $new_order, $old_order, $subscription_id );
+			// Allow modification of the renewal order before saving.
+			$new_order = apply_filters( 'subscrpt_before_saving_renewal_order', $new_order, $old_order, $subscription_id );
 
-		// Save the new order.
-		$new_order->calculate_totals();
-		$new_order->save();
+			// Save the new order.
+			$new_order->calculate_totals();
+			$new_order->save();
+		} catch ( \Throwable $e ) {
+			/* translators: 1: renewal order ID, 2: error message. */
+			self::record_renewal_failure( $subscription_id, sprintf( __( 'Renewal order #%1$d was created but could not be completed: %2$s', 'subscription' ), $renewal_order_id, $e->getMessage() ), $old_order->get_id() );
+			return false;
+		}
 
 		if ( ! is_admin() && function_exists( 'wc_add_notice' ) && WC()->session ) {
 			/* translators: %d: renewal order ID. */
