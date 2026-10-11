@@ -1096,11 +1096,30 @@ class Helper {
 		}
 
 		if ( ! $old_order ) {
-			subscrpt_write_log( "Old order not found for renewal. Skipping creating renewal order. [ Subscription ID: {$subscription_id} ]" );
+			// A deleted order takes its items with it, so fall back to the order ID the subscription stores.
+			$stored_order_id = $order_id ? (int) $order_id : (int) get_post_meta( $subscription_id, '_subscrpt_order_id', true );
+			$stored_order    = wc_get_order( $stored_order_id );
+			if ( $stored_order && $stored_order->has_status( 'trash' ) ) {
+				/* translators: %d: order ID. */
+				$reason = sprintf( __( 'Its order #%d is in the trash, and no other completed order is linked to it.', 'subscription' ), $stored_order_id );
+			} elseif ( $stored_order ) {
+				/* translators: 1: order ID, 2: order status. */
+				$reason = sprintf( __( 'Its order #%1$d is %2$s, not completed, and no other completed order is linked to it.', 'subscription' ), $stored_order_id, wc_get_order_status_name( $stored_order->get_status() ) );
+			} else {
+				/* translators: %d: order ID. */
+				$reason = sprintf( __( 'Its order #%d no longer exists, and no other completed order is linked to it.', 'subscription' ), $stored_order_id );
+			}
+			self::record_renewal_failure( $subscription_id, $reason, $stored_order_id );
 			return false;
 		}
 
-		$order_item         = $old_order->get_item( $order_item_id );
+		$order_item = $old_order->get_item( $order_item_id );
+		if ( ! $order_item instanceof \WC_Order_Item_Product ) {
+			/* translators: 1: order item ID, 2: order ID. */
+			self::record_renewal_failure( $subscription_id, sprintf( __( 'Item #%1$d is no longer on order #%2$d.', 'subscription' ), $order_item_id, $old_order->get_id() ), $old_order->get_id() );
+			return false;
+		}
+
 		$subscription_price = (float) get_post_meta( $subscription_id, '_subscrpt_price', true );
 		$qty                = $order_item->get_quantity();
 
