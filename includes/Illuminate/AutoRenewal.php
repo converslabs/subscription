@@ -40,7 +40,7 @@ class AutoRenewal {
 		}
 
 		if ( ! $product ) {
-			if ( ! is_admin() ) {
+			if ( ! is_admin() && WC()->session ) {
 				wc_add_notice( __( 'Subscription early renewal order creation failed due to product deletion !', 'subscription' ), 'error' );
 			}
 			return false;
@@ -49,7 +49,7 @@ class AutoRenewal {
 		if ( $product->is_type( 'variable' ) ) {
 			$product = wc_get_product( $product->get_meta( '_subscrpt_convertation_default_variation_for_renewal', true ) );
 			if ( ! $product ) {
-				if ( ! is_admin() ) {
+				if ( ! is_admin() && WC()->session ) {
 					wc_add_notice( __( 'Subscription early renewal order creation failed due to product deletion !', 'subscription' ), 'error' );
 				}
 				return false;
