@@ -103,7 +103,7 @@ class AutoRenewal {
 	public function after_subscription_expired( $subscription_id ) {
 		// Check if maximum payment limit has been reached
 		if ( subscrpt_is_max_payments_reached( $subscription_id ) ) {
-			error_log( "WPS: Maximum payment limit reached for subscription #{$subscription_id}. Auto-renewal cancelled." );
+			Helper::record_renewal_failure( $subscription_id, __( 'The subscription reached its maximum number of payments, so it was not renewed.', 'subscription' ) );
 			return;
 		}
 

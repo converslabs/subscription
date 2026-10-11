@@ -1067,10 +1067,15 @@ class Helper {
 	public static function create_renewal_order( $subscription_id ) {
 		// Check if maximum payment limit has been reached
 		if ( subscrpt_is_max_payments_reached( $subscription_id ) ) {
+			$was_expired = 'expired' === get_post_status( $subscription_id );
+
 			// Mark subscription as expired due to limit reached
 			Action::status( 'expired', $subscription_id );
 
-			error_log( "WPS: Maximum payment limit reached for subscription #{$subscription_id}. No renewal order created." );
+			// Expiring it runs AutoRenewal::after_subscription_expired(), which records this. An already expired subscription does not.
+			if ( $was_expired ) {
+				self::record_renewal_failure( $subscription_id, __( 'The subscription reached its maximum number of payments, so it was not renewed.', 'subscription' ) );
+			}
 			return false;
 		}
 
@@ -1403,6 +1408,46 @@ class Helper {
 		);
 		update_comment_meta( $comment_id, '_subscrpt_activity', 'Renewal Order' );
 		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'renewal_order' );
+	}
+
+	/**
+	 * Record why a renewal failed.
+	 *
+	 * Renewals mostly run under cron, where nobody sees a notice. This writes the
+	 * cause to the subscription's activity history and to the `wp_subscription`
+	 * WooCommerce log at error level, so a subscription that did not renew says why.
+	 *
+	 * @param int    $subscription_id Subscription ID. 0 writes the log entry only.
+	 * @param string $reason          Why the renewal failed, as a full sentence.
+	 * @param int    $source_order_id Order the renewal was being created from, if known.
+	 *
+	 * @return void
+	 */
+	public static function record_renewal_failure( $subscription_id, string $reason, int $source_order_id = 0 ) {
+		$subscription_id = (int) $subscription_id;
+
+		/* translators: %s: why the renewal order was not created. */
+		$message = sprintf( __( 'Renewal failed. %s', 'subscription' ), $reason );
+
+		wc_get_logger()->error(
+			sprintf( '%s [ Subscription ID: %d, Source order ID: %d ]', $message, $subscription_id, $source_order_id ),
+			array( 'source' => 'wp_subscription' )
+		);
+
+		if ( ! $subscription_id ) {
+			return;
+		}
+
+		$comment_id = wp_insert_comment(
+			array(
+				'comment_author'  => 'Subscription for WooCommerce',
+				'comment_content' => $message,
+				'comment_post_ID' => $subscription_id,
+				'comment_type'    => 'order_note',
+			)
+		);
+		update_comment_meta( $comment_id, '_subscrpt_activity', 'Renewal Failed' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'renewal_failed' );
 	}
 
 	/**
