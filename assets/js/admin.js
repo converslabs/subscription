@@ -91,13 +91,13 @@ jQuery(document).ready(() => {
     var selectedAction = action && action !== "-1" ? action : action2;
 
     if (!selectedAction || selectedAction === "-1") {
-      alert("Please select a bulk action.");
+      alert(wp.i18n.__("Please select a bulk action.", "subscription"));
       return false;
     }
 
     var checkedBoxes = jQuery('input[name="subscription_ids[]"]:checked');
     if (checkedBoxes.length === 0) {
-      alert("Please select at least one subscription.");
+      alert(wp.i18n.__("Please select at least one subscription.", "subscription"));
       return false;
     }
 
@@ -115,7 +115,7 @@ jQuery(document).ready(() => {
     // Show loading state
     var submitButton = jQuery('input[name="bulk_action"]:focus, input[name="bulk_action2"]:focus');
     var originalText = submitButton.val();
-    submitButton.val("Processing...").prop("disabled", true);
+    submitButton.val(wp.i18n.__("Processing…", "subscription")).prop("disabled", true);
 
     // Make AJAX request
     jQuery.ajax({
@@ -137,11 +137,14 @@ jQuery(document).ready(() => {
           }, 1000);
         } else {
           // Show error message
-          showAdminNotice(response.data.message || "An error occurred while processing the bulk action.", "error");
+          showAdminNotice(
+            response.data.message || wp.i18n.__("An error occurred while processing the bulk action.", "subscription"),
+            "error",
+          );
         }
       },
       error: function () {
-        showAdminNotice("An error occurred while processing the bulk action.", "error");
+        showAdminNotice(wp.i18n.__("An error occurred while processing the bulk action.", "subscription"), "error");
       },
       complete: function () {
         // Reset button state
@@ -185,7 +188,10 @@ subscrpt_product_type.change(() => {
     "variable" !== subscrpt_product_type.val()
   ) {
     const confirmTypeChange = confirm(
-      "Are you sure to change the product type ? If product type changed then You'll lose related subscriptions beacuse of they can't be renewed !",
+      wp.i18n.__(
+        "Are you sure you want to change the product type? Its subscriptions can no longer be renewed.",
+        "subscription",
+      ),
     );
     if (confirmTypeChange) {
       latest_value_of_subscrpt_product_type = subscrpt_product_type.val();

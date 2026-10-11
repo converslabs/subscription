@@ -396,10 +396,10 @@ class Subscriptions {
 
 				<h2 style="margin-top:2em;"><?php esc_html_e( 'Highlights', 'subscription' ); ?></h2>
 				<div class="wpsubscription-features-grid">
-					<div class="feature-box"><span class="dashicons dashicons-admin-generic"></span><h3>Easy Setup</h3><p>Get started in minutes with our intuitive onboarding wizard.</p></div>
-					<div class="feature-box"><span class="dashicons dashicons-money"></span><h3>Multiple Gateways</h3><p>Support for Stripe, PayPal, and Paddle out of the box.</p></div>
-					<div class="feature-box"><span class="dashicons dashicons-schedule"></span><h3>Flexible Plans</h3><p>Create and manage various subscription types and delivery schedules.</p></div>
-					<div class="feature-box"><span class="dashicons dashicons-chart-line"></span><h3>Comprehensive Dashboard</h3><p>Monitor and manage all subscriptions in one place.</p></div>
+					<div class="feature-box"><span class="dashicons dashicons-admin-generic"></span><h3><?php esc_html_e( 'Easy Setup', 'subscription' ); ?></h3><p><?php esc_html_e( 'Get started in minutes with our intuitive onboarding wizard.', 'subscription' ); ?></p></div>
+					<div class="feature-box"><span class="dashicons dashicons-money"></span><h3><?php esc_html_e( 'Multiple Gateways', 'subscription' ); ?></h3><p><?php esc_html_e( 'Support for Stripe, PayPal, and Paddle out of the box.', 'subscription' ); ?></p></div>
+					<div class="feature-box"><span class="dashicons dashicons-schedule"></span><h3><?php esc_html_e( 'Flexible Plans', 'subscription' ); ?></h3><p><?php esc_html_e( 'Create and manage various subscription types and delivery schedules.', 'subscription' ); ?></p></div>
+					<div class="feature-box"><span class="dashicons dashicons-chart-line"></span><h3><?php esc_html_e( 'Comprehensive Dashboard', 'subscription' ); ?></h3><p><?php esc_html_e( 'Monitor and manage all subscriptions in one place.', 'subscription' ); ?></p></div>
 				</div>
 			</div>
 		</div>
@@ -445,7 +445,7 @@ class Subscriptions {
 
 	public function render_go_pro_page() {
 		if ( class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) {
-			echo '<div class="notice notice-info" style="margin:40px auto;max-width:700px;text-align:center;font-size:1.2em;">Pro is already active.</div>';
+			echo '<div class="notice notice-info" style="margin:40px auto;max-width:700px;text-align:center;font-size:1.2em;">' . esc_html__( 'Pro is already active.', 'subscription' ) . '</div>';
 			return;
 		}
 		?>
@@ -459,43 +459,43 @@ class Subscriptions {
 					<thead>
 						<tr style="background:#f8f9fa;">
 							<th style="padding:18px 12px 18px 24px;font-size:1.08em;text-align:left;border:none;"></th>
-							<th style="padding:18px 12px;font-size:1.08em;text-align:center;border:none;">Free</th>
-							<th style="padding:18px 12px;font-size:1.08em;text-align:center;border:none;color:#7f54b3;">Pro</th>
+							<th style="padding:18px 12px;font-size:1.08em;text-align:center;border:none;"><?php esc_html_e( 'Free', 'subscription' ); ?></th>
+							<th style="padding:18px 12px;font-size:1.08em;text-align:center;border:none;color:#7f54b3;"><?php esc_html_e( 'Pro', 'subscription' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<td style="padding:16px 12px 16px 24px;">Simple subscription products</td>
+							<td style="padding:16px 12px 16px 24px;"><?php esc_html_e( 'Simple subscription products', 'subscription' ); ?></td>
 							<td style="text-align:center;">✔️</td>
 							<td style="text-align:center;">✔️</td>
 						</tr>
 						<tr style="background:#f6f7f7;">
-							<td style="padding:16px 12px 16px 24px;">Automated recurring billing</td>
+							<td style="padding:16px 12px 16px 24px;"><?php esc_html_e( 'Automated recurring billing', 'subscription' ); ?></td>
 							<td style="text-align:center;">✔️</td>
 							<td style="text-align:center;">✔️</td>
 						</tr>
 						<tr>
-							<td style="padding:16px 12px 16px 24px;">Multiple payment gateways</td>
+							<td style="padding:16px 12px 16px 24px;"><?php esc_html_e( 'Multiple payment gateways', 'subscription' ); ?></td>
 							<td style="text-align:center;">✔️</td>
 							<td style="text-align:center;">✔️</td>
 						</tr>
 						<tr style="background:#f6f7f7;">
-							<td style="padding:16px 12px 16px 24px;">Customer self-service portal</td>
+							<td style="padding:16px 12px 16px 24px;"><?php esc_html_e( 'Customer self-service portal', 'subscription' ); ?></td>
 							<td style="text-align:center;">✔️</td>
 							<td style="text-align:center;">✔️</td>
 						</tr>
 						<tr>
-							<td style="padding:16px 12px 16px 24px;">Priority support</td>
+							<td style="padding:16px 12px 16px 24px;"><?php esc_html_e( 'Priority support', 'subscription' ); ?></td>
 							<td style="text-align:center;">—</td>
 							<td style="text-align:center;">✔️</td>
 						</tr>
 						<tr style="background:#f6f7f7;">
-							<td style="padding:16px 12px 16px 24px;">Advanced reporting & analytics</td>
+							<td style="padding:16px 12px 16px 24px;"><?php esc_html_e( 'Advanced reporting & analytics', 'subscription' ); ?></td>
 							<td style="text-align:center;">—</td>
 							<td style="text-align:center;">✔️</td>
 						</tr>
 						<tr>
-							<td style="padding:16px 12px 16px 24px;">Variable product support</td>
+							<td style="padding:16px 12px 16px 24px;"><?php esc_html_e( 'Variable product support', 'subscription' ); ?></td>
 							<td style="text-align:center;">—</td>
 							<td style="text-align:center;font-weight:600;color:#43a047;">✔️</td>
 						</tr>

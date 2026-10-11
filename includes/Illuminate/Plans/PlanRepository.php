@@ -7,6 +7,8 @@
 
 namespace SpringDevs\Subscription\Illuminate\Plans;
 
+use SpringDevs\Subscription\Illuminate\Multilingual;
+
 /**
  * Plan data-access layer.
  *
@@ -153,27 +155,33 @@ class PlanRepository {
 			return array();
 		}
 
-		$cache_key = 'product_' . $product_id;
-		$resolved  = wp_cache_get( $cache_key, self::CACHE_GROUP );
+		// A translation is a different post from the product its plans were
+		// attached to, so read across every language of it. One cache entry
+		// serves them all. Without WPML / Polylang this is just the product.
+		$product_ids = Multilingual::translation_ids( $product_id );
+		$cache_key   = 'product_' . Multilingual::canonical_id( $product_id );
+		$resolved    = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
 		if ( false === $resolved ) {
-			$batch    = self::resolve_for_products( array( $product_id ) );
-			$resolved = $batch[ $product_id ] ?? array();
+			$batch    = self::resolve_for_products( $product_ids );
+			$resolved = count( $product_ids ) > 1 ? self::merge_translation_rows( $batch ) : ( $batch[ $product_id ] ?? array() );
 			wp_cache_set( $cache_key, $resolved, self::CACHE_GROUP );
 		}
 
 		if ( $variation_id ) {
-			$variation_id = absint( $variation_id );
-			$resolved     = array_values(
+			$variation_ids = Multilingual::translation_ids( $variation_id );
+			$resolved      = array_values(
 				array_filter(
 					$resolved,
-					static function ( $row ) use ( $variation_id ) {
+					static function ( $row ) use ( $variation_ids ) {
 						// vid 0 = applies to the parent / all variations.
-						return 0 === (int) $row['vid'] || $variation_id === (int) $row['vid'];
+						return 0 === (int) $row['vid'] || in_array( (int) $row['vid'], $variation_ids, true );
 					}
 				)
 			);
 		}
+
+		$resolved = Multilingual::translate_plan_rows( $resolved );
 
 		/**
 		 * Filter the resolved plan rows for a product.
@@ -264,6 +272,40 @@ class PlanRepository {
 	}
 
 	/**
+	 * Merge the plan rows of every language of one product into one list.
+	 *
+	 * A plan attached in two languages would otherwise be offered twice, so a
+	 * plan appears once per variation it applies to, in group → plan order.
+	 *
+	 * @param array<int, array> $batch Map of product id → rows, from {@see resolve_for_products()}.
+	 *
+	 * @return array
+	 */
+	private static function merge_translation_rows( array $batch ) {
+		$merged = array();
+
+		foreach ( $batch as $rows ) {
+			foreach ( $rows as $row ) {
+				$vid = (int) $row['vid'] ? Multilingual::canonical_id( $row['vid'] ) : 0;
+				$key = (int) $row['plan_id'] . ':' . $vid;
+
+				if ( ! isset( $merged[ $key ] ) ) {
+					$merged[ $key ] = $row;
+				}
+			}
+		}
+
+		usort(
+			$merged,
+			static function ( $a, $b ) {
+				return array( (int) $a['plan_group_id'], (int) $a['plan_id'] ) <=> array( (int) $b['plan_group_id'], (int) $b['plan_id'] );
+			}
+		);
+
+		return $merged;
+	}
+
+	/**
 	 * Decode a JSON column to an array, tolerating null / plain strings.
 	 *
 	 * @param string|null $value Raw column value.
@@ -307,12 +349,15 @@ class PlanRepository {
 		$plan_table     = self::plan_table();
 		$group_table    = self::group_table();
 
-		$where  = 'r.type = %d AND r.oid = %d';
-		$params = array( self::REL_PRODUCT, $product_id );
+		// Every language of the product, as the storefront resolver reads them.
+		$product_ids = Multilingual::translation_ids( $product_id );
+		$where       = 'r.type = %d AND r.oid IN (' . implode( ',', array_fill( 0, count( $product_ids ), '%d' ) ) . ')';
+		$params      = array_merge( array( self::REL_PRODUCT ), $product_ids );
 
 		if ( $variation_id ) {
-			$where   .= ' AND r.vid = %d';
-			$params[] = absint( $variation_id );
+			$variation_ids = Multilingual::translation_ids( $variation_id );
+			$where        .= ' AND r.vid IN (' . implode( ',', array_fill( 0, count( $variation_ids ), '%d' ) ) . ')';
+			$params        = array_merge( $params, $variation_ids );
 		}
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
@@ -417,6 +462,28 @@ class PlanRepository {
 		// phpcs:enable
 
 		return $row ? self::decode_plan_row( $row ) : null;
+	}
+
+	/**
+	 * Every non-empty group and plan title, any status, for string translation.
+	 *
+	 * @return array{groups:array<int,string>,plans:array<int,string>} Titles by id.
+	 */
+	public static function get_titles() {
+		global $wpdb;
+
+		$group_table = self::group_table();
+		$plan_table  = self::plan_table();
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery
+		$groups = $wpdb->get_results( "SELECT id, title FROM {$group_table} WHERE title <> '' ORDER BY id ASC", ARRAY_A );
+		$plans  = $wpdb->get_results( "SELECT id, title FROM {$plan_table} WHERE title <> '' ORDER BY id ASC", ARRAY_A );
+		// phpcs:enable
+
+		return array(
+			'groups' => array_column( (array) $groups, 'title', 'id' ),
+			'plans'  => array_column( (array) $plans, 'title', 'id' ),
+		);
 	}
 
 	/**
@@ -1024,6 +1091,8 @@ class PlanRepository {
 
 		if ( $product_id ) {
 			wp_cache_delete( 'product_' . $product_id, self::CACHE_GROUP );
+			// The key every translation of the product shares, when that is another id.
+			wp_cache_delete( 'product_' . Multilingual::canonical_id( $product_id ), self::CACHE_GROUP );
 			return;
 		}
 
