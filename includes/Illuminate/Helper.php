@@ -869,6 +869,11 @@ class Helper {
 		$item_tax      = $order_item ? (float) $order_item->get_subtotal_tax() : 0.0;
 		$tax_ratio     = $item_subtotal > 0 ? $item_tax / $item_subtotal : 0.0;
 
+		// A price entered with tax already includes it; take it out, as the renewal does.
+		if ( wc_prices_include_tax() ) {
+			$full_excl = $full_excl / ( 1 + $tax_ratio );
+		}
+
 		$order    = $order_item ? wc_get_order( $order_item->get_order_id() ) : null;
 		$discount = self::get_subscription_recurring_discount( $subscription_id, $order, $order_item );
 		$discount = min( (float) $discount['amount'], $full_excl );
