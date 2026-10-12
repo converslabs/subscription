@@ -25,10 +25,21 @@ class Dashboard {
 	const HANDLE = 'subscrpt-dashboard';
 
 	/**
+	 * User meta holding the id of the last announcement the user dismissed.
+	 */
+	const ANNOUNCEMENT_META = '_subscrpt_dismissed_announcement';
+
+	/**
+	 * AJAX action that records an announcement dismissal.
+	 */
+	const DISMISS_ACTION = 'subscrpt_dismiss_announcement';
+
+	/**
 	 * Hook the screen's assets.
 	 */
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'maybe_enqueue' ) );
+		add_action( 'wp_ajax_' . self::DISMISS_ACTION, array( $this, 'dismiss_announcement' ) );
 	}
 
 	/**
@@ -118,14 +129,103 @@ class Dashboard {
 		$setup  = $this->get_setup();
 
 		return array(
-			'pulse'  => $this->get_pulse( $counts ),
-			'chart'  => $this->get_chart(),
-			'setup'  => $setup,
-			'health' => $this->get_health( $counts, $setup ),
-			'build'  => $this->get_build_cards(),
-			'footer' => $this->get_footer_links(),
-			'isPro'  => subscrpt_pro_activated(),
+			'pulse'        => $this->get_pulse( $counts ),
+			'chart'        => $this->get_chart(),
+			'setup'        => $setup,
+			'health'       => $this->get_health( $counts, $setup ),
+			'build'        => $this->get_build_cards(),
+			'footer'       => $this->get_footer_links(),
+			'isPro'        => subscrpt_pro_activated(),
+			'announcement' => $this->get_announcement(),
 		);
+	}
+
+	/**
+	 * The "what's new" banner across the top, or null once dismissed.
+	 *
+	 * Dismissal is per user and per announcement: the next release's banner
+	 * has a new id and shows again for everyone.
+	 *
+	 * @return array<string,mixed>|null
+	 */
+	private function get_announcement() {
+		$announcement = array(
+			'id'       => '2.4.0',
+			'label'    => __( 'New in 2.4', 'subscription' ),
+			'title'    => __( 'Stock-aware renewals and multilingual stores', 'subscription' ),
+			'text'     => __( 'Two features this release that most stores will want to switch on.', 'subscription' ),
+			'features' => array(
+				array(
+					'icon'  => 'pause',
+					'title' => __( 'Pause on low stock', 'subscription' ),
+					'text'  => __( 'Subscriptions pause automatically when a product runs low and resume when it is back in stock, with an email to the customer.', 'subscription' ),
+					'link'  => array(
+						'label' => __( 'Set it up', 'subscription' ),
+						'url'   => admin_url( 'admin.php?page=wp-subscription-settings&cat=renewals' ),
+					),
+				),
+				array(
+					'icon'  => 'globe',
+					'title' => __( 'Multilingual support', 'subscription' ),
+					'text'  => __( 'Works with WPML and Polylang: plans on translated products, translatable plan names, and emails in the language the customer bought in.', 'subscription' ),
+				),
+			),
+			'link'     => array(
+				'label' => __( 'Read the changelog', 'subscription' ),
+				'url'   => 'https://wordpress.org/plugins/subscription/#developers',
+			),
+		);
+
+		/**
+		 * Filters the announcement banner at the top of the dashboard.
+		 *
+		 * Return null to hide it. Change `id` whenever the content changes, so
+		 * users who dismissed the previous one see the new one.
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param array|null $announcement Banner content.
+		 */
+		$announcement = apply_filters( 'subscrpt_dashboard_announcement', $announcement );
+
+		if ( ! is_array( $announcement ) || empty( $announcement['id'] ) ) {
+			return null;
+		}
+
+		if ( (string) $announcement['id'] === (string) get_user_meta( get_current_user_id(), self::ANNOUNCEMENT_META, true ) ) {
+			return null;
+		}
+
+		$announcement['dismiss'] = array(
+			'url'    => admin_url( 'admin-ajax.php' ),
+			'action' => self::DISMISS_ACTION,
+			'nonce'  => wp_create_nonce( self::DISMISS_ACTION ),
+		);
+
+		return $announcement;
+	}
+
+	/**
+	 * Record that the current user dismissed an announcement.
+	 *
+	 * @return void
+	 */
+	public function dismiss_announcement() {
+		check_ajax_referer( self::DISMISS_ACTION, 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( null, 403 );
+		}
+
+		$id = isset( $_POST['id'] ) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
+
+		if ( '' === $id ) {
+			wp_send_json_error( null, 400 );
+		}
+
+		update_user_meta( get_current_user_id(), self::ANNOUNCEMENT_META, $id );
+
+		wp_send_json_success();
 	}
 
 	/**
