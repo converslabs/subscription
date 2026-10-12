@@ -177,6 +177,12 @@ do_action( 'before_single_subscrpt_content', $id );
 			$payment_type = 'split_payment';
 		}
 
+		// Plan subscriptions carry their own terms, not the product's classic meta.
+		if ( get_post_meta( $id, '_subscrpt_plan_id', true ) ) {
+			$payment_type = subscrpt_get_payment_type( $id );
+			$max_payments = subscrpt_get_max_payments( $id );
+		}
+
 		// Ensure max_payments is properly set for display
 		$max_payments = (int) $max_payments;
 		?>
