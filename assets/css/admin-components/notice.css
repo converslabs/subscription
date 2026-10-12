@@ -1,0 +1,143 @@
+/* --------------------------------------------------------------------------
+   Notice  (wpsubs-notice)
+
+   An inline message under the page header, for something the merchant should
+   know or act on while on this screen. Rendered by Admin\Notices from the
+   `subscrpt_admin_notices` filter; WordPress's own notices are not shown on
+   WPSubscription screens.
+
+   JS: the close button is wired in admin-components/notice.js.
+   -------------------------------------------------------------------------- */
+.wpsubs-notices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* Lined up with the page header's inner row and the page content, which
+     share this cap inside a 24px side gutter. */
+  width: calc(100% - 48px);
+  max-width: 1240px;
+  margin: 20px auto 0;
+}
+
+.wpsubs-notice {
+  --wpsubs-notice-accent: #2563eb;
+  --wpsubs-notice-tint: #eff6ff;
+
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 44px 14px 16px;
+  border: 1px solid var(--wpsubs-border, #e5e7eb);
+  border-left: 3px solid var(--wpsubs-notice-accent);
+  border-radius: var(--wpsubs-radius, 8px);
+  background: var(--wpsubs-surface, #fff);
+  box-shadow: var(--wpsubs-shadow, 0 1px 3px rgba(0, 0, 0, 0.08));
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--wpsubs-text, #374151);
+}
+
+.wpsubs-notice--success {
+  --wpsubs-notice-accent: #16a34a;
+  --wpsubs-notice-tint: #f0fdf4;
+}
+
+.wpsubs-notice--warning {
+  --wpsubs-notice-accent: #d97706;
+  --wpsubs-notice-tint: #fffbeb;
+}
+
+.wpsubs-notice--error {
+  --wpsubs-notice-accent: #dc2626;
+  --wpsubs-notice-tint: #fef2f2;
+}
+
+.wpsubs-notice__icon.dashicons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--wpsubs-notice-tint);
+  color: var(--wpsubs-notice-accent);
+  font-size: 18px;
+}
+
+.wpsubs-notice__body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 3px;
+}
+
+.wpsubs-notice__title {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.wpsubs-notice__text p {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+
+.wpsubs-notice__text > :last-child {
+  margin-bottom: 0;
+}
+
+.wpsubs-notice__text ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.wpsubs-notice__text li {
+  margin: 0 0 2px;
+}
+
+.wpsubs-notice__action.wpsubs-btn {
+  margin-top: 10px;
+}
+
+.wpsubs-notice__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--wpsubs-radius-sm, 5px);
+  background: transparent;
+  color: var(--wpsubs-text-subtle, #9ca3af);
+  cursor: pointer;
+}
+
+.wpsubs-notice__close:hover {
+  background: var(--wpsubs-surface-muted, #f9fafb);
+  color: var(--wpsubs-text, #374151);
+}
+
+.wpsubs-notice__close:focus-visible {
+  outline: 2px solid var(--wpsubs-brand, #ff4d00);
+  outline-offset: 1px;
+}
+
+/*
+ * Notices another plugin adds with JavaScript, after Admin\Notices has
+ * emptied the notice hooks. WordPress and most plugins put them directly in
+ * #wpbody-content; WPSubscription's own markup is always nested inside a page
+ * container, so it is never matched here.
+ */
+body.subscrpt-own-screen #wpbody-content > .notice,
+body.subscrpt-own-screen #wpbody-content > .error,
+body.subscrpt-own-screen #wpbody-content > .updated,
+body.subscrpt-own-screen #wpbody-content > .update-nag {
+  display: none !important;
+}
