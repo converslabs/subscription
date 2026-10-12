@@ -354,6 +354,12 @@ function subscrpt_get_max_payments( $subscription_id ) {
 		return '';
 	}
 
+	// Plan subscriptions carry their own terms; the product's classic meta is not theirs.
+	if ( get_post_meta( $subscription_id, '_subscrpt_plan_id', true ) ) {
+		$max_payments = get_post_meta( $subscription_id, '_subscrpt_max_no_payment', true );
+		return $max_payments ? $max_payments : '';
+	}
+
 	$max_payments = null;
 
 	// Check for variation first
@@ -517,6 +523,12 @@ function subscrpt_get_payment_type( $subscription_id ) {
 	$variation_id = get_post_meta( $subscription_id, '_subscrpt_variation_id', true );
 
 	$payment_type = 'recurring'; // Default
+
+	// Plan subscriptions carry their own terms; a recurring plan stores no payment type.
+	if ( get_post_meta( $subscription_id, '_subscrpt_plan_id', true ) ) {
+		$subscription_payment_type = get_post_meta( $subscription_id, '_subscrpt_payment_type', true );
+		return $subscription_payment_type ? $subscription_payment_type : $payment_type;
+	}
 
 	// Check variation first if it exists
 	if ( $variation_id ) {
