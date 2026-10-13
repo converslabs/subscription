@@ -8,9 +8,10 @@
  * here independently.
  *
  * Default flow (free): when a subscription enters `pe_cancelled` it is scheduled
- * to be cancelled 24 hours later. The exact moment is filterable via
- * `subscrpt_cancellation_time`, which the Pro plugin uses to offer "immediately",
- * "after 24 hours", or "at the end of the billing period".
+ * to be cancelled at the end of its billing period (the next payment date). The
+ * exact moment is filterable via `subscrpt_cancellation_time`, which the Pro
+ * plugin uses to offer "immediately", "after 24 hours", or "at the end of the
+ * billing period".
  *
  * @package SpringDevs\Subscription\Illuminate
  */
@@ -528,7 +529,7 @@ class Cancellation {
 	 */
 	public static function get_settings( $id = '' ) {
 		$settings = [
-			'subscrpt_cancellation_delay'            => subscrpt_pro_activated() ? get_option( 'subscrpt_cancellation_delay', '24h' ) : '24h',
+			'subscrpt_cancellation_delay'            => subscrpt_pro_activated() ? get_option( 'subscrpt_cancellation_delay', 'period' ) : 'period',
 			'subscrpt_cancellation_feedback_enabled' => get_option( 'subscrpt_cancellation_feedback_enabled', '1' ),
 			'subscrpt_cancellation_feedback_comment' => get_option( 'subscrpt_cancellation_feedback_comment', '1' ),
 		];
@@ -665,12 +666,14 @@ class Cancellation {
 		 * Filter the timestamp at which a pending cancellation becomes a full cancellation.
 		 *
 		 * Return a Unix timestamp. A value at or before the current time cancels the
-		 * subscription immediately. Defaults to 24 hours from now.
+		 * subscription immediately. Defaults to the next payment date when the
+		 * Cancellation Timing setting is `period` and that date is still ahead,
+		 * otherwise to 24 hours from now.
 		 *
 		 * @param int $cancel_at       Unix timestamp for final cancellation.
 		 * @param int $subscription_id Subscription ID.
 		 */
-		$cancel_at = (int) apply_filters( 'subscrpt_cancellation_time', time() + DAY_IN_SECONDS, $subscription_id );
+		$cancel_at = (int) apply_filters( 'subscrpt_cancellation_time', $this->default_cancellation_time( $subscription_id ), $subscription_id );
 
 		if ( $cancel_at <= time() ) {
 			$this->cancel( $subscription_id );
@@ -678,6 +681,27 @@ class Cancellation {
 		}
 
 		update_post_meta( $subscription_id, self::CANCEL_AT_META, $cancel_at );
+	}
+
+	/**
+	 * The cancellation moment before `subscrpt_cancellation_time` runs.
+	 *
+	 * Pro passes this value through for its "after 24 hours" option, so `24h`
+	 * must keep resolving to 24 hours from now.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return int Unix timestamp.
+	 */
+	private function default_cancellation_time( $subscription_id ) {
+		$in_a_day = time() + DAY_IN_SECONDS;
+
+		if ( 'period' !== self::get_settings( 'subscrpt_cancellation_delay' ) ) {
+			return $in_a_day;
+		}
+
+		$next_date = (int) get_post_meta( $subscription_id, '_subscrpt_next_date', true );
+
+		return $next_date > time() ? $next_date : $in_a_day;
 	}
 
 	/**

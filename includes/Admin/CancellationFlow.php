@@ -439,7 +439,7 @@ class CancellationFlow {
 				'field_data' => array(
 					'id'          => 'subscrpt_cancellation_delay',
 					'title'       => __( 'Cancellation Timing', 'subscription' ),
-					'description' => __( 'When a subscription is cancelled, choose when it actually ends.', 'subscription' ),
+					'description' => __( 'When a subscription is cancelled, choose when it actually ends. "Immediately" and "After 24 hours" end access before the period the customer has already paid for is over.', 'subscription' ),
 					'options'     => array(
 						'24h'     => __( 'After 24 hours', 'subscription' ),
 						'instant' => __( 'Immediately', 'subscription' ),
