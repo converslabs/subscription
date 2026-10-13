@@ -671,9 +671,7 @@ class Cart {
 							'type'                   => $type,
 							'description'            => $description,
 							'can_user_cancel'        => Helper::can_user_cancel( $cart_item['data']->get_meta( '_subscrpt_user_cancel' ) ) ? 'yes' : 'no',
-							'max_no_payment'         => ! empty( $cart_item['subscrpt_max_no_payment'] )
-								? (int) $cart_item['subscrpt_max_no_payment']
-								: $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+							'max_no_payment'         => Helper::get_cart_item_max_no_payment( $cart_item ),
 							'split_total'            => isset( $cart_item['subscrpt_split_total'] ) ? (float) $cart_item['subscrpt_split_total'] : null,
 						),
 						$cart_item
@@ -751,9 +749,7 @@ class Cart {
 			// array (it rides the cart item as subscrpt_max_no_payment); classic
 			// products carry it on the product meta.
 			if ( ! isset( $item_data['max_no_payment'] ) ) {
-				$item_data['max_no_payment'] = ! empty( $cart_item['subscrpt_max_no_payment'] )
-					? (int) $cart_item['subscrpt_max_no_payment']
-					: $cart_item['data']->get_meta( '_subscrpt_max_no_payment' );
+				$item_data['max_no_payment'] = Helper::get_cart_item_max_no_payment( $cart_item );
 			}
 
 			// Normalise the cadence word to singular/plural by frequency for the

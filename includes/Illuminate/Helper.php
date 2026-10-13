@@ -869,6 +869,11 @@ class Helper {
 		$item_tax      = $order_item ? (float) $order_item->get_subtotal_tax() : 0.0;
 		$tax_ratio     = $item_subtotal > 0 ? $item_tax / $item_subtotal : 0.0;
 
+		// A price entered with tax already includes it; take it out, as the renewal does.
+		if ( wc_prices_include_tax() ) {
+			$full_excl = $full_excl / ( 1 + $tax_ratio );
+		}
+
 		$order    = $order_item ? wc_get_order( $order_item->get_order_id() ) : null;
 		$discount = self::get_subscription_recurring_discount( $subscription_id, $order, $order_item );
 		$discount = min( (float) $discount['amount'], $full_excl );
@@ -1014,9 +1019,7 @@ class Helper {
 						'start_date'      => self::start_date( $cart_subscription['trial'] ),
 						'next_date'       => self::next_date( ( $cart_subscription['time'] ?? 1 ) . ' ' . $cart_subscription['type'], $cart_subscription['trial'] ),
 						'can_user_cancel' => self::can_user_cancel( $cart_item['data']->get_meta( '_subscrpt_user_cancel' ) ) ? 'yes' : 'no',
-						'max_no_payment'  => ! empty( $cart_item['subscrpt_max_no_payment'] )
-							? (int) $cart_item['subscrpt_max_no_payment']
-							: $cart_item['data']->get_meta( '_subscrpt_max_no_payment' ),
+						'max_no_payment'  => self::get_cart_item_max_no_payment( $cart_item ),
 						// Exact plan total for split items (the entered price the split is
 						// divided from); null for classic split items which have no plan total.
 						'split_total'     => isset( $cart_item['subscrpt_split_total'] ) ? (float) $cart_item['subscrpt_split_total'] : null,
@@ -1224,6 +1227,21 @@ class Helper {
 	public static function get_product_length( $product_id ) {
 		$product = wc_get_product( $product_id );
 		return $product ? (int) $product->get_meta( '_subscrpt_max_no_payment' ) : 0;
+	}
+
+	/**
+	 * Installment count of a cart item. Plan items take it from the cart item,
+	 * where 0 means recurring; classic items read the product meta.
+	 *
+	 * @param array $cart_item Cart item.
+	 * @return int|string
+	 */
+	public static function get_cart_item_max_no_payment( $cart_item ) {
+		if ( ! empty( $cart_item['subscrpt_plan_id'] ) ) {
+			return (int) ( $cart_item['subscrpt_max_no_payment'] ?? 0 );
+		}
+
+		return $cart_item['data']->get_meta( '_subscrpt_max_no_payment' );
 	}
 
 	/**
