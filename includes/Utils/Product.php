@@ -130,7 +130,7 @@ abstract class Product {
 		// Once plan-connected, a product is a subscription only while it still has
 		// a plan — it never falls back to the legacy terms after a detach.
 		if ( 'yes' === $this->product->get_meta( '_subscrpt_plan_connected_before' ) && function_exists( 'subscrpt_product_has_plan' ) ) {
-			$parent = $this->product->get_parent_id();
+			$parent   = $this->product->get_parent_id();
 			$has_plan = $parent
 				? subscrpt_product_has_plan( $parent, $this->product->get_id() )
 				: subscrpt_product_has_plan( $this->product->get_id() );
@@ -160,7 +160,8 @@ abstract class Product {
 	 * @return string Payment type.
 	 */
 	public function get_payment_type(): string {
-		return $this->product->get_meta( '_subscrpt_payment_type' ) ?: 'recurring';
+		$payment_type = $this->product->get_meta( '_subscrpt_payment_type' );
+		return $payment_type ? $payment_type : 'recurring';
 	}
 
 	/**
@@ -178,7 +179,8 @@ abstract class Product {
 	 * @return string Access ends timing option.
 	 */
 	public function get_access_ends_timing(): string {
-		return $this->product->get_meta( '_subscrpt_access_ends_timing' ) ?: 'after_full_duration';
+		$access_ends_timing = $this->product->get_meta( '_subscrpt_access_ends_timing' );
+		return $access_ends_timing ? $access_ends_timing : 'after_full_duration';
 	}
 
 	/**
@@ -187,7 +189,8 @@ abstract class Product {
 	 * @return int Custom access duration time.
 	 */
 	public function get_custom_access_duration_time(): int {
-		return (int) ( $this->product->get_meta( '_subscrpt_custom_access_duration_time' ) ?: 1 );
+		$duration_time = $this->product->get_meta( '_subscrpt_custom_access_duration_time' );
+		return (int) ( $duration_time ? $duration_time : 1 );
 	}
 
 	/**
@@ -196,7 +199,8 @@ abstract class Product {
 	 * @return string Custom access duration type (days, weeks, months, years).
 	 */
 	public function get_custom_access_duration_type(): string {
-		return $this->product->get_meta( '_subscrpt_custom_access_duration_type' ) ?: 'months';
+		$duration_type = $this->product->get_meta( '_subscrpt_custom_access_duration_type' );
+		return $duration_type ? $duration_type : 'months';
 	}
 
 	/**

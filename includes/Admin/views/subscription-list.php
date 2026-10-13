@@ -254,7 +254,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 						$order_item    = $order ? $order->get_item( $order_item_id ) : null;
 						$product_name  = $order_item ? $order_item->get_name() : '-';
 
-						$product_id  = $subscription_data['product']['variation_id'] ?: ( $subscription_data['product']['product_id'] ?? 0 );
+						$product_id  = $subscription_data['product']['variation_id'] ? $subscription_data['product']['variation_id'] : ( $subscription_data['product']['product_id'] ?? 0 );
 						$product_url = $product_id ? get_edit_post_link( $product_id ) : '';
 
 						$customer       = $order ? $order->get_formatted_billing_full_name() : '-';

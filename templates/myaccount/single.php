@@ -141,7 +141,7 @@ do_action( 'before_single_subscrpt_content', $id );
 
 		// Get Payment Type and Access Duration Information
 		$payment_type = $product_id ? get_post_meta( $product_id, '_subscrpt_payment_type', true ) : 'recurring';
-		$payment_type = $payment_type ?: 'recurring'; // Default to recurring if empty
+		$payment_type = $payment_type ? $payment_type : 'recurring'; // Default to recurring if empty
 
 		// Also check subscription's own meta data
 		$subscription_payment_type = get_post_meta( $id, '_subscrpt_payment_type', true );
@@ -208,7 +208,7 @@ do_action( 'before_single_subscrpt_content', $id );
 				<!-- DEBUG: Show raw values -->
 				<!-- <small style="color: #666; font-size: 11px; display: block;">
 					Debug: Product ID: <?php echo esc_html( $product_id ); ?>, 
-					Variation ID: <?php echo esc_html( $variation_id ?: 'None' ); ?>, 
+					Variation ID: <?php echo esc_html( $variation_id ? $variation_id : 'None' ); ?>, 
 					Type: <?php echo esc_html( $payment_type ); ?>, 
 					Max: <?php echo esc_html( $max_payments ); ?>
 				</small> -->
@@ -220,10 +220,21 @@ do_action( 'before_single_subscrpt_content', $id );
 			<?php
 			// Plan subscriptions store access-ends on the subscription; classic ones on
 			// the product. Prefer the subscription meta, fall back to the product.
-			$access_ends_timing   = get_post_meta( $id, '_subscrpt_access_ends_timing', true );
-			$access_ends_timing   = $access_ends_timing ? $access_ends_timing : ( get_post_meta( $product_id, '_subscrpt_access_ends_timing', true ) ?: 'after_full_duration' );
-			$custom_duration_time = get_post_meta( $id, '_subscrpt_custom_access_duration_time', true ) ?: ( get_post_meta( $product_id, '_subscrpt_custom_access_duration_time', true ) ?: 1 );
-			$custom_duration_type = get_post_meta( $id, '_subscrpt_custom_access_duration_type', true ) ?: ( get_post_meta( $product_id, '_subscrpt_custom_access_duration_type', true ) ?: 'months' );
+			$access_ends_timing = get_post_meta( $id, '_subscrpt_access_ends_timing', true );
+			if ( ! $access_ends_timing ) {
+				$product_access_ends_timing = get_post_meta( $product_id, '_subscrpt_access_ends_timing', true );
+				$access_ends_timing         = $product_access_ends_timing ? $product_access_ends_timing : 'after_full_duration';
+			}
+			$custom_duration_time = get_post_meta( $id, '_subscrpt_custom_access_duration_time', true );
+			if ( ! $custom_duration_time ) {
+				$product_duration_time = get_post_meta( $product_id, '_subscrpt_custom_access_duration_time', true );
+				$custom_duration_time  = $product_duration_time ? $product_duration_time : 1;
+			}
+			$custom_duration_type = get_post_meta( $id, '_subscrpt_custom_access_duration_type', true );
+			if ( ! $custom_duration_type ) {
+				$product_duration_type = get_post_meta( $product_id, '_subscrpt_custom_access_duration_type', true );
+				$custom_duration_type  = $product_duration_type ? $product_duration_type : 'months';
+			}
 
 			// Calculate access end date if Pro version is available
 			$access_end_date_string = null;
