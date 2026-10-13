@@ -327,7 +327,19 @@ class Plans {
 			return $data;
 		}
 
-		$data['subscrpt_plans_html'] = self::selector_html( $groups, $variation, 'variation' );
+		$html = self::selector_html( $groups, $variation, 'variation' );
+
+		// On a page render WooCommerce prints this array through esc_attr(), which
+		// does not double-encode, so an entity such as `&quot;` from the escaped
+		// `data-note` attributes would decode to a bare quote inside the JSON string
+		// and break the whole `data-product_variations` payload. Encode `&` once more
+		// so the entities survive that round trip. The AJAX lookup is sent as plain
+		// JSON, which needs no such protection.
+		if ( ! wp_doing_ajax() && ! defined( 'WC_DOING_AJAX' ) && empty( $_GET['wc-ajax'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$html = str_replace( '&', '&amp;', $html );
+		}
+
+		$data['subscrpt_plans_html'] = $html;
 
 		return $data;
 	}
