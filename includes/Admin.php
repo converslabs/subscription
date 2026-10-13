@@ -8,6 +8,7 @@ use SpringDevs\Subscription\Admin\Required;
 use SpringDevs\Subscription\Admin\Links;
 use SpringDevs\Subscription\Admin\CancellationFlow;
 use SpringDevs\Subscription\Admin\Menu;
+use SpringDevs\Subscription\Admin\Notices;
 use SpringDevs\Subscription\Admin\Order as AdminOrder;
 use SpringDevs\Subscription\Admin\Plans;
 use SpringDevs\Subscription\Admin\Product;
@@ -44,6 +45,7 @@ class Admin {
 		// Only load admin content if WooCommerce is active
 		if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 			new Menu();
+			new Notices();
 			new Dashboard();
 			new Plans();
 			new CancellationFlow();

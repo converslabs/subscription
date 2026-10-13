@@ -487,6 +487,7 @@ class Menu {
 			</div>
 		</div>
 		<?php
+		Notices::render();
 	}
 
 	/**
