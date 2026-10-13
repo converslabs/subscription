@@ -322,7 +322,7 @@ do_action( 'before_single_subscrpt_content', $id );
 		$product_link       = get_permalink( $order_item->get_variation_id() !== 0 ? $order_item->get_variation_id() : $order_item->get_product_id() );
 		$order_item_meta    = $order_item->get_meta( '_subscrpt_meta', true );
 		$time               = '1' === $order_item_meta['time'] ? null : $order_item_meta['time'];
-		$type               = subscrpt_get_typos( $order_item_meta['time'], $order_item_meta['type'] );
+		$billing_period     = subscrpt_get_typos( $order_item_meta['time'], $order_item_meta['type'] );
 		$product_price_html = Helper::format_price_with_order_item( $price, $order_item->get_id() );
 		?>
 		<tr class="order_item">

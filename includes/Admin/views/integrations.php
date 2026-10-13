@@ -375,19 +375,19 @@ $subscrpt_tag_labels = [
 								</div>
 							<?php else : ?>
 								<?php
-								foreach ( $integration['actions'] as $action ) :
-									$is_primary = ( 'function' === $action['type'] );
+								foreach ( $integration['actions'] as $integration_action ) :
+									$is_primary = ( 'function' === $integration_action['type'] );
 									$btn_class  = $is_primary ? 'wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm' : 'wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm';
 									?>
-									<?php if ( 'link' === $action['type'] ) : ?>
-										<a href="<?php echo esc_url( $action['url'] ); ?>" class="<?php echo esc_attr( $btn_class ); ?>"><?php echo esc_html( $action['label'] ); ?></a>
-									<?php elseif ( 'external_link' === $action['type'] ) : ?>
-										<a href="<?php echo esc_url( $action['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="<?php echo esc_attr( $btn_class ); ?>">
-											<?php echo esc_html( $action['label'] ); ?>
+									<?php if ( 'link' === $integration_action['type'] ) : ?>
+										<a href="<?php echo esc_url( $integration_action['url'] ); ?>" class="<?php echo esc_attr( $btn_class ); ?>"><?php echo esc_html( $integration_action['label'] ); ?></a>
+									<?php elseif ( 'external_link' === $integration_action['type'] ) : ?>
+										<a href="<?php echo esc_url( $integration_action['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="<?php echo esc_attr( $btn_class ); ?>">
+											<?php echo esc_html( $integration_action['label'] ); ?>
 											<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
 										</a>
-									<?php elseif ( 'function' === $action['type'] ) : ?>
-										<button class="<?php echo esc_attr( $btn_class ); ?>" onclick="<?php echo esc_attr( $action['function'] ); ?>"><?php echo esc_html( $action['label'] ); ?></button>
+									<?php elseif ( 'function' === $integration_action['type'] ) : ?>
+										<button class="<?php echo esc_attr( $btn_class ); ?>" onclick="<?php echo esc_attr( $integration_action['function'] ); ?>"><?php echo esc_html( $integration_action['label'] ); ?></button>
 									<?php endif; ?>
 								<?php endforeach; ?>
 							<?php endif; ?>
@@ -414,7 +414,7 @@ $subscrpt_tag_labels = [
 					$icon_initial = $integration['icon_initial'] ?? strtoupper( substr( $integration['title'], 0, 2 ) );
 					$icon_color   = $integration['icon_color'] ?? '#64748b';
 					$category     = $integration['category'] ?? '';
-					$cat          = $category_config[ $category ] ?? [
+					$cat_style    = $category_config[ $category ] ?? [
 						'label' => $category,
 						'bg'    => '#f1f5f9',
 						'color' => '#475569',
@@ -471,13 +471,13 @@ $subscrpt_tag_labels = [
 										<?php echo esc_html( $status_text ); ?>
 									</span>
 								</div>
-								<?php if ( $cat['label'] || $is_pro ) : ?>
+								<?php if ( $cat_style['label'] || $is_pro ) : ?>
 									<div style="display:flex;flex-wrap:wrap;gap:4px;">
 										<?php if ( $is_pro ) : ?>
 											<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:var(--wpsubs-brand-light,#fff1eb);color:var(--wpsubs-brand-dark,#d93f00);line-height:1.6;"><?php esc_html_e( 'Pro', 'subscription' ); ?></span>
 										<?php endif; ?>
-										<?php if ( $cat['label'] ) : ?>
-											<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;background:<?php echo esc_attr( $cat['bg'] ); ?>;color:<?php echo esc_attr( $cat['color'] ); ?>;line-height:1.6;"><?php echo esc_html( $cat['label'] ); ?></span>
+										<?php if ( $cat_style['label'] ) : ?>
+											<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;background:<?php echo esc_attr( $cat_style['bg'] ); ?>;color:<?php echo esc_attr( $cat_style['color'] ); ?>;line-height:1.6;"><?php echo esc_html( $cat_style['label'] ); ?></span>
 										<?php endif; ?>
 									</div>
 								<?php endif; ?>
@@ -499,19 +499,19 @@ $subscrpt_tag_labels = [
 								</div>
 							<?php else : ?>
 								<?php
-								foreach ( $integration['actions'] as $action ) :
-									$is_primary = ( 'function' === $action['type'] );
+								foreach ( $integration['actions'] as $integration_action ) :
+									$is_primary = ( 'function' === $integration_action['type'] );
 									$btn_class  = $is_primary ? 'wpsubs-btn wpsubs-btn--primary wpsubs-btn--sm' : 'wpsubs-btn wpsubs-btn--outline wpsubs-btn--sm';
 									?>
-									<?php if ( 'link' === $action['type'] ) : ?>
-										<a href="<?php echo esc_url( $action['url'] ); ?>" class="<?php echo esc_attr( $btn_class ); ?>"><?php echo esc_html( $action['label'] ); ?></a>
-									<?php elseif ( 'external_link' === $action['type'] ) : ?>
-										<a href="<?php echo esc_url( $action['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="<?php echo esc_attr( $btn_class ); ?>">
-											<?php echo esc_html( $action['label'] ); ?>
+									<?php if ( 'link' === $integration_action['type'] ) : ?>
+										<a href="<?php echo esc_url( $integration_action['url'] ); ?>" class="<?php echo esc_attr( $btn_class ); ?>"><?php echo esc_html( $integration_action['label'] ); ?></a>
+									<?php elseif ( 'external_link' === $integration_action['type'] ) : ?>
+										<a href="<?php echo esc_url( $integration_action['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="<?php echo esc_attr( $btn_class ); ?>">
+											<?php echo esc_html( $integration_action['label'] ); ?>
 											<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
 										</a>
-									<?php elseif ( 'function' === $action['type'] ) : ?>
-										<button class="<?php echo esc_attr( $btn_class ); ?>" onclick="<?php echo esc_attr( $action['function'] ); ?>"><?php echo esc_html( $action['label'] ); ?></button>
+									<?php elseif ( 'function' === $integration_action['type'] ) : ?>
+										<button class="<?php echo esc_attr( $btn_class ); ?>" onclick="<?php echo esc_attr( $integration_action['function'] ); ?>"><?php echo esc_html( $integration_action['label'] ); ?></button>
 									<?php endif; ?>
 								<?php endforeach; ?>
 							<?php endif; ?>

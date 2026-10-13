@@ -47,10 +47,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$order_id      = $subscription_data['order']['order_id'] ?? 0;
 				$order_item_id = $subscription_data['order']['order_item_id'] ?? 0;
 
-				$order      = wc_get_order( $order_id );
-				$order_item = $order ? $order->get_item( $order_item_id ) : null;
+				$wc_order   = wc_get_order( $order_id );
+				$order_item = $wc_order ? $wc_order->get_item( $order_item_id ) : null;
 
-				if ( ! $order || ! $order_item ) {
+				if ( ! $wc_order || ! $order_item ) {
 					subscrpt_write_log( sprintf( 'Order or order item not found for subscription #%d', $subscription_id ) );
 					continue;
 				}
