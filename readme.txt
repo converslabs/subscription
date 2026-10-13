@@ -361,7 +361,7 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 
 == Changelog ==
 
-= 2.4.0 - Oct 7, 2026 =
+= 2.5.0 - Oct 14, 2026 =
 -   new: Purchase options come in seven layouts: stacked cards, a classic radio list, a dropdown, an accordion, a grid of tiles, a grid that leads with the saving, and a button row.
 -   new: Settings > Product page: choose the layout, list billing intervals as chips or a dropdown, and set the accent, text, border, badge and ribbon colours and the corner radius, with a live preview.
 -   new: A product can use its own purchase option layout, chosen in its Subscription tab.
@@ -375,6 +375,11 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 -   improved: Installment options read "Pay every" and each interval shows its number of payments.
 -   fix: The discount badge follows the selected billing interval, instead of always showing the plan's best discount.
 -   fix: Creating a renewal order no longer causes a fatal error when the WooCommerce Stripe Gateway plugin is not active.
+
+= 2.4.0 - Oct 8, 2026 =
+-   new: Pause subscriptions automatically when a product runs low on stock and resume them when stock recovers, with a new customer email and settings under Settings > Renewals > Stock Management.
+-   new: Multilingual support: WPSubscription is now fully translatable and works with WPML and Polylang, including plans on translated products, translatable plan names and customer emails sent in the language the customer bought in.
+-   improved: Dates throughout the plugin now use the site language's month names.
 
 = 2.3.0 - Oct 6, 2026 =
 -   new: The cancellation retention offer can be a flat amount in the store currency, as well as a percentage.
