@@ -16,12 +16,15 @@ import SetupChecklist from "./SetupChecklist";
 import BuildCards from "./BuildCards";
 import FooterLinks from "./FooterLinks";
 import ProBadge from "./ProBadge";
+import Announcement from "./Announcement";
 
 export default function App({ data }) {
-  const { pulse = [], chart, health, setup, build = [], footer = [] } = data;
+  const { pulse = [], chart, health, setup, build = [], footer = [], announcement } = data;
 
   return (
     <div className="subscrpt-dash">
+      {announcement && <Announcement announcement={announcement} />}
+
       <Card className="subscrpt-dash__pulse">
         <CardHeader>
           <div>

@@ -8,9 +8,10 @@
  * here independently.
  *
  * Default flow (free): when a subscription enters `pe_cancelled` it is scheduled
- * to be cancelled 24 hours later. The exact moment is filterable via
- * `subscrpt_cancellation_time`, which the Pro plugin uses to offer "immediately",
- * "after 24 hours", or "at the end of the billing period".
+ * to be cancelled at the end of its billing period (the next payment date). The
+ * exact moment is filterable via `subscrpt_cancellation_time`, which the Pro
+ * plugin uses to offer "immediately", "after 24 hours", or "at the end of the
+ * billing period".
  *
  * @package SpringDevs\Subscription\Illuminate
  */
@@ -54,6 +55,9 @@ class Cancellation {
 		add_action( 'before_single_subscrpt_content', [ $this, 'maybe_render_feedback_modal' ] );
 		add_action( 'wp_ajax_subscrpt_record_cancellation_feedback', [ $this, 'record_feedback' ] );
 		add_action( 'wp_ajax_subscrpt_record_cancellation_save', [ $this, 'record_save' ] );
+		add_action( 'subscrpt_fire_subscription_saved', [ $this, 'fire_saved' ] );
+		add_action( 'subscrpt_subscription_pending_cancellation', [ $this, 'discard_pending_save' ], 5 );
+		add_action( 'subscrpt_subscription_cancelled', [ $this, 'discard_pending_save' ], 5 );
 		add_action( 'wp_ajax_subscrpt_claim_cancellation_offer', [ $this, 'claim_offer' ] );
 		add_action( 'subscrpt_details_side_bottom', [ $this, 'render_admin_feedback_card' ] );
 	}
@@ -505,6 +509,49 @@ class Cancellation {
 			'offer_accepted'  => false,
 		];
 
+		// Held back, not fired: a customer who closes the modal and then cancels
+		// in the same visit was not saved. See fire_saved().
+		set_transient( self::pending_save_key( $subscription_id ), $data, HOUR_IN_SECONDS );
+
+		/**
+		 * Filters how long a save report is held back, in seconds.
+		 *
+		 * @param int $delay           Seconds. Default 5 minutes.
+		 * @param int $subscription_id Subscription ID.
+		 */
+		$delay = (int) apply_filters( 'subscrpt_save_report_delay', 5 * MINUTE_IN_SECONDS, $subscription_id );
+
+		wp_clear_scheduled_hook( 'subscrpt_fire_subscription_saved', [ $subscription_id ] );
+		wp_schedule_single_event( time() + max( 0, $delay ), 'subscrpt_fire_subscription_saved', [ $subscription_id ] );
+
+		wp_send_json_success( [ 'saved' => true ] );
+	}
+
+	/**
+	 * Transient holding a save report waiting out its delay.
+	 *
+	 * @param int $subscription_id Subscription post ID.
+	 * @return string
+	 */
+	protected static function pending_save_key( $subscription_id ) {
+		return 'subscrpt_pending_save_' . (int) $subscription_id;
+	}
+
+	/**
+	 * Cron: report a save that no cancellation followed.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return void
+	 */
+	public function fire_saved( $subscription_id ) {
+		$subscription_id = (int) $subscription_id;
+		$data            = get_transient( self::pending_save_key( $subscription_id ) );
+		delete_transient( self::pending_save_key( $subscription_id ) );
+
+		if ( ! is_array( $data ) || in_array( get_post_status( $subscription_id ), [ 'cancelled', 'pe_cancelled' ], true ) ) {
+			return;
+		}
+
 		/**
 		 * Fires when a customer opens the cancellation modal and backs out.
 		 *
@@ -517,8 +564,17 @@ class Cancellation {
 		 *                               retention offer was accepted.
 		 */
 		do_action( 'subscrpt_subscription_saved', $subscription_id, $data );
+	}
 
-		wp_send_json_success( [ 'saved' => true ] );
+	/**
+	 * The subscription is being cancelled: its held-back save was not a save.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return void
+	 */
+	public function discard_pending_save( $subscription_id ) {
+		delete_transient( self::pending_save_key( $subscription_id ) );
+		wp_clear_scheduled_hook( 'subscrpt_fire_subscription_saved', [ (int) $subscription_id ] );
 	}
 
 	/**
@@ -528,7 +584,7 @@ class Cancellation {
 	 */
 	public static function get_settings( $id = '' ) {
 		$settings = [
-			'subscrpt_cancellation_delay'            => subscrpt_pro_activated() ? get_option( 'subscrpt_cancellation_delay', '24h' ) : '24h',
+			'subscrpt_cancellation_delay'            => subscrpt_pro_activated() ? get_option( 'subscrpt_cancellation_delay', 'period' ) : 'period',
 			'subscrpt_cancellation_feedback_enabled' => get_option( 'subscrpt_cancellation_feedback_enabled', '1' ),
 			'subscrpt_cancellation_feedback_comment' => get_option( 'subscrpt_cancellation_feedback_comment', '1' ),
 		];
@@ -665,12 +721,14 @@ class Cancellation {
 		 * Filter the timestamp at which a pending cancellation becomes a full cancellation.
 		 *
 		 * Return a Unix timestamp. A value at or before the current time cancels the
-		 * subscription immediately. Defaults to 24 hours from now.
+		 * subscription immediately. Defaults to the next payment date when the
+		 * Cancellation Timing setting is `period` and that date is still ahead,
+		 * otherwise to 24 hours from now.
 		 *
 		 * @param int $cancel_at       Unix timestamp for final cancellation.
 		 * @param int $subscription_id Subscription ID.
 		 */
-		$cancel_at = (int) apply_filters( 'subscrpt_cancellation_time', time() + DAY_IN_SECONDS, $subscription_id );
+		$cancel_at = (int) apply_filters( 'subscrpt_cancellation_time', $this->default_cancellation_time( $subscription_id ), $subscription_id );
 
 		if ( $cancel_at <= time() ) {
 			$this->cancel( $subscription_id );
@@ -678,6 +736,27 @@ class Cancellation {
 		}
 
 		update_post_meta( $subscription_id, self::CANCEL_AT_META, $cancel_at );
+	}
+
+	/**
+	 * The cancellation moment before `subscrpt_cancellation_time` runs.
+	 *
+	 * Pro passes this value through for its "after 24 hours" option, so `24h`
+	 * must keep resolving to 24 hours from now.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return int Unix timestamp.
+	 */
+	private function default_cancellation_time( $subscription_id ) {
+		$in_a_day = time() + DAY_IN_SECONDS;
+
+		if ( 'period' !== self::get_settings( 'subscrpt_cancellation_delay' ) ) {
+			return $in_a_day;
+		}
+
+		$next_date = (int) get_post_meta( $subscription_id, '_subscrpt_next_date', true );
+
+		return $next_date > time() ? $next_date : $in_a_day;
 	}
 
 	/**
@@ -790,7 +869,7 @@ class Cancellation {
 				<p class="subscrpt-pending-cancel-notice__text">
 					<?php
 					if ( $cancel_at ) {
-						$effective = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $cancel_at );
+						$effective = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $cancel_at );
 						printf(
 							/* translators: %s: cancellation date and time. */
 							esc_html__( 'This subscription is scheduled to be cancelled on %s. You can continue accessing it until then.', 'subscription' ),

@@ -157,11 +157,16 @@ function subscrpt_is_subscription_enabled( $product_id, $variation_id = 0 ): boo
  * The single source both selectors share, so free and Pro word a discount
  * identically. Returning an empty string from the filter hides the badge.
  *
+ * Both selectors call this once per *term* and let the card show whichever term
+ * is selected, so neither passes `$varying`. It stays for callers that do
+ * summarise a whole group in one line — a shop-loop badge, say — where "up to"
+ * is the only honest wording.
+ *
  * @param array       $group   Plan group (id, type, label, terms, discount_percent, …).
  * @param \WC_Product $product Product or variation being rendered.
- * @param int         $percent The group's best discount percentage.
- * @param bool        $varying Whether the group's terms discount by differing
- *                             amounts, in which case the badge reads "up to".
+ * @param int         $percent Discount percentage the badge reports.
+ * @param bool        $varying Whether $percent summarises terms that discount by
+ *                             differing amounts, in which case it reads "up to".
  *
  * @return string
  */
@@ -354,6 +359,12 @@ function subscrpt_get_max_payments( $subscription_id ) {
 		return '';
 	}
 
+	// Plan subscriptions carry their own terms; the product's classic meta is not theirs.
+	if ( get_post_meta( $subscription_id, '_subscrpt_plan_id', true ) ) {
+		$max_payments = get_post_meta( $subscription_id, '_subscrpt_max_no_payment', true );
+		return $max_payments ? $max_payments : '';
+	}
+
 	$max_payments = null;
 
 	// Check for variation first
@@ -517,6 +528,12 @@ function subscrpt_get_payment_type( $subscription_id ) {
 	$variation_id = get_post_meta( $subscription_id, '_subscrpt_variation_id', true );
 
 	$payment_type = 'recurring'; // Default
+
+	// Plan subscriptions carry their own terms; a recurring plan stores no payment type.
+	if ( get_post_meta( $subscription_id, '_subscrpt_plan_id', true ) ) {
+		$subscription_payment_type = get_post_meta( $subscription_id, '_subscrpt_payment_type', true );
+		return $subscription_payment_type ? $subscription_payment_type : $payment_type;
+	}
 
 	// Check variation first if it exists
 	if ( $variation_id ) {

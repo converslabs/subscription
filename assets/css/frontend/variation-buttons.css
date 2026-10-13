@@ -1,0 +1,94 @@
+/**
+ * Variations as buttons (free).
+ *
+ * The attribute select stays in the page for WooCommerce's script to drive, so
+ * it is clipped, not hidden: `display: none` would take it out of the form and
+ * out of the tab order's reach for scripts that look for a visible select.
+ * Tunable values are custom properties on the group; nothing uses `!important`.
+ */
+
+.subscrpt-varbtns {
+  --subscrpt-varbtn-line: #c3c4c7;
+  --subscrpt-varbtn-accent: #2271b1;
+  --subscrpt-varbtn-selected-bg: #e8f1fa;
+  --subscrpt-varbtn-muted: #6a6f76;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 2px 0;
+}
+
+.subscrpt-varbtns[hidden] {
+  display: none;
+}
+
+.subscrpt-varbtns__select {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.subscrpt-varbtn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--subscrpt-varbtn-line);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.25;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.subscrpt-varbtn:hover {
+  border-color: var(--subscrpt-varbtn-accent);
+}
+
+.subscrpt-varbtn.is-selected {
+  border-color: var(--subscrpt-varbtn-accent);
+  background: var(--subscrpt-varbtn-selected-bg);
+  box-shadow: 0 0 0 1px var(--subscrpt-varbtn-accent);
+}
+
+.subscrpt-varbtn:focus-visible {
+  outline: 2px solid var(--subscrpt-varbtn-accent);
+  outline-offset: 2px;
+}
+
+.subscrpt-varbtn[aria-disabled="true"] {
+  border-style: dashed;
+  color: var(--subscrpt-varbtn-muted);
+  cursor: not-allowed;
+}
+
+.subscrpt-varbtn[aria-disabled="true"] .subscrpt-varbtn__label {
+  text-decoration: line-through;
+}
+
+.subscrpt-varbtn[aria-disabled="true"]:hover {
+  border-color: var(--subscrpt-varbtn-line);
+}
+
+.subscrpt-varbtn__reason {
+  font-size: 0.75em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subscrpt-varbtn {
+    transition: none;
+  }
+}

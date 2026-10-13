@@ -47,7 +47,7 @@ class Order {
 		$screen    = wps_subscription_is_wc_order_hpos_enabled()
 				? wc_get_page_screen_id( 'shop-order' )
 				: 'shop_order';
-		$order_id  = wps_subscription_is_wc_order_hpos_enabled() && isset( $_GET['id'] ) ? ( sanitize_text_field( wp_unslash( $_GET['id'] ) ) ) : get_the_ID();
+		$order_id  = wps_subscription_is_wc_order_hpos_enabled() && isset( $_GET['id'] ) ? ( sanitize_text_field( wp_unslash( $_GET['id'] ) ) ) : get_the_ID(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only order id of the screen being viewed, no state change.
 		$histories = Helper::get_subscriptions_from_order( $order_id );
 		if ( is_array( $histories ) ) {
 			$order = wc_get_order( $order_id ); // HPOS: Safe, uses WooCommerce CRUD.

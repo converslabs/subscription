@@ -23,6 +23,7 @@ class GuestCheckout {
 
 		// Show warning if guest checkout is disabled in WooCommerce settings.
 		add_action( 'admin_notices', [ $this, 'check_woocommerce_checkout_settings' ] );
+		add_filter( 'subscrpt_admin_notices', [ $this, 'add_admin_notices' ] );
 
 		// Guest checkout validation.
 		add_action( 'woocommerce_checkout_process', [ $this, 'validate_guest_checkout' ] );
@@ -144,17 +145,20 @@ class GuestCheckout {
 	}
 
 	/**
-	 * Check WooCommerce checkout settings and show admin notice if guest checkout is disabled.
+	 * WooCommerce account settings that stop guest subscription checkout working.
+	 *
+	 * @return array{missing: string[], after_checkout: bool}|null Null when guest
+	 *                                                            checkout is off.
 	 */
-	public function check_woocommerce_checkout_settings() {
+	private function get_checkout_setting_issues() {
 		// Check if WooCommerce is active
 		if ( ! class_exists( 'WooCommerce' ) ) {
-			return;
+			return null;
 		}
 
 		$subs_guest_checkout_allowed = self::is_guest_checkout_allowed();
 		if ( ! $subs_guest_checkout_allowed ) {
-			return;
+			return null;
 		}
 
 		$guest_checkout_enabled  = in_array( get_option( 'woocommerce_enable_guest_checkout' ), [ 1, '1', 'yes', 'on' ], true );
@@ -168,6 +172,27 @@ class GuestCheckout {
 		if ( ! $account_during_checkout ) {
 			$issues[] = __( 'Account creation during checkout.', 'subscription' );
 		}
+
+		return [
+			'missing'        => $issues,
+			'after_checkout' => $account_after_checkout,
+		];
+	}
+
+	/**
+	 * Check WooCommerce checkout settings and show admin notice if guest checkout is disabled.
+	 *
+	 * Not shown on WPSubscription screens, which empty the notice hooks; there
+	 * the same warnings come from add_admin_notices().
+	 */
+	public function check_woocommerce_checkout_settings() {
+		$checkout = $this->get_checkout_setting_issues();
+		if ( ! $checkout ) {
+			return;
+		}
+
+		$issues                 = $checkout['missing'];
+		$account_after_checkout = $checkout['after_checkout'];
 
 		if ( ! empty( $issues ) ) {
 			$settings_url = admin_url( 'admin.php?page=wc-settings&tab=account' );
@@ -201,6 +226,47 @@ class GuestCheckout {
 
 			echo wp_kses_post( $requirement_html );
 		}
+	}
+
+	/**
+	 * The checkout-settings warnings, as WPSubscription screen notices.
+	 *
+	 * @param array[] $notices Notices for WPSubscription screens.
+	 * @return array[]
+	 */
+	public function add_admin_notices( $notices ) {
+		$checkout = $this->get_checkout_setting_issues();
+		if ( ! $checkout ) {
+			return $notices;
+		}
+
+		$settings_action = [
+			'label' => __( 'Open WooCommerce settings', 'subscription' ),
+			'url'   => admin_url( 'admin.php?page=wc-settings&tab=account' ),
+		];
+
+		if ( ! empty( $checkout['missing'] ) ) {
+			$notices[] = [
+				'id'      => 'guest-checkout-settings',
+				'type'    => 'error',
+				'title'   => __( 'Guest checkout needs WooCommerce settings', 'subscription' ),
+				'message' => __( 'To ensure Subscriptions guest checkout functions correctly, please enable the following settings in WooCommerce.', 'subscription' )
+					. '<ul><li>' . implode( '</li><li>', array_map( 'esc_html', $checkout['missing'] ) ) . '</li></ul>',
+				'action'  => $settings_action,
+			];
+		}
+
+		if ( $checkout['after_checkout'] ) {
+			$notices[] = [
+				'id'      => 'guest-checkout-delayed-account',
+				'type'    => 'warning',
+				'title'   => __( 'Account creation after checkout is on', 'subscription' ),
+				'message' => __( 'Enabling <strong>Account creation after checkout</strong> in WooCommerce settings may lead to issues with subscription orders for guest users.', 'subscription' ),
+				'action'  => $settings_action,
+			];
+		}
+
+		return $notices;
 	}
 
 	/**
