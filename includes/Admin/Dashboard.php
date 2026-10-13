@@ -150,24 +150,37 @@ class Dashboard {
 	 */
 	private function get_announcement() {
 		$announcement = array(
-			'id'       => '2.4.0',
-			'label'    => __( 'New in 2.4', 'subscription' ),
-			'title'    => __( 'Stock-aware renewals and multilingual stores', 'subscription' ),
-			'text'     => __( 'Two features this release that most stores will want to switch on.', 'subscription' ),
+			'id'       => '2.5.0',
+			'label'    => __( 'New in 2.5', 'subscription' ),
+			'title'    => __( 'Subscription boxes and purchase options that fit your store', 'subscription' ),
+			'text'     => __( 'Preview subscription boxes, and choose how your plans look and what they say on the product page.', 'subscription' ),
 			'features' => array(
 				array(
-					'icon'  => 'pause',
-					'title' => __( 'Pause on low stock', 'subscription' ),
-					'text'  => __( 'Subscriptions pause automatically when a product runs low and resume when it is back in stock, with an email to the customer.', 'subscription' ),
+					'icon'  => 'sparkle',
+					'title' => __( 'Subscription boxes', 'subscription' ),
+					'text'  => __( 'Sell a box on subscription that you fill or the customer builds. The new Boxes screen previews them; creating boxes needs WPSubscription Pro.', 'subscription' ),
 					'link'  => array(
-						'label' => __( 'Set it up', 'subscription' ),
-						'url'   => admin_url( 'admin.php?page=wp-subscription-settings&cat=renewals' ),
+						'label' => __( 'See Boxes', 'subscription' ),
+						'url'   => admin_url( 'admin.php?page=wp-subscription-boxes' ),
 					),
 				),
 				array(
-					'icon'  => 'globe',
-					'title' => __( 'Multilingual support', 'subscription' ),
-					'text'  => __( 'Works with WPML and Polylang: plans on translated products, translatable plan names, and emails in the language the customer bought in.', 'subscription' ),
+					'icon'  => 'card',
+					'title' => __( 'Seven purchase option layouts', 'subscription' ),
+					'text'  => __( 'Cards, a radio list, a dropdown, an accordion, tiles and more, in your own colours with a live preview. A product can use its own layout.', 'subscription' ),
+					'link'  => array(
+						'label' => __( 'Choose a layout', 'subscription' ),
+						'url'   => admin_url( 'admin.php?page=wp-subscription-settings&cat=product_page' ),
+					),
+				),
+				array(
+					'icon'  => 'check',
+					'title' => __( 'Plans that sell themselves', 'subscription' ),
+					'text'  => __( 'Give a plan a tag ribbon, a list of benefits and a "learn more" link from its "On the product page" tab.', 'subscription' ),
+					'link'  => array(
+						'label' => __( 'Open Plans', 'subscription' ),
+						'url'   => admin_url( 'admin.php?page=wp-subscription-plans' ),
+					),
 				),
 			),
 			'link'     => array(
