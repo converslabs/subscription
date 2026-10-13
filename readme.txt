@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim, parvezvai, jakariaistauk
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.3.0
+Stable tag: 2.4.0
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -334,6 +334,11 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.4.0 - Oct 8, 2026 =
+-   new: Pause subscriptions automatically when a product runs low on stock and resume them when stock recovers, with a new customer email and settings under Settings > Renewals > Stock Management.
+-   new: Multilingual support: WPSubscription is now fully translatable and works with WPML and Polylang, including plans on translated products, translatable plan names and customer emails sent in the language the customer bought in.
+-   improved: Dates throughout the plugin now use the site language's month names.
 
 = 2.3.0 - Oct 6, 2026 =
 -   new: The cancellation retention offer can be a flat amount in the store currency, as well as a percentage.

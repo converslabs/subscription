@@ -25,7 +25,7 @@ $months     = array();
 $this_month = ( new DateTimeImmutable( 'now', wp_timezone() ) )->modify( 'first day of this month' )->setTime( 0, 0 );
 for ( $i = 0; $i < 12; $i++ ) {
 	$month                           = strtotime( "-$i month" );
-	$months[ gmdate( 'Y-m', $month ) ] = gmdate( 'F Y', $month );
+	$months[ gmdate( 'Y-m', $month ) ] = wp_date( 'F Y', $month, new \DateTimeZone( 'UTC' ) );
 }
 ?>
 <div class="wp-subscription-admin-content list-page">

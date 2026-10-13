@@ -2,6 +2,7 @@
 
 namespace SpringDevs\Subscription\Illuminate\Emails;
 
+use SpringDevs\Subscription\Illuminate\Multilingual;
 use SpringDevs\Subscription\Traits\Email;
 use WC_Email;
 
@@ -65,9 +66,16 @@ class SubscriptionExpired extends WC_Email {
 		$this->placeholders['{subscription_id}'] = $subscription_id;
 		$this->subscription_id                   = $subscription_id;
 
+		// In the customer's language, not the site's or whoever triggered it.
+		$switched = Multilingual::switch_email_language( $this, $subscription_id );
+
 		$this->set_table_data();
 
 		$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
+
+		if ( $switched ) {
+			Multilingual::restore_email_language( $this );
+		}
 	}
 
 	/**
