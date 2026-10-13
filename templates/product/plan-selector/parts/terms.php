@@ -55,9 +55,15 @@ $subscrpt_heading = ! empty( $group['terms_heading'] )
 			$term_badge = isset( $plan_term['badge'] ) ? (string) $plan_term['badge'] : '';
 			$chip_text  = ! empty( $plan_term['interval_label'] ) ? (string) $plan_term['interval_label'] : (string) $plan_term['label'];
 			$chip_save  = isset( $plan_term['saving_label'] ) ? (string) $plan_term['saving_label'] : '';
+			$chip_extra = '';
+			if ( '' !== $chip_save ) {
+				$chip_extra = '<span class="subscrpt-buybox__term-saving"> · ' . esc_html( $chip_save ) . '</span>';
+			} elseif ( '' !== $term_badge ) {
+				$chip_extra = '<span class="subscrpt-visually-hidden"> (' . esc_html( $term_badge ) . ')</span>';
+			}
 			?>
 			<input type="radio" class="subscrpt-buybox__term-radio subscrpt-visually-hidden" id="<?php echo esc_attr( $term_id ); ?>" name="subscrpt_plan_term[<?php echo esc_attr( $group['id'] ); ?>]" value="<?php echo esc_attr( $plan_term['id'] ); ?>" data-subscrpt-term data-price="<?php echo esc_attr( wp_strip_all_tags( $plan_term['price'] ) ); ?>" data-note="<?php echo esc_attr( $plan_term['note'] ); ?>" data-regular="<?php echo esc_attr( wp_strip_all_tags( PlanSelectorView::term_regular( $plan_term ) ) ); ?>" data-badge="<?php echo esc_attr( $term_badge ); ?>" <?php checked( 0 === $subscrpt_ti ); ?><?php echo $view['is_first'] ? '' : ' disabled'; ?> />
-			<label class="subscrpt-buybox__term<?php echo 0 === $subscrpt_ti ? ' is-active' : ''; ?>" for="<?php echo esc_attr( $term_id ); ?>" data-subscrpt-term-btn data-term-id="<?php echo esc_attr( $plan_term['id'] ); ?>"><?php echo esc_html( $chip_text ); ?><?php if ( '' !== $chip_save ) : ?><span class="subscrpt-buybox__term-saving"> · <?php echo esc_html( $chip_save ); ?></span><?php elseif ( '' !== $term_badge ) : ?><span class="subscrpt-visually-hidden"> (<?php echo esc_html( $term_badge ); ?>)</span><?php endif; ?></label>
+			<label class="subscrpt-buybox__term<?php echo 0 === $subscrpt_ti ? ' is-active' : ''; ?>" for="<?php echo esc_attr( $term_id ); ?>" data-subscrpt-term-btn data-term-id="<?php echo esc_attr( $plan_term['id'] ); ?>"><?php echo esc_html( $chip_text ) . wp_kses_post( $chip_extra ); ?></label>
 		<?php endforeach; ?>
 	</fieldset>
 <?php endif; ?>
