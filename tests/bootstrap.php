@@ -258,6 +258,12 @@ namespace {
 		}
 	}
 
+	if ( ! function_exists( 'wp_doing_ajax' ) ) {
+		function wp_doing_ajax() {
+			return ! empty( $GLOBALS['wp_doing_ajax'] );
+		}
+	}
+
 	// Object cache: tests prime `subscrpt_plans` / `product_<id>` with plan rows
 	// so PlanRepository::resolve_for_product() never reaches the database.
 	$GLOBALS['wp_object_cache'] = []; // [group][key] => value.
