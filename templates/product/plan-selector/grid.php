@@ -63,8 +63,28 @@ $lead    = isset( $lead ) && 'saving' === $lead;
 					}
 					?>
 				</div>
-				<?php wc_get_template( 'product/plan-selector/parts/price.php', [ 'group' => $group, 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
-				<?php wc_get_template( 'product/plan-selector/parts/note.php', [ 'group' => $group, 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
+				<?php
+				wc_get_template(
+					'product/plan-selector/parts/price.php',
+					[
+						'group' => $group,
+						'view'  => $view,
+					],
+					'subscription',
+					SUBSCRPT_TEMPLATES
+				);
+				?>
+				<?php
+				wc_get_template(
+					'product/plan-selector/parts/note.php',
+					[
+						'group' => $group,
+						'view'  => $view,
+					],
+					'subscription',
+					SUBSCRPT_TEMPLATES
+				);
+				?>
 				<?php
 				wc_get_template(
 					'product/plan-selector/parts/terms.php',

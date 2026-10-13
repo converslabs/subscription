@@ -50,23 +50,42 @@ $out['missing']    = F::render( $product );
 
 F::reset();
 $product                    = F::product( true, [ 41 => 'outofstock' ] );
-$GLOBALS['wc_products'][42] = new VariationButtonsVariation( 42, 'Any', [ 'type' => 'variation', 'attributes' => [ 'attribute_size' => '' ] ] );
+$GLOBALS['wc_products'][42] = new VariationButtonsVariation(
+	42,
+	'Any',
+	[
+		'type'       => 'variation',
+		'attributes' => [ 'attribute_size' => '' ],
+	]
+);
 $product->children          = [ 42 ];
 $out['any_value']           = F::render( $product );
 
 F::reset();
-$buttons = new \SpringDevs\Subscription\Frontend\VariationButtons();
-$args    = [ 'attribute' => 'size', 'product' => F::product() ];
+$buttons                = new \SpringDevs\Subscription\Frontend\VariationButtons();
+$args                   = [
+	'attribute' => 'size',
+	'product'   => F::product(),
+];
 $out['alone_on_filter'] = apply_filters( 'woocommerce_dropdown_variation_attribute_options_html', F::dropdown(), $args );
-add_filter( 'woocommerce_dropdown_variation_attribute_options_html', static function ( $markup ) {
-	return $markup . '<span class="swatches"></span>';
-}, 10, 2 );
+add_filter(
+	'woocommerce_dropdown_variation_attribute_options_html',
+	static function ( $markup ) {
+		return $markup . '<span class="swatches"></span>';
+	},
+	10,
+	2
+);
 $out['other_callback'] = $buttons->render( F::dropdown(), $args );
 
-foreach ( [ 'off_empty' => '', 'off_no' => 'no', 'on' => 'yes' ] as $name => $value ) {
+foreach ( [
+	'off_empty' => '',
+	'off_no'    => 'no',
+	'on'        => 'yes',
+] as $name => $value ) {
 	F::reset();
 	$GLOBALS['wp_options']['subscrpt_variation_buttons'] = $value;
-	$out[ $name ] = F::render( F::product() );
+	$out[ $name ]                                        = F::render( F::product() );
 }
 
 F::reset();

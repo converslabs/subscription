@@ -49,7 +49,17 @@ $context = isset( $context ) ? (string) $context : 'page';
 				<input type="radio" class="subscrpt-buybox__radio" id="<?php echo esc_attr( $view['gid'] ); ?>" name="subscrpt_plan_group" value="<?php echo esc_attr( $group['id'] ); ?>"<?php echo $view['has_badge'] ? ' aria-describedby="' . esc_attr( $view['gid'] . '-badge' ) . '"' : ''; ?> <?php checked( $view['is_first'] ); ?> />
 				<label class="subscrpt-buybox__label subscrpt-buybox__title" for="<?php echo esc_attr( $view['gid'] ); ?>"><?php echo esc_html( $group['label'] ); ?></label>
 				<?php wc_get_template( 'product/plan-selector/parts/badge.php', [ 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
-				<?php wc_get_template( 'product/plan-selector/parts/price.php', [ 'group' => $group, 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
+				<?php
+				wc_get_template(
+					'product/plan-selector/parts/price.php',
+					[
+						'group' => $group,
+						'view'  => $view,
+					],
+					'subscription',
+					SUBSCRPT_TEMPLATES
+				);
+				?>
 			</div>
 			<?php if ( $view['has_terms'] ) : ?>
 				<span class="subscrpt-buybox__note" data-subscrpt-note><?php echo wp_kses_post( $group['terms'][0]['note'] ); ?></span>

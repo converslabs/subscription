@@ -28,7 +28,7 @@ $subscrpt_layout  = Plans::layout_for( $product, $subscrpt_layouts );
 
 // A layout whose partial is nowhere to be found renders stacked, not nothing.
 if ( ! file_exists( wc_locate_template( $subscrpt_layouts[ $subscrpt_layout ], 'subscription', SUBSCRPT_TEMPLATES ) ) ) {
-	$subscrpt_layout = 'stacked';
+	$subscrpt_layout                      = 'stacked';
 	$subscrpt_layouts[ $subscrpt_layout ] = 'product/plan-selector/stacked.php';
 }
 

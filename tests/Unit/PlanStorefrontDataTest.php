@@ -94,7 +94,12 @@ class PlanStorefrontDataTest extends TestCase {
 
 	public function test_merged_storefront_is_sanitised_again() {
 		$merged = PlanController::merge_storefront(
-			[ 'storefront' => [ 'intervals' => 'grid', 'evil' => 'x' ] ],
+			[
+				'storefront' => [
+					'intervals' => 'grid',
+					'evil'      => 'x',
+				],
+			],
 			[ 'benefits' => [ 'One' ] ]
 		);
 
@@ -104,7 +109,15 @@ class PlanStorefrontDataTest extends TestCase {
 	}
 
 	public function test_a_raw_data_storefront_is_sanitised() {
-		$clean = PlanController::sanitize_data_storefront( [ 'x' => 1, 'storefront' => [ 'tag' => '<b>T</b>', 'junk' => 1 ] ] );
+		$clean = PlanController::sanitize_data_storefront(
+			[
+				'x'          => 1,
+				'storefront' => [
+					'tag'  => '<b>T</b>',
+					'junk' => 1,
+				],
+			]
+		);
 
 		$this->assertSame( 1, $clean['x'] );
 		$this->assertSame( 'T', $clean['storefront']['tag'] );

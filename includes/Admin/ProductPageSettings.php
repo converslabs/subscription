@@ -223,12 +223,40 @@ class ProductPageSettings {
 	public function register_settings() {
 		$group = 'wp_subscription_settings';
 
-		register_setting( $group, self::LAYOUT, [ 'type' => 'string', 'sanitize_callback' => [ PlanStyle::class, 'sanitize_layout' ] ] );
-		register_setting( $group, self::INTERVALS, [ 'type' => 'string', 'sanitize_callback' => [ PlanStyle::class, 'sanitize_intervals' ] ] );
-		register_setting( $group, PlanStyle::RADIUS, [ 'type' => 'string', 'sanitize_callback' => [ PlanStyle::class, 'sanitize_radius' ] ] );
+		register_setting(
+			$group,
+			self::LAYOUT,
+			[
+				'type'              => 'string',
+				'sanitize_callback' => [ PlanStyle::class, 'sanitize_layout' ],
+			]
+		);
+		register_setting(
+			$group,
+			self::INTERVALS,
+			[
+				'type'              => 'string',
+				'sanitize_callback' => [ PlanStyle::class, 'sanitize_intervals' ],
+			]
+		);
+		register_setting(
+			$group,
+			PlanStyle::RADIUS,
+			[
+				'type'              => 'string',
+				'sanitize_callback' => [ PlanStyle::class, 'sanitize_radius' ],
+			]
+		);
 
 		foreach ( array_keys( self::colour_fields() ) as $option ) {
-			register_setting( $group, $option, [ 'type' => 'string', 'sanitize_callback' => [ PlanStyle::class, 'sanitize_colour' ] ] );
+			register_setting(
+				$group,
+				$option,
+				[
+					'type'              => 'string',
+					'sanitize_callback' => [ PlanStyle::class, 'sanitize_colour' ],
+				]
+			);
 		}
 	}
 

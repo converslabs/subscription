@@ -41,10 +41,30 @@ $context = isset( $context ) ? (string) $context : 'page';
 					<span class="subscrpt-buybox__ribbon"><?php echo esc_html( $view['tag'] ); ?></span>
 				<?php endif; ?>
 				<?php wc_get_template( 'product/plan-selector/parts/badge.php', [ 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
-				<?php wc_get_template( 'product/plan-selector/parts/price.php', [ 'group' => $group, 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
+				<?php
+				wc_get_template(
+					'product/plan-selector/parts/price.php',
+					[
+						'group' => $group,
+						'view'  => $view,
+					],
+					'subscription',
+					SUBSCRPT_TEMPLATES
+				);
+				?>
 			</div>
 			<div class="subscrpt-buybox__panel" id="<?php echo esc_attr( $panel_id ); ?>" data-subscrpt-panel<?php echo $view['is_first'] ? '' : ' hidden'; ?>>
-				<?php wc_get_template( 'product/plan-selector/parts/note.php', [ 'group' => $group, 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
+				<?php
+				wc_get_template(
+					'product/plan-selector/parts/note.php',
+					[
+						'group' => $group,
+						'view'  => $view,
+					],
+					'subscription',
+					SUBSCRPT_TEMPLATES
+				);
+				?>
 				<?php
 				wc_get_template(
 					'product/plan-selector/parts/terms.php',
