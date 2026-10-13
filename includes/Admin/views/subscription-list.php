@@ -159,7 +159,7 @@ for ( $i = 0; $i < 12; $i++ ) {
 			<?php // Page size and bulk actions wrap as one right-aligned group, never one without the other. ?>
 			<div style="display:flex;flex-wrap:wrap;gap:8px;margin-inline-start:auto;">
 			<?php
-			$current_per_page = isset( $_GET['per_page'] ) ? intval( wp_unslash( $_GET['per_page'] ) ) : 20;
+			$current_per_page = isset( $_GET['per_page'] ) ? intval( wp_unslash( $_GET['per_page'] ) ) : 20; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only list filter, no state change.
 			wpsubs_render_per_page_select(
 				array(
 					'name'  => 'per_page',

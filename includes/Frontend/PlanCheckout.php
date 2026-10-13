@@ -51,7 +51,7 @@ class PlanCheckout {
 	 *
 	 * @return array|null Resolved plan row, or null if not valid for the product.
 	 */
-	private function resolve_chosen( $product_id, $plan_id ) {
+	private static function resolve_chosen( $product_id, $plan_id ) {
 		$plan_id = absint( $plan_id );
 		if ( ! $plan_id ) {
 			return null;
@@ -76,7 +76,7 @@ class PlanCheckout {
 	 *
 	 * @return int Plan-term id, or 0 to leave the item untouched.
 	 */
-	private function fallback_plan_id( $product_id ) {
+	private static function fallback_plan_id( $product_id ) {
 		if ( ! function_exists( 'subscrpt_product_has_plan' ) || ! subscrpt_product_has_plan( $product_id ) ) {
 			return 0;
 		}
@@ -123,6 +123,28 @@ class PlanCheckout {
 	}
 
 	/**
+	 * Resolve the plan-term id an add-to-cart request selects for a product.
+	 *
+	 * Reads `subscrpt_plan_id` from the request and falls back the same way
+	 * `add_plan_to_cart()` does, so callers that need to know which plan an
+	 * add-to-cart *would* land on — cart validation, for one — agree with the
+	 * item that is actually built.
+	 *
+	 * @param int $product_id Product id.
+	 *
+	 * @return int Plan-term id, or 0 when the request selects no plan.
+	 */
+	public static function resolve_request_plan_id( $product_id ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce verifies the add-to-cart request; we only read a plan id.
+		$plan_id = isset( $_REQUEST['subscrpt_plan_id'] ) ? absint( wp_unslash( $_REQUEST['subscrpt_plan_id'] ) ) : 0;
+		if ( ! $plan_id ) {
+			$plan_id = self::fallback_plan_id( $product_id );
+		}
+
+		return self::resolve_chosen( $product_id, $plan_id ) ? $plan_id : 0;
+	}
+
+	/**
 	 * Stamp the chosen plan onto the cart item.
 	 *
 	 * Reads `subscrpt_plan_id` from the add-to-cart request, resolves the term,
@@ -142,13 +164,13 @@ class PlanCheckout {
 		if ( ! $plan_id ) {
 			// Bare add-to-cart (direct link, no plan chosen): fall back to one-time
 			// when enabled, otherwise the product's first plan.
-			$plan_id = $this->fallback_plan_id( $product_id );
+			$plan_id = self::fallback_plan_id( $product_id );
 			if ( ! $plan_id ) {
 				return $cart_item_data;
 			}
 		}
 
-		$row = $this->resolve_chosen( $product_id, $plan_id );
+		$row = self::resolve_chosen( $product_id, $plan_id );
 		if ( ! $row ) {
 			return $cart_item_data;
 		}

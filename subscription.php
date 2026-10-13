@@ -36,6 +36,12 @@ use SpringDevs\Subscription\Illuminate\Gateways\Paypal\Paypal_Blocks_Integration
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Global helpers, loaded as early as composer's autoload "files" used to load them.
+// They are not autoload "files" because PHPUnit loads those before its bootstrap
+// can define ABSPATH, and both files exit without it.
+require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/Admin/AdminComponents.php';
+
 /**
  * Sdevs_Subscription class
  *
