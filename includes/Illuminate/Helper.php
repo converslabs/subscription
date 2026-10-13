@@ -1070,10 +1070,15 @@ class Helper {
 	public static function create_renewal_order( $subscription_id ) {
 		// Check if maximum payment limit has been reached
 		if ( subscrpt_is_max_payments_reached( $subscription_id ) ) {
+			$was_expired = 'expired' === get_post_status( $subscription_id );
+
 			// Mark subscription as expired due to limit reached
 			Action::status( 'expired', $subscription_id );
 
-			subscrpt_write_log( "Maximum payment limit reached for subscription #{$subscription_id}. No renewal order created." );
+			// Expiring it runs AutoRenewal::after_subscription_expired(), which records this. An already expired subscription does not.
+			if ( $was_expired ) {
+				self::record_renewal_failure( $subscription_id, __( 'The subscription reached its maximum number of payments, so it was not renewed.', 'subscription' ) );
+			}
 			return false;
 		}
 
@@ -1094,11 +1099,30 @@ class Helper {
 		}
 
 		if ( ! $old_order ) {
-			subscrpt_write_log( "Old order not found for renewal. Skipping creating renewal order. [ Subscription ID: {$subscription_id} ]" );
+			// A deleted order takes its items with it, so fall back to the order ID the subscription stores.
+			$stored_order_id = $order_id ? (int) $order_id : (int) get_post_meta( $subscription_id, '_subscrpt_order_id', true );
+			$stored_order    = wc_get_order( $stored_order_id );
+			if ( $stored_order && $stored_order->has_status( 'trash' ) ) {
+				/* translators: %d: order ID. */
+				$reason = sprintf( __( 'Its order #%d is in the trash, and no other completed order is linked to it.', 'subscription' ), $stored_order_id );
+			} elseif ( $stored_order ) {
+				/* translators: 1: order ID, 2: order status. */
+				$reason = sprintf( __( 'Its order #%1$d is %2$s, not completed, and no other completed order is linked to it.', 'subscription' ), $stored_order_id, wc_get_order_status_name( $stored_order->get_status() ) );
+			} else {
+				/* translators: %d: order ID. */
+				$reason = sprintf( __( 'Its order #%d no longer exists, and no other completed order is linked to it.', 'subscription' ), $stored_order_id );
+			}
+			self::record_renewal_failure( $subscription_id, $reason, $stored_order_id );
 			return false;
 		}
 
-		$order_item         = $old_order->get_item( $order_item_id );
+		$order_item = $old_order->get_item( $order_item_id );
+		if ( ! $order_item instanceof \WC_Order_Item_Product ) {
+			/* translators: 1: order item ID, 2: order ID. */
+			self::record_renewal_failure( $subscription_id, sprintf( __( 'Item #%1$d is no longer on order #%2$d.', 'subscription' ), $order_item_id, $old_order->get_id() ), $old_order->get_id() );
+			return false;
+		}
+
 		$subscription_price = (float) get_post_meta( $subscription_id, '_subscrpt_price', true );
 		$qty                = $order_item->get_quantity();
 
@@ -1119,9 +1143,9 @@ class Helper {
 		);
 
 		// creating new order.
-		$new_order_data = self::create_new_order_for_renewal( $old_order, $order_item, $product_args );
+		$new_order_data = self::create_new_order_for_renewal( $old_order, $order_item, $product_args, (int) $subscription_id );
 		if ( ! $new_order_data ) {
-			subscrpt_write_log( "Failed to create renewal order. [ Subscription ID: {$subscription_id} ]" );
+			// create_new_order_for_renewal() has already recorded why.
 			return false;
 		}
 		$new_order         = $new_order_data['order'];
@@ -1131,14 +1155,22 @@ class Helper {
 		update_post_meta( $subscription_id, '_subscrpt_order_id', $new_order->get_id() );
 		update_post_meta( $subscription_id, '_subscrpt_order_item_id', $new_order_item_id );
 
-		self::clone_order_metadata( $new_order, $old_order );
+		// The order is already linked to the subscription here, so a failure keeps it for the admin to see rather than deleting it.
+		$renewal_order_id = $new_order->get_id();
+		try {
+			self::clone_order_metadata( $new_order, $old_order );
 
-		// Allow modification of the renewal order before saving.
-		$new_order = apply_filters( 'subscrpt_before_saving_renewal_order', $new_order, $old_order, $subscription_id );
+			// Allow modification of the renewal order before saving.
+			$new_order = apply_filters( 'subscrpt_before_saving_renewal_order', $new_order, $old_order, $subscription_id );
 
-		// Save the new order.
-		$new_order->calculate_totals();
-		$new_order->save();
+			// Save the new order.
+			$new_order->calculate_totals();
+			$new_order->save();
+		} catch ( \Throwable $e ) {
+			/* translators: 1: renewal order ID, 2: error message. */
+			self::record_renewal_failure( $subscription_id, sprintf( __( 'Renewal order #%1$d was created but could not be completed: %2$s', 'subscription' ), $renewal_order_id, $e->getMessage() ), $old_order->get_id() );
+			return false;
+		}
 
 		if ( ! is_admin() && function_exists( 'wc_add_notice' ) && WC()->session ) {
 			/* translators: %d: renewal order ID. */
@@ -1430,6 +1462,46 @@ class Helper {
 	}
 
 	/**
+	 * Record why a renewal failed.
+	 *
+	 * Renewals mostly run under cron, where nobody sees a notice. This writes the
+	 * cause to the subscription's activity history and to the `wp_subscription`
+	 * WooCommerce log at error level, so a subscription that did not renew says why.
+	 *
+	 * @param int    $subscription_id Subscription ID. 0 writes the log entry only.
+	 * @param string $reason          Why the renewal failed, as a full sentence.
+	 * @param int    $source_order_id Order the renewal was being created from, if known.
+	 *
+	 * @return void
+	 */
+	public static function record_renewal_failure( $subscription_id, string $reason, int $source_order_id = 0 ) {
+		$subscription_id = (int) $subscription_id;
+
+		/* translators: %s: why the renewal order was not created. */
+		$message = sprintf( __( 'Renewal failed. %s', 'subscription' ), $reason );
+
+		wc_get_logger()->error(
+			sprintf( '%s [ Subscription ID: %d, Source order ID: %d ]', $message, $subscription_id, $source_order_id ),
+			array( 'source' => 'wp_subscription' )
+		);
+
+		if ( ! $subscription_id ) {
+			return;
+		}
+
+		$comment_id = wp_insert_comment(
+			array(
+				'comment_author'  => 'Subscription for WooCommerce',
+				'comment_content' => $message,
+				'comment_post_ID' => $subscription_id,
+				'comment_type'    => 'order_note',
+			)
+		);
+		update_comment_meta( $comment_id, '_subscrpt_activity', 'Renewal Failed' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'renewal_failed' );
+	}
+
+	/**
 	 * Whether a stored `_subscrpt_user_cancel` value lets the customer cancel.
 	 *
 	 * Only an explicit "no" forbids it. An empty value means the option was never
@@ -1602,38 +1674,73 @@ class Helper {
 	 * @param \WC_Order              $old_order Old Order Object.
 	 * @param \WC_Order_Item_Product $order_item Old Order Item Object.
 	 * @param array                  $product_args Product args for add product.
+	 * @param int                    $subscription_id Subscription the order renews, so a failure is recorded on it.
 	 *
 	 * @return array|false
 	 */
-	public static function create_new_order_for_renewal( \WC_Order $old_order, \WC_Order_Item_Product $order_item, array $product_args ) {
+	public static function create_new_order_for_renewal( \WC_Order $old_order, \WC_Order_Item_Product $order_item, array $product_args, int $subscription_id = 0 ) {
 		$product      = $order_item->get_product();
 		$user_id      = $old_order->get_user_id();
-		$new_order    = wc_create_order(
-			array(
-				'customer_id' => $user_id,
-				'status'      => 'pending',
-			)
-		);
+		$old_order_id = $old_order->get_id();
 		$product_meta = apply_filters( 'subscrpt_renewal_item_meta', wc_get_order_item_meta( $order_item->get_id(), '_subscrpt_meta', true ), $product, $order_item );
 		$product_args = apply_filters( 'subscrpt_renewal_product_args', $product_args, $product, $order_item );
+
+		// Both checks run before the order exists, so a rejected renewal leaves no empty pending order behind.
 		if ( ! $product_args ) {
+			$reason = $product
+				? __( 'The renewal price could not be set. The product\'s default renewal variation may have been deleted.', 'subscription' )
+				: __( 'The subscribed product no longer exists.', 'subscription' );
+			self::record_renewal_failure( $subscription_id, $reason, $old_order_id );
 			return false;
 		}
 
-		$new_order_item_id = $new_order->add_product(
-			$product,
-			$order_item->get_quantity(),
-			$product_args
-		);
-		wc_update_order_item_meta(
-			$new_order_item_id,
-			'_subscrpt_meta',
-			array(
-				'time'  => $product_meta['time'],
-				'type'  => $product_meta['type'],
-				'trial' => null,
-			)
-		);
+		if ( ! is_array( $product_meta ) ) {
+			/* translators: 1: order item ID, 2: order ID. */
+			self::record_renewal_failure( $subscription_id, sprintf( __( 'Item #%1$d on order #%2$d has no billing interval saved.', 'subscription' ), $order_item->get_id(), $old_order_id ), $old_order_id );
+			return false;
+		}
+
+		$new_order = null;
+		try {
+			$new_order = wc_create_order(
+				array(
+					'customer_id' => $user_id,
+					'status'      => 'pending',
+				)
+			);
+			if ( is_wp_error( $new_order ) ) {
+				/* translators: %s: WooCommerce error message. */
+				self::record_renewal_failure( $subscription_id, sprintf( __( 'WooCommerce could not create the order: %s', 'subscription' ), $new_order->get_error_message() ), $old_order_id );
+				return false;
+			}
+			// WC_Order::save() logs its own exceptions and returns without an ID, so an unsaved order is a failure too.
+			if ( ! $new_order->get_id() ) {
+				self::record_renewal_failure( $subscription_id, __( 'WooCommerce could not save the new order. The WooCommerce log has the error.', 'subscription' ), $old_order_id );
+				return false;
+			}
+
+			$new_order_item_id = $new_order->add_product(
+				$product,
+				$order_item->get_quantity(),
+				$product_args
+			);
+			wc_update_order_item_meta(
+				$new_order_item_id,
+				'_subscrpt_meta',
+				array(
+					'time'  => $product_meta['time'] ?? null,
+					'type'  => $product_meta['type'] ?? null,
+					'trial' => null,
+				)
+			);
+		} catch ( \Throwable $e ) {
+			if ( $new_order instanceof \WC_Order ) {
+				$new_order->delete( true );
+			}
+			/* translators: %s: error message. */
+			self::record_renewal_failure( $subscription_id, sprintf( __( 'An error stopped the order being created: %s', 'subscription' ), $e->getMessage() ), $old_order_id );
+			return false;
+		}
 
 		// Add debug log.
 		subscrpt_write_debug_log( "Renewal order #{$new_order->get_id()} created for old order #{$old_order->get_id()}" );

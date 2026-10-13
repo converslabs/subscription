@@ -40,7 +40,7 @@ class AutoRenewal {
 		}
 
 		if ( ! $product ) {
-			if ( ! is_admin() ) {
+			if ( ! is_admin() && WC()->session ) {
 				wc_add_notice( __( 'Subscription early renewal order creation failed due to product deletion !', 'subscription' ), 'error' );
 			}
 			return false;
@@ -49,7 +49,7 @@ class AutoRenewal {
 		if ( $product->is_type( 'variable' ) ) {
 			$product = wc_get_product( $product->get_meta( '_subscrpt_convertation_default_variation_for_renewal', true ) );
 			if ( ! $product ) {
-				if ( ! is_admin() ) {
+				if ( ! is_admin() && WC()->session ) {
 					wc_add_notice( __( 'Subscription early renewal order creation failed due to product deletion !', 'subscription' ), 'error' );
 				}
 				return false;
@@ -103,7 +103,7 @@ class AutoRenewal {
 	public function after_subscription_expired( $subscription_id ) {
 		// Check if maximum payment limit has been reached
 		if ( subscrpt_is_max_payments_reached( $subscription_id ) ) {
-			subscrpt_write_log( "Maximum payment limit reached for subscription #{$subscription_id}. Auto-renewal cancelled." );
+			Helper::record_renewal_failure( $subscription_id, __( 'The subscription reached its maximum number of payments, so it was not renewed.', 'subscription' ) );
 			return;
 		}
 
