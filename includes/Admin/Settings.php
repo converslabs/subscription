@@ -1,4 +1,9 @@
 <?php
+/**
+ * Plugin settings screen.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Admin;
 

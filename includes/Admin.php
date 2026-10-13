@@ -1,4 +1,9 @@
 <?php
+/**
+ * Bootstraps the admin-side classes.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription;
 

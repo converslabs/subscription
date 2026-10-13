@@ -1,4 +1,9 @@
 <?php
+/**
+ * Links WooCommerce orders to subscriptions: dates, status sync and admin order items.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 
@@ -220,6 +225,13 @@ class Order {
 		<?php
 	}
 
+	/**
+	 * Show the free trial note under a subscription item on the admin order screen.
+	 *
+	 * @param int                    $item_id Order item ID.
+	 * @param \WC_Order_Item         $item    Order item.
+	 * @param \WC_Product|null|false $product Product of the item.
+	 */
 	public function add_order_item_data( $item_id, $item, $product ) {
 		if ( ! $product ) {
 			return;

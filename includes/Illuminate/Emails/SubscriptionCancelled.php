@@ -1,4 +1,9 @@
 <?php
+/**
+ * Customer email sent when a subscription is cancelled.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate\Emails;
 

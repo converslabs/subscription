@@ -6,6 +6,8 @@
  * @var WP_Query $postslist
  *
  * This template can be overridden by copying it to <your_theme>/subscription/myaccount/subscriptions.php
+ *
+ * @package SpringDevs\Subscription
  */
 
 use SpringDevs\Subscription\Illuminate\Helper;

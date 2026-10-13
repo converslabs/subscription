@@ -1,4 +1,9 @@
 <?php
+/**
+ * My Account subscriptions endpoint and views.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Frontend;
 

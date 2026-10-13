@@ -1,4 +1,9 @@
 <?php
+/**
+ * Plugin action links on the plugins screen.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Admin;
 

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Base wrapper around a WC_Product with subscription accessors.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Utils;
 
@@ -63,12 +68,27 @@ use SpringDevs\Subscription\Illuminate\Helper;
  */
 abstract class Product {
 
+	/**
+	 * Wrapped WooCommerce product.
+	 *
+	 * @var \WC_Product
+	 */
 	protected \WC_Product $product;
 
+	/**
+	 * Initialize the class.
+	 *
+	 * @param \WC_Product $product WooCommerce product.
+	 */
 	public function __construct( \WC_Product $product ) {
 			$this->product = $product;
 	}
 
+	/**
+	 * Get the trial length as a label, e.g. "7 days".
+	 *
+	 * @return string|null Null when the product has no trial.
+	 */
 	public function get_trial(): ?string {
 		if ( $this->has_trial() ) {
 			$product_trial_per = $this->get_trial_timing_per();
@@ -79,6 +99,11 @@ abstract class Product {
 		return null;
 	}
 
+	/**
+	 * Whether the product has a trial the current customer can use.
+	 *
+	 * @return bool
+	 */
 	public function has_trial(): bool {
 		$trial_timing_per = $this->get_trial_timing_per();
 		$product_id       = $this->product->get_id();
@@ -86,6 +111,11 @@ abstract class Product {
 		return ( $trial_timing_per > 0 ) && Helper::check_trial( $product_id );
 	}
 
+	/**
+	 * Get the custom add to cart button label.
+	 *
+	 * @return mixed
+	 */
 	public function get_button_label() {
 		return $this->product->get_meta( '_subscrpt_cart_btn_label' );
 	}
@@ -102,26 +132,56 @@ abstract class Product {
 		return $this->product->{$name}( ...$arguments );
 	}
 
+	/**
+	 * Get the billing interval count.
+	 *
+	 * @return int
+	 */
 	public function get_timing_per(): int {
 		return 1;
 	}
 
+	/**
+	 * Get the billing period label.
+	 *
+	 * @return string
+	 */
 	public function get_timing_option(): string {
 		return Helper::get_typos( $this->get_timing_per(), $this->product->get_meta( '_subscrpt_timing_option' ) );
 	}
 
+	/**
+	 * Get the subscription purchase limit.
+	 *
+	 * @return mixed
+	 */
 	public function get_limit() {
 		return $this->product->get_meta( '_subscrpt_limit' );
 	}
 
+	/**
+	 * Get the renewal limit.
+	 *
+	 * @return mixed
+	 */
 	public function get_renewal_limit() {
 		return $this->product->get_meta( '_subscrpt_max_no_payment' );
 	}
 
+	/**
+	 * Get the maximum number of payments.
+	 *
+	 * @return mixed
+	 */
 	public function get_max_no_payment() {
 		return $this->product->get_meta( '_subscrpt_max_no_payment' );
 	}
 
+	/**
+	 * Whether subscription is enabled for the product.
+	 *
+	 * @return bool
+	 */
 	public function is_enabled(): bool {
 		if ( empty( $this->product->get_meta( '_subscrpt_enabled' ) ) ) {
 			return false;
@@ -142,14 +202,29 @@ abstract class Product {
 		return true;
 	}
 
+	/**
+	 * Get the trial length.
+	 *
+	 * @return int
+	 */
 	public function get_trial_timing_per(): int {
 		return (int) ( $this->product->get_meta( '_subscrpt_trial_timing_per' ) ?? 1 );
 	}
 
+	/**
+	 * Get the trial period unit.
+	 *
+	 * @return mixed
+	 */
 	public function get_trial_timing_option() {
 		return $this->product->get_meta( '_subscrpt_trial_timing_option' );
 	}
 
+	/**
+	 * Get the signup fee.
+	 *
+	 * @return float
+	 */
 	public function get_signup_fee(): float {
 		return 0;
 	}

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Subscription statistics and daily snapshots.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 
@@ -68,7 +73,7 @@ class Stats {
 	/**
 	 * Normalize a recurring amount to a monthly figure (MRR).
 	 *
-	 * mrr = amount / (interval * months_per_unit[period]). Unknown periods are
+	 * MRR = amount / (interval * months_per_unit[period]). Unknown periods are
 	 * treated as monthly; a zero cycle returns 0 to avoid division by zero.
 	 *
 	 * @param float  $amount   Raw recurring price.

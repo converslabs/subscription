@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin email sent when a subscription status changes.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate\Emails;
 

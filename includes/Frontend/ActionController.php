@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Handles subscription actions requested from the My Account area.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Frontend;
 

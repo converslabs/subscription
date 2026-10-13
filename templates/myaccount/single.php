@@ -1,8 +1,4 @@
 <?php
-// Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 /**
  * Single subscription page
  *
@@ -26,6 +22,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @package SpringDevs\Subscription
  */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 use SpringDevs\Subscription\Illuminate\Helper;
 

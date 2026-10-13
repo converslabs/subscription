@@ -1,4 +1,9 @@
 <?php
+/**
+ * Registers the subscription post types and statuses.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 
