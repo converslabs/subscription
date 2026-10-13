@@ -436,7 +436,7 @@ foreach ( array_reverse( $related_orders ) as $subscrpt_relation ) {
 		<?php foreach ( $related_orders as $related_order ) : ?>
 			<?php
 				$order_id = $related_order->order_id;
-				$order    = wc_get_order( $order_id );
+				$order    = wc_get_order( $order_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- $order is passed in by MyAccount::view_subscrpt_content() and read again after this loop; renaming would change which order the billing block shows.
 			if ( ! $order ) {
 				continue;
 			}
