@@ -362,41 +362,24 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 == Changelog ==
 
 = 2.5.0 - Oct 14, 2026 =
--   new: Purchase options come in seven layouts: stacked cards, a classic radio list, a dropdown, an accordion, a grid of tiles, a grid that leads with the saving, and a button row.
--   new: Settings > Product page: choose the layout, list billing intervals as chips or a dropdown, and set the accent, text, border, badge and ribbon colours and the corner radius, with a live preview.
--   new: A product can use its own purchase option layout, chosen in its Subscription tab.
--   new: A plan's "On the product page" tab adds a tag ribbon, a list of benefits, and a "learn more" link or details panel to its purchase option.
--   new: Each billing interval shows its own price and saving, with the regular price struck through.
--   new: Variable products that sell plans show their variations as buttons (variable products with plans need WPSubscription Pro).
--   new: A Boxes screen under WPSubscription previews subscription boxes. Subscription boxes themselves need WPSubscription Pro.
--   new: Adding a different subscription while one is in the cart offers to swap them, instead of failing. Adding the same subscription again updates its quantity.
--   new: WPSubscription screens now show only WPSubscription's own notices, and the dashboard announces each release with a dismissible banner.
--   improved: Purchase options work from the keyboard: arrow keys move between options and between intervals, with a visible focus ring. Only the chosen option's fields are sent with the order.
--   improved: Installment options read "Pay every" and each interval shows its number of payments.
--   improved: When a renewal order cannot be created, the subscription's activity and the WooCommerce log now say why.
--   fix: Cancelled subscriptions now end at the end of the period the customer paid for, instead of 24 hours after they cancel.
--   fix: The scheduled cancellation notice in My Account shows the time in your site's timezone.
--   fix: The "Subscription saved" admin email is no longer sent when a customer closes the cancellation survey and then cancels.
--   fix: The subscription cadence on the block cart and checkout is translated.
--   fix: Plan subscriptions follow their own instalment terms instead of the product's older split-payment settings, and the recurring amount no longer adds tax twice when prices include tax.
--   fix: The Shop page no longer throws a JavaScript error for variable products with plan notes, and plan cards on product pages show their prices and notes correctly.
--   fix: The discount badge follows the selected billing interval, instead of always showing the plan's best discount.
--   fix: Creating a renewal order no longer causes a fatal error when the WooCommerce Stripe Gateway plugin is not active.
-
-= 2.5.0 - Oct 14, 2026 =
--   new: Purchase options come in seven layouts: stacked cards, a classic radio list, a dropdown, an accordion, a grid of tiles, a grid that leads with the saving, and a button row.
--   new: Settings > Product page: choose the layout, list billing intervals as chips or a dropdown, and set the accent, text, border, badge and ribbon colours and the corner radius, with a live preview.
--   new: A product can use its own purchase option layout, chosen in its Subscription tab.
--   new: A plan's "On the product page" tab adds a tag ribbon, a list of benefits, and a "learn more" link or details panel to its purchase option.
--   new: Each billing interval shows its own price and saving, with the regular price struck through.
--   new: Variable products that sell plans show their variations as buttons (variable products with plans need WPSubscription Pro).
--   new: A Boxes screen under WPSubscription previews subscription boxes. Subscription boxes themselves need WPSubscription Pro.
--   new: Adding a different subscription while one is in the cart offers to swap them, instead of failing. Adding the same subscription again updates its quantity.
--   new: Developer hooks for the purchase options: subscrpt_plan_term, subscrpt_plan_selector_groups, subscrpt_plan_card_body, subscrpt_plan_selector_layouts, subscrpt_plan_selector_inline_css and subscrpt_plan_selector_from_free.
--   improved: Purchase options work from the keyboard: arrow keys move between options and between intervals, with a visible focus ring. Only the chosen option's fields are sent with the order.
--   improved: Installment options read "Pay every" and each interval shows its number of payments.
--   fix: The discount badge follows the selected billing interval, instead of always showing the plan's best discount.
--   fix: Creating a renewal order no longer causes a fatal error when the WooCommerce Stripe Gateway plugin is not active.
+-   new: Ready for subscription boxes, with a Boxes screen preview (selling boxes needs WPSubscription Pro).
+-   new: Seven purchase option layouts.
+-   new: Product page settings: layout, colours and live preview, with a per-product layout override.
+-   new: Plan tag ribbons, benefits and "learn more" details on the product page.
+-   new: Each billing interval shows its own price and saving.
+-   new: Variation buttons for variable products with plans.
+-   new: Swap subscriptions in the cart.
+-   improved: Keyboard navigation for purchase options.
+-   improved: Clearer installment options.
+-   improved: Renewal order failures are logged with the reason.
+-   fix: Cancelled subscriptions end at the end of the paid period.
+-   fix: Cancellation notice uses the site timezone.
+-   fix: No "Subscription saved" email after a customer cancels.
+-   fix: Subscription cadence translated on the block cart and checkout.
+-   fix: Plan instalments no longer add tax twice.
+-   fix: JavaScript error on the Shop page for variable products with plan notes.
+-   fix: Discount badge follows the selected billing interval.
+-   fix: Fatal error on renewal when the WooCommerce Stripe Gateway plugin is inactive.
 
 = 2.4.0 - Oct 8, 2026 =
 -   new: Pause subscriptions automatically when a product runs low on stock and resume them when stock recovers, with a new customer email and settings under Settings > Renewals > Stock Management.
