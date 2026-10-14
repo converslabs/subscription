@@ -46,6 +46,7 @@ class Plans {
 		}
 		add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'render_selector' ) );
 		add_filter( 'woocommerce_available_variation', array( __CLASS__, 'push_variation_html' ), 10, 3 );
+		add_filter( 'cfvsw_available_variations', array( __CLASS__, 'encode_swatches_variations_json' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
@@ -327,21 +328,26 @@ class Plans {
 			return $data;
 		}
 
-		$html = self::selector_html( $groups, $variation, 'variation' );
-
-		// On a page render WooCommerce prints this array through esc_attr(), which
-		// does not double-encode, so an entity such as `&quot;` from the escaped
-		// `data-note` attributes would decode to a bare quote inside the JSON string
-		// and break the whole `data-product_variations` payload. Encode `&` once more
-		// so the entities survive that round trip. The AJAX lookup is sent as plain
-		// JSON, which needs no such protection.
-		if ( ! wp_doing_ajax() && ! defined( 'WC_DOING_AJAX' ) && empty( $_GET['wc-ajax'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$html = str_replace( '&', '&amp;', $html );
-		}
-
-		$data['subscrpt_plans_html'] = $html;
+		$data['subscrpt_plans_html'] = self::selector_html( $groups, $variation, 'variation' );
 
 		return $data;
+	}
+
+	/**
+	 * Keep the entities in Variation Swatches' shop-page variations JSON intact.
+	 *
+	 * WooCommerce prints `data-product_variations` through wc_esc_json(), which
+	 * double-encodes, but the swatches plugin's shop-page form uses esc_attr(),
+	 * which does not. An entity such as `&quot;` in the plan cards' `data-note`
+	 * would then decode to a bare quote inside the JSON string and break the whole
+	 * payload. Encoding `&` once more here matches what wc_esc_json() does.
+	 *
+	 * @param string|false $json Variations JSON from wp_json_encode().
+	 *
+	 * @return string|false
+	 */
+	public static function encode_swatches_variations_json( $json ) {
+		return is_string( $json ) ? str_replace( '&', '&amp;', $json ) : $json;
 	}
 
 	/**
