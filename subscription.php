@@ -297,6 +297,8 @@ final class Sdevs_Subscription {
 	}
 } // Sdevs_Wc_Subscription
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- Bootstrap file: these global functions must live beside the main class so they load before the autoloaded code runs.
+
 // Add Paypal Gateway Blocks.
 if ( ! function_exists( 'subscrpt_register_paypal_block' ) ) {
 	/**
@@ -335,6 +337,8 @@ if ( ! function_exists( 'subscrpt_register_paypal_block' ) ) {
 function sdevs_subscription() {
 	return Sdevs_Subscription::init();
 }
+
+// phpcs:enable Universal.Files.SeparateFunctionsFromOO.Mixed
 
 /**
  *  Kick-off the plugin

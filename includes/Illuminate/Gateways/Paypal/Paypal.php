@@ -1,4 +1,9 @@
 <?php
+/**
+ * PayPal payment gateway.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate\Gateways\Paypal;
 

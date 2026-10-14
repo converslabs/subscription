@@ -1,2 +1,6 @@
 <?php
-// silence is golden
+/**
+ * Silence is golden.
+ *
+ * @package SpringDevs\Subscription
+ */

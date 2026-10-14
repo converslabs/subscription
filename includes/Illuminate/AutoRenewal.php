@@ -1,4 +1,9 @@
 <?php
+/**
+ * Renewal order adjustments and grace period handling.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 

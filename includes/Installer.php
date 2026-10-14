@@ -1,4 +1,9 @@
 <?php
+/**
+ * Plugin installer: version, schedules and database tables.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription;
 

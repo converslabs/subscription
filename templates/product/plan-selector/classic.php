@@ -42,7 +42,17 @@ foreach ( $groups as $index => $group ) {
 						<span class="subscrpt-buybox__ribbon"><?php echo esc_html( $view['tag'] ); ?></span>
 					<?php endif; ?>
 					<?php wc_get_template( 'product/plan-selector/parts/badge.php', [ 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
-					<?php wc_get_template( 'product/plan-selector/parts/price.php', [ 'group' => $group, 'view' => $view ], 'subscription', SUBSCRPT_TEMPLATES ); ?>
+					<?php
+					wc_get_template(
+						'product/plan-selector/parts/price.php',
+						[
+							'group' => $group,
+							'view'  => $view,
+						],
+						'subscription',
+						SUBSCRPT_TEMPLATES
+					);
+					?>
 				</div>
 				<?php if ( $view['has_terms'] ) : ?>
 					<span class="subscrpt-buybox__note" data-subscrpt-note><?php echo wp_kses_post( $group['terms'][0]['note'] ); ?></span>

@@ -41,9 +41,30 @@
     </rule>
 
 
+    <!--
+        Tests keep the formatting rules but not the structural ones: a test
+        stubs WordPress with several classes or functions in one file, under
+        the global namespace, and names its doubles after what they stand in for.
+    -->
+    <rule ref="Squiz.Commenting.FileComment"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="Squiz.Commenting.ClassComment"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="Squiz.Commenting.FunctionComment"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="Squiz.Commenting.VariableComment"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="Generic.Commenting.DocComment"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="Generic.Files.OneObjectStructurePerFile"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="Universal.Files.SeparateFunctionsFromOO"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="Universal.Namespaces.DisallowCurlyBraceSyntax"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="Universal.Namespaces.DisallowDeclarationWithoutName"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="Universal.Namespaces.OneDeclarationPerFile"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="WordPress.WP.GlobalVariablesOverride"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="WordPress.NamingConventions.ValidVariableName"><exclude-pattern>tests/</exclude-pattern></rule>
+    <rule ref="WordPress.NamingConventions.ValidFunctionName"><exclude-pattern>tests/</exclude-pattern></rule>
+
     <!-- Exclude the following directories -->
     <exclude-pattern>assets/</exclude-pattern>
     <exclude-pattern>build/</exclude-pattern>
     <exclude-pattern>vendor/</exclude-pattern>
     <exclude-pattern>node_modules/</exclude-pattern>
+    <exclude-pattern>releases/</exclude-pattern> <!-- gitignored release builds -->
+    <exclude-pattern>tests/Support/plan-selector-before-layouts.php</exclude-pattern> <!-- frozen copy of old markup; never reformat -->
 </ruleset>

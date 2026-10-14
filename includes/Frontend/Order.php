@@ -1,4 +1,9 @@
 <?php
+/**
+ * Subscription details on the customer order view.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Frontend;
 

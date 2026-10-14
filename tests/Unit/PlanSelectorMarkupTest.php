@@ -49,12 +49,12 @@ class PlanSelectorMarkupTest extends TestCase {
 						'badge' => '',
 					],
 					[
-						'id'    => 12,
-						'label' => 'Every 2 months',
-						'price' => '$16.00',
-						'note'  => '$16.00 / 2 months',
-						'badge' => 'Save 20%',
-						'regular_price' => '$20.00',
+						'id'             => 12,
+						'label'          => 'Every 2 months',
+						'price'          => '$16.00',
+						'note'           => '$16.00 / 2 months',
+						'badge'          => 'Save 20%',
+						'regular_price'  => '$20.00',
 						'interval_label' => '2 months',
 						'saving_label'   => 'Save 20%',
 					],
@@ -208,7 +208,7 @@ class PlanSelectorMarkupTest extends TestCase {
 	}
 
 	public function test_card_body_action_fires_in_every_card() {
-		$groups  = $this->fixture_groups();
+		$groups = $this->fixture_groups();
 		$GLOBALS['wp_hooks_registry']['subscrpt_plan_card_body'][10][] = [
 			static function ( $group ) {
 				echo '<span class="test-body">' . esc_html( $group['id'] ) . '</span>';
@@ -275,10 +275,10 @@ class PlanSelectorMarkupTest extends TestCase {
 	}
 
 	public function test_chip_shows_interval_and_saving_and_legend_the_heading() {
-		$groups                         = $this->fixture_groups();
-		$groups[0]['terms_heading']     = 'Deliver every';
-		$xpath                          = $this->render( $groups );
-		$card                           = $this->card( $xpath, 'grp_1' );
+		$groups                     = $this->fixture_groups();
+		$groups[0]['terms_heading'] = 'Deliver every';
+		$xpath                      = $this->render( $groups );
+		$card                       = $this->card( $xpath, 'grp_1' );
 
 		$this->assertSame( 'Deliver every', trim( $xpath->query( './/legend', $card )->item( 0 )->textContent ) );
 		$chip = $xpath->query( ".//label[@data-term-id='12']", $card )->item( 0 );
@@ -334,7 +334,7 @@ class PlanSelectorMarkupTest extends TestCase {
 		$this->assertSame( 1, $ribbon->length );
 		$this->assertSame( 'Cancel anytime', trim( $ribbon->item( 0 )->textContent ) );
 
-		$badge = $xpath->query( ".//*[@data-subscrpt-badge]", $card );
+		$badge = $xpath->query( './/*[@data-subscrpt-badge]', $card );
 		$this->assertSame( 1, $badge->length, 'the discount badge is still there' );
 		$this->assertSame( 'Save 20%', trim( $badge->item( 0 )->textContent ) );
 		$this->assertNotSame( $ribbon->item( 0 ), $badge->item( 0 ) );
@@ -342,7 +342,7 @@ class PlanSelectorMarkupTest extends TestCase {
 	}
 
 	public function test_learn_more_link_or_panel() {
-		$link  = $this->render(
+		$link   = $this->render(
 			$this->with_storefront(
 				[
 					'learn_more' => [
@@ -360,7 +360,17 @@ class PlanSelectorMarkupTest extends TestCase {
 		$this->assertSame( 0, $link->query( '//button[@aria-expanded]' )->length );
 		$this->assertSame( 1, $link->query( '//*[contains(@class,"subscrpt-buybox__learn-more")]' )->length, 'the other cards show no link' );
 
-		$panel  = $this->render( $this->with_storefront( [ 'learn_more' => [ 'label' => '', 'url' => '', 'panel' => 'Billed on the day you join.' ] ] ) );
+		$panel  = $this->render(
+			$this->with_storefront(
+				[
+					'learn_more' => [
+						'label' => '',
+						'url'   => '',
+						'panel' => 'Billed on the day you join.',
+					],
+				]
+			)
+		);
 		$button = $panel->query( '//button[@aria-expanded][@aria-controls]' );
 		$this->assertSame( 1, $button->length );
 		$this->assertSame( 'false', $button->item( 0 )->getAttribute( 'aria-expanded' ) );
@@ -379,7 +389,11 @@ class PlanSelectorMarkupTest extends TestCase {
 				[
 					'tag'        => '"><script>alert(1)</script>',
 					'benefits'   => [ '<img src=x onerror=alert(1)>' ],
-					'learn_more' => [ 'label' => '<i>x</i>', 'url' => '"><script>alert(2)</script>', 'panel' => '' ],
+					'learn_more' => [
+						'label' => '<i>x</i>',
+						'url'   => '"><script>alert(2)</script>',
+						'panel' => '',
+					],
 				]
 			)
 		);
@@ -388,7 +402,20 @@ class PlanSelectorMarkupTest extends TestCase {
 	}
 
 	public function test_nothing_renders_when_empty() {
-		foreach ( [ null, [], [ 'benefits' => [], 'tag' => '', 'benefits_heading' => 'Orphan heading', 'learn_more' => [ 'label' => 'Orphan', 'url' => '', 'panel' => '' ] ] ] as $storefront ) {
+		foreach ( [
+			null,
+			[],
+			[
+				'benefits'         => [],
+				'tag'              => '',
+				'benefits_heading' => 'Orphan heading',
+				'learn_more'       => [
+					'label' => 'Orphan',
+					'url'   => '',
+					'panel' => '',
+				],
+			],
+		] as $storefront ) {
 			$groups = $this->fixture_groups();
 			if ( null !== $storefront ) {
 				$groups[0]['storefront'] = $storefront;

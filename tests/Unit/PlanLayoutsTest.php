@@ -292,11 +292,11 @@ class PlanLayoutsTest extends TestCase {
 	}
 
 	public function test_intervals_dropdown_per_group() {
-		$groups                                   = $this->fixture_groups();
-		$groups[0]['storefront']['intervals']     = 'dropdown';
-		$second                                   = $groups[0];
-		$second['id']                             = 'grp_3';
-		$second['storefront']['intervals']        = 'chips';
+		$groups                               = $this->fixture_groups();
+		$groups[0]['storefront']['intervals'] = 'dropdown';
+		$second                               = $groups[0];
+		$second['id']                         = 'grp_3';
+		$second['storefront']['intervals']    = 'chips';
 		array_splice( $groups, 1, 0, [ $second ] );
 
 		$xpath = $this->render( '', $groups );
@@ -325,7 +325,7 @@ class PlanLayoutsTest extends TestCase {
 	}
 
 	public function test_layout_for_product_override_wins() {
-		$GLOBALS['wp_options']['subscrpt_plan_selector_layout'] = 'classic';
+		$GLOBALS['wp_options']['subscrpt_plan_selector_layout']        = 'classic';
 		$GLOBALS['wp_post_meta'][10]['_subscrpt_plan_selector_layout'] = 'dropdown';
 
 		$this->assertSame( 'dropdown', Plans::layout_for( $this->product( 10 ) ) );
@@ -390,8 +390,8 @@ class PlanLayoutsTest extends TestCase {
 
 	public function test_card_body_fires_once_per_group_and_one_is_visible() {
 		foreach ( [ 'dropdown', 'classic', 'buttons' ] as $layout ) {
-			$GLOBALS['applied_actions']   = [];
-			$GLOBALS['wp_hooks_registry'] = [];
+			$GLOBALS['applied_actions']                                    = [];
+			$GLOBALS['wp_hooks_registry']                                  = [];
 			$GLOBALS['wp_hooks_registry']['subscrpt_plan_card_body'][10][] = [
 				static function ( $group, $product, $context ) {
 					echo '<span class="test-body">' . esc_html( $group['id'] . '|' . $product->get_id() . '|' . $context ) . '</span>';
@@ -470,9 +470,9 @@ class PlanLayoutsTest extends TestCase {
 
 	public function test_accordion_cards_collapse_to_one_line_and_the_selected_opens() {
 		$this->listen_on_body();
-		$groups                     = $this->fixture_groups();
-		$groups[0]['storefront']    = [ 'benefits' => [ 'Skip any time' ] ];
-		$xpath                      = $this->render( 'accordion', $groups );
+		$groups                  = $this->fixture_groups();
+		$groups[0]['storefront'] = [ 'benefits' => [ 'Skip any time' ] ];
+		$xpath                   = $this->render( 'accordion', $groups );
 
 		$this->assertSame( 'accordion', $this->layout_of( $xpath ) );
 		$cards = $xpath->query( '//*[@data-subscrpt-card]' );
@@ -494,7 +494,7 @@ class PlanLayoutsTest extends TestCase {
 			$this->assertSame( 1, $xpath->query( './/*[@data-subscrpt-card-body]', $panel )->length, "option {$i}: the body is in the panel" );
 		}
 
-		$first = $xpath->query( "//*[@data-subscrpt-panel][not(@hidden)]" )->item( 0 );
+		$first = $xpath->query( '//*[@data-subscrpt-panel][not(@hidden)]' )->item( 0 );
 		$this->assertSame( 2, $xpath->query( ".//input[@data-subscrpt-term][@name='subscrpt_plan_term[grp_1]']", $first )->length, 'the open panel shows the intervals' );
 		$this->assertSame( 1, $xpath->query( ".//*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__benefits ')]", $first )->length, 'and the benefits' );
 		$this->assertStringContainsString( '$20.00', $xpath->query( "//*[@data-subscrpt-card][1]/*[contains(concat(' ', @class, ' '), ' subscrpt-buybox__head ')]" )->item( 0 )->textContent, 'the price is on the line' );

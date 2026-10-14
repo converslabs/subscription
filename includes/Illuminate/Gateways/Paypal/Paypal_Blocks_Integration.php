@@ -1,4 +1,9 @@
 <?php
+/**
+ * PayPal payment method for WooCommerce Blocks.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate\Gateways\Paypal;
 

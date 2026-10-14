@@ -1,4 +1,9 @@
 <?php
+/**
+ * Plugin settings screen.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Admin;
 
@@ -232,7 +237,7 @@ class Settings {
 	 * @return string Link HTML, or an empty string when the user cannot act on it.
 	 */
 	private function get_stripe_plugin_action() {
-		$slug     = 'woocommerce-gateway-stripe';
+		$slug      = 'woocommerce-gateway-stripe';
 		$installed = '' !== Ajax::get_installed_plugin_file( $slug );
 
 		if ( $installed && current_user_can( 'activate_plugins' ) ) {

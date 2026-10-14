@@ -1,4 +1,9 @@
 <?php
+/**
+ * Registers the plugin emails with WooCommerce.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 
@@ -98,9 +103,9 @@ class Email {
 	 * @return array
 	 */
 	public function register_emails( array $emails ): array {
-		$emails['subscrpt_status_changed_admin_email']   = new StatusChangedAdmin();
-		$emails['subscrpt_subscription_expired_email']   = new SubscriptionExpired();
-		$emails['subscrpt_subscription_cancelled_email'] = new SubscriptionCancelled();
+		$emails['subscrpt_status_changed_admin_email']      = new StatusChangedAdmin();
+		$emails['subscrpt_subscription_expired_email']      = new SubscriptionExpired();
+		$emails['subscrpt_subscription_cancelled_email']    = new SubscriptionCancelled();
 		$emails['subscrpt_subscription_stock_paused_email'] = new SubscriptionStockPaused();
 
 		// The admin cancellation notices are free's reduced stand-ins. Pro ships

@@ -1,4 +1,9 @@
 <?php
+/**
+ * AJAX handlers for installing and activating WooCommerce and integration plugins.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription;
 
@@ -89,6 +94,9 @@ class Ajax {
 		return $this->wps_subscription_activate_woocommerce_plugin();
 	}
 
+	/**
+	 * Activate WooCommerce and send a JSON response.
+	 */
 	public function wps_subscription_activate_woocommerce_plugin() {
 		activate_plugin( 'woocommerce/woocommerce.php' );
 		wp_send_json(

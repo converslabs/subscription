@@ -77,8 +77,8 @@ class VariationButtonsFixtures {
 	 * Clear every fixture the tests write.
 	 */
 	public static function reset(): void {
-		$GLOBALS['wp_post_meta']      = [];
-		$GLOBALS['wp_options']        = [];
+		$GLOBALS['wp_post_meta'] = [];
+		$GLOBALS['wp_options']   = [];
 		// A pro that renders through free answers this, from every reset.
 		$GLOBALS['wp_filter_returns'] = empty( $GLOBALS['pro_renders_through_free'] ) ? [] : [ 'subscrpt_plan_selector_from_free' => true ];
 		$GLOBALS['wp_hooks_registry'] = [];

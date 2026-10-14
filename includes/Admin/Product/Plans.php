@@ -83,9 +83,17 @@ class Plans {
 		/* translators: %s: the store's layout. */
 		$default = sprintf( __( 'Store default (%s)', 'subscription' ), $labels[ $store ] );
 
-		$options = array( array( 'value' => '', 'label' => $default ) );
+		$options = array(
+			array(
+				'value' => '',
+				'label' => $default,
+			),
+		);
 		foreach ( $labels as $key => $label ) {
-			$options[] = array( 'value' => (string) $key, 'label' => $label );
+			$options[] = array(
+				'value' => (string) $key,
+				'label' => $label,
+			);
 		}
 		$showing = \SpringDevs\Subscription\Frontend\Plans::layout_for( $product, $layouts );
 		?>

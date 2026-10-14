@@ -1,4 +1,9 @@
 <?php
+/**
+ * Subscription details on the admin order screen.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Admin;
 

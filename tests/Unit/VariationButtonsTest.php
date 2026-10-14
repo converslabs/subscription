@@ -133,8 +133,26 @@ class VariationButtonsTest extends TestCase {
 		$html    = F::dropdown();
 
 		$this->assertSame( $html, $buttons->render( $html, [] ) );
-		$this->assertSame( $html, $buttons->render( $html, [ 'attribute' => 'size', 'product' => new \WC_Product( 5 ) ] ) );
-		$this->assertSame( 'not a select', $buttons->render( 'not a select', [ 'attribute' => 'size', 'product' => F::product() ] ) );
+		$this->assertSame(
+			$html,
+			$buttons->render(
+				$html,
+				[
+					'attribute' => 'size',
+					'product'   => new \WC_Product( 5 ),
+				]
+			)
+		);
+		$this->assertSame(
+			'not a select',
+			$buttons->render(
+				'not a select',
+				[
+					'attribute' => 'size',
+					'product'   => F::product(),
+				]
+			)
+		);
 	}
 
 	/** The setting is a toggle in the Product page group, defaulting on. */

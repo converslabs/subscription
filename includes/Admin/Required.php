@@ -1,4 +1,9 @@
 <?php
+/**
+ * Notice to install and activate required plugins.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Admin;
 
@@ -9,6 +14,11 @@ namespace SpringDevs\Subscription\Admin;
  */
 class Required {
 
+	/**
+	 * Whether the WooCommerce plugin file exists.
+	 *
+	 * @var bool
+	 */
 	private $plugin_file = true;
 
 	/**
@@ -18,10 +28,18 @@ class Required {
 	 */
 	private $required_plugins = array();
 
+	/**
+	 * Initialize the class.
+	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'check_plugins' ) );
 	}
 
+	/**
+	 * Check for WooCommerce and wire the notice, assets and plugins-list row when it is missing or inactive.
+	 *
+	 * @return void
+	 */
 	public function check_plugins() {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			include_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -87,6 +105,11 @@ class Required {
 		<?php
 	}
 
+	/**
+	 * Enqueue the required-plugins notice styles and script.
+	 *
+	 * @return void
+	 */
 	public function enqueue_assets() {
 		// Only load the notice styles/script — including the red plugins-list row
 		// tint — when a dependency is actually missing. Otherwise the row would
@@ -117,6 +140,11 @@ class Required {
 		}
 	}
 
+	/**
+	 * Render the admin notice to install or activate WooCommerce.
+	 *
+	 * @return void
+	 */
 	public function install_plugin_notice() {
 		if ( $this->plugin_file ) {
 			$id    = 'sdevs-activate-plugin';

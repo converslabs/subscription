@@ -1,4 +1,9 @@
 <?php
+/**
+ * WooCommerce Blocks integration loader.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 

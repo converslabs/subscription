@@ -68,14 +68,14 @@ class PlanPresenter {
 		}
 
 		return array(
-			'id'       => $tree['id'],
-			'name'     => $tree['title'],
-			'type'     => $type_key,
-			'status'   => $tree['status'],
-			'created'  => self::ago( $tree['created_at'] ),
-			'edited'   => self::ago( $tree['updated_at'] ),
-			'terms'    => $terms,
-			'products' => self::apply_order( self::products( $tree, $type_key ), $order['product_order'] ?? array(), true ),
+			'id'         => $tree['id'],
+			'name'       => $tree['title'],
+			'type'       => $type_key,
+			'status'     => $tree['status'],
+			'created'    => self::ago( $tree['created_at'] ),
+			'edited'     => self::ago( $tree['updated_at'] ),
+			'terms'      => $terms,
+			'products'   => self::apply_order( self::products( $tree, $type_key ), $order['product_order'] ?? array(), true ),
 			'storefront' => self::storefront( $tree ),
 		);
 	}

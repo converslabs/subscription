@@ -176,7 +176,7 @@ class PlansProGateTest extends TestCase {
 
 	/** Without pro free renders, whatever the filter says: no pro is there to answer it. */
 	public function test_without_pro_the_filter_is_not_needed() {
-		$GLOBALS['wp_filter_returns']['subscrpt_plan_selector_from_free'] = false;
+		$GLOBALS['wp_filter_returns']['subscrpt_plan_selector_from_free']        = false;
 		$GLOBALS['wp_object_cache'][ PlanRepository::CACHE_GROUP ]['product_20'] = [ array_merge( $this->row( 11, 0 ), [ 'vid' => 0 ] ) ];
 
 		$this->assertStringContainsString( 'data-subscrpt-single-term="11"', $this->render( new \WC_Product_Stub( 20, 'Mug' ) ) );
