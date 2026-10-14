@@ -363,12 +363,8 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 
 = 2.5.0 - Oct 14, 2026 =
 -   new: Ready for subscription boxes, with a Boxes screen preview (selling boxes needs WPSubscription Pro).
--   new: Seven purchase option layouts.
--   new: Product page settings: layout, colours and live preview, with a per-product layout override.
--   new: Plan tag ribbons, benefits and "learn more" details on the product page.
--   new: Each billing interval shows its own price and saving.
--   new: Variation buttons for variable products with plans.
--   new: Swap subscriptions in the cart.
+-   new: Seven purchase option layouts, with product page settings for layout and colours, a live preview and a per-product override.
+-   new: Richer purchase options: plan tag ribbons, benefits and "learn more" details, per-interval price and saving, and variation buttons for variable products with plans.
 -   improved: Keyboard navigation for purchase options.
 -   improved: Clearer installment options.
 -   improved: Renewal order failures are logged with the reason.
@@ -377,7 +373,6 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 -   fix: No "Subscription saved" email after a customer cancels.
 -   fix: Subscription cadence translated on the block cart and checkout.
 -   fix: Plan instalments no longer add tax twice.
--   fix: JavaScript error on the Shop page for variable products with plan notes.
 -   fix: Discount badge follows the selected billing interval.
 -   fix: Fatal error on renewal when the WooCommerce Stripe Gateway plugin is inactive.
 
