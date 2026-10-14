@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim, parvezvai, jakariaistauk
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.4.0
+Stable tag: 2.5.0
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -360,6 +360,28 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.5.0 - Oct 14, 2026 =
+-   new: Purchase options come in seven layouts: stacked cards, a classic radio list, a dropdown, an accordion, a grid of tiles, a grid that leads with the saving, and a button row.
+-   new: Settings > Product page: choose the layout, list billing intervals as chips or a dropdown, and set the accent, text, border, badge and ribbon colours and the corner radius, with a live preview.
+-   new: A product can use its own purchase option layout, chosen in its Subscription tab.
+-   new: A plan's "On the product page" tab adds a tag ribbon, a list of benefits, and a "learn more" link or details panel to its purchase option.
+-   new: Each billing interval shows its own price and saving, with the regular price struck through.
+-   new: Variable products that sell plans show their variations as buttons (variable products with plans need WPSubscription Pro).
+-   new: A Boxes screen under WPSubscription previews subscription boxes. Subscription boxes themselves need WPSubscription Pro.
+-   new: Adding a different subscription while one is in the cart offers to swap them, instead of failing. Adding the same subscription again updates its quantity.
+-   new: WPSubscription screens now show only WPSubscription's own notices, and the dashboard announces each release with a dismissible banner.
+-   improved: Purchase options work from the keyboard: arrow keys move between options and between intervals, with a visible focus ring. Only the chosen option's fields are sent with the order.
+-   improved: Installment options read "Pay every" and each interval shows its number of payments.
+-   improved: When a renewal order cannot be created, the subscription's activity and the WooCommerce log now say why.
+-   fix: Cancelled subscriptions now end at the end of the period the customer paid for, instead of 24 hours after they cancel.
+-   fix: The scheduled cancellation notice in My Account shows the time in your site's timezone.
+-   fix: The "Subscription saved" admin email is no longer sent when a customer closes the cancellation survey and then cancels.
+-   fix: The subscription cadence on the block cart and checkout is translated.
+-   fix: Plan subscriptions follow their own instalment terms instead of the product's older split-payment settings, and the recurring amount no longer adds tax twice when prices include tax.
+-   fix: The Shop page no longer throws a JavaScript error for variable products with plan notes, and plan cards on product pages show their prices and notes correctly.
+-   fix: The discount badge follows the selected billing interval, instead of always showing the plan's best discount.
+-   fix: Creating a renewal order no longer causes a fatal error when the WooCommerce Stripe Gateway plugin is not active.
 
 = 2.5.0 - Oct 14, 2026 =
 -   new: Purchase options come in seven layouts: stacked cards, a classic radio list, a dropdown, an accordion, a grid of tiles, a grid that leads with the saving, and a button row.
