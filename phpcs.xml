@@ -6,6 +6,13 @@
     <config name="testVersion" value="7.4-" />
     <config name="minimum_supported_wp_version" value="5.0"/>
 
+    <!--
+        Only errors fail the run. Warnings are still reported with -w, but they
+        flag things to review (direct DB calls, meta queries, unused parameters),
+        not code that is wrong, so they must not make phpcs exit non-zero.
+    -->
+    <arg name="warning-severity" value="0"/>
+
     <!-- Check PHP version compatibility -->
     <!-- https://github.com/PHPCompatibility/PHPCompatibilityWP -->
 	<rule ref="PHPCompatibilityWP"/>
