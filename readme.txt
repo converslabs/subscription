@@ -362,19 +362,19 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 == Changelog ==
 
 = 2.5.0 - Oct 14, 2026 =
--   new: Ready for subscription boxes, with a Boxes screen preview (selling boxes needs WPSubscription Pro).
--   new: Seven purchase option layouts, with product page settings for layout and colours, a live preview and a per-product override.
--   new: Richer purchase options: plan tag ribbons, benefits and "learn more" details, per-interval price and saving, and variation buttons for variable products with plans.
--   improved: Keyboard navigation for purchase options.
--   improved: Clearer installment options.
--   improved: Renewal order failures are logged with the reason.
--   fix: Cancelled subscriptions end at the end of the paid period.
--   fix: Cancellation notice uses the site timezone.
--   fix: No "Subscription saved" email after a customer cancels.
--   fix: Subscription cadence translated on the block cart and checkout.
--   fix: Plan instalments no longer add tax twice.
--   fix: Discount badge follows the selected billing interval.
--   fix: Fatal error on renewal when the WooCommerce Stripe Gateway plugin is inactive.
+-   new: Subscription boxes are coming! Take a first look at the new Boxes screen (selling boxes needs WPSubscription Pro).
+-   new: Beautiful purchase options: choose from seven ready-made designs, match them to your brand colours, watch your changes live, and give any product its own look.
+-   new: Make every plan stand out with a ribbon like "Best value", a list of what's included, the price per delivery and how much customers save. Products that come in options, like size or colour, now show simple buttons to pick from.
+-   improved: Customers can choose a plan using just their keyboard.
+-   improved: Pay-in-instalments options are easier to understand.
+-   improved: When a renewal payment can't go through, you now see exactly why.
+-   fix: Customers who cancel keep their subscription until the end of the time they already paid for.
+-   fix: Cancellation notices show the time in your store's own time zone.
+-   fix: Customers no longer get a confusing "Subscription saved" email right after they cancel.
+-   fix: How often a subscription renews, like "every month", now shows in the customer's language at checkout.
+-   fix: Pay-in-instalments plans no longer charge tax twice.
+-   fix: The discount badge now updates when a customer switches billing options, like monthly to yearly.
+-   fix: Renewals no longer break the site when the WooCommerce Stripe plugin is turned off.
 
 = 2.4.0 - Oct 8, 2026 =
 -   new: Pause subscriptions automatically when a product runs low on stock and resume them when stock recovers, with a new customer email and settings under Settings > Renewals > Stock Management.
