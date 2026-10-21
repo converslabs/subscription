@@ -17,6 +17,8 @@
   --subscrpt-surface: #fff;
   --subscrpt-selected-bg: #e8f1fa;
   --subscrpt-radius: 10px;
+  /* How far a card's content sits in, to line up past the radio. */
+  --subscrpt-indent: 28px;
   color: var(--subscrpt-ink, inherit);
   display: flex;
   flex-direction: column;
@@ -53,6 +55,17 @@
 /* The selected card is filled; the others are outlined on the plain surface. */
 .subscrpt-buybox__card:not(.is-selected) {
   background: transparent;
+}
+
+/* A single option is not a choice: no radio to pick it with, so nothing
+   indents past one. The radio stays in the form, checked. */
+.subscrpt-buybox__card:only-of-type {
+  --subscrpt-indent: 0;
+  cursor: auto;
+}
+
+.subscrpt-buybox__card:only-of-type .subscrpt-buybox__radio {
+  display: none;
 }
 
 /* Radio + control on one centered row so they line up. */
@@ -142,7 +155,7 @@
   gap: 8px;
   min-width: 0;
   margin: 10px 0 0;
-  padding: 0 0 0 28px;
+  padding: 0 0 0 var(--subscrpt-indent);
   border: 0;
   background: none;
 }
@@ -218,7 +231,7 @@
 
 /* Note aligns under the control, past the radio; sits close under the name. */
 .subscrpt-buybox__note {
-  padding-left: 28px;
+  padding-left: var(--subscrpt-indent);
   color: var(--subscrpt-muted);
   font-size: 13px;
 }
@@ -287,14 +300,14 @@
 
 .subscrpt-buybox__benefits-heading {
   margin: 4px 0 0;
-  padding-left: 28px;
+  padding-left: var(--subscrpt-indent);
   font-size: 13px;
   font-weight: 600;
 }
 
 .subscrpt-buybox__benefits {
   margin: 4px 0 0;
-  padding: 0 0 0 28px;
+  padding: 0 0 0 var(--subscrpt-indent);
   list-style: none;
   color: var(--subscrpt-muted);
   font-size: 13px;
@@ -316,7 +329,7 @@
 
 .subscrpt-buybox .subscrpt-buybox__learn-more {
   display: inline-block;
-  margin: 6px 0 0 28px;
+  margin: 6px 0 0 var(--subscrpt-indent);
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -342,7 +355,7 @@
 }
 
 .subscrpt-buybox__details {
-  margin: 6px 0 0 28px;
+  margin: 6px 0 0 var(--subscrpt-indent);
   padding: 10px 12px;
   border-radius: 6px;
   background: var(--subscrpt-surface);
