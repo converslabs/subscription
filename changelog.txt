@@ -1,7 +1,7 @@
 *** WPSubscription Changelog ***
 
 2026-10-14 - version 2.5.0
-* new: Subscription boxes are coming! Take a first look at the new Boxes screen (selling boxes needs WPSubscription Pro).
+* new: Subscription boxes are added! Take a first look at the new Boxes screen (selling boxes needs WPSubscription Pro).
 * new: Beautiful purchase options: choose from seven ready-made designs, match them to your brand colours, watch your changes live, and give any product its own look.
 * new: Make every plan stand out with a ribbon like "Best value", a list of what's included, the price per delivery and how much customers save. Products that come in options, like size or colour, now show simple buttons to pick from.
 * improved: Customers can choose a plan using just their keyboard.
