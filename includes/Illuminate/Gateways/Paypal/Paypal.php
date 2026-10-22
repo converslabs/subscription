@@ -152,6 +152,9 @@ class Paypal extends \WC_Payment_Gateway {
 		// WooCommerce webhook.
 		add_action( 'woocommerce_api_' . $this->id, [ $this, 'process_webhook' ] );
 
+		// Do not expire a subscription PayPal is still billing.
+		add_filter( 'subscrpt_should_expire_subscription', [ $this, 'maybe_hold_expiry' ], 10, 2 );
+
 		// Cancel subscription.
 		add_action( 'subscrpt_subscription_expired', [ $this, 'handle_subscription_cancellation' ] );
 		add_action( 'subscrpt_subscription_cancelled', [ $this, 'handle_subscription_cancellation' ] );
@@ -486,7 +489,7 @@ class Paypal extends \WC_Payment_Gateway {
 	public function process_webhook() {
 		// Get raw webhook data.
 		$raw_body = file_get_contents( 'php://input' );
-		$headers  = function_exists( 'getallheaders' ) ? getallheaders() : [];
+		$headers  = function_exists( 'getallheaders' ) ? (array) getallheaders() : [];
 
 		if ( empty( $raw_body ) ) {
 			subscrpt_write_log( 'PayPal webhook data is empty.' );
@@ -633,13 +636,16 @@ class Paypal extends \WC_Payment_Gateway {
 			wp_die( 'Error: Access token not available. Cannot verify webhook.', '401 Unauthorized', array( 'response' => 401 ) );
 		}
 
+		// Header names arrive in any case (lowercase over HTTP/2), so look them up upper-cased.
+		$headers = array_change_key_case( $headers, CASE_UPPER );
+
 		// Prepare the request data to verify the webhook.
 		$payload = [
-			'auth_algo'         => $headers['PAYPAL-AUTH-ALGO'] ?? $headers['Paypal-Auth-Algo'] ?? '',
-			'cert_url'          => $headers['PAYPAL-CERT-URL'] ?? $headers['Paypal-Cert-Url'] ?? '',
-			'transmission_id'   => $headers['PAYPAL-TRANSMISSION-ID'] ?? $headers['Paypal-Transmission-Id'] ?? '',
-			'transmission_sig'  => $headers['PAYPAL-TRANSMISSION-SIG'] ?? $headers['Paypal-Transmission-Sig'] ?? '',
-			'transmission_time' => $headers['PAYPAL-TRANSMISSION-TIME'] ?? $headers['Paypal-Transmission-Time'] ?? '',
+			'auth_algo'         => $headers['PAYPAL-AUTH-ALGO'] ?? '',
+			'cert_url'          => $headers['PAYPAL-CERT-URL'] ?? '',
+			'transmission_id'   => $headers['PAYPAL-TRANSMISSION-ID'] ?? '',
+			'transmission_sig'  => $headers['PAYPAL-TRANSMISSION-SIG'] ?? '',
+			'transmission_time' => $headers['PAYPAL-TRANSMISSION-TIME'] ?? '',
 			'webhook_id'        => $this->webhook_id ?? '',
 			'webhook_event'     => $raw_body,
 		];
@@ -825,7 +831,7 @@ class Paypal extends \WC_Payment_Gateway {
 		}
 
 		// Get PayPal Plan ID.
-		$paypal_plan_id = $this->get_paypal_plan_id( $wc_product_id, $wc_variation_id, $paypal_product_id, $access_token );
+		$paypal_plan_id = $this->get_paypal_plan_id( $wc_product_id, $wc_variation_id, $paypal_product_id, $access_token, $order_item );
 
 		if ( ! $paypal_plan_id ) {
 			return [
@@ -933,15 +939,16 @@ class Paypal extends \WC_Payment_Gateway {
 	 * @param int    $wc_variation_id WooCommerce Variation ID.
 	 * @param string $paypal_product_id PayPal Product ID.
 	 * @param string $access_token  PayPal Access Token.
+	 * @param mixed  $order_item    Order item; when it carries a selected plan, the PayPal plan is built from it.
 	 */
-	public function get_paypal_plan_id( int $wc_product_id, int $wc_variation_id, string $paypal_product_id, string $access_token ): ?string {
+	public function get_paypal_plan_id( int $wc_product_id, int $wc_variation_id, string $paypal_product_id, string $access_token, $order_item = null ): ?string {
 		$wc_product = wc_get_product( $wc_product_id );
 		if ( 0 !== $wc_variation_id ) {
 			$wc_product = wc_get_product( $wc_variation_id );
 		}
 
 		// Generate fingerprint of current critical billing fields (price, currency, interval, trial, signup fee, cycles).
-		$fingerprint = $this->generate_plan_fingerprint( $wc_product );
+		$fingerprint = $this->generate_plan_fingerprint( $wc_product, $order_item );
 
 		// Load stored plans array from product meta.
 		$stored_plans = get_post_meta( $wc_product_id, $this->get_meta_key( 'plans' ), true );
@@ -957,7 +964,7 @@ class Paypal extends \WC_Payment_Gateway {
 		}
 
 		// No matching plan found — create a new one for the current configuration.
-		$plan_data   = $this->generate_plan_data( $wc_product, $paypal_product_id );
+		$plan_data   = $this->generate_plan_data( $wc_product, $paypal_product_id, $order_item );
 		$paypal_plan = $this->create_paypal_plan( $plan_data, $access_token );
 
 		if ( $paypal_plan ) {
@@ -996,6 +1003,51 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// Return PayPal product or null.
 		return $paypal_product;
+	}
+
+	/**
+	 * Tell whether a sale on a completed order without a transaction ID is a renewal.
+	 *
+	 * The initial sale is charged at checkout, so it is created within a day of the order.
+	 * A free-trial or zero-total order has no initial sale, and a later sale is a renewal.
+	 *
+	 * @param WC_Order $order        The completed order that has no transaction ID.
+	 * @param array    $webhook_data Webhook data from PayPal.
+	 */
+	private function is_renewal_sale( WC_Order $order, array $webhook_data ): bool {
+		if ( (float) $order->get_total() <= 0 ) {
+			return true;
+		}
+
+		$sale_time   = strtotime( (string) ( $webhook_data['resource']['create_time'] ?? '' ) );
+		$order_stamp = $order->get_date_created() ? $order->get_date_created()->getTimestamp() : 0;
+
+		return $sale_time && $order_stamp && ( $sale_time - $order_stamp ) > DAY_IN_SECONDS;
+	}
+
+	/**
+	 * Keep a PayPal-managed subscription from expiring while PayPal is still billing it.
+	 *
+	 * Hooked to `subscrpt_should_expire_subscription`. PayPal may bill later than the
+	 * WPSubscription due date, so an active PayPal subscription gets a three day grace.
+	 *
+	 * @param bool $should_expire   Whether the cron should expire the subscription.
+	 * @param int  $subscription_id Subscription ID.
+	 */
+	public function maybe_hold_expiry( $should_expire, $subscription_id ) {
+		$order = $should_expire ? wc_get_order( (int) get_post_meta( $subscription_id, '_subscrpt_order_id', true ) ) : null;
+		if ( ! $order || $order->get_payment_method() !== $this->id ) {
+			return $should_expire;
+		}
+
+		$status = get_post_meta( $subscription_id, $this->get_meta_key( 'paypal_subs_status' ), true );
+		$next   = (int) get_post_meta( $subscription_id, '_subscrpt_next_date', true );
+
+		if ( 'active' === $status && $next > 0 && time() < $next + ( 3 * DAY_IN_SECONDS ) ) {
+			return false;
+		}
+
+		return $should_expire;
 	}
 
 	/**
@@ -1044,6 +1096,14 @@ class Paypal extends \WC_Payment_Gateway {
 							wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
 						} elseif ( $existing_txn && $existing_txn !== $transaction_id ) {
 							// Order already has a different transaction — this is a renewal payment.
+							$order = Helper::create_renewal_order( $wpsubs_id );
+							if ( $order ) {
+								// translators: %s: transaction id.
+								$order->add_order_note( sprintf( __( 'Renewal order created by PayPal webhook. Transaction ID: %s', 'subscription' ), $transaction_id ) );
+								$order->save();
+							}
+						} elseif ( $latest_order->has_status( 'completed' ) && $this->is_renewal_sale( $latest_order, $webhook_data ) ) {
+							// The completed parent order never receives a renewal payment (a trial has no initial sale).
 							$order = Helper::create_renewal_order( $wpsubs_id );
 							if ( $order ) {
 								// translators: %s: transaction id.
@@ -1455,30 +1515,84 @@ class Paypal extends \WC_Payment_Gateway {
 	}
 
 	/**
-	 * Generate a fingerprint hash of all critical billing fields for a product.
+	 * Resolve the billing terms PayPal must charge for an order item.
 	 *
-	 * The fingerprint encodes every field that determines a distinct PayPal billing
-	 * plan (price, currency, interval, trial, signup fee, cycle count). Two products
-	 * with identical critical fields produce the same fingerprint and can share a plan.
+	 * An item that carries a selected plan (`_subscrpt_plan_id`) bills on that plan's
+	 * interval, trial, length and price. Anything else falls back to the legacy product timing.
 	 *
 	 * @param WC_Product $wc_product WooCommerce product (simple or variation).
-	 * @return string MD5 hash of the critical fields.
+	 * @param mixed      $order_item Order item, or null.
+	 * @return array{price: float, interval: string, interval_count: int, trial_interval: string, trial_count: int, signup_fee: float, total_cycles: int}
 	 */
-	private function generate_plan_fingerprint( WC_Product $wc_product ): string {
+	private function get_billing_terms( WC_Product $wc_product, $order_item = null ): array {
+		if ( $order_item instanceof WC_Order_Item_Product && $order_item->get_meta( '_subscrpt_plan_id' ) ) {
+			$terms = $order_item->get_meta( '_subscrpt_plan_terms' );
+			$terms = is_array( $terms ) ? $terms : [];
+
+			// The trial is stored as a string such as "7 days".
+			$trial_count    = 0;
+			$trial_interval = 'DAY';
+			if ( ! empty( $terms['trial'] ) && preg_match( '/^\s*(\d+)\s*([a-z]+)/i', (string) $terms['trial'], $matches ) ) {
+				$trial_count    = (int) $matches[1];
+				$trial_interval = $this->convert_paypal_interval( $matches[2] );
+			}
+
+			$plan_price = (float) $order_item->get_meta( '_subscrpt_plan_price' );
+
+			return [
+				'price'          => (float) wc_get_price_including_tax( $wc_product, [ 'price' => $plan_price ] ),
+				'interval'       => $this->convert_paypal_interval( (string) ( $terms['type'] ?? 'months' ) ),
+				'interval_count' => max( 1, (int) ( $terms['time'] ?? 1 ) ),
+				'trial_interval' => $trial_interval,
+				'trial_count'    => $trial_count,
+				'signup_fee'     => 0.0,
+				'total_cycles'   => (int) ( $terms['max_no_payment'] ?? 0 ),
+			];
+		}
+
 		$wpsubs_product = Subscription::get_subs_product( $wc_product );
 		$meta_cycles    = $wc_product->get_meta( '_subscrpt_max_no_payment' );
-		$total_cycles   = $meta_cycles ? $meta_cycles : 0;
 
-		$data = [
-			'price'          => number_format( (float) wc_get_price_including_tax( $wc_product ), 2, '.', '' ),
-			'currency'       => get_woocommerce_currency(),
+		return [
+			'price'          => (float) wc_get_price_including_tax( $wc_product ),
 			'interval'       => $this->convert_paypal_interval( $wpsubs_product->get_timing_option() ),
 			'interval_count' => (int) $wpsubs_product->get_timing_per(),
 			'trial_interval' => $this->convert_paypal_interval( $wpsubs_product->get_trial_timing_option() ),
 			'trial_count'    => (int) $wpsubs_product->get_trial_timing_per(),
-			'signup_fee'     => number_format( (float) $wpsubs_product->get_signup_fee(), 2, '.', '' ),
-			'total_cycles'   => (int) $total_cycles,
+			'signup_fee'     => (float) $wpsubs_product->get_signup_fee(),
+			'total_cycles'   => $meta_cycles ? (int) $meta_cycles : 0,
 		];
+	}
+
+	/**
+	 * Generate a fingerprint hash of all critical billing fields for a product.
+	 *
+	 * The fingerprint encodes every field that determines a distinct PayPal billing
+	 * plan (price, currency, interval, trial, signup fee, cycle count and the selected
+	 * plan). Two configurations with identical critical fields produce the same
+	 * fingerprint and can share a plan.
+	 *
+	 * @param WC_Product $wc_product WooCommerce product (simple or variation).
+	 * @param mixed      $order_item Order item carrying the selected plan, or null.
+	 * @return string MD5 hash of the critical fields.
+	 */
+	private function generate_plan_fingerprint( WC_Product $wc_product, $order_item = null ): string {
+		$terms = $this->get_billing_terms( $wc_product, $order_item );
+
+		$data = [
+			'price'          => number_format( $terms['price'], 2, '.', '' ),
+			'currency'       => get_woocommerce_currency(),
+			'interval'       => $terms['interval'],
+			'interval_count' => $terms['interval_count'],
+			'trial_interval' => $terms['trial_interval'],
+			'trial_count'    => $terms['trial_count'],
+			'signup_fee'     => number_format( $terms['signup_fee'], 2, '.', '' ),
+			'total_cycles'   => $terms['total_cycles'],
+		];
+
+		if ( $order_item instanceof WC_Order_Item_Product && $order_item->get_meta( '_subscrpt_plan_id' ) ) {
+			$data['plan_id'] = (int) $order_item->get_meta( '_subscrpt_plan_id' );
+		}
 
 		return md5( wp_json_encode( $data ) );
 	}
@@ -1488,31 +1602,24 @@ class Paypal extends \WC_Payment_Gateway {
 	 *
 	 * @param WC_Product $wc_product WooCommerce Product.
 	 * @param string     $paypal_product_id PayPal Product ID.
+	 * @param mixed      $order_item Order item carrying the selected plan, or null.
 	 */
-	public function generate_plan_data( WC_Product $wc_product, string $paypal_product_id ): array {
-		// Get WPSubscription wrapped product.
-		// $wpsubs_product type WC_Product
-		$wpsubs_product = Subscription::get_subs_product( $wc_product );
-
+	public function generate_plan_data( WC_Product $wc_product, string $paypal_product_id, $order_item = null ): array {
 		// Name.
 		$name = $this->truncate_string( $wc_product->get_name(), 126 );
 
 		// Description.
 		$description = $this->truncate_string( $wc_product->get_short_description(), 126 );
 
-		// Price.
-		$price = wc_get_price_including_tax( $wc_product );
-
-		// Recurring Details.
-		$plan_length    = $wpsubs_product->get_timing_per();
-		$plan_interval  = $this->convert_paypal_interval( $wpsubs_product->get_timing_option() );
-		$trial_length   = $wpsubs_product->get_trial_timing_per();
-		$trial_interval = $this->convert_paypal_interval( $wpsubs_product->get_trial_timing_option() );
-		$signup_fee     = $wpsubs_product->get_signup_fee();
-
-		// get value for total_cycles from _subscrpt_max_no_payment
-		$meta_cycles  = $wc_product->get_meta( '_subscrpt_max_no_payment' );
-		$total_cycles = $meta_cycles ? $meta_cycles : 0;
+		// Billing terms from the selected plan, or the legacy product timing.
+		$terms          = $this->get_billing_terms( $wc_product, $order_item );
+		$price          = $terms['price'];
+		$plan_length    = $terms['interval_count'];
+		$plan_interval  = $terms['interval'];
+		$trial_length   = $terms['trial_count'];
+		$trial_interval = $terms['trial_interval'];
+		$signup_fee     = $terms['signup_fee'];
+		$total_cycles   = $terms['total_cycles'];
 
 		// Billing Cycles.
 		$billing_cycles = [];
@@ -1522,7 +1629,7 @@ class Paypal extends \WC_Payment_Gateway {
 			$billing_cycles[] = [
 				'tenure_type'  => 'TRIAL',
 				'sequence'     => 1,
-				'total_cycles' => $total_cycles,
+				'total_cycles' => 1,
 				'frequency'    => [
 					'interval_unit'  => $trial_interval,
 					'interval_count' => (int) $trial_length,
@@ -1534,7 +1641,7 @@ class Paypal extends \WC_Payment_Gateway {
 		$billing_cycles[] = [
 			'tenure_type'    => 'REGULAR',
 			'sequence'       => count( $billing_cycles ) + 1,
-			'total_cycles'   => 0,
+			'total_cycles'   => (int) $total_cycles,
 			'pricing_scheme' => [
 				'fixed_price' => [
 					'value'         => number_format( (float) $price, 2, '.', '' ),
