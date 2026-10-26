@@ -155,6 +155,9 @@ class Paypal extends \WC_Payment_Gateway {
 		// Do not expire a subscription PayPal is still billing.
 		add_filter( 'subscrpt_should_expire_subscription', [ $this, 'maybe_hold_expiry' ], 10, 2 );
 
+		// Keep PayPal as the payment method on renewal orders.
+		add_filter( 'subscrpt_before_saving_renewal_order', [ $this, 'copy_payment_method_to_renewal' ], 10, 2 );
+
 		// Cancel subscription.
 		add_action( 'subscrpt_subscription_expired', [ $this, 'handle_subscription_cancellation' ] );
 		add_action( 'subscrpt_subscription_cancelled', [ $this, 'handle_subscription_cancellation' ] );
@@ -1023,6 +1026,26 @@ class Paypal extends \WC_Payment_Gateway {
 		$order_stamp = $order->get_date_created() ? $order->get_date_created()->getTimestamp() : 0;
 
 		return $sale_time && $order_stamp && ( $sale_time - $order_stamp ) > DAY_IN_SECONDS;
+	}
+
+	/**
+	 * Copy the PayPal payment method onto a renewal order.
+	 *
+	 * Hooked to `subscrpt_before_saving_renewal_order`. A renewal order is created without
+	 * a payment method, and the subscription then points at it, so without this every
+	 * PayPal check that reads the subscription's order fails from the first renewal on.
+	 *
+	 * @param WC_Order $new_order Renewal order.
+	 * @param WC_Order $old_order Order the renewal is created from.
+	 * @return WC_Order
+	 */
+	public function copy_payment_method_to_renewal( $new_order, $old_order ) {
+		if ( $new_order instanceof WC_Order && $old_order instanceof WC_Order && $old_order->get_payment_method() === $this->id ) {
+			$new_order->set_payment_method( $this->id );
+			$new_order->set_payment_method_title( $old_order->get_payment_method_title() );
+		}
+
+		return $new_order;
 	}
 
 	/**
