@@ -1568,8 +1568,9 @@ class Paypal extends \WC_Payment_Gateway {
 				'interval_count' => max( 1, (int) ( $terms['time'] ?? 1 ) ),
 				'trial_interval' => $trial_interval,
 				'trial_count'    => $trial_count,
-				'signup_fee'     => 0.0,
-				'total_cycles'   => (int) ( $terms['max_no_payment'] ?? 0 ),
+				'signup_fee'     => (float) ( $terms['signup_fee'] ?? 0 ),
+				// The cycle count is stored on the item, not inside the terms array.
+				'total_cycles'   => (int) $order_item->get_meta( '_subscrpt_plan_max_no_payment' ),
 			];
 		}
 
