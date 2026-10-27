@@ -1,4 +1,9 @@
 <?php
+/**
+ * Pauses and resumes subscriptions based on product stock.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 

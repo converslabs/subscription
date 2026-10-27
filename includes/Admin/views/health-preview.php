@@ -80,8 +80,8 @@ $dummy_subs = array(
 );
 
 $revenue_at_risk = 0.0;
-foreach ( $dummy_subs as $s ) {
-	$revenue_at_risk += $s['amount'];
+foreach ( $dummy_subs as $dummy_sub ) {
+	$revenue_at_risk += $dummy_sub['amount'];
 }
 
 $issue_badge_map = array(

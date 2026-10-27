@@ -1,5 +1,24 @@
 *** WPSubscription Changelog ***
 
+2026-10-25 - version 2.5.0
+* new: Subscription boxes are added! Take a first look at the new Boxes screen (selling boxes needs WPSubscription Pro).
+* new: Choose from seven ready-made purchase option designs, match them to your brand colours with a live preview, and give any product its own look.
+* new: Make a plan stand out with a ribbon like "Most popular", a list of what's included and a "learn more" link, show each delivery's own price and saving, and let customers pick options like size or colour with simple buttons.
+* new: WPSubscription screens now show only WPSubscription notices, and the dashboard tells you what is new in each release.
+* new: A customer who adds a different subscription is asked whether to switch, instead of being blocked.
+* improved: Customers can choose a plan using just their keyboard.
+* improved: Pay-in-instalments options are easier to understand.
+* improved: When a renewal order can't be created, the subscription's history and the WooCommerce log now say why.
+* improved: A product with a single purchase option no longer shows a radio button or indents its content.
+* fix: Customers who cancel keep their subscription until the end of the time they already paid for.
+* fix: Cancellation notices show the time in your store's own time zone.
+* fix: Customers no longer get a "Subscription saved" email when they cancel right after closing the cancellation survey.
+* fix: How often a subscription renews, like "every month", now shows in the customer's language on the block cart and checkout.
+* fix: Pay-in-instalments plans follow their own terms, not the product's old split-payment settings, and no longer charge tax twice.
+* fix: The discount badge now updates when a customer switches billing options, like monthly to yearly.
+* fix: The Shop page no longer shows a JavaScript error when Variation Swatches is active.
+* fix: Renewals no longer break the site when the WooCommerce Stripe plugin is turned off.
+
 2026-10-08 - version 2.4.0
 * new: Pause subscriptions automatically when a product runs low on stock and resume them when stock recovers, with a new customer email and settings under Settings > Renewals > Stock Management.
 * new: Multilingual support: WPSubscription is now fully translatable and works with WPML and Polylang, including plans on translated products, translatable plan names and customer emails sent in the language the customer bought in.

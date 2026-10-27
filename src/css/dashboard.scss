@@ -43,6 +43,191 @@ $ink: #1e1e1e;
 }
 
 /* --------------------------------------------------------------------------
+   Announcement: what is new in this release, above everything else
+
+   The one place on the screen in the brand colour, so it reads as news rather
+   than as another status card. Intro on the left, one tile per feature on the
+   right; stacks below 1100px like the split underneath it.
+
+   Its text blocks are divs, not paragraphs: admin.css sets every `p` in the
+   page container to 14px, which would outrank the sizes below.
+   -------------------------------------------------------------------------- */
+
+.subscrpt-announce {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 2fr);
+  gap: 24px;
+  padding: 22px 24px;
+  border: 1px solid #ffd2bf;
+  border-radius: 8px;
+  background: linear-gradient(100deg, var(--wpsubs-brand-light, #fff1eb) 0%, #fff 55%);
+
+  &__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: $muted;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: $ink;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--wpsubs-brand, #ff4d00);
+      outline-offset: 1px;
+    }
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0 0 10px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--wpsubs-brand, #ff4d00);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+
+  &__title {
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: $ink;
+  }
+
+  &__text {
+    margin: 6px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: $muted;
+  }
+
+  &__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--wpsubs-brand-dark, #d93f00);
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+      color: var(--wpsubs-brand-dark, #d93f00);
+      text-decoration: underline;
+    }
+  }
+
+  &__features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin: 0;
+    /* Clear of the close button in the top-right corner. */
+    padding: 0 28px 0 0;
+    list-style: none;
+  }
+
+  &__feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0;
+    padding: 14px 16px;
+    border: 1px solid $border;
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--wpsubs-brand-light, #fff1eb);
+    color: var(--wpsubs-brand, #ff4d00);
+  }
+
+  &__feature-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: $ink;
+  }
+
+  &__feature-text {
+    margin: 3px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: $muted;
+  }
+
+  &__feature-link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--wpsubs-brand-dark, #d93f00);
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+      color: var(--wpsubs-brand-dark, #d93f00);
+      text-decoration: underline;
+    }
+  }
+}
+
+@media screen and (max-width: 1100px) {
+  .subscrpt-announce {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+
+    &__intro {
+      padding-right: 28px;
+    }
+
+    &__features {
+      padding-right: 0;
+    }
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .subscrpt-announce {
+    padding: 18px 16px;
+
+    &__features {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
    Split: chart on the left, things that want doing on the right
    -------------------------------------------------------------------------- */
 

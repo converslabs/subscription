@@ -1,4 +1,9 @@
 <?php
+/**
+ * WooCommerce Blocks integration for the plugin.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
 

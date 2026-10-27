@@ -1,7 +1,7 @@
 <?php
 /**
  * Plan detail view. Uses the shared WPSubsTabs component (client-side tabs -
- * no page reload): Durations | Products (read-only).
+ * no page reload): Durations | Products (read-only) | On the product page.
  *
  * @var array  $plan     Plan (PlanPresenter shape).
  * @var string $list_url Base list URL.
@@ -84,6 +84,9 @@ use SpringDevs\Subscription\Admin\Plans;
 				<button class="wpsubs-tabs__tab" role="tab" id="subscrpt-tab-products" data-tab-key="products" aria-controls="subscrpt-panel-products" aria-selected="false">
 					<?php esc_html_e( 'Products', 'subscription' ); ?>
 				</button>
+				<button class="wpsubs-tabs__tab" role="tab" id="subscrpt-tab-storefront" data-tab-key="storefront" aria-controls="subscrpt-panel-storefront" aria-selected="false">
+					<?php esc_html_e( 'On the product page', 'subscription' ); ?>
+				</button>
 			</div>
 
 			<div class="wpsubs-tab-panel" role="tabpanel" id="subscrpt-panel-selling" aria-labelledby="subscrpt-tab-selling">
@@ -92,6 +95,10 @@ use SpringDevs\Subscription\Admin\Plans;
 
 			<div class="wpsubs-tab-panel" role="tabpanel" id="subscrpt-panel-products" aria-labelledby="subscrpt-tab-products" hidden>
 				<?php require __DIR__ . '/tab-products.php'; ?>
+			</div>
+
+			<div class="wpsubs-tab-panel" role="tabpanel" id="subscrpt-panel-storefront" aria-labelledby="subscrpt-tab-storefront" hidden>
+				<?php require __DIR__ . '/tab-storefront.php'; ?>
 			</div>
 		</div>
 

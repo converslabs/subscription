@@ -18,6 +18,10 @@
  * reload). On load the tab matching the param is restored, else the first tab.
  * Each tab's key comes from data-tab-key, falling back to its id.
  *
+ * Only tabs with aria-controls are managed. A tab without one (a link to a
+ * server-rendered view, e.g. <a class="wpsubs-tabs__tab" href="…&tab=x">) is
+ * left alone so the click navigates.
+ *
  * Events fired on the root element (bubbles):
  *   wpsubs:tab:change — { id }  the newly selected tab's id
  */
@@ -29,7 +33,7 @@
    */
   function WPSubsTabs(el) {
     this.el = el;
-    this.tabs = Array.prototype.slice.call(el.querySelectorAll(".wpsubs-tabs__tab"));
+    this.tabs = Array.prototype.slice.call(el.querySelectorAll(".wpsubs-tabs__tab[aria-controls]"));
     this.queryParam = el.getAttribute("data-tabs-query") || "";
     this._bind();
 

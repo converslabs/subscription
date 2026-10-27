@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin integrations screen.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Admin;
 

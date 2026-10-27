@@ -1,4 +1,9 @@
 <?php
+/**
+ * Subscription status change helpers.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 

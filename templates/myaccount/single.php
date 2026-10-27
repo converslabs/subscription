@@ -1,8 +1,4 @@
 <?php
-// Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 /**
  * Single subscription page
  *
@@ -26,6 +22,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @package SpringDevs\Subscription
  */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 use SpringDevs\Subscription\Illuminate\Helper;
 
@@ -141,7 +142,7 @@ do_action( 'before_single_subscrpt_content', $id );
 
 		// Get Payment Type and Access Duration Information
 		$payment_type = $product_id ? get_post_meta( $product_id, '_subscrpt_payment_type', true ) : 'recurring';
-		$payment_type = $payment_type ?: 'recurring'; // Default to recurring if empty
+		$payment_type = $payment_type ? $payment_type : 'recurring'; // Default to recurring if empty
 
 		// Also check subscription's own meta data
 		$subscription_payment_type = get_post_meta( $id, '_subscrpt_payment_type', true );
@@ -177,6 +178,12 @@ do_action( 'before_single_subscrpt_content', $id );
 			$payment_type = 'split_payment';
 		}
 
+		// Plan subscriptions carry their own terms, not the product's classic meta.
+		if ( get_post_meta( $id, '_subscrpt_plan_id', true ) ) {
+			$payment_type = subscrpt_get_payment_type( $id );
+			$max_payments = subscrpt_get_max_payments( $id );
+		}
+
 		// Ensure max_payments is properly set for display
 		$max_payments = (int) $max_payments;
 		?>
@@ -202,7 +209,7 @@ do_action( 'before_single_subscrpt_content', $id );
 				<!-- DEBUG: Show raw values -->
 				<!-- <small style="color: #666; font-size: 11px; display: block;">
 					Debug: Product ID: <?php echo esc_html( $product_id ); ?>, 
-					Variation ID: <?php echo esc_html( $variation_id ?: 'None' ); ?>, 
+					Variation ID: <?php echo esc_html( $variation_id ? $variation_id : 'None' ); ?>, 
 					Type: <?php echo esc_html( $payment_type ); ?>, 
 					Max: <?php echo esc_html( $max_payments ); ?>
 				</small> -->
@@ -214,10 +221,21 @@ do_action( 'before_single_subscrpt_content', $id );
 			<?php
 			// Plan subscriptions store access-ends on the subscription; classic ones on
 			// the product. Prefer the subscription meta, fall back to the product.
-			$access_ends_timing   = get_post_meta( $id, '_subscrpt_access_ends_timing', true );
-			$access_ends_timing   = $access_ends_timing ? $access_ends_timing : ( get_post_meta( $product_id, '_subscrpt_access_ends_timing', true ) ?: 'after_full_duration' );
-			$custom_duration_time = get_post_meta( $id, '_subscrpt_custom_access_duration_time', true ) ?: ( get_post_meta( $product_id, '_subscrpt_custom_access_duration_time', true ) ?: 1 );
-			$custom_duration_type = get_post_meta( $id, '_subscrpt_custom_access_duration_type', true ) ?: ( get_post_meta( $product_id, '_subscrpt_custom_access_duration_type', true ) ?: 'months' );
+			$access_ends_timing = get_post_meta( $id, '_subscrpt_access_ends_timing', true );
+			if ( ! $access_ends_timing ) {
+				$product_access_ends_timing = get_post_meta( $product_id, '_subscrpt_access_ends_timing', true );
+				$access_ends_timing         = $product_access_ends_timing ? $product_access_ends_timing : 'after_full_duration';
+			}
+			$custom_duration_time = get_post_meta( $id, '_subscrpt_custom_access_duration_time', true );
+			if ( ! $custom_duration_time ) {
+				$product_duration_time = get_post_meta( $product_id, '_subscrpt_custom_access_duration_time', true );
+				$custom_duration_time  = $product_duration_time ? $product_duration_time : 1;
+			}
+			$custom_duration_type = get_post_meta( $id, '_subscrpt_custom_access_duration_type', true );
+			if ( ! $custom_duration_type ) {
+				$product_duration_type = get_post_meta( $product_id, '_subscrpt_custom_access_duration_type', true );
+				$custom_duration_type  = $product_duration_type ? $product_duration_type : 'months';
+			}
 
 			// Calculate access end date if Pro version is available
 			$access_end_date_string = null;
@@ -305,7 +323,7 @@ do_action( 'before_single_subscrpt_content', $id );
 		$product_link       = get_permalink( $order_item->get_variation_id() !== 0 ? $order_item->get_variation_id() : $order_item->get_product_id() );
 		$order_item_meta    = $order_item->get_meta( '_subscrpt_meta', true );
 		$time               = '1' === $order_item_meta['time'] ? null : $order_item_meta['time'];
-		$type               = subscrpt_get_typos( $order_item_meta['time'], $order_item_meta['type'] );
+		$billing_period     = subscrpt_get_typos( $order_item_meta['time'], $order_item_meta['type'] );
 		$product_price_html = Helper::format_price_with_order_item( $price, $order_item->get_id() );
 		?>
 		<tr class="order_item">
@@ -419,7 +437,7 @@ foreach ( array_reverse( $related_orders ) as $subscrpt_relation ) {
 		<?php foreach ( $related_orders as $related_order ) : ?>
 			<?php
 				$order_id = $related_order->order_id;
-				$order    = wc_get_order( $order_id );
+				$order    = wc_get_order( $order_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- $order is passed in by MyAccount::view_subscrpt_content() and read again after this loop; renaming would change which order the billing block shows.
 			if ( ! $order ) {
 				continue;
 			}

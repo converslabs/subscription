@@ -46,7 +46,12 @@ unset( $subscrpt_legacy_constants, $subscrpt_old_name, $subscrpt_new_value );
 
 if ( ! function_exists( 'wp_subscrpt_write_log' ) ) {
 	/**
+	 * Logger. Deprecated alias of subscrpt_write_log().
+	 *
 	 * @deprecated Use subscrpt_write_log() instead.
+	 *
+	 * @param mixed $message      Message.
+	 * @param bool  $should_print Print the output.
 	 */
 	function wp_subscrpt_write_log( $message, bool $should_print = false ): void {
 		_deprecated_function( 'wp_subscrpt_write_log', '1.9.2', 'subscrpt_write_log' );
@@ -56,7 +61,11 @@ if ( ! function_exists( 'wp_subscrpt_write_log' ) ) {
 
 if ( ! function_exists( 'wp_subscrpt_write_debug_log' ) ) {
 	/**
+	 * Debug logger. Deprecated alias of subscrpt_write_debug_log().
+	 *
 	 * @deprecated Use subscrpt_write_debug_log() instead.
+	 *
+	 * @param mixed $log Logs.
 	 */
 	function wp_subscrpt_write_debug_log( $log ): void {
 		_deprecated_function( 'wp_subscrpt_write_debug_log', '1.9.2', 'subscrpt_write_debug_log' );
@@ -67,7 +76,11 @@ if ( ! function_exists( 'wp_subscrpt_write_debug_log' ) ) {
 
 if ( ! function_exists( 'wp_subs_multiselect_field' ) ) {
 	/**
+	 * Render a multiselect field. Deprecated alias of subscrpt_multiselect_field().
+	 *
 	 * @deprecated Use subscrpt_multiselect_field() instead.
+	 *
+	 * @param array $field Field arguments.
 	 */
 	function wp_subs_multiselect_field( $field ) {
 		_deprecated_function( 'wp_subs_multiselect_field', '1.9.2', 'subscrpt_multiselect_field' );
@@ -78,6 +91,8 @@ if ( ! function_exists( 'wp_subs_multiselect_field' ) ) {
 
 if ( ! function_exists( 'wp_subscription_register_paypal_block' ) ) {
 	/**
+	 * Register the PayPal block. Deprecated alias of subscrpt_register_paypal_block().
+	 *
 	 * @deprecated Use subscrpt_register_paypal_block() instead.
 	 */
 	function wp_subscription_register_paypal_block() {

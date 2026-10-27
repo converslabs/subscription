@@ -154,6 +154,8 @@ function wpsubs_pager_page_range( int $current, int $total ): array {
  *       .wpsubs-pagination__btn  (mods: --active | --disabled | --ellipsis)
  *
  * @param array $args {
+ *     Paginator args.
+ *
  *     @type int    $current       Current page (1-indexed). Default 1.
  *     @type int    $total         Total number of pages. Default 1.
  *     @type bool   $info          Whether to render the "Showing X–Y of Z" info
@@ -573,6 +575,8 @@ function subscrpt_render_page_preview( array $args = [] ) {
  * JS (admin-components.js WPSubsAdvSelect) handles open/close and selection.
  *
  * @param array $args {
+ *   Advanced select args.
+ *
  *   @type string   $name          Hidden input name attribute.  Required.
  *   @type string   $placeholder   Trigger label when nothing is selected.
  *   @type string   $value         Initial hidden-input value (default: '').
@@ -699,6 +703,8 @@ function wpsubs_render_adv_select( array $args ): void {
  * pass straight through.
  *
  * @param array $args {
+ *   Per page select args.
+ *
  *   @type string $name    Hidden input name.
  *   @type string $value   Initial value. Default '10'.
  *   @type array  $options Page sizes (ints) or option arrays. Default 10/20/50/100.
@@ -744,14 +750,16 @@ function wpsubs_render_per_page_select( array $args = array() ): void {
  * Event fired on root: `wpsubs:select` — detail: { value, label, selected }
  *
  * @param array $args {
- *   string       $name        Form field name (base name, without [] suffix).
- *   string       $placeholder Input placeholder shown when nothing is selected.
- *   string|array $value       Current value(s). Array for multiple, string for single.
- *   array        $options     Options: array of { value, label, disabled? }.
- *   bool         $multiple    Enable multi-select mode.
- *   string       $id          Optional root element id.
- *   string       $class       Extra CSS classes for the root element.
- *   array        $attrs       Extra HTML attributes for the root element.
+ *   Tag select args.
+ *
+ *   @type string       $name        Form field name (base name, without [] suffix).
+ *   @type string       $placeholder Input placeholder shown when nothing is selected.
+ *   @type string|array $value       Current value(s). Array for multiple, string for single.
+ *   @type array        $options     Options: array of { value, label, disabled? }.
+ *   @type bool         $multiple    Enable multi-select mode.
+ *   @type string       $id          Optional root element id.
+ *   @type string       $class       Extra CSS classes for the root element.
+ *   @type array        $attrs       Extra HTML attributes for the root element.
  * }
  */
 function wpsubs_render_tag_select( array $args ): void {

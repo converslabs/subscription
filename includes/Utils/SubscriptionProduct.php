@@ -1,4 +1,9 @@
 <?php
+/**
+ * Subscription product wrapper.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Utils;
 

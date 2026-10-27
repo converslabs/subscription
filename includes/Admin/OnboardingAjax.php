@@ -1,4 +1,9 @@
 <?php
+/**
+ * AJAX handlers for the onboarding wizard.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Admin;
 

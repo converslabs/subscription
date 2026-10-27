@@ -1,4 +1,9 @@
 <?php
+/**
+ * Database and meta upgrade routines.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription;
 
@@ -13,6 +18,9 @@ use SpringDevs\Subscription\Installer;
  */
 class Upgrade {
 
+	/**
+	 * Run the 1.1.0 data upgrade when the stored version is older.
+	 */
 	public function run() {
 		if ( version_compare( '1.1.0', get_option( 'subscrpt_version' ), '>' ) ) {
 
@@ -28,6 +36,9 @@ class Upgrade {
 		}
 	}
 
+	/**
+	 * Move legacy `subscrpt_general` product meta to `_subscrpt_meta`.
+	 */
 	public function move_product_meta() {
 		global $wpdb;
 		$products_meta = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->postmeta} WHERE meta_key = %s", 'subscrpt_general' ) );
@@ -47,6 +58,9 @@ class Upgrade {
 		}
 	}
 
+	/**
+	 * Migrate legacy subscription meta and order histories.
+	 */
 	public function update_subscription_meta() {
 		global $wpdb;
 
@@ -126,6 +140,9 @@ class Upgrade {
 		}
 	}
 
+	/**
+	 * Rename legacy `subscrpt_activity` comment meta to `_subscrpt_activity`.
+	 */
 	public function update_comment_meta() {
 		global $wpdb;
 		$comments_meta = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->commentmeta} WHERE meta_key = %s", 'subscrpt_activity' ) );

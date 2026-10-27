@@ -1,4 +1,9 @@
 <?php
+/**
+ * Scheduled subscription tasks.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 

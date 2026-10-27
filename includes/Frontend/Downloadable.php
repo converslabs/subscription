@@ -1,4 +1,9 @@
 <?php
+/**
+ * Restricts downloadable files of subscription products to active subscriptions.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Frontend;
 
@@ -10,11 +15,20 @@ use SpringDevs\Subscription\Illuminate\Helper;
  */
 class Downloadable {
 
+	/**
+	 * Initialize the class.
+	 */
 	public function __construct() {
 		add_filter( 'woocommerce_customer_get_downloadable_products', array( $this, 'check_download_items' ), 10, 1 );
 		add_filter( 'woocommerce_order_get_downloadable_items', array( $this, 'check_download_items' ), 10, 1 );
 	}
 
+	/**
+	 * Remove downloads whose product has an expired, cancelled or pending subscription.
+	 *
+	 * @param array $downloads Downloadable items.
+	 * @return array
+	 */
 	public function check_download_items( $downloads ) {
 		foreach ( $downloads as $key => $download ) {
 			$unactive_items = Helper::subscription_exists( $download['product_id'], array( 'expired', 'cancelled', 'pending' ) );

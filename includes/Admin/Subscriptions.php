@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin subscriptions list, overview and Go Pro screens.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Admin;
 
@@ -329,10 +334,16 @@ class Subscriptions {
 		}
 	}
 
+	/**
+	 * Subscription list filter select. Currently does nothing.
+	 */
 	public function add_subscription_filter_select() {
 		// Implementation of add_subscription_filter_select method
 	}
 
+	/**
+	 * Register the Overview, All Subscriptions and Go Pro submenu pages.
+	 */
 	public function add_overview_submenu() {
 		// Remove and re-add submenu to ensure Overview is first
 		remove_submenu_page( 'edit.php?post_type=subscrpt_order', 'edit.php?post_type=subscrpt_order' );
@@ -367,6 +378,9 @@ class Subscriptions {
 		}
 	}
 
+	/**
+	 * Render the Overview page.
+	 */
 	public function render_overview_page() {
 		?>
 		<div class="wrap wpsubscription-overview" style="max-width:1100px;margin:40px auto 0 auto;">
@@ -443,6 +457,9 @@ class Subscriptions {
 		<?php
 	}
 
+	/**
+	 * Render the Go Pro page.
+	 */
 	public function render_go_pro_page() {
 		if ( class_exists( 'Sdevs_Wc_Subscription_Pro' ) ) {
 			echo '<div class="notice notice-info" style="margin:40px auto;max-width:700px;text-align:center;font-size:1.2em;">' . esc_html__( 'Pro is already active.', 'subscription' ) . '</div>';

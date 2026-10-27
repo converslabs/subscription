@@ -1,4 +1,9 @@
 <?php
+/**
+ * Customer email sent when a subscription is paused for low stock.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate\Emails;
 

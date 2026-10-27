@@ -1,4 +1,9 @@
 <?php
+/**
+ * Bootstraps the admin-side classes.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription;
 
@@ -8,10 +13,12 @@ use SpringDevs\Subscription\Admin\Required;
 use SpringDevs\Subscription\Admin\Links;
 use SpringDevs\Subscription\Admin\CancellationFlow;
 use SpringDevs\Subscription\Admin\Menu;
+use SpringDevs\Subscription\Admin\Notices;
 use SpringDevs\Subscription\Admin\Order as AdminOrder;
 use SpringDevs\Subscription\Admin\Plans;
 use SpringDevs\Subscription\Admin\Product;
 use SpringDevs\Subscription\Admin\ProductList;
+use SpringDevs\Subscription\Admin\ProductPageSettings;
 use SpringDevs\Subscription\Admin\ProSettingsFields;
 use SpringDevs\Subscription\Admin\Settings;
 use SpringDevs\Subscription\Admin\Subscriptions;
@@ -43,6 +50,7 @@ class Admin {
 		// Only load admin content if WooCommerce is active
 		if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 			new Menu();
+			new Notices();
 			new Dashboard();
 			new Plans();
 			new CancellationFlow();
@@ -54,6 +62,7 @@ class Admin {
 			new AdminOrder();
 			new Comments();
 			new Settings();
+			new ProductPageSettings();
 			new ProSettingsFields();
 			new Links();
 		}

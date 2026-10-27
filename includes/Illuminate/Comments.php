@@ -1,4 +1,9 @@
 <?php
+/**
+ * Subscription comments (notes) handling.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate;
 

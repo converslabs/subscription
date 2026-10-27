@@ -1,4 +1,9 @@
 <?php
+/**
+ * PayPal payment gateway.
+ *
+ * @package SpringDevs\Subscription
+ */
 
 namespace SpringDevs\Subscription\Illuminate\Gateways\Paypal;
 
@@ -1296,6 +1301,12 @@ class Paypal extends \WC_Payment_Gateway {
 		$order_id = get_post_meta( $subscription_id, '_subscrpt_order_id', true );
 		$order    = wc_get_order( $order_id );
 
+		// Without its order the gateway is unknown, so there is nothing to cancel in PayPal.
+		if ( ! $order ) {
+			subscrpt_write_log( "Order #{$order_id} not found. Skipping PayPal cancellation for subscription #{$subscription_id}." );
+			return;
+		}
+
 		// Get order payment method
 		$payment_method = $order->get_payment_method();
 
@@ -1326,6 +1337,9 @@ class Paypal extends \WC_Payment_Gateway {
 				// Get order ID from history.
 				$order_id = $history->order_id ?? null;
 				$order    = wc_get_order( $order_id );
+				if ( ! $order ) {
+					continue;
+				}
 
 				// Get PayPal subscription ID from order meta.
 				$tmp_paypal_subs_id = $order->get_meta( $this->get_meta_key( 'subscription_id' ) );
