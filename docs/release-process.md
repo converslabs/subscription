@@ -59,6 +59,8 @@ Rules:
 
 Decide the version from what is selected for the release, before step 2.
 
+WPSubscription and WPSubscription Pro share one version line (2.x) and release together: both repositories follow these steps with the same version, and each builds its own zip with its own `scripts/release.sh`.
+
 ---
 
 ## 2. Release day, step by step
