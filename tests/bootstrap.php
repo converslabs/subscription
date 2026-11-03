@@ -154,6 +154,15 @@ namespace {
 		}
 	}
 
+	// Orders by id, for code that loads them: [id] => order.
+	$GLOBALS['wc_orders'] = [];
+
+	if ( ! function_exists( 'wc_get_order' ) ) {
+		function wc_get_order( $order = 0 ) {
+			return $GLOBALS['wc_orders'][ (int) $order ] ?? false;
+		}
+	}
+
 	if ( ! function_exists( 'wp_strip_all_tags' ) ) {
 		function wp_strip_all_tags( $text ) {
 			return trim( strip_tags( (string) $text ) );

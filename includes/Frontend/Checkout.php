@@ -46,6 +46,15 @@ class Checkout {
 	public function create_subscription_after_checkout( $order_id ) {
 		$order = wc_get_order( $order_id );
 
+		// Paying an existing renewal order fires this hook too: an express wallet on the
+		// pay-for-order page goes through the Store API's checkout/{order_id} route. That
+		// order renews a subscription, so it must never start a new one.
+		foreach ( Helper::get_subscriptions_from_order( $order_id ) as $history ) {
+			if ( in_array( $history->type, array( 'renew', 'early-renew' ), true ) ) {
+				return;
+			}
+		}
+
 		// Grab the post status based on order status.
 		$post_status = 'active';
 		switch ( $order->get_status() ) {
