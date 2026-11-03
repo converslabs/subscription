@@ -1,0 +1,54 @@
+# What `wp dist-archive` leaves out of the release zip (scripts/release.sh).
+# Everything not listed here ships — a new development file at the root must be
+# added, or it goes to every site. The smoke test in the bundle's `releasing`
+# skill checks the zip for strays.
+
+# Version control and CI
+/.git
+/.github
+/.gitignore
+/.wordpress-org
+/.distignore
+
+# Tooling config
+/.cursorrules
+/.cz-config.json
+/.editorconfig
+/.eslintignore
+/.eslintrc.js
+/.husky
+/.npmrc
+/.prettierignore
+/.prettierrc
+/phpcs.xml
+/phpstan.neon
+/phpunit.xml
+/.phpunit.result.cache
+/webpack.config.js
+/package.json
+/yarn.lock
+/composer.lock
+/skills-lock.json
+
+# Agent and editor files
+/.claude
+/.agents
+/.opencode
+/.mcp.json
+/CLAUDE.md
+/AGENTS.md
+/openspec
+/.idea
+/.vscode
+.DS_Store
+
+# Development-only content
+/docs
+/node_modules
+/releases
+/scripts
+/svn
+/tests
+/site-content.xml
+/readme-template.txt
+/.env*

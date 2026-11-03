@@ -13,6 +13,15 @@ jobs:
       - name: Cloning repository
         uses: actions/checkout@v6
 
+      # release.sh builds the zip with `wp dist-archive` and the .pot with
+      # `wp i18n make-pot`; it installs the dist-archive package itself.
+      - name: Install WP-CLI
+        run: |
+          curl -sSLo wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
+          wp --version
+
       - name: Build plugin
         run: |
           chmod +x ./scripts/release.sh
