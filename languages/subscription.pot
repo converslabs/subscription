@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Subscriptions for WooCommerce with Stripe Recurring Payments 2.5.0\n"
+"Project-Id-Version: Subscriptions for WooCommerce with Stripe Recurring Payments 2.5.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/subscription\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-25T06:38:14+00:00\n"
+"POT-Creation-Date: 2026-11-08T10:45:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -5714,12 +5714,12 @@ msgstr ""
 msgid "The subscription renewal payment could not be completed automatically. Customer authentication may be required."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Stripe/Stripe.php:696
+#: includes/Illuminate/Gateways/Stripe/Stripe.php:702
 msgid "Stripe did not attach a customer to this payment, so no reusable payment method was stored. Automatic renewal will fail until the customer saves a payment method."
 msgstr ""
 
 #. translators: %1$s first name, %2$s last name, %3$s username.
-#: includes/Illuminate/Gateways/Stripe/Stripe.php:765
+#: includes/Illuminate/Gateways/Stripe/Stripe.php:771
 #, php-format
 msgid "Name: %1$s %2$s, Username: %3$s"
 msgstr ""

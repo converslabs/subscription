@@ -1,5 +1,8 @@
 *** WPSubscription Changelog ***
 
+2026-11-08 - version 2.5.1
+* fix: Customers who pay an early renewal with Google Pay are no longer charged twice or left with a duplicate subscription.
+
 2026-10-25 - version 2.5.0
 * new: Subscription boxes are added! Take a first look at the new Boxes screen (selling boxes needs WPSubscription Pro).
 * new: Choose from seven ready-made purchase option designs, match them to your brand colours with a live preview, and give any product its own look.

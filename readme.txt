@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim, parvezvai, jakariaistauk
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.5.0
+Stable tag: 2.5.1
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -360,6 +360,9 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.5.1 - Nov 8, 2026 =
+-   fix: Customers who pay an early renewal with Google Pay are no longer charged twice or left with a duplicate subscription.
 
 = 2.5.0 - Oct 25, 2026 =
 -   new: Subscription boxes are added! Take a first look at the new Boxes screen (selling boxes needs WPSubscription Pro).
