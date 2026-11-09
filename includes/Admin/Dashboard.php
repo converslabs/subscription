@@ -642,7 +642,7 @@ class Dashboard {
 	 * @return bool
 	 */
 	private function has_enabled_gateway(): bool {
-		foreach ( array( 'wp_subscription_paypal', 'stripe', 'smartpay_paddle' ) as $gateway ) {
+		foreach ( array( 'wp_subscription_paypal', 'wp_subscription_mercadopago', 'stripe', 'smartpay_paddle' ) as $gateway ) {
 			if ( Integrations::is_gateway_enabled( $gateway ) ) {
 				return true;
 			}
