@@ -157,21 +157,8 @@ class Post {
 	 * @return void
 	 */
 	public function register_post_status() {
-		register_post_status(
-			'pending',
-			array(
-				'label'                     => _x( 'Pending', 'post status label', 'subscription' ),
-				'public'                    => true,
-				// translators: pending posts count.
-				'label_count'               => _n_noop( 'Pending <span class="count">(%s)</span>', 'Pending <span class="count">(%s)</span>', 'subscription' ),
-				'post_type'                 => array( 'subscrpt_order' ),
-				'show_in_admin_all_list'    => true,
-				'show_in_admin_status_list' => true,
-				'show_in_metabox_dropdown'  => true,
-				'show_in_inline_dropdown'   => true,
-				'dashicon'                  => '',
-			)
-		);
+		// `pending` is core's own status. Statuses are global, not per post type,
+		// so re-registering it here would change it for every post type.
 
 		register_post_status(
 			'active',
