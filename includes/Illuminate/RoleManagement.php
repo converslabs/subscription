@@ -61,6 +61,25 @@ class RoleManagement {
 	}
 
 	/**
+	 * Whether subscription status changes may set this user's role.
+	 *
+	 * Only users whose every role is one this feature hands out (or a plain
+	 * customer/subscriber) are touched, so a shop manager, editor or any other
+	 * staff account is never promoted or demoted by a subscription.
+	 *
+	 * @param \WP_User $user User.
+	 */
+	public static function is_role_managed_user( \WP_User $user ): bool {
+		$managed_roles = apply_filters(
+			'subscrpt_role_management_managed_roles',
+			array_unique( [ 'customer', 'subscriber', self::get_default_active_role(), self::get_default_inactive_role() ] ),
+			$user
+		);
+
+		return empty( array_diff( (array) $user->roles, (array) $managed_roles ) );
+	}
+
+	/**
 	 * Maybe change user role on subscription activation
 	 *
 	 * @param int $subscription_id Subscription ID.
@@ -77,6 +96,10 @@ class RoleManagement {
 
 		// Don't change roles for administrators
 		if ( in_array( 'administrator', $user->roles ?? [], true ) ) {
+			return;
+		}
+
+		if ( ! self::is_role_managed_user( $user ) ) {
 			return;
 		}
 
@@ -102,6 +125,10 @@ class RoleManagement {
 
 		// Don't change roles for administrators
 		if ( in_array( 'administrator', $user->roles ?? [], true ) ) {
+			return;
+		}
+
+		if ( ! self::is_role_managed_user( $user ) ) {
 			return;
 		}
 
