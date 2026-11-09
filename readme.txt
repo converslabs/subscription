@@ -363,6 +363,7 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 
 = 2.5.1 - Nov 8, 2026 =
 -   fix: Customers who pay an early renewal with Google Pay are no longer charged twice or left with a duplicate subscription.
+-   fix: Minor bug fixes and improvements.
 
 = 2.5.0 - Oct 25, 2026 =
 -   new: Subscription boxes are added! Take a first look at the new Boxes screen (selling boxes needs WPSubscription Pro).

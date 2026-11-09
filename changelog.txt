@@ -2,6 +2,7 @@
 
 2026-11-08 - version 2.5.1
 * fix: Customers who pay an early renewal with Google Pay are no longer charged twice or left with a duplicate subscription.
+* fix: Minor bug fixes and improvements.
 
 2026-10-25 - version 2.5.0
 * new: Subscription boxes are added! Take a first look at the new Boxes screen (selling boxes needs WPSubscription Pro).
