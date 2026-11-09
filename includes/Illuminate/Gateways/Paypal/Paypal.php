@@ -626,6 +626,12 @@ class Paypal extends \WC_Payment_Gateway {
 	 * @param string $raw_body Webhook raw body from PayPal.
 	 */
 	public function verify_webhook( array $headers, string $raw_body ) {
+		// The webhook ID is part of the signed message; without it any signature is meaningless.
+		if ( empty( $this->webhook_id ) ) {
+			subscrpt_write_log( 'PayPal webhook: Webhook ID is not configured. Cannot verify webhook.' );
+			wp_die( 'Error: Webhook ID not configured. Cannot verify webhook.', '403 Forbidden', array( 'response' => 403 ) );
+		}
+
 		// Get PayPal Access Token.
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
@@ -724,19 +730,30 @@ class Paypal extends \WC_Payment_Gateway {
 			]
 		);
 
+		// Only ever fetch a certificate PayPal itself serves.
+		$cert_url = (string) $payload['cert_url'];
+		if ( ! self::is_paypal_cert_url( $cert_url ) ) {
+			subscrpt_write_log( 'PayPal webhook manual verification: rejected certificate URL ' . esc_url_raw( $cert_url ) );
+			return false;
+		}
+
 		// Fetch & cache cert
-		$cert_url  = esc_url_raw( $payload['cert_url'] );
 		$cache_key = 'paypal_cert_' . md5( $cert_url );
 
 		$cert_pem = get_transient( $cache_key );
 
 		if ( ! $cert_pem ) {
-			$response = wp_remote_get( $cert_url, [ 'timeout' => 20 ] );
-			if ( is_wp_error( $response ) ) {
+			$response = wp_safe_remote_get( $cert_url, [ 'timeout' => 20 ] );
+			if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 				return false;
 			}
 
 			$cert_pem = wp_remote_retrieve_body( $response );
+			if ( ! self::is_valid_paypal_cert( $cert_pem ) ) {
+				subscrpt_write_log( 'PayPal webhook manual verification: certificate is not a valid PayPal certificate.' );
+				return false;
+			}
+
 			set_transient( $cache_key, $cert_pem, DAY_IN_SECONDS );
 		}
 
@@ -760,6 +777,53 @@ class Paypal extends \WC_Payment_Gateway {
 		);
 
 		return ( 1 === $verified );
+	}
+
+	/**
+	 * Whether a webhook certificate URL points at PayPal's certificate endpoint.
+	 *
+	 * @param string $cert_url Certificate URL from the `PAYPAL-CERT-URL` header.
+	 */
+	public static function is_paypal_cert_url( string $cert_url ): bool {
+		$parts = wp_parse_url( $cert_url );
+
+		if ( empty( $parts['scheme'] ) || 'https' !== strtolower( $parts['scheme'] ) || empty( $parts['host'] ) ) {
+			return false;
+		}
+
+		if ( isset( $parts['port'] ) || isset( $parts['user'] ) || isset( $parts['pass'] ) ) {
+			return false;
+		}
+
+		$host = strtolower( $parts['host'] );
+		if ( '.paypal.com' !== substr( $host, -11 ) ) {
+			return false;
+		}
+
+		return 0 === strpos( $parts['path'] ?? '', '/v1/notifications/certs/' );
+	}
+
+	/**
+	 * Whether a PEM certificate parses and is inside its validity window.
+	 *
+	 * Origin is proven by is_paypal_cert_url() plus TLS verification on the fetch.
+	 *
+	 * @param string $cert_pem PEM encoded certificate.
+	 */
+	public static function is_valid_paypal_cert( string $cert_pem ): bool {
+		if ( '' === $cert_pem || ! function_exists( 'openssl_x509_parse' ) ) {
+			return false;
+		}
+
+		$cert = openssl_x509_parse( $cert_pem );
+		if ( empty( $cert ) ) {
+			return false;
+		}
+
+		$now = time();
+
+		return ! empty( $cert['validFrom_time_t'] ) && ! empty( $cert['validTo_time_t'] )
+			&& $now >= $cert['validFrom_time_t'] && $now <= $cert['validTo_time_t'];
 	}
 
 	/**
