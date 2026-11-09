@@ -65,6 +65,14 @@ class ActionController {
 		// Get view subscription endpoint slug.
 		$view_subs_endpoint = Subscription::get_user_endpoint( 'view_subs' );
 
+		// Each action the controller runs itself applies only from the statuses its button shows for.
+		$allowed_statuses = self::allowed_statuses( $action );
+		if ( null !== $allowed_statuses && ! in_array( get_post_status( $subscrpt_id ), $allowed_statuses, true ) ) {
+			wc_add_notice( __( 'This action is not available for this subscription.', 'subscription' ), 'error' );
+			wp_safe_redirect( wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) );
+			exit;
+		}
+
 		// Check maximum payment limit for renewal-related actions (including early renewal)
 		$renewal_actions = apply_filters( 'subscrpt_renewal_actions', array( 'renew', 'renew-on', 'early-renew' ) );
 		if ( in_array( $action, $renewal_actions, true ) && subscrpt_is_max_payments_reached( $subscrpt_id ) ) {
@@ -106,6 +114,30 @@ class ActionController {
 		}
 		wp_safe_redirect( wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) );
 		exit;
+	}
+
+	/**
+	 * Statuses a subscription must be in for an action this controller runs itself.
+	 *
+	 * Mirrors the buttons on the subscription page. Actions handled elsewhere,
+	 * through `subscrpt_execute_actions`, return null and check their own state.
+	 *
+	 * @param string $action Action name.
+	 *
+	 * @return string[]|null
+	 */
+	public static function allowed_statuses( string $action ): ?array {
+		$running = array( 'pending', 'active', 'on_hold', 'on-hold' );
+
+		$map = array(
+			'cancelled'  => $running,
+			'reactivate' => array( 'pe_cancelled' ),
+			'renew'      => array( 'expired' ),
+			'renew-on'   => array_merge( $running, array( 'pe_cancelled' ) ),
+			'renew-off'  => array_merge( $running, array( 'pe_cancelled' ) ),
+		);
+
+		return $map[ $action ] ?? null;
 	}
 
 	/**
