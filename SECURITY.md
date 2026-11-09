@@ -4,7 +4,7 @@
 
 Please report security bugs found in the source code of Subscriptions for
 WooCommerce (WPSubscription) through the
-[Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/subscription).
+[Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/f3ccb80e-4629-4ce5-b150-d4c2308d3a41).
 The Patchstack team will assist you with verification, CVE assignment, and
 notify the developers of this plugin.
 

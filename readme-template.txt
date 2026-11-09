@@ -303,8 +303,9 @@ Yes, the plugin supports recurring coupons — apply percentage or fixed-amount 
 =Where can I find the full documentation and setup steps?=
 You can find the complete guide, configuration tutorials, and troubleshooting help in our [Subscriptions for WooCommerce Docs](https://docs.wpsubscription.co/en?utm_source=wporg&utm_medium=readme&utm_campaign=docs) section.
 
-=How can I report security bugs?=
-You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/subscription)
+= Where do I report security bugs found in this plugin? =
+
+Please report security bugs found in the source code of the WPSubscription plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/f3ccb80e-4629-4ce5-b150-d4c2308d3a41). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
 
 =What makes this a good choice for WooCommerce subscriptions?=
 It is designed to be fast, reliable, and full-featured, with support for auto-renewals, variable products, free trials, recurring coupons, subscription health monitoring, and multiple payment gateways including Stripe, PayPal, Mollie, Razorpay, Paddle, and Xendit.
