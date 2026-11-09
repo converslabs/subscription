@@ -22,7 +22,11 @@ jobs:
           sudo mv wp-cli.phar /usr/local/bin/wp
           wp --version
 
+      # The runner's PHP loads Xdebug, which aborts `wp i18n make-pot` at 256
+      # stack frames while Peast parses the nested JS bundles.
       - name: Build plugin
+        env:
+          XDEBUG_MODE: off
         run: |
           chmod +x ./scripts/release.sh
           ./scripts/release.sh
