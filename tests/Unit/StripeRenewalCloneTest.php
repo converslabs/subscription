@@ -160,4 +160,16 @@ class StripeRenewalCloneTest extends TestCase {
 
 		$this->assertTrue( (bool) ( $GLOBALS['wp_post_meta'][20]['_subscrpt_auto_renew'] ?? false ), 'auto renewal store-wide marks the subscription' );
 	}
+
+	/**
+	 * A customer who turned auto renewal off keeps it off; only an unset flag
+	 * follows the store setting. Before the fix every renewal turned it back on.
+	 */
+	public function test_auto_renew_turned_off_stays_off(): void {
+		$GLOBALS['wp_post_meta'][30]['_subscrpt_auto_renew'] = '0';
+
+		Helper::clone_stripe_metadata_for_renewal( 30, $this->order( 31 ), $this->order( 32 ) );
+
+		$this->assertSame( '0', $GLOBALS['wp_post_meta'][30]['_subscrpt_auto_renew'] );
+	}
 }

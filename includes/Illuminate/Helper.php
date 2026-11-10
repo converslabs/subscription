@@ -1172,17 +1172,19 @@ class Helper {
 			return false;
 		}
 
+		do_action( 'subscrpt_after_create_renew_order', $new_order, $old_order, $subscription_id, false );
+
+		// After the listeners, which may already have charged the saved payment method.
 		if ( ! is_admin() && function_exists( 'wc_add_notice' ) && WC()->session ) {
+			$paid_order = wc_get_order( $new_order->get_id() );
 			/* translators: %d: renewal order ID. */
 			$message = sprintf( __( 'Renewal order #%d created.', 'subscription' ), $new_order->get_id() );
-			if ( $new_order->has_status( 'pending' ) ) {
+			if ( $paid_order && $paid_order->has_status( 'pending' ) ) {
 				/* translators: %s: URL of the order payment page. */
-				$message .= ' ' . sprintf( __( 'Please <a href="%s">pay now</a>.', 'subscription' ), esc_url( $new_order->get_checkout_payment_url() ) );
+				$message .= ' ' . sprintf( __( 'Please <a href="%s">pay now</a>.', 'subscription' ), esc_url( $paid_order->get_checkout_payment_url() ) );
 			}
 			wc_add_notice( $message, 'success' );
 		}
-
-		do_action( 'subscrpt_after_create_renew_order', $new_order, $old_order, $subscription_id, false );
 
 		return $new_order;
 	}
@@ -1388,7 +1390,8 @@ class Helper {
 	 */
 	public static function clone_stripe_metadata_for_renewal( $subscription_id, $old_order, $new_order ) {
 		$is_auto_renew = get_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
-		if ( empty( $is_auto_renew ) && subscrpt_is_auto_renew_enabled() ) {
+		// Fill in only a value never set: a saved 0 means the customer turned auto renewal off.
+		if ( '' === $is_auto_renew && subscrpt_is_auto_renew_enabled() ) {
 			$is_auto_renew = true;
 			update_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
 		}
@@ -1566,8 +1569,9 @@ class Helper {
 		$trial_timing_option = get_post_meta( $subscription_id, '_subscrpt_trial_timing_option', true );
 		$trial_timing_option = empty( $trial_timing_option ) ? get_post_meta( $chk_product_id, '_subscrpt_trial_timing_option', true ) : $trial_timing_option;
 
-		$is_auto_renew = in_array( get_post_meta( $subscription_id, '_subscrpt_auto_renew', true ), array( 1, '1', 'true', 'yes' ), true );
-		$is_auto_renew = ! empty( $is_auto_renew ) ? $is_auto_renew : subscrpt_is_auto_renew_enabled();
+		// A saved 0 is the customer's choice; only a subscription that never set it follows the store setting.
+		$auto_renew_meta = get_post_meta( $subscription_id, '_subscrpt_auto_renew', true );
+		$is_auto_renew   = '' === $auto_renew_meta ? subscrpt_is_auto_renew_enabled() : in_array( $auto_renew_meta, array( 1, '1', 'true', 'yes' ), true );
 
 		$default_grace_period = (int) get_option( 'subscrpt_default_payment_grace_period', '7' );
 		$default_grace_period = subscrpt_pro_activated() ? $default_grace_period : 0;
