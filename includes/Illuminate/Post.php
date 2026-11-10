@@ -18,6 +18,24 @@ class Post {
 	public function __construct() {
 		add_action( 'init', array( $this, 'create_post_type' ) );
 		add_filter( 'post_updated_messages', array( $this, 'update_post_labels' ) );
+		add_filter( 'wp_untrash_post_status', array( $this, 'untrash_to_previous_status' ), 10, 3 );
+	}
+
+	/**
+	 * Restore a trashed subscription to the status it had, not WordPress's default `draft`.
+	 *
+	 * @param string $new_status      Status WordPress would restore to.
+	 * @param int    $post_id         Post ID.
+	 * @param string $previous_status Status before the post was trashed.
+	 *
+	 * @return string
+	 */
+	public function untrash_to_previous_status( $new_status, $post_id, $previous_status ) {
+		if ( 'subscrpt_order' !== get_post_type( $post_id ) || empty( $previous_status ) ) {
+			return $new_status;
+		}
+
+		return $previous_status;
 	}
 
 	/**
