@@ -313,6 +313,13 @@ class GuestCheckout {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification
+		$billing_email = isset( $_POST['billing_email'] ) ? sanitize_email( wp_unslash( $_POST['billing_email'] ) ) : '';
+		if ( self::is_registered_email( $billing_email ) ) {
+			wc_add_notice( self::get_registered_email_message(), 'error' );
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification
 		$is_create_account = isset( $_POST['createaccount'] ) ? (bool) sanitize_text_field( wp_unslash( $_POST['createaccount'] ) ) : false;
 		$is_login_enforced = self::is_guest_login_enforced();
 
@@ -344,6 +351,10 @@ class GuestCheckout {
 			return;
 		}
 
+		if ( self::is_registered_email( $order->get_billing_email() ) ) {
+			throw new \WC_Data_Exception( 'wp_subscription_login_required', self::get_registered_email_message(), 400 ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
 		$request_body      = $request->get_json_params();
 		$is_create_account = $request_body['create_account'] ?? false;
 		$is_login_enforced = self::is_guest_login_enforced();
@@ -357,6 +368,26 @@ class GuestCheckout {
 				400
 			);
 		}
+	}
+
+	/**
+	 * Whether an email already belongs to a registered account.
+	 *
+	 * A guest must log in to that account; checkout never binds it on the email alone.
+	 *
+	 * @param string $email Billing email.
+	 */
+	public static function is_registered_email( $email ): bool {
+		return ! empty( $email ) && false !== email_exists( $email );
+	}
+
+	/**
+	 * Checkout error for a guest using a registered email.
+	 */
+	public static function get_registered_email_message(): string {
+		return wp_kses_post(
+			__( 'An account is already registered with your email address. Please <strong>log in</strong> to buy a subscription with it.', 'subscription' )
+		);
 	}
 
 	/**
@@ -409,9 +440,12 @@ class GuestCheckout {
 
 		$is_new_customer = false;
 
-		// Check if user exists with email.
-		$user    = get_user_by( 'email', $user_info['billing_email'] );
-		$user_id = $user ? $user->ID : 0;
+		// Never bind a guest checkout to an existing account; its owner must log in.
+		if ( self::is_registered_email( $user_info['billing_email'] ) ) {
+			return null;
+		}
+
+		$user_id = 0;
 
 		if ( ! $user_id ) {
 			$is_new_customer = true;
