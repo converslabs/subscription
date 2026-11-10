@@ -1172,17 +1172,19 @@ class Helper {
 			return false;
 		}
 
+		do_action( 'subscrpt_after_create_renew_order', $new_order, $old_order, $subscription_id, false );
+
+		// After the listeners, which may already have charged the saved payment method.
 		if ( ! is_admin() && function_exists( 'wc_add_notice' ) && WC()->session ) {
+			$paid_order = wc_get_order( $new_order->get_id() );
 			/* translators: %d: renewal order ID. */
 			$message = sprintf( __( 'Renewal order #%d created.', 'subscription' ), $new_order->get_id() );
-			if ( $new_order->has_status( 'pending' ) ) {
+			if ( $paid_order && $paid_order->has_status( 'pending' ) ) {
 				/* translators: %s: URL of the order payment page. */
-				$message .= ' ' . sprintf( __( 'Please <a href="%s">pay now</a>.', 'subscription' ), esc_url( $new_order->get_checkout_payment_url() ) );
+				$message .= ' ' . sprintf( __( 'Please <a href="%s">pay now</a>.', 'subscription' ), esc_url( $paid_order->get_checkout_payment_url() ) );
 			}
 			wc_add_notice( $message, 'success' );
 		}
-
-		do_action( 'subscrpt_after_create_renew_order', $new_order, $old_order, $subscription_id, false );
 
 		return $new_order;
 	}
