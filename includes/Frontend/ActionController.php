@@ -52,8 +52,9 @@ class ActionController {
 		$author_id       = $subs_post ? (int) $subs_post->post_author : 0;
 		$current_user_id = get_current_user_id();
 		$user_is_admin   = current_user_can( 'manage_options' );
+		$is_subscription = $subs_post && 'subscrpt_order' === $subs_post->post_type;
 
-		if ( ! $user_is_admin && (int) $author_id !== (int) $current_user_id ) {
+		if ( ! $is_subscription || ( ! $user_is_admin && (int) $author_id !== (int) $current_user_id ) ) {
 			$error_notice = __( "You don't have permission to modify this subscription. If you believe this is an error, please contact support.", 'subscription' );
 			wc_add_notice( $error_notice, 'error' );
 
@@ -102,6 +103,13 @@ class ActionController {
 		} elseif ( 'renew' === $action && subscrpt_is_auto_renew_enabled() ) {
 			Helper::create_renewal_order( $subscrpt_id );
 		} else {
+			// Only actions someone registered are passed on to listeners.
+			if ( ! in_array( $action, self::forwarded_actions(), true ) ) {
+				wc_add_notice( __( 'This action is not available for this subscription.', 'subscription' ), 'error' );
+				wp_safe_redirect( wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) );
+				exit;
+			}
+
 			// Safety check: If this is any kind of renewal action and limit is reached, block it
 			if ( subscrpt_is_max_payments_reached( $subscrpt_id ) &&
 				( strpos( $action, 'renew' ) !== false || strpos( $action, 'renewal' ) !== false ) ) {
@@ -114,6 +122,26 @@ class ActionController {
 		}
 		wp_safe_redirect( wc_get_endpoint_url( $view_subs_endpoint, $subscrpt_id, wc_get_page_permalink( 'myaccount' ) ) );
 		exit;
+	}
+
+	/**
+	 * Actions passed on through `subscrpt_execute_actions`.
+	 *
+	 * Any other action string a request carries is refused before it reaches
+	 * listeners. The defaults are the actions add-ons handle today.
+	 *
+	 * @return string[]
+	 */
+	public static function forwarded_actions(): array {
+		/**
+		 * Filters the customer actions passed on through `subscrpt_execute_actions`.
+		 *
+		 * Add the action name a My Account button sends. Its listener still checks
+		 * the subscription's state before acting.
+		 *
+		 * @param string[] $actions Action names.
+		 */
+		return (array) apply_filters( 'subscrpt_customer_actions', array( 'early-renew', 'cancel-downgrade', 'box-skip' ) );
 	}
 
 	/**
