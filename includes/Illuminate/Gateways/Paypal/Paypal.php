@@ -388,35 +388,57 @@ class Paypal extends \WC_Payment_Gateway {
 
 		$paypal_payment_approved = false;
 
-		if ( empty( $paypal_subscription_id ) ) {
-			$paypal_subscription_id = $order->get_meta( $this->get_meta_key( 'subscription_id' ), true );
-		}
+		$stored_subscription_id = $order->get_meta( $this->get_meta_key( 'subscription_id' ), true );
 
 		// OLD key migration.
 		// If no data check if the data exists with the old key. And update if necessary.
 		// ? Dev note: Remove after JAN 1, 2026.
-		if ( empty( $paypal_subscription_id ) ) {
-			$paypal_subscription_id = $order->get_meta( '_wp_subs_paypal_subscription_id', true );
+		if ( empty( $stored_subscription_id ) ) {
+			$stored_subscription_id = $order->get_meta( '_wp_subs_paypal_subscription_id', true );
 
-			if ( ! empty( $paypal_subscription_id ) ) {
-				$order->update_meta_data( $this->get_meta_key( 'subscription_id' ), $paypal_subscription_id );
+			if ( ! empty( $stored_subscription_id ) ) {
+				$order->update_meta_data( $this->get_meta_key( 'subscription_id' ), $stored_subscription_id );
 				$order->save();
 			}
 		}
 
-		if ( ! empty( $paypal_subscription_id ) ) {
+		// The return URL only names a subscription; the order's own record decides which one counts.
+		$paypal_subscription_data = null;
+		if ( ! self::is_paypal_resource_id( $paypal_subscription_id ) || $paypal_subscription_id === $stored_subscription_id ) {
+			$paypal_subscription_id = $stored_subscription_id;
+		} else {
 			$paypal_subscription_data = $this->get_paypal_subscription( $paypal_subscription_id );
 
-			if ( $paypal_subscription_data && in_array( $paypal_subscription_data->status ?? '', [ 'ACTIVE', 'APPROVED' ], true ) ) {
-				$paypal_payment_approved = true;
+			if ( ! $paypal_subscription_data || ! self::paypal_custom_id_matches( $paypal_subscription_data->custom_id ?? '', $order ) ) {
+				$paypal_subscription_id   = $stored_subscription_id;
+				$paypal_subscription_data = null;
 			}
 		}
 
-		// Fallback to check PayPal Order if Subscription is not available.
-		if ( ! $paypal_payment_approved && ! empty( $paypal_token ) ) {
+		if ( ! empty( $paypal_subscription_id ) ) {
+			if ( ! $paypal_subscription_data ) {
+				$paypal_subscription_data = $this->get_paypal_subscription( $paypal_subscription_id );
+			}
+
+			if ( $paypal_subscription_data && in_array( $paypal_subscription_data->status ?? '', [ 'ACTIVE', 'APPROVED' ], true ) ) {
+				$paypal_payment_approved = true;
+
+				if ( $paypal_subscription_id !== $stored_subscription_id ) {
+					$order->update_meta_data( $this->get_meta_key( 'subscription_id' ), $paypal_subscription_id );
+					$order->save();
+				}
+			}
+		}
+
+		// Fallback to check PayPal Order if Subscription is not available. It must be one PayPal made for this order.
+		if ( ! $paypal_payment_approved && self::is_paypal_resource_id( $paypal_token ) ) {
 			$paypal_order_data = $this->get_paypal_order( $paypal_token );
 
-			if ( $paypal_order_data && in_array( $paypal_order_data->status ?? '', [ 'APPROVED', 'COMPLETED' ], true ) ) {
+			if (
+				$paypal_order_data
+				&& in_array( $paypal_order_data->status ?? '', [ 'APPROVED', 'COMPLETED' ], true )
+				&& self::paypal_order_belongs_to( $paypal_order_data, $order )
+			) {
 				$paypal_payment_approved = true;
 			}
 		}
@@ -449,6 +471,51 @@ class Paypal extends \WC_Payment_Gateway {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Whether a value has the shape of a PayPal subscription or order id.
+	 *
+	 * PayPal ids are upper-case letters, digits and hyphens. Anything else is not
+	 * one, and must not be put into an API URL.
+	 *
+	 * @param mixed $id Candidate id.
+	 */
+	public static function is_paypal_resource_id( $id ): bool {
+		return is_string( $id ) && 1 === preg_match( '/^[A-Z0-9-]{1,64}$/', $id );
+	}
+
+	/**
+	 * Whether a PayPal `custom_id` names this WooCommerce order, by id or key.
+	 *
+	 * @param mixed    $custom_id `custom_id` PayPal returned.
+	 * @param WC_Order $order     Order.
+	 */
+	public static function paypal_custom_id_matches( $custom_id, $order ): bool {
+		$custom_id = is_scalar( $custom_id ) ? (string) $custom_id : '';
+		if ( '' === $custom_id ) {
+			return false;
+		}
+
+		return (string) $order->get_id() === $custom_id || (string) $order->get_order_key() === $custom_id;
+	}
+
+	/**
+	 * Whether a PayPal checkout order was made for this WooCommerce order.
+	 *
+	 * @param object   $paypal_order PayPal order data.
+	 * @param WC_Order $order        Order.
+	 */
+	public static function paypal_order_belongs_to( $paypal_order, $order ): bool {
+		foreach ( (array) ( $paypal_order->purchase_units ?? [] ) as $unit ) {
+			foreach ( [ 'custom_id', 'invoice_id', 'reference_id' ] as $field ) {
+				if ( self::paypal_custom_id_matches( $unit->$field ?? '', $order ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -906,6 +973,7 @@ class Paypal extends \WC_Payment_Gateway {
 		// Create Subscription in PayPal.
 		$paypal_subscription_data = [
 			'plan_id'             => $paypal_plan_id,
+			'custom_id'           => (string) $order->get_id(),
 			'application_context' => [
 				'return_url' => $return_url,
 				'cancel_url' => $order->get_cancel_order_url(),
@@ -1846,6 +1914,11 @@ class Paypal extends \WC_Payment_Gateway {
 			'plan_id'             => $paypal_subscription_data['plan_id'],
 			'application_context' => $paypal_subscription_data['application_context'],
 		];
+
+		// Ties the PayPal subscription to its WooCommerce order, so a return can be checked against it.
+		if ( ! empty( $paypal_subscription_data['custom_id'] ) ) {
+			$body['custom_id'] = $paypal_subscription_data['custom_id'];
+		}
 
 		try {
 			$url  = $this->api_endpoint . '/v1/billing/subscriptions';
