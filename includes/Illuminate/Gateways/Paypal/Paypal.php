@@ -1403,6 +1403,41 @@ class Paypal extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Get a readable error message from a failed PayPal API call.
+	 *
+	 * PayPal's top-level message is generic (e.g. "The requested action could not be performed,
+	 * semantically incorrect, or failed business validation."). The actual reason is in `details`,
+	 * so append each issue, field and description, plus the debug ID PayPal support asks for.
+	 *
+	 * @param array|\WP_Error $response      Response from wp_remote_*.
+	 * @param object|null     $response_data Decoded response body.
+	 * @return string
+	 */
+	public function get_paypal_error_message( $response, ?object $response_data ): string {
+		if ( is_wp_error( $response ) ) {
+			return $response->get_error_message();
+		}
+
+		$message = $response_data->error_description ?? $response_data->message ?? 'Unknown error';
+
+		$details = [];
+		foreach ( (array) ( $response_data->details ?? [] ) as $detail ) {
+			$issue     = $detail->issue ?? '';
+			$field     = ! empty( $detail->field ) ? ' (' . $detail->field . ')' : '';
+			$details[] = trim( $issue . $field . ( ! empty( $detail->description ) ? ': ' . $detail->description : '' ) );
+		}
+		if ( ! empty( $details ) ) {
+			$message .= ' Details: ' . implode( '; ', $details );
+		}
+
+		if ( ! empty( $response_data->debug_id ) ) {
+			$message .= ' (PayPal debug ID: ' . $response_data->debug_id . ')';
+		}
+
+		return $message;
+	}
+
+	/**
 	 * Get Prefixed Meta Key.
 	 * Prefix the key with '_wp_subs_' to avoid possible conflicts with other plugins.
 	 *
@@ -1667,7 +1702,7 @@ class Paypal extends \WC_Payment_Gateway {
 			$response_data = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( empty( $response_data->id ?? null ) ) {
-				$log_message = 'Error creating PayPal product: ' . ( $response_data->error_description ?? 'Unknown error' );
+				$log_message = 'Error creating PayPal product: ' . $this->get_paypal_error_message( $response, $response_data );
 				subscrpt_write_log( $log_message );
 				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;
@@ -1720,7 +1755,7 @@ class Paypal extends \WC_Payment_Gateway {
 			$response_data = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( empty( $response_data->id ?? null ) ) {
-				$log_message = 'Error creating PayPal plan: ' . ( $response_data->error_description ?? $response_data->message ?? 'Unknown error' );
+				$log_message = 'Error creating PayPal plan: ' . $this->get_paypal_error_message( $response, $response_data );
 				subscrpt_write_log( $log_message );
 				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;
@@ -1765,7 +1800,7 @@ class Paypal extends \WC_Payment_Gateway {
 			$response_data = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( empty( $response_data->id ?? null ) ) {
-				$log_message = 'Error creating PayPal subscription: ' . ( $response_data->error_description ?? $response_data->message ?? 'Unknown error' );
+				$log_message = 'Error creating PayPal subscription: ' . $this->get_paypal_error_message( $response, $response_data );
 				subscrpt_write_log( $log_message );
 				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;
