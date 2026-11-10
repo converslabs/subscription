@@ -29,6 +29,12 @@ class Ajax {
 	 * Install the WooCommerce Plugin.
 	 */
 	public function install_woocommerce_plugin() {
+		check_ajax_referer( 'subscrpt_install_woocommerce_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'install_plugins' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'subscription' ) ), 403 );
+		}
+
 		include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		include_once ABSPATH . 'wp-admin/includes/file.php';
@@ -98,6 +104,12 @@ class Ajax {
 	 * Activate WooCommerce and send a JSON response.
 	 */
 	public function wps_subscription_activate_woocommerce_plugin() {
+		check_ajax_referer( 'subscrpt_install_woocommerce_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'subscription' ) ), 403 );
+		}
+
 		activate_plugin( 'woocommerce/woocommerce.php' );
 		wp_send_json(
 			array(

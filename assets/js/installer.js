@@ -15,6 +15,7 @@ jQuery(document).ready(function ($) {
       url: sdevs_installer_helper_obj.ajax_url,
       data: {
         install_plugin: "woocommerce",
+        nonce: sdevs_installer_helper_obj.nonce,
         action: "subscrpt_install_woocommerce_plugin",
       },
       beforeSend: function () {
@@ -35,6 +36,7 @@ jQuery(document).ready(function ($) {
       url: sdevs_installer_helper_obj.ajax_url,
       data: {
         activate_plugin: "woocommerce",
+        nonce: sdevs_installer_helper_obj.nonce,
         action: "subscrpt_activate_woocommerce_plugin",
       },
       beforeSend: function () {
