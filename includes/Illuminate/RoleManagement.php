@@ -28,6 +28,11 @@ class RoleManagement {
 		// whole retry ladder. Reversible: a recovered payment fires
 		// `subscrpt_subscription_activated`, which puts the role back.
 		add_action( 'subscrpt_subscription_on_hold', [ $this, 'maybe_change_user_role_on_subscription_deactivation' ] );
+
+		// A publishing-capable active role waits for a confirmed payment (see
+		// is_active_role_grant_allowed()), which can arrive after activation.
+		add_action( 'woocommerce_payment_complete', [ $this, 'maybe_grant_deferred_active_role' ] );
+		add_action( 'woocommerce_order_status_completed', [ $this, 'maybe_grant_deferred_active_role' ] );
 	}
 
 	/**
@@ -61,6 +66,25 @@ class RoleManagement {
 	}
 
 	/**
+	 * Whether subscription status changes may set this user's role.
+	 *
+	 * Only users whose every role is one this feature hands out (or a plain
+	 * customer/subscriber) are touched, so a shop manager, editor or any other
+	 * staff account is never promoted or demoted by a subscription.
+	 *
+	 * @param \WP_User $user User.
+	 */
+	public static function is_role_managed_user( \WP_User $user ): bool {
+		$managed_roles = apply_filters(
+			'subscrpt_role_management_managed_roles',
+			array_unique( [ 'customer', 'subscriber', self::get_default_active_role(), self::get_default_inactive_role() ] ),
+			$user
+		);
+
+		return empty( array_diff( (array) $user->roles, (array) $managed_roles ) );
+	}
+
+	/**
 	 * Maybe change user role on subscription activation
 	 *
 	 * @param int $subscription_id Subscription ID.
@@ -80,9 +104,68 @@ class RoleManagement {
 			return;
 		}
 
+		if ( ! self::is_role_managed_user( $user ) ) {
+			return;
+		}
+
 		$default_active_role = self::get_default_active_role();
 
+		if ( ! self::is_active_role_grant_allowed( (int) $subscription_id, $default_active_role ) ) {
+			return;
+		}
+
 		$user->set_role( $default_active_role );
+	}
+
+	/**
+	 * Whether the active role may be granted for this subscription yet.
+	 *
+	 * A role that can publish (`edit_posts`) is only granted once a non-zero
+	 * order of the subscription has a confirmed payment: paid through a gateway,
+	 * or completed by an admin. A free trial, a zero-total order or an offline
+	 * payment (COD, bank transfer, cheque) still in processing activates the
+	 * subscription but not that role.
+	 *
+	 * @param int    $subscription_id Subscription ID.
+	 * @param string $role            Role about to be granted.
+	 */
+	public static function is_active_role_grant_allowed( int $subscription_id, string $role ): bool {
+		$role_object = get_role( $role );
+		$allowed     = ! $role_object || ! $role_object->has_cap( 'edit_posts' );
+
+		if ( ! $allowed ) {
+			$offline_methods = [ 'cod', 'bacs', 'cheque' ];
+
+			foreach ( Helper::get_related_orders( $subscription_id ) as $history ) {
+				$order = wc_get_order( $history->order_id );
+
+				if ( ! $order || (float) $order->get_total() <= 0 ) {
+					continue;
+				}
+
+				$gateway_paid = $order->is_paid() && $order->get_date_paid() && ! in_array( $order->get_payment_method(), $offline_methods, true );
+
+				if ( $gateway_paid || $order->has_status( 'completed' ) ) {
+					$allowed = true;
+					break;
+				}
+			}
+		}
+
+		return (bool) apply_filters( 'subscrpt_active_role_grant_allowed', $allowed, $subscription_id, $role );
+	}
+
+	/**
+	 * Grant an active role held back until payment, once an order is paid or completed.
+	 *
+	 * @param int $order_id Order ID.
+	 */
+	public function maybe_grant_deferred_active_role( $order_id ) {
+		foreach ( Helper::get_subscriptions_from_order( (int) $order_id ) as $history ) {
+			if ( 'active' === get_post_status( (int) $history->subscription_id ) ) {
+				$this->maybe_change_user_role_on_subscription_activation( (int) $history->subscription_id );
+			}
+		}
 	}
 
 	/**
@@ -102,6 +185,10 @@ class RoleManagement {
 
 		// Don't change roles for administrators
 		if ( in_array( 'administrator', $user->roles ?? [], true ) ) {
+			return;
+		}
+
+		if ( ! self::is_role_managed_user( $user ) ) {
 			return;
 		}
 

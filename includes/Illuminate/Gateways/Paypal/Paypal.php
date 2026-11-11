@@ -388,35 +388,57 @@ class Paypal extends \WC_Payment_Gateway {
 
 		$paypal_payment_approved = false;
 
-		if ( empty( $paypal_subscription_id ) ) {
-			$paypal_subscription_id = $order->get_meta( $this->get_meta_key( 'subscription_id' ), true );
-		}
+		$stored_subscription_id = $order->get_meta( $this->get_meta_key( 'subscription_id' ), true );
 
 		// OLD key migration.
 		// If no data check if the data exists with the old key. And update if necessary.
 		// ? Dev note: Remove after JAN 1, 2026.
-		if ( empty( $paypal_subscription_id ) ) {
-			$paypal_subscription_id = $order->get_meta( '_wp_subs_paypal_subscription_id', true );
+		if ( empty( $stored_subscription_id ) ) {
+			$stored_subscription_id = $order->get_meta( '_wp_subs_paypal_subscription_id', true );
 
-			if ( ! empty( $paypal_subscription_id ) ) {
-				$order->update_meta_data( $this->get_meta_key( 'subscription_id' ), $paypal_subscription_id );
+			if ( ! empty( $stored_subscription_id ) ) {
+				$order->update_meta_data( $this->get_meta_key( 'subscription_id' ), $stored_subscription_id );
 				$order->save();
 			}
 		}
 
-		if ( ! empty( $paypal_subscription_id ) ) {
+		// The return URL only names a subscription; the order's own record decides which one counts.
+		$paypal_subscription_data = null;
+		if ( ! self::is_paypal_resource_id( $paypal_subscription_id ) || $paypal_subscription_id === $stored_subscription_id ) {
+			$paypal_subscription_id = $stored_subscription_id;
+		} else {
 			$paypal_subscription_data = $this->get_paypal_subscription( $paypal_subscription_id );
 
-			if ( $paypal_subscription_data && in_array( $paypal_subscription_data->status ?? '', [ 'ACTIVE', 'APPROVED' ], true ) ) {
-				$paypal_payment_approved = true;
+			if ( ! $paypal_subscription_data || ! self::paypal_custom_id_matches( $paypal_subscription_data->custom_id ?? '', $order ) ) {
+				$paypal_subscription_id   = $stored_subscription_id;
+				$paypal_subscription_data = null;
 			}
 		}
 
-		// Fallback to check PayPal Order if Subscription is not available.
-		if ( ! $paypal_payment_approved && ! empty( $paypal_token ) ) {
+		if ( ! empty( $paypal_subscription_id ) ) {
+			if ( ! $paypal_subscription_data ) {
+				$paypal_subscription_data = $this->get_paypal_subscription( $paypal_subscription_id );
+			}
+
+			if ( $paypal_subscription_data && in_array( $paypal_subscription_data->status ?? '', [ 'ACTIVE', 'APPROVED' ], true ) ) {
+				$paypal_payment_approved = true;
+
+				if ( $paypal_subscription_id !== $stored_subscription_id ) {
+					$order->update_meta_data( $this->get_meta_key( 'subscription_id' ), $paypal_subscription_id );
+					$order->save();
+				}
+			}
+		}
+
+		// Fallback to check PayPal Order if Subscription is not available. It must be one PayPal made for this order.
+		if ( ! $paypal_payment_approved && self::is_paypal_resource_id( $paypal_token ) ) {
 			$paypal_order_data = $this->get_paypal_order( $paypal_token );
 
-			if ( $paypal_order_data && in_array( $paypal_order_data->status ?? '', [ 'APPROVED', 'COMPLETED' ], true ) ) {
+			if (
+				$paypal_order_data
+				&& in_array( $paypal_order_data->status ?? '', [ 'APPROVED', 'COMPLETED' ], true )
+				&& self::paypal_order_belongs_to( $paypal_order_data, $order )
+			) {
 				$paypal_payment_approved = true;
 			}
 		}
@@ -449,6 +471,51 @@ class Paypal extends \WC_Payment_Gateway {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Whether a value has the shape of a PayPal subscription or order id.
+	 *
+	 * PayPal ids are upper-case letters, digits and hyphens. Anything else is not
+	 * one, and must not be put into an API URL.
+	 *
+	 * @param mixed $id Candidate id.
+	 */
+	public static function is_paypal_resource_id( $id ): bool {
+		return is_string( $id ) && 1 === preg_match( '/^[A-Z0-9-]{1,64}$/', $id );
+	}
+
+	/**
+	 * Whether a PayPal `custom_id` names this WooCommerce order, by id or key.
+	 *
+	 * @param mixed    $custom_id `custom_id` PayPal returned.
+	 * @param WC_Order $order     Order.
+	 */
+	public static function paypal_custom_id_matches( $custom_id, $order ): bool {
+		$custom_id = is_scalar( $custom_id ) ? (string) $custom_id : '';
+		if ( '' === $custom_id ) {
+			return false;
+		}
+
+		return (string) $order->get_id() === $custom_id || (string) $order->get_order_key() === $custom_id;
+	}
+
+	/**
+	 * Whether a PayPal checkout order was made for this WooCommerce order.
+	 *
+	 * @param object   $paypal_order PayPal order data.
+	 * @param WC_Order $order        Order.
+	 */
+	public static function paypal_order_belongs_to( $paypal_order, $order ): bool {
+		foreach ( (array) ( $paypal_order->purchase_units ?? [] ) as $unit ) {
+			foreach ( [ 'custom_id', 'invoice_id', 'reference_id' ] as $field ) {
+				if ( self::paypal_custom_id_matches( $unit->$field ?? '', $order ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -626,6 +693,12 @@ class Paypal extends \WC_Payment_Gateway {
 	 * @param string $raw_body Webhook raw body from PayPal.
 	 */
 	public function verify_webhook( array $headers, string $raw_body ) {
+		// The webhook ID is part of the signed message; without it any signature is meaningless.
+		if ( empty( $this->webhook_id ) ) {
+			subscrpt_write_log( 'PayPal webhook: Webhook ID is not configured. Cannot verify webhook.' );
+			wp_die( 'Error: Webhook ID not configured. Cannot verify webhook.', '403 Forbidden', array( 'response' => 403 ) );
+		}
+
 		// Get PayPal Access Token.
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
@@ -724,19 +797,30 @@ class Paypal extends \WC_Payment_Gateway {
 			]
 		);
 
+		// Only ever fetch a certificate PayPal itself serves.
+		$cert_url = (string) $payload['cert_url'];
+		if ( ! self::is_paypal_cert_url( $cert_url ) ) {
+			subscrpt_write_log( 'PayPal webhook manual verification: rejected certificate URL ' . esc_url_raw( $cert_url ) );
+			return false;
+		}
+
 		// Fetch & cache cert
-		$cert_url  = esc_url_raw( $payload['cert_url'] );
 		$cache_key = 'paypal_cert_' . md5( $cert_url );
 
 		$cert_pem = get_transient( $cache_key );
 
 		if ( ! $cert_pem ) {
-			$response = wp_remote_get( $cert_url, [ 'timeout' => 20 ] );
-			if ( is_wp_error( $response ) ) {
+			$response = wp_safe_remote_get( $cert_url, [ 'timeout' => 20 ] );
+			if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 				return false;
 			}
 
 			$cert_pem = wp_remote_retrieve_body( $response );
+			if ( ! self::is_valid_paypal_cert( $cert_pem ) ) {
+				subscrpt_write_log( 'PayPal webhook manual verification: certificate is not a valid PayPal certificate.' );
+				return false;
+			}
+
 			set_transient( $cache_key, $cert_pem, DAY_IN_SECONDS );
 		}
 
@@ -760,6 +844,53 @@ class Paypal extends \WC_Payment_Gateway {
 		);
 
 		return ( 1 === $verified );
+	}
+
+	/**
+	 * Whether a webhook certificate URL points at PayPal's certificate endpoint.
+	 *
+	 * @param string $cert_url Certificate URL from the `PAYPAL-CERT-URL` header.
+	 */
+	public static function is_paypal_cert_url( string $cert_url ): bool {
+		$parts = wp_parse_url( $cert_url );
+
+		if ( empty( $parts['scheme'] ) || 'https' !== strtolower( $parts['scheme'] ) || empty( $parts['host'] ) ) {
+			return false;
+		}
+
+		if ( isset( $parts['port'] ) || isset( $parts['user'] ) || isset( $parts['pass'] ) ) {
+			return false;
+		}
+
+		$host = strtolower( $parts['host'] );
+		if ( '.paypal.com' !== substr( $host, -11 ) ) {
+			return false;
+		}
+
+		return 0 === strpos( $parts['path'] ?? '', '/v1/notifications/certs/' );
+	}
+
+	/**
+	 * Whether a PEM certificate parses and is inside its validity window.
+	 *
+	 * Origin is proven by is_paypal_cert_url() plus TLS verification on the fetch.
+	 *
+	 * @param string $cert_pem PEM encoded certificate.
+	 */
+	public static function is_valid_paypal_cert( string $cert_pem ): bool {
+		if ( '' === $cert_pem || ! function_exists( 'openssl_x509_parse' ) ) {
+			return false;
+		}
+
+		$cert = openssl_x509_parse( $cert_pem );
+		if ( empty( $cert ) ) {
+			return false;
+		}
+
+		$now = time();
+
+		return ! empty( $cert['validFrom_time_t'] ) && ! empty( $cert['validTo_time_t'] )
+			&& $now >= $cert['validFrom_time_t'] && $now <= $cert['validTo_time_t'];
 	}
 
 	/**
@@ -842,6 +973,7 @@ class Paypal extends \WC_Payment_Gateway {
 		// Create Subscription in PayPal.
 		$paypal_subscription_data = [
 			'plan_id'             => $paypal_plan_id,
+			'custom_id'           => (string) $order->get_id(),
 			'application_context' => [
 				'return_url' => $return_url,
 				'cancel_url' => $order->get_cancel_order_url(),
@@ -1403,6 +1535,41 @@ class Paypal extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Get a readable error message from a failed PayPal API call.
+	 *
+	 * PayPal's top-level message is generic (e.g. "The requested action could not be performed,
+	 * semantically incorrect, or failed business validation."). The actual reason is in `details`,
+	 * so append each issue, field and description, plus the debug ID PayPal support asks for.
+	 *
+	 * @param array|\WP_Error $response      Response from wp_remote_*.
+	 * @param object|null     $response_data Decoded response body.
+	 * @return string
+	 */
+	public function get_paypal_error_message( $response, ?object $response_data ): string {
+		if ( is_wp_error( $response ) ) {
+			return $response->get_error_message();
+		}
+
+		$message = $response_data->error_description ?? $response_data->message ?? 'Unknown error';
+
+		$details = [];
+		foreach ( (array) ( $response_data->details ?? [] ) as $detail ) {
+			$issue     = $detail->issue ?? '';
+			$field     = ! empty( $detail->field ) ? ' (' . $detail->field . ')' : '';
+			$details[] = trim( $issue . $field . ( ! empty( $detail->description ) ? ': ' . $detail->description : '' ) );
+		}
+		if ( ! empty( $details ) ) {
+			$message .= ' Details: ' . implode( '; ', $details );
+		}
+
+		if ( ! empty( $response_data->debug_id ) ) {
+			$message .= ' (PayPal debug ID: ' . $response_data->debug_id . ')';
+		}
+
+		return $message;
+	}
+
+	/**
 	 * Get Prefixed Meta Key.
 	 * Prefix the key with '_wp_subs_' to avoid possible conflicts with other plugins.
 	 *
@@ -1667,7 +1834,7 @@ class Paypal extends \WC_Payment_Gateway {
 			$response_data = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( empty( $response_data->id ?? null ) ) {
-				$log_message = 'Error creating PayPal product: ' . ( $response_data->error_description ?? 'Unknown error' );
+				$log_message = 'Error creating PayPal product: ' . $this->get_paypal_error_message( $response, $response_data );
 				subscrpt_write_log( $log_message );
 				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;
@@ -1720,7 +1887,7 @@ class Paypal extends \WC_Payment_Gateway {
 			$response_data = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( empty( $response_data->id ?? null ) ) {
-				$log_message = 'Error creating PayPal plan: ' . ( $response_data->error_description ?? $response_data->message ?? 'Unknown error' );
+				$log_message = 'Error creating PayPal plan: ' . $this->get_paypal_error_message( $response, $response_data );
 				subscrpt_write_log( $log_message );
 				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;
@@ -1748,6 +1915,11 @@ class Paypal extends \WC_Payment_Gateway {
 			'application_context' => $paypal_subscription_data['application_context'],
 		];
 
+		// Ties the PayPal subscription to its WooCommerce order, so a return can be checked against it.
+		if ( ! empty( $paypal_subscription_data['custom_id'] ) ) {
+			$body['custom_id'] = $paypal_subscription_data['custom_id'];
+		}
+
 		try {
 			$url  = $this->api_endpoint . '/v1/billing/subscriptions';
 			$args = [
@@ -1765,7 +1937,7 @@ class Paypal extends \WC_Payment_Gateway {
 			$response_data = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( empty( $response_data->id ?? null ) ) {
-				$log_message = 'Error creating PayPal subscription: ' . ( $response_data->error_description ?? $response_data->message ?? 'Unknown error' );
+				$log_message = 'Error creating PayPal subscription: ' . $this->get_paypal_error_message( $response, $response_data );
 				subscrpt_write_log( $log_message );
 				subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $response_data ) );
 				return null;

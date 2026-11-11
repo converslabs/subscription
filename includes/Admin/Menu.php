@@ -560,6 +560,14 @@ class Menu {
 				if ( $bulk_action && $action && $action !== '-1' && isset( $_POST['subscription_ids'] ) && is_array( $_POST['subscription_ids'] ) ) {
 					$subscription_ids = array_map( 'intval', $_POST['subscription_ids'] );
 
+					// Only subscriptions; any other id in the request is skipped.
+					$subscription_ids = array_filter(
+						$subscription_ids,
+						static function ( $sub_id ) {
+							return 'subscrpt_order' === get_post_type( $sub_id );
+						}
+					);
+
 					if ( $action === 'trash' ) {
 						foreach ( $subscription_ids as $sub_id ) {
 							wp_trash_post( $sub_id );
@@ -668,13 +676,19 @@ class Menu {
 						}
 						break;
 					case 'trash':
-						wp_trash_post( $sub_id );
+						if ( 'subscrpt_order' === get_post_type( $sub_id ) ) {
+							wp_trash_post( $sub_id );
+						}
 						break;
 					case 'restore':
-						wp_untrash_post( $sub_id );
+						if ( 'subscrpt_order' === get_post_type( $sub_id ) ) {
+							wp_untrash_post( $sub_id );
+						}
 						break;
 					case 'delete':
-						wp_delete_post( $sub_id, true );
+						if ( 'subscrpt_order' === get_post_type( $sub_id ) ) {
+							wp_delete_post( $sub_id, true );
+						}
 						$redirect_url = admin_url( 'admin.php?page=wp-subscription-list&subscrpt_status=trash' );
 						break;
 				}

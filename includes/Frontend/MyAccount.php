@@ -91,6 +91,10 @@ class MyAccount {
 		$current_user_id = get_current_user_id();
 		$user_is_admin   = current_user_can( 'manage_options' );
 
+		if ( ! $subs_post || 'subscrpt_order' !== $subs_post->post_type ) {
+			return wp_safe_redirect( '/404' );
+		}
+
 		if ( ! $user_is_admin && (int) $author_id !== (int) $current_user_id ) {
 			return wp_safe_redirect( '/404' );
 		}

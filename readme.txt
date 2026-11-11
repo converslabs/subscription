@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim, parvezvai, jakariaistauk
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.5.1
+Stable tag: 2.5.2
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -364,6 +364,14 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.5.2 - Nov 11, 2026 =
+-   fix: Subscription requests in My Account and the admin list now verify the post type and action name before acting.
+-   fix: Retention offers can only be claimed once per subscription, and only while it is active or pending cancellation.
+-   fix: The PayPal order-received page now validates that the returned subscription or token belongs to the order before marking it paid.
+-   fix: My Account subscription actions now check the subscription status and refuse actions that don't apply.
+-   fix: PayPal webhooks, guest checkout, subscription-driven role changes and unpaid activations are now more strictly verified.
+-   fix: PayPal API errors now include the detailed reason in the WooCommerce log, and retried block checkouts no longer create duplicate subscriptions.
 
 = 2.5.1 - Nov 8, 2026 =
 -   fix: Customers who pay an early renewal with Google Pay are no longer charged twice or left with a duplicate subscription.
