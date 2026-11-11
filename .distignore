@@ -9,6 +9,7 @@
 /.gitignore
 /.wordpress-org
 /.distignore
+/SECURITY.md
 
 # Tooling config
 /.cursorrules
