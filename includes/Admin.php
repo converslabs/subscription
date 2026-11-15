@@ -15,6 +15,7 @@ use SpringDevs\Subscription\Admin\CancellationFlow;
 use SpringDevs\Subscription\Admin\Menu;
 use SpringDevs\Subscription\Admin\Notices;
 use SpringDevs\Subscription\Admin\Order as AdminOrder;
+use SpringDevs\Subscription\Admin\PaypalBillingLimits;
 use SpringDevs\Subscription\Admin\Plans;
 use SpringDevs\Subscription\Admin\Product;
 use SpringDevs\Subscription\Admin\ProductList;
@@ -58,6 +59,7 @@ class Admin {
 			new Integrations();
 			new Product();
 			new ProductList();
+			new PaypalBillingLimits();
 			new Subscriptions();
 			new AdminOrder();
 			new Comments();
