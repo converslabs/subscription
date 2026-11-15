@@ -78,14 +78,15 @@ class PaypalBillingLimits {
 		?>
 		<div class="notice notice-warning">
 			<p>
-				<strong><?php esc_html_e( 'PayPal cannot bill this product.', 'subscription' ); ?></strong>
-				<?php esc_html_e( 'PayPal accepts a billing period or free trial of at most 365 days, 52 weeks, 12 months or 1 year, so a customer paying with PayPal will not be able to check out:', 'subscription' ); ?>
+				<strong><?php esc_html_e( 'Some billing periods on this product are too long for PayPal.', 'subscription' ); ?></strong>
+				<?php esc_html_e( 'The longest period PayPal can bill, or give as a free trial, is 1 year (365 days, 52 weeks or 12 months). Anything shorter works. Customers who pick one of these and pay with PayPal will not be able to check out:', 'subscription' ); ?>
 			</p>
 			<ul class="ul-disc">
 				<?php foreach ( $problems as $problem ) : ?>
 					<li><?php echo esc_html( $problem ); ?></li>
 				<?php endforeach; ?>
 			</ul>
+			<p><?php esc_html_e( 'Shorten these periods, or let customers pay for them with another payment method.', 'subscription' ); ?></p>
 		</div>
 		<?php
 	}
@@ -99,6 +100,46 @@ class PaypalBillingLimits {
 		$settings = get_option( 'woocommerce_wp_subscription_paypal_settings', array() );
 
 		return is_array( $settings ) && 'yes' === ( $settings['enabled'] ?? 'no' );
+	}
+
+	/**
+	 * One line of the notice: what is too long, and PayPal's limit for that unit.
+	 *
+	 * @param string $label Plan, product or variation name.
+	 * @param int    $count Interval count.
+	 * @param string $unit  Interval unit, singular or plural.
+	 * @param bool   $trial Whether the period is a free trial.
+	 *
+	 * @return string
+	 */
+	private static function describe( string $label, int $count, string $unit, bool $trial ): string {
+		$unit = rtrim( strtolower( trim( $unit ) ), 's' );
+
+		$period = array(
+			/* translators: %d: number of days. */
+			'day'   => sprintf( _n( '%d day', '%d days', $count, 'subscription' ), $count ),
+			/* translators: %d: number of weeks. */
+			'week'  => sprintf( _n( '%d week', '%d weeks', $count, 'subscription' ), $count ),
+			/* translators: %d: number of months. */
+			'month' => sprintf( _n( '%d month', '%d months', $count, 'subscription' ), $count ),
+			/* translators: %d: number of years. */
+			'year'  => sprintf( _n( '%d year', '%d years', $count, 'subscription' ), $count ),
+		);
+
+		$limit = array(
+			'day'   => __( '365 days', 'subscription' ),
+			'week'  => __( '52 weeks', 'subscription' ),
+			'month' => __( '12 months', 'subscription' ),
+			'year'  => __( '1 year', 'subscription' ),
+		);
+
+		if ( $trial ) {
+			/* translators: 1: plan or product name, 2: trial length such as "400 days", 3: PayPal's limit such as "365 days". */
+			return sprintf( __( '%1$s: %2$s free trial (PayPal allows up to %3$s)', 'subscription' ), $label, $period[ $unit ], $limit[ $unit ] );
+		}
+
+		/* translators: 1: plan or product name, 2: billing period such as "2 years", 3: PayPal's limit such as "1 year". */
+		return sprintf( __( '%1$s: billed every %2$s (PayPal allows up to %3$s)', 'subscription' ), $label, $period[ $unit ], $limit[ $unit ] );
 	}
 
 	/**
@@ -118,16 +159,14 @@ class PaypalBillingLimits {
 			$unit  = PlanRepository::interval_to_option( (int) $row['billing_interval'] );
 
 			if ( self::exceeds_limit( $count, $unit ) ) {
-				/* translators: 1: plan name, 2: interval count, 3: interval unit. */
-				$problems[] = sprintf( __( '%1$s: billed every %2$d %3$s', 'subscription' ), $label, $count, $unit );
+				$problems[] = self::describe( $label, $count, $unit, false );
 			}
 
 			$trial      = (int) $row['free_trial'];
 			$trial_unit = isset( $row['plan_data']['free_trial_interval'] ) ? (string) $row['plan_data']['free_trial_interval'] : 'days';
 
 			if ( $trial > 0 && self::exceeds_limit( $trial, $trial_unit ) ) {
-				/* translators: 1: plan name, 2: trial length, 3: trial unit. */
-				$problems[] = sprintf( __( '%1$s: %2$d %3$s free trial', 'subscription' ), $label, $trial, $trial_unit );
+				$problems[] = self::describe( $label, $trial, $trial_unit, true );
 			}
 		}
 
@@ -145,16 +184,14 @@ class PaypalBillingLimits {
 			$unit  = (string) $item->get_meta( '_subscrpt_timing_option' );
 
 			if ( self::exceeds_limit( $count, $unit ) ) {
-				/* translators: 1: product or variation name, 2: interval count, 3: interval unit. */
-				$problems[] = sprintf( __( '%1$s: billed every %2$d %3$s', 'subscription' ), $item->get_name(), $count, $unit );
+				$problems[] = self::describe( $item->get_name(), $count, $unit, false );
 			}
 
 			$trial      = $subs_product->get_trial_timing_per();
 			$trial_unit = (string) $subs_product->get_trial_timing_option();
 
 			if ( $trial > 0 && self::exceeds_limit( $trial, $trial_unit ) ) {
-				/* translators: 1: product or variation name, 2: trial length, 3: trial unit. */
-				$problems[] = sprintf( __( '%1$s: %2$d %3$s free trial', 'subscription' ), $item->get_name(), $trial, $trial_unit );
+				$problems[] = self::describe( $item->get_name(), $trial, $trial_unit, true );
 			}
 		}
 
