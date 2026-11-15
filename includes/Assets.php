@@ -24,7 +24,7 @@ class Assets {
 		}
 
 		// Development only: see version_asset_src().
-		if ( false !== strpos( SUBSCRPT_VERSION, '#WPSUBS' ) ) {
+		if ( 'local' === wp_get_environment_type() ) {
 			add_filter( 'script_loader_src', array( $this, 'version_asset_src' ) );
 			add_filter( 'style_loader_src', array( $this, 'version_asset_src' ) );
 		}
@@ -43,23 +43,22 @@ class Assets {
 	/**
 	 * Give this plugin's assets a version that actually changes in development.
 	 *
-	 * `SUBSCRPT_VERSION` is a build-time placeholder in a git checkout —
-	 * release.sh substitutes the real number when packaging — so every asset is
-	 * served under the same, never-changing version string and the browser
-	 * keeps its cached copy through edit after edit. That has cost real
+	 * `SUBSCRPT_VERSION` only changes on release, so in development every asset
+	 * is served under the same version string and the browser keeps its cached
+	 * copy through edit after edit. That has cost real
 	 * debugging time: a fix already on disk and already being served, appearing
 	 * not to work.
 	 *
 	 * Filtering the loader rather than each registration catches the enqueues
 	 * that call wp_enqueue_script() directly with a version of their own, which
-	 * is most of the admin screens. On a release build the placeholder is gone
-	 * and this returns the src untouched.
+	 * is most of the admin screens. Only a `local` environment (the bench sets
+	 * WP_ENVIRONMENT_TYPE) gets it; anywhere else this returns the src untouched.
 	 *
 	 * @param string $src Asset URL, with or without a `ver` argument.
 	 * @return string
 	 */
 	public function version_asset_src( $src ) {
-		if ( false === strpos( SUBSCRPT_VERSION, '#WPSUBS' ) ) {
+		if ( 'local' !== wp_get_environment_type() ) {
 			return $src;
 		}
 

@@ -256,6 +256,12 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		$subscription    = reset( $subscription );
 		$subscription_id = $subscription->subscription_id ?? 0;
 
+		// An early renewal is paid before the subscription is due. Its customer is sent to
+		// the pay page, so a failed charge is not a missed renewal and must not start dunning.
+		if ( isset( $subscription->type ) && 'early-renew' === $subscription->type ) {
+			return;
+		}
+
 		do_action( 'subscrpt_subscription_payment_failed', $subscription_id );
 	}
 

@@ -45,6 +45,13 @@ class Cancellation {
 	const OTHER_KEY = 'other';
 
 	/**
+	 * Post meta recording the retention offer claimed on a subscription.
+	 *
+	 * @var string
+	 */
+	const OFFER_CLAIMED_META = '_subscrpt_offer_claimed';
+
+	/**
 	 * Initialize the class.
 	 */
 	public function __construct() {
@@ -392,11 +399,23 @@ class Cancellation {
 			wp_send_json_error( [ 'message' => 'forbidden' ] );
 		}
 
+		// Only a subscription the customer could still keep earns an offer.
+		if ( ! in_array( get_post_status( $subscription_id ), [ 'active', 'pe_cancelled' ], true ) ) {
+			wp_send_json_error( [ 'message' => 'no_offer' ] );
+		}
+
+		// One offer per subscription.
+		if ( get_post_meta( $subscription_id, self::OFFER_CLAIMED_META, true ) ) {
+			wp_send_json_error( [ 'message' => 'already_claimed' ] );
+		}
+
 		/**
 		 * Filters the retention offer handed to a cancelling customer.
 		 *
 		 * Return an array with a `code` to make the offer; anything falsy means no
-		 * offer was issued and the customer continues to the reasons step.
+		 * offer was issued and the customer continues to the reasons step. It runs
+		 * at most once per subscription that yields an offer, and only for an
+		 * `active` or `pe_cancelled` subscription.
 		 *
 		 * @param array|null $offer           The offer, or null when none is issued.
 		 * @param int        $subscription_id Subscription ID.
@@ -407,6 +426,15 @@ class Cancellation {
 		if ( empty( $offer['code'] ) ) {
 			wp_send_json_error( [ 'message' => 'no_offer' ] );
 		}
+
+		update_post_meta(
+			$subscription_id,
+			self::OFFER_CLAIMED_META,
+			[
+				'time' => time(),
+				'code' => (string) $offer['code'],
+			]
+		);
 
 		// Accepting the offer is a save, and the strongest kind - report it even
 		// if the customer already dismissed the modal once today.

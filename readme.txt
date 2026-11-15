@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim, parvezvai, jakariaistauk
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.5.0
+Stable tag: 2.5.2
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -303,6 +303,10 @@ Yes, the plugin supports recurring coupons — apply percentage or fixed-amount 
 =Where can I find the full documentation and setup steps?=
 You can find the complete guide, configuration tutorials, and troubleshooting help in our [Subscriptions for WooCommerce Docs](https://docs.wpsubscription.co/en?utm_source=wporg&utm_medium=readme&utm_campaign=docs) section.
 
+= Where do I report security bugs found in this plugin? =
+
+Please report security bugs found in the source code of the WPSubscription plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/f3ccb80e-4629-4ce5-b150-d4c2308d3a41). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
 =What makes this a good choice for WooCommerce subscriptions?=
 It is designed to be fast, reliable, and full-featured, with support for auto-renewals, variable products, free trials, recurring coupons, subscription health monitoring, and multiple payment gateways including Stripe, PayPal, Mollie, Razorpay, Paddle, and Xendit.
 
@@ -361,19 +365,35 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 
 == Changelog ==
 
-= 2.5.0 - Oct 14, 2026 =
--   new: Subscription boxes are coming! Take a first look at the new Boxes screen (selling boxes needs WPSubscription Pro).
--   new: Beautiful purchase options: choose from seven ready-made designs, match them to your brand colours, watch your changes live, and give any product its own look.
--   new: Make every plan stand out with a ribbon like "Best value", a list of what's included, the price per delivery and how much customers save. Products that come in options, like size or colour, now show simple buttons to pick from.
+= 2.5.2 - Nov 11, 2026 =
+-   fix: Subscription requests in My Account and the admin list now verify the post type and action name before acting.
+-   fix: Retention offers can only be claimed once per subscription, and only while it is active or pending cancellation.
+-   fix: The PayPal order-received page now validates that the returned subscription or token belongs to the order before marking it paid.
+-   fix: My Account subscription actions now check the subscription status and refuse actions that don't apply.
+-   fix: PayPal webhooks, guest checkout, subscription-driven role changes and unpaid activations are now more strictly verified.
+-   fix: PayPal API errors now include the detailed reason in the WooCommerce log, and retried block checkouts no longer create duplicate subscriptions.
+
+= 2.5.1 - Nov 8, 2026 =
+-   fix: Customers who pay an early renewal with Google Pay are no longer charged twice or left with a duplicate subscription.
+-   fix: Minor bug fixes and improvements.
+
+= 2.5.0 - Oct 25, 2026 =
+-   new: Subscription boxes are added! Take a first look at the new Boxes screen (selling boxes needs WPSubscription Pro).
+-   new: Choose from seven ready-made purchase option designs, match them to your brand colours with a live preview, and give any product its own look.
+-   new: Make a plan stand out with a ribbon like "Most popular", a list of what's included and a "learn more" link, show each delivery's own price and saving, and let customers pick options like size or colour with simple buttons.
+-   new: WPSubscription screens now show only WPSubscription notices, and the dashboard tells you what is new in each release.
+-   new: A customer who adds a different subscription is asked whether to switch, instead of being blocked.
 -   improved: Customers can choose a plan using just their keyboard.
 -   improved: Pay-in-instalments options are easier to understand.
--   improved: When a renewal payment can't go through, you now see exactly why.
+-   improved: When a renewal order can't be created, the subscription's history and the WooCommerce log now say why.
+-   improved: A product with a single purchase option no longer shows a radio button or indents its content.
 -   fix: Customers who cancel keep their subscription until the end of the time they already paid for.
 -   fix: Cancellation notices show the time in your store's own time zone.
--   fix: Customers no longer get a confusing "Subscription saved" email right after they cancel.
--   fix: How often a subscription renews, like "every month", now shows in the customer's language at checkout.
--   fix: Pay-in-instalments plans no longer charge tax twice.
+-   fix: Customers no longer get a "Subscription saved" email when they cancel right after closing the cancellation survey.
+-   fix: How often a subscription renews, like "every month", now shows in the customer's language on the block cart and checkout.
+-   fix: Pay-in-instalments plans follow their own terms, not the product's old split-payment settings, and no longer charge tax twice.
 -   fix: The discount badge now updates when a customer switches billing options, like monthly to yearly.
+-   fix: The Shop page no longer shows a JavaScript error when Variation Swatches is active.
 -   fix: Renewals no longer break the site when the WooCommerce Stripe plugin is turned off.
 
 = 2.4.0 - Oct 8, 2026 =
