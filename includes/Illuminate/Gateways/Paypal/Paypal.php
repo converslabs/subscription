@@ -591,6 +591,20 @@ class Paypal extends \WC_Payment_Gateway {
 			'BILLING.SUBSCRIPTION.CANCELLED',
 		];
 
+		// Acknowledge events we do not handle before the order lookup below, which answers 425
+		// when no order matches. Events such as CATALOG.PRODUCT.CREATED never match an order, so
+		// a webhook subscribed to all events would otherwise be retried and shown as failed.
+		if ( ! in_array( $event, $transaction_events, true ) && ! in_array( $event, $subscription_events, true ) ) {
+			$log_message = sprintf(
+				// translators: %s: event name.
+				__( 'PayPal webhook received [%s]. No actions taken.', 'subscription' ),
+				$event,
+			);
+			subscrpt_write_log( $log_message );
+			subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
+			wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
+		}
+
 		// Get subscription ID from webhook data.
 		$paypal_subscription_id = isset( $webhook_data['resource']['billing_agreement_id'] )
 			? sanitize_text_field( $webhook_data['resource']['billing_agreement_id'] )
@@ -678,17 +692,8 @@ class Paypal extends \WC_Payment_Gateway {
 		// Finally, handle the webhook.
 		if ( in_array( $event, $transaction_events, true ) ) {
 			$this->handle_transaction_event( $webhook_data, $order, $transaction_id, $paypal_subscription_id, $wpsubs_id );
-		} elseif ( in_array( $event, $subscription_events, true ) ) {
-			$this->handle_subscription_event( $webhook_data, $order, $transaction_id, $paypal_subscription_id, $wpsubs_id );
 		} else {
-			$log_message = sprintf(
-				// translators: %1$s: alert name; %2$s: order id.
-				__( 'PayPal webhook received [%s]. No actions taken.', 'subscription' ),
-				$event,
-			);
-			subscrpt_write_log( $log_message );
-			subscrpt_write_debug_log( $log_message . ' ' . wp_json_encode( $webhook_data ) );
-			wp_die( esc_html( $log_message ), '200 success', array( 'response' => 200 ) );
+			$this->handle_subscription_event( $webhook_data, $order, $transaction_id, $paypal_subscription_id, $wpsubs_id );
 		}
 	}
 
