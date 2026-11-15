@@ -921,10 +921,39 @@ class Paypal extends \WC_Payment_Gateway {
 			];
 		}
 
-		// Get the first order item.
-		// Based on the logic, the order sould contain only one subscription item.
-		$order_items = $order->get_items();
-		$order_item  = ! empty( $order_items ) ? reset( $order_items ) : null;
+		// Pick the subscription line. The order may also hold regular products
+		// (a mixed cart), which are charged once at signup through the setup fee.
+		$order_item      = null;
+		$has_other_items = false;
+		foreach ( $order->get_items() as $item ) {
+			if ( ! $item instanceof WC_Order_Item_Product ) {
+				continue;
+			}
+
+			// A line is a subscription when checkout recorded one for it; a plan
+			// product bought one-time has no relation and is a regular product.
+			if ( ! Helper::get_subscription_from_order_item_id( $item->get_id() ) ) {
+				$has_other_items = true;
+				continue;
+			}
+
+			if ( $order_item ) {
+				return [
+					'result'   => 'error',
+					'redirect' => '',
+					'response' => __( 'PayPal can only bill one subscription per order. Please check out each subscription separately.', 'subscription' ),
+				];
+			}
+
+			$order_item = $item;
+		}
+
+		// No subscription line found: keep the previous behaviour and use the first item.
+		if ( ! $order_item ) {
+			$order_items     = $order->get_items();
+			$order_item      = ! empty( $order_items ) ? reset( $order_items ) : null;
+			$has_other_items = false;
+		}
 
 		// Get WooCommerce Product.
 		$wc_product_id   = null;
@@ -979,6 +1008,31 @@ class Paypal extends \WC_Payment_Gateway {
 				'cancel_url' => $order->get_cancel_order_url(),
 			],
 		];
+
+		// Regular products on the order: charge them once at signup by overriding
+		// this subscription's setup fee, so PayPal's first charge equals the order total.
+		// The stored plan is shared by every buyer of the product and is not changed.
+		if ( $has_other_items ) {
+			$plan_product = $wc_variation_id ? wc_get_product( $wc_variation_id ) : $wc_product;
+			$setup_fee    = $plan_product ? $this->get_mixed_order_setup_fee( $order, $plan_product ) : null;
+
+			if ( null === $setup_fee ) {
+				return [
+					'result'   => 'error',
+					'redirect' => '',
+					'response' => __( 'PayPal cannot bill this order total. Please choose another payment method or check out the subscription separately.', 'subscription' ),
+				];
+			}
+
+			$paypal_subscription_data['plan'] = [
+				'payment_preferences' => [
+					'setup_fee' => [
+						'value'         => number_format( $setup_fee, 2, '.', '' ),
+						'currency_code' => get_woocommerce_currency(),
+					],
+				],
+			];
+		}
 
 		$paypal_subscription = $this->create_paypal_subscription( $paypal_subscription_data, $access_token );
 
@@ -1622,6 +1676,27 @@ class Paypal extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Setup fee for an order that holds a subscription plus regular products.
+	 *
+	 * PayPal charges the setup fee at activation and the first regular cycle at
+	 * the start (nothing during a trial). The setup fee is therefore the order
+	 * total minus the first cycle, which carries the product's signup fee plus
+	 * the regular products, their tax and shipping.
+	 *
+	 * @param WC_Order   $order      The order.
+	 * @param WC_Product $wc_product Subscription product (simple or variation) the plan is built from.
+	 * @return float|null Setup fee, or null when PayPal cannot bill the order total.
+	 */
+	private function get_mixed_order_setup_fee( WC_Order $order, WC_Product $wc_product ): ?float {
+		$wpsubs_product = Subscription::get_subs_product( $wc_product );
+		$has_trial      = (int) $wpsubs_product->get_trial_timing_per() > 0;
+		$first_cycle    = $has_trial ? 0.0 : (float) wc_get_price_including_tax( $wc_product );
+		$setup_fee      = round( (float) $order->get_total() - $first_cycle, 2 );
+
+		return $setup_fee >= 0 ? $setup_fee : null;
+	}
+
+	/**
 	 * Generate a fingerprint hash of all critical billing fields for a product.
 	 *
 	 * The fingerprint encodes every field that determines a distinct PayPal billing
@@ -1918,6 +1993,11 @@ class Paypal extends \WC_Payment_Gateway {
 		// Ties the PayPal subscription to its WooCommerce order, so a return can be checked against it.
 		if ( ! empty( $paypal_subscription_data['custom_id'] ) ) {
 			$body['custom_id'] = $paypal_subscription_data['custom_id'];
+		}
+
+		// Per-subscription plan override (e.g. the setup fee for a mixed order).
+		if ( ! empty( $paypal_subscription_data['plan'] ) ) {
+			$body['plan'] = $paypal_subscription_data['plan'];
 		}
 
 		try {
