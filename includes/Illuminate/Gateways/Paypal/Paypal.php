@@ -1784,6 +1784,9 @@ class Paypal extends \WC_Payment_Gateway {
 			'trial_count'    => $terms['trial_count'],
 			'signup_fee'     => number_format( $terms['signup_fee'], 2, '.', '' ),
 			'total_cycles'   => $terms['total_cycles'],
+			// Bump when generate_plan_data() changes what it sends, so plans built the old way are not reused.
+			// 2: the trial runs once and the payment limit sits on the regular cycle.
+			'version'        => 2,
 		];
 
 		if ( $order_item instanceof WC_Order_Item_Product && $order_item->get_meta( '_subscrpt_plan_id' ) ) {
