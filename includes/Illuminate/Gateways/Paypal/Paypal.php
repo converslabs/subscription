@@ -1229,6 +1229,21 @@ class Paypal extends \WC_Payment_Gateway {
 							);
 							subscrpt_write_log( $log_message );
 							wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
+						} elseif ( $existing_txn && $existing_txn !== $transaction_id && 'new' === ( $latest_row->type ?? '' ) && $this->is_signup_sale( (string) $subscription_id ) ) {
+							// A setup fee (signup fee, or regular products on the order) and the first
+							// cycle are separate sales at signup. The second one belongs to the same order.
+							$this->record_sale( $latest_order, $transaction_id, (float) ( $webhook_data['resource']['amount']['total'] ?? 0 ) );
+							// translators: %s: transaction id.
+							$latest_order->add_order_note( sprintf( __( 'PayPal signup payment recorded by webhook. Transaction ID: %s', 'subscription' ), $transaction_id ) );
+							$latest_order->save();
+
+							$log_message = sprintf(
+								// translators: %s: transaction id.
+								__( 'Transaction webhook [PAYMENT.SALE.COMPLETED] recorded signup transaction #%s on the subscription order.', 'subscription' ),
+								$transaction_id
+							);
+							subscrpt_write_log( $log_message );
+							wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
 						} elseif ( $existing_txn && $existing_txn !== $transaction_id ) {
 							// Order already has a different transaction — this is a renewal payment.
 							$order = Helper::create_renewal_order( $wpsubs_id );
@@ -1268,6 +1283,7 @@ class Paypal extends \WC_Payment_Gateway {
 				}
 
 				$order->set_transaction_id( $transaction_id );
+				$this->record_sale( $order, $transaction_id, (float) ( $webhook_data['resource']['amount']['total'] ?? 0 ) );
 
 				// If already completed (e.g. thank-you page ran first), just record the transaction ID.
 				if ( $order->has_status( 'completed' ) ) {
@@ -1674,6 +1690,44 @@ class Paypal extends \WC_Payment_Gateway {
 			default:
 				return 'MONTH';
 		}
+	}
+
+	/**
+	 * Whether a sale on a PayPal subscription is still part of its signup.
+	 *
+	 * At signup PayPal charges the setup fee and the first cycle as separate
+	 * sales, both within the first billing cycle (a trial is the first cycle).
+	 *
+	 * @param string $paypal_subscription_id PayPal subscription id.
+	 * @return bool
+	 */
+	private function is_signup_sale( string $paypal_subscription_id ): bool {
+		$paypal_subscription = $paypal_subscription_id ? $this->get_paypal_subscription( $paypal_subscription_id ) : null;
+		if ( ! $paypal_subscription ) {
+			return false;
+		}
+
+		$cycles_completed = 0;
+		foreach ( (array) ( $paypal_subscription->billing_info->cycle_executions ?? [] ) as $cycle ) {
+			$cycles_completed += (int) ( $cycle->cycles_completed ?? 0 );
+		}
+
+		return $cycles_completed <= 1;
+	}
+
+	/**
+	 * Remember a PayPal sale and its amount on the order it paid for, for refunds.
+	 *
+	 * @param WC_Order $order          The order.
+	 * @param string   $transaction_id PayPal sale id.
+	 * @param float    $amount         Sale amount.
+	 */
+	private function record_sale( WC_Order $order, string $transaction_id, float $amount ): void {
+		$sales = $order->get_meta( '_wpsubs_paypal_sales' );
+		$sales = is_array( $sales ) ? $sales : [];
+
+		$sales[ $transaction_id ] = $amount;
+		$order->update_meta_data( '_wpsubs_paypal_sales', $sales );
 	}
 
 	/**
