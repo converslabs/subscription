@@ -1819,7 +1819,8 @@ class Paypal extends \WC_Payment_Gateway {
 			$billing_cycles[] = [
 				'tenure_type'  => 'TRIAL',
 				'sequence'     => 1,
-				'total_cycles' => $total_cycles,
+				// One trial period; PayPal rejects 0.
+				'total_cycles' => 1,
 				'frequency'    => [
 					'interval_unit'  => $trial_interval,
 					'interval_count' => (int) $trial_length,
@@ -1831,7 +1832,7 @@ class Paypal extends \WC_Payment_Gateway {
 		$billing_cycles[] = [
 			'tenure_type'    => 'REGULAR',
 			'sequence'       => count( $billing_cycles ) + 1,
-			'total_cycles'   => 0,
+			'total_cycles'   => (int) $total_cycles,
 			'pricing_scheme' => [
 				'fixed_price' => [
 					'value'         => number_format( (float) $price, 2, '.', '' ),
