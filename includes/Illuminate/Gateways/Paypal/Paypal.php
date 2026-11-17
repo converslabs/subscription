@@ -2107,6 +2107,71 @@ class Paypal extends \WC_Payment_Gateway {
 			return new \WP_Error( 'no_capture_id', __( 'PayPal capture ID not found on this order.', 'subscription' ) );
 		}
 
+		// A setup fee and the first cycle are separate sales: refund across them.
+		$sales = $order->get_meta( '_wpsubs_paypal_sales' );
+		if ( is_array( $sales ) && count( $sales ) > 1 ) {
+			return $this->refund_sales( $order, $sales, null === $amount ? (float) $order->get_remaining_refund_amount() : (float) $amount, $reason );
+		}
+
+		return $this->refund_sale( $order, $capture_id, $amount, $reason );
+	}
+
+	/**
+	 * Refund an amount across the PayPal sales of one order, oldest first.
+	 *
+	 * @param WC_Order $order  The order.
+	 * @param array    $sales  Sale id => sale amount.
+	 * @param float    $amount Amount to refund.
+	 * @param string   $reason Reason for refund.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
+	 */
+	private function refund_sales( WC_Order $order, array $sales, float $amount, string $reason ) {
+		$refunded  = $order->get_meta( '_wpsubs_paypal_sales_refunded' );
+		$refunded  = is_array( $refunded ) ? $refunded : [];
+		$remaining = round( $amount, 2 );
+
+		foreach ( $sales as $sale_id => $sale_amount ) {
+			if ( $remaining <= 0 ) {
+				break;
+			}
+
+			$available = round( (float) $sale_amount - (float) ( $refunded[ $sale_id ] ?? 0 ), 2 );
+			$part      = min( $remaining, $available );
+			if ( $part <= 0 ) {
+				continue;
+			}
+
+			$result = $this->refund_sale( $order, (string) $sale_id, $part, $reason );
+			if ( is_wp_error( $result ) ) {
+				$order->update_meta_data( '_wpsubs_paypal_sales_refunded', $refunded );
+				$order->save();
+				return $result;
+			}
+
+			$refunded[ $sale_id ] = round( (float) ( $refunded[ $sale_id ] ?? 0 ) + $part, 2 );
+			$remaining            = round( $remaining - $part, 2 );
+		}
+
+		$order->update_meta_data( '_wpsubs_paypal_sales_refunded', $refunded );
+		$order->save();
+
+		if ( $remaining > 0 ) {
+			return new \WP_Error( 'paypal_refund_exceeds_sales', __( 'The refund is larger than what is left to refund on this order\'s PayPal payments.', 'subscription' ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Refund one PayPal sale.
+	 *
+	 * @param WC_Order   $order      The order.
+	 * @param string     $capture_id PayPal sale id.
+	 * @param float|null $amount     Amount to refund, or null for the whole sale.
+	 * @param string     $reason     Reason for refund.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
+	 */
+	private function refund_sale( WC_Order $order, string $capture_id, $amount, $reason ) {
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
 			return new \WP_Error( 'no_access_token', __( 'Failed to get PayPal access token.', 'subscription' ) );
