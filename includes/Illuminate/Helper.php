@@ -1325,10 +1325,16 @@ class Helper {
 	 *
 	 * @param int    $subscription_id Subscription ID.
 	 * @param string $new_date New Date string.
-	 * @return void
+	 * @return bool False when the date cannot be parsed; nothing is stored then.
 	 */
 	public static function update_subscription_next_payment_date( $subscription_id, $new_date ) {
-		update_post_meta( $subscription_id, '_subscrpt_next_date', strtotime( $new_date ) );
+		$timestamp = strtotime( $new_date );
+		if ( false === $timestamp ) {
+			return false;
+		}
+
+		update_post_meta( $subscription_id, '_subscrpt_next_date', $timestamp );
+		return true;
 	}
 
 	/**
