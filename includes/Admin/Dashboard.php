@@ -642,7 +642,14 @@ class Dashboard {
 	 * @return bool
 	 */
 	private function has_enabled_gateway(): bool {
-		foreach ( array( 'wp_subscription_paypal', 'stripe', 'smartpay_paddle' ) as $gateway ) {
+		/**
+		 * Filters the IDs of the gateways that can renew subscriptions automatically.
+		 *
+		 * @param string[] $gateway_ids Payment gateway IDs.
+		 */
+		$gateway_ids = apply_filters( 'subscrpt_renewal_gateway_ids', array( 'wp_subscription_paypal', 'stripe', 'smartpay_paddle' ) );
+
+		foreach ( (array) $gateway_ids as $gateway ) {
 			if ( Integrations::is_gateway_enabled( $gateway ) ) {
 				return true;
 			}
