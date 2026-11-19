@@ -439,9 +439,35 @@ class Integrations {
 					],
 				],
 			],
+			'paystack' => [
+				'title'              => 'Paystack',
+				'description'        => __( 'Pay for subscriptions securely with Paystack for WooCommerce.', 'subscription' ),
+				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/paystack.png',
+				'type'               => 'payment_gateway',
+				'is_pro'             => true,
+				'is_beta'            => true,
+				'is_installed'       => class_exists( 'WC_Gateway_Paystack' ),
+				'is_active'          => self::is_gateway_enabled( 'paystack' ),
+				'supports_recurring' => true,
+				'actions'            => [
+					[
+						'action'   => 'install',
+						'label'    => __( 'Install Now', 'subscription' ),
+						'type'     => 'function',
+						'function' => "subscrptInstallPlugin(this, 'woo-paystack')",
+					],
+					[
+						'action' => 'settings',
+						'label'  => __( 'Settings', 'subscription' ),
+						'type'   => 'link',
+						'url'    => admin_url( 'admin.php?page=wc-settings&tab=checkout&section=paystack' ),
+					],
+				],
+			],
 		];
 
 		$integrations['stripe']   = $this->with_gateway_plugin_state( $integrations['stripe'], 'woocommerce-gateway-stripe' );
+		$integrations['paystack'] = $this->with_gateway_plugin_state( $integrations['paystack'], 'woo-paystack' );
 		$integrations['mollie']   = $this->with_gateway_plugin_state( $integrations['mollie'], 'mollie-payments-for-woocommerce' );
 		$integrations['razorpay'] = $this->with_gateway_plugin_state( $integrations['razorpay'], 'woo-razorpay' );
 		$integrations['xendit']   = $this->with_gateway_plugin_state( $integrations['xendit'], 'woo-xendit-virtual-accounts' );
