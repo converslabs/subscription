@@ -105,6 +105,16 @@ class Cron {
 			// Initialize WooCommerce mailer before processing
 			if ( function_exists( 'WC' ) && WC()->mailer() ) {
 				foreach ( $expired_subscriptions as $subscription ) {
+					/**
+					 * Filter whether the cron expires a subscription whose due date passed.
+					 *
+					 * @param bool $should_expire   Whether to expire it.
+					 * @param int  $subscription_id Subscription ID.
+					 */
+					if ( ! apply_filters( 'subscrpt_should_expire_subscription', true, $subscription ) ) {
+						continue;
+					}
+
 					Action::status( 'expired', $subscription );
 				}
 			}
