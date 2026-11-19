@@ -74,7 +74,8 @@ class Paypal extends \WC_Payment_Gateway {
 		$this->has_fields         = false;
 		$this->method_title       = __( 'PayPal for WPSubscription', 'subscription' );
 		$this->method_description = __( 'Accept wp subscription recurring payments through PayPal. Only WPSubscription is supported.', 'subscription' );
-		$this->supports           = [ 'products', 'subscriptions', 'refunds' ];
+		// `subscrpt_single_subscription_with_products`: one subscription plus regular products in one order.
+		$this->supports           = [ 'products', 'subscriptions', 'refunds', 'subscrpt_single_subscription_with_products' ];
 		$this->icon               = apply_filters( 'wp_subscription_paypal_icon', SUBSCRPT_URL . '/assets/images/integrations/paypal.svg' );
 
 		// Load the settings.
@@ -930,10 +931,39 @@ class Paypal extends \WC_Payment_Gateway {
 			];
 		}
 
-		// Get the first order item.
-		// Based on the logic, the order sould contain only one subscription item.
-		$order_items = $order->get_items();
-		$order_item  = ! empty( $order_items ) ? reset( $order_items ) : null;
+		// Pick the subscription line. The order may also hold regular products
+		// (a mixed cart), which are charged once at signup through the setup fee.
+		$order_item      = null;
+		$has_other_items = false;
+		foreach ( $order->get_items() as $item ) {
+			if ( ! $item instanceof WC_Order_Item_Product ) {
+				continue;
+			}
+
+			// A line is a subscription when checkout recorded one for it; a plan
+			// product bought one-time has no relation and is a regular product.
+			if ( ! Helper::get_subscription_from_order_item_id( $item->get_id() ) ) {
+				$has_other_items = true;
+				continue;
+			}
+
+			if ( $order_item ) {
+				return [
+					'result'   => 'error',
+					'redirect' => '',
+					'response' => __( 'PayPal can only bill one subscription per order. Please check out each subscription separately.', 'subscription' ),
+				];
+			}
+
+			$order_item = $item;
+		}
+
+		// No subscription line found: keep the previous behaviour and use the first item.
+		if ( ! $order_item ) {
+			$order_items     = $order->get_items();
+			$order_item      = ! empty( $order_items ) ? reset( $order_items ) : null;
+			$has_other_items = false;
+		}
 
 		// Get WooCommerce Product.
 		$wc_product_id   = null;
@@ -988,6 +1018,31 @@ class Paypal extends \WC_Payment_Gateway {
 				'cancel_url' => $order->get_cancel_order_url(),
 			],
 		];
+
+		// Regular products on the order: charge them once at signup by overriding
+		// this subscription's setup fee, so PayPal's first charge equals the order total.
+		// The stored plan is shared by every buyer of the product and is not changed.
+		if ( $has_other_items ) {
+			$plan_product = $wc_variation_id ? wc_get_product( $wc_variation_id ) : $wc_product;
+			$setup_fee    = $plan_product ? $this->get_mixed_order_setup_fee( $order, $plan_product, $order_item ) : null;
+
+			if ( null === $setup_fee ) {
+				return [
+					'result'   => 'error',
+					'redirect' => '',
+					'response' => __( 'PayPal cannot bill this order total. Please choose another payment method or check out the subscription separately.', 'subscription' ),
+				];
+			}
+
+			$paypal_subscription_data['plan'] = [
+				'payment_preferences' => [
+					'setup_fee' => [
+						'value'         => number_format( $setup_fee, 2, '.', '' ),
+						'currency_code' => get_woocommerce_currency(),
+					],
+				],
+			];
+		}
 
 		$paypal_subscription = $this->create_paypal_subscription( $paypal_subscription_data, $access_token );
 
@@ -1249,6 +1304,21 @@ class Paypal extends \WC_Payment_Gateway {
 							);
 							subscrpt_write_log( $log_message );
 							wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
+						} elseif ( $existing_txn && $existing_txn !== $transaction_id && 'new' === ( $latest_row->type ?? '' ) && $this->is_signup_sale( (string) $subscription_id ) ) {
+							// A setup fee (signup fee, or regular products on the order) and the first
+							// cycle are separate sales at signup. The second one belongs to the same order.
+							$this->record_sale( $latest_order, $transaction_id, (float) ( $webhook_data['resource']['amount']['total'] ?? 0 ) );
+							// translators: %s: transaction id.
+							$latest_order->add_order_note( sprintf( __( 'PayPal signup payment recorded by webhook. Transaction ID: %s', 'subscription' ), $transaction_id ) );
+							$latest_order->save();
+
+							$log_message = sprintf(
+								// translators: %s: transaction id.
+								__( 'Transaction webhook [PAYMENT.SALE.COMPLETED] recorded signup transaction #%s on the subscription order.', 'subscription' ),
+								$transaction_id
+							);
+							subscrpt_write_log( $log_message );
+							wp_die( esc_html( $log_message ), '200 Success', array( 'response' => 200 ) );
 						} elseif ( $existing_txn && $existing_txn !== $transaction_id ) {
 							// Order already has a different transaction — this is a renewal payment.
 							$order = Helper::create_renewal_order( $wpsubs_id );
@@ -1296,6 +1366,7 @@ class Paypal extends \WC_Payment_Gateway {
 				}
 
 				$order->set_transaction_id( $transaction_id );
+				$this->record_sale( $order, $transaction_id, (float) ( $webhook_data['resource']['amount']['total'] ?? 0 ) );
 
 				// If already completed (e.g. thank-you page ran first), just record the transaction ID.
 				if ( $order->has_status( 'completed' ) ) {
@@ -1705,6 +1776,65 @@ class Paypal extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Whether a sale on a PayPal subscription is still part of its signup.
+	 *
+	 * At signup PayPal charges the setup fee and the first cycle as separate
+	 * sales, both within the first billing cycle (a trial is the first cycle).
+	 *
+	 * @param string $paypal_subscription_id PayPal subscription id.
+	 * @return bool
+	 */
+	private function is_signup_sale( string $paypal_subscription_id ): bool {
+		$paypal_subscription = $paypal_subscription_id ? $this->get_paypal_subscription( $paypal_subscription_id ) : null;
+		if ( ! $paypal_subscription ) {
+			return false;
+		}
+
+		$cycles_completed = 0;
+		foreach ( (array) ( $paypal_subscription->billing_info->cycle_executions ?? [] ) as $cycle ) {
+			$cycles_completed += (int) ( $cycle->cycles_completed ?? 0 );
+		}
+
+		return $cycles_completed <= 1;
+	}
+
+	/**
+	 * Remember a PayPal sale and its amount on the order it paid for, for refunds.
+	 *
+	 * @param WC_Order $order          The order.
+	 * @param string   $transaction_id PayPal sale id.
+	 * @param float    $amount         Sale amount.
+	 */
+	private function record_sale( WC_Order $order, string $transaction_id, float $amount ): void {
+		$sales = $order->get_meta( '_wpsubs_paypal_sales' );
+		$sales = is_array( $sales ) ? $sales : [];
+
+		$sales[ $transaction_id ] = $amount;
+		$order->update_meta_data( '_wpsubs_paypal_sales', $sales );
+	}
+
+	/**
+	 * Setup fee for an order that holds a subscription plus regular products.
+	 *
+	 * PayPal charges the setup fee at activation and the first regular cycle at
+	 * the start (nothing during a trial). The setup fee is therefore the order
+	 * total minus the first cycle, which carries the product's signup fee plus
+	 * the regular products, their tax and shipping.
+	 *
+	 * @param WC_Order   $order      The order.
+	 * @param WC_Product $wc_product Subscription product (simple or variation) the plan is built from.
+	 * @param mixed      $order_item Order item carrying the selected plan, or null.
+	 * @return float|null Setup fee, or null when PayPal cannot bill the order total.
+	 */
+	private function get_mixed_order_setup_fee( WC_Order $order, WC_Product $wc_product, $order_item = null ): ?float {
+		$terms       = $this->get_billing_terms( $wc_product, $order_item );
+		$first_cycle = $terms['trial_count'] > 0 ? 0.0 : $terms['price'];
+		$setup_fee   = round( (float) $order->get_total() - $first_cycle, 2 );
+
+		return $setup_fee >= 0 ? $setup_fee : null;
+	}
+
+	/**
 	 * Resolve the billing terms PayPal must charge for an order item.
 	 *
 	 * An item that carries a selected plan (`_subscrpt_plan_id`) bills on that plan's
@@ -1820,6 +1950,7 @@ class Paypal extends \WC_Payment_Gateway {
 			$billing_cycles[] = [
 				'tenure_type'  => 'TRIAL',
 				'sequence'     => 1,
+				// One trial period; PayPal rejects 0.
 				'total_cycles' => 1,
 				'frequency'    => [
 					'interval_unit'  => $trial_interval,
@@ -2051,6 +2182,11 @@ class Paypal extends \WC_Payment_Gateway {
 			$body['custom_id'] = $paypal_subscription_data['custom_id'];
 		}
 
+		// Per-subscription plan override (e.g. the setup fee for a mixed order).
+		if ( ! empty( $paypal_subscription_data['plan'] ) ) {
+			$body['plan'] = $paypal_subscription_data['plan'];
+		}
+
 		try {
 			$url  = $this->api_endpoint . '/v1/billing/subscriptions';
 			$args = [
@@ -2102,6 +2238,71 @@ class Paypal extends \WC_Payment_Gateway {
 			return new \WP_Error( 'no_capture_id', __( 'PayPal capture ID not found on this order.', 'subscription' ) );
 		}
 
+		// A setup fee and the first cycle are separate sales: refund across them.
+		$sales = $order->get_meta( '_wpsubs_paypal_sales' );
+		if ( is_array( $sales ) && count( $sales ) > 1 ) {
+			return $this->refund_sales( $order, $sales, null === $amount ? (float) $order->get_remaining_refund_amount() : (float) $amount, $reason );
+		}
+
+		return $this->refund_sale( $order, $capture_id, $amount, $reason );
+	}
+
+	/**
+	 * Refund an amount across the PayPal sales of one order, oldest first.
+	 *
+	 * @param WC_Order $order  The order.
+	 * @param array    $sales  Sale id => sale amount.
+	 * @param float    $amount Amount to refund.
+	 * @param string   $reason Reason for refund.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
+	 */
+	private function refund_sales( WC_Order $order, array $sales, float $amount, string $reason ) {
+		$refunded  = $order->get_meta( '_wpsubs_paypal_sales_refunded' );
+		$refunded  = is_array( $refunded ) ? $refunded : [];
+		$remaining = round( $amount, 2 );
+
+		foreach ( $sales as $sale_id => $sale_amount ) {
+			if ( $remaining <= 0 ) {
+				break;
+			}
+
+			$available = round( (float) $sale_amount - (float) ( $refunded[ $sale_id ] ?? 0 ), 2 );
+			$part      = min( $remaining, $available );
+			if ( $part <= 0 ) {
+				continue;
+			}
+
+			$result = $this->refund_sale( $order, (string) $sale_id, $part, $reason );
+			if ( is_wp_error( $result ) ) {
+				$order->update_meta_data( '_wpsubs_paypal_sales_refunded', $refunded );
+				$order->save();
+				return $result;
+			}
+
+			$refunded[ $sale_id ] = round( (float) ( $refunded[ $sale_id ] ?? 0 ) + $part, 2 );
+			$remaining            = round( $remaining - $part, 2 );
+		}
+
+		$order->update_meta_data( '_wpsubs_paypal_sales_refunded', $refunded );
+		$order->save();
+
+		if ( $remaining > 0 ) {
+			return new \WP_Error( 'paypal_refund_exceeds_sales', __( 'The refund is larger than what is left to refund on this order\'s PayPal payments.', 'subscription' ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Refund one PayPal sale.
+	 *
+	 * @param WC_Order   $order      The order.
+	 * @param string     $capture_id PayPal sale id.
+	 * @param float|null $amount     Amount to refund, or null for the whole sale.
+	 * @param string     $reason     Reason for refund.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
+	 */
+	private function refund_sale( WC_Order $order, string $capture_id, $amount, $reason ) {
 		$access_token = $this->get_paypal_access_token();
 		if ( ! $access_token ) {
 			return new \WP_Error( 'no_access_token', __( 'Failed to get PayPal access token.', 'subscription' ) );
