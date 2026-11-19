@@ -17,6 +17,9 @@
  * @var array     $order_histories   Related order relation rows.
  * @var string    $list_url          Subscriptions list URL.
  * @var string    $form_action       URL the status form posts to.
+ * @var string    $next_date_lock    Why the next payment date cannot be changed; empty when it can.
+ * @var string    $next_date_value   Current next payment date, Y-m-d.
+ * @var string    $next_date_min     Earliest date the editor accepts, Y-m-d.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -701,6 +704,26 @@ $subscrpt_details_ctx = array(
 						</form>
 					<?php else : ?>
 						<p class="subscrpt-muted"><?php esc_html_e( 'No actions available for this status.', 'subscription' ); ?></p>
+					<?php endif; ?>
+				</div>
+			</div>
+
+			<!-- Next payment date card -->
+			<div class="subscrpt-card">
+				<div class="subscrpt-card__head"><?php esc_html_e( 'Next Payment Date', 'subscription' ); ?></div>
+				<div class="subscrpt-card__body">
+					<?php if ( '' === $next_date_lock ) : ?>
+						<form method="post" action="<?php echo esc_url( $form_action ); ?>" class="subscrpt-next-date-form">
+							<?php wp_nonce_field( 'subscrpt_next_date_nonce', 'subscrpt_next_date_nonce_field' ); ?>
+							<label for="subscrpt-next-date" class="screen-reader-text"><?php esc_html_e( 'Next payment date', 'subscription' ); ?></label>
+							<input type="date" id="subscrpt-next-date" name="subscrpt_next_date" class="wpsubs-input" style="width:100%;" required value="<?php echo esc_attr( $next_date_value ); ?>" min="<?php echo esc_attr( $next_date_min ); ?>" />
+							<p class="subscrpt-muted" style="margin:8px 0 0;"><?php esc_html_e( 'Later renewals follow from the new date.', 'subscription' ); ?></p>
+							<button type="submit" class="wpsubs-btn wpsubs-btn--primary" style="width:100%;justify-content:center;margin-top:10px;">
+								<?php esc_html_e( 'Update Date', 'subscription' ); ?>
+							</button>
+						</form>
+					<?php else : ?>
+						<p class="subscrpt-muted"><?php echo esc_html( $next_date_lock ); ?></p>
 					<?php endif; ?>
 				</div>
 			</div>
