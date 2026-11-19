@@ -1024,7 +1024,7 @@ class Paypal extends \WC_Payment_Gateway {
 		// The stored plan is shared by every buyer of the product and is not changed.
 		if ( $has_other_items ) {
 			$plan_product = $wc_variation_id ? wc_get_product( $wc_variation_id ) : $wc_product;
-			$setup_fee    = $plan_product ? $this->get_mixed_order_setup_fee( $order, $plan_product ) : null;
+			$setup_fee    = $plan_product ? $this->get_mixed_order_setup_fee( $order, $plan_product, $order_item ) : null;
 
 			if ( null === $setup_fee ) {
 				return [
@@ -1823,13 +1823,13 @@ class Paypal extends \WC_Payment_Gateway {
 	 *
 	 * @param WC_Order   $order      The order.
 	 * @param WC_Product $wc_product Subscription product (simple or variation) the plan is built from.
+	 * @param mixed      $order_item Order item carrying the selected plan, or null.
 	 * @return float|null Setup fee, or null when PayPal cannot bill the order total.
 	 */
-	private function get_mixed_order_setup_fee( WC_Order $order, WC_Product $wc_product ): ?float {
-		$wpsubs_product = Subscription::get_subs_product( $wc_product );
-		$has_trial      = (int) $wpsubs_product->get_trial_timing_per() > 0;
-		$first_cycle    = $has_trial ? 0.0 : (float) wc_get_price_including_tax( $wc_product );
-		$setup_fee      = round( (float) $order->get_total() - $first_cycle, 2 );
+	private function get_mixed_order_setup_fee( WC_Order $order, WC_Product $wc_product, $order_item = null ): ?float {
+		$terms       = $this->get_billing_terms( $wc_product, $order_item );
+		$first_cycle = $terms['trial_count'] > 0 ? 0.0 : $terms['price'];
+		$setup_fee   = round( (float) $order->get_total() - $first_cycle, 2 );
 
 		return $setup_fee >= 0 ? $setup_fee : null;
 	}
