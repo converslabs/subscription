@@ -500,6 +500,9 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 	/**
 	 * Detect if given order id is a renewal order created by this plugin.
 	 *
+	 * An early renewal counts: it is charged off-session with the saved payment
+	 * method, which Stripe refuses when the intent also asks for setup_future_usage.
+	 *
 	 * @param int $order_id Order ID.
 	 * @return bool
 	 */
@@ -508,7 +511,7 @@ class Stripe extends \WC_Stripe_Payment_Gateway {
 		$table_name = $wpdb->prefix . 'subscrpt_order_relation';
 		// @phpcs:ignore
 		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT type FROM %i WHERE order_id=%d ORDER BY id DESC', array( $table_name, $order_id ) ) );
-		return ( $row && isset( $row->type ) && 'renew' === $row->type );
+		return ( $row && isset( $row->type ) && in_array( $row->type, array( 'renew', 'early-renew' ), true ) );
 	}
 
 	/**
