@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim, parvezvai, jakariaistauk
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.5.1
+Stable tag: 2.5.2
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -303,6 +303,10 @@ Yes, the plugin supports recurring coupons — apply percentage or fixed-amount 
 =Where can I find the full documentation and setup steps?=
 You can find the complete guide, configuration tutorials, and troubleshooting help in our [Subscriptions for WooCommerce Docs](https://docs.wpsubscription.co/en?utm_source=wporg&utm_medium=readme&utm_campaign=docs) section.
 
+= Where do I report security bugs found in this plugin? =
+
+Please report security bugs found in the source code of the WPSubscription plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/f3ccb80e-4629-4ce5-b150-d4c2308d3a41). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
 =What makes this a good choice for WooCommerce subscriptions?=
 It is designed to be fast, reliable, and full-featured, with support for auto-renewals, variable products, free trials, recurring coupons, subscription health monitoring, and multiple payment gateways including Stripe, PayPal, Mollie, Razorpay, Paddle, and Xendit.
 
@@ -360,6 +364,14 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.5.2 - Nov 11, 2026 =
+-   fix: Subscription requests in My Account and the admin list now verify the post type and action name before acting.
+-   fix: Retention offers can only be claimed once per subscription, and only while it is active or pending cancellation.
+-   fix: The PayPal order-received page now validates that the returned subscription or token belongs to the order before marking it paid.
+-   fix: My Account subscription actions now check the subscription status and refuse actions that don't apply.
+-   fix: PayPal webhooks, guest checkout, subscription-driven role changes and unpaid activations are now more strictly verified.
+-   fix: PayPal API errors now include the detailed reason in the WooCommerce log, and retried block checkouts no longer create duplicate subscriptions.
 
 = 2.5.1 - Nov 8, 2026 =
 -   fix: Customers who pay an early renewal with Google Pay are no longer charged twice or left with a duplicate subscription.

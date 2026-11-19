@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Subscriptions for WooCommerce with Stripe Recurring Payments 2.5.1\n"
+"Project-Id-Version: Subscriptions for WooCommerce with Stripe Recurring Payments 2.5.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/subscription\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-10T11:45:53+00:00\n"
+"POT-Creation-Date: 2026-11-19T05:50:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -63,7 +63,7 @@ msgstr ""
 
 #: includes/Admin/AdminComponents.php:515
 #: includes/Admin/Subscriptions.php:471
-#: includes/Admin/views/subscription-details.php:633
+#: includes/Admin/views/subscription-details.php:636
 msgid "Upgrade to WPSubscription Pro"
 msgstr ""
 
@@ -508,21 +508,21 @@ msgstr ""
 #: includes/Admin/Integrations.php:66
 #: includes/Admin/Integrations.php:67
 #: includes/Admin/Integrations.php:83
-#: includes/Admin/Integrations.php:806
+#: includes/Admin/Integrations.php:832
 #: includes/Admin/views/integrations.php:160
 msgid "Integrations"
 msgstr ""
 
 #: includes/Admin/Integrations.php:241
-#: includes/Admin/Integrations.php:470
-#: includes/Admin/Integrations.php:499
-#: includes/Admin/Integrations.php:528
-#: includes/Admin/Integrations.php:558
-#: includes/Admin/Integrations.php:588
-#: includes/Admin/Integrations.php:617
-#: includes/Admin/Integrations.php:647
-#: includes/Admin/Integrations.php:677
-#: includes/Admin/Integrations.php:706
+#: includes/Admin/Integrations.php:496
+#: includes/Admin/Integrations.php:525
+#: includes/Admin/Integrations.php:554
+#: includes/Admin/Integrations.php:584
+#: includes/Admin/Integrations.php:614
+#: includes/Admin/Integrations.php:643
+#: includes/Admin/Integrations.php:673
+#: includes/Admin/Integrations.php:703
+#: includes/Admin/Integrations.php:732
 #: includes/Admin/Settings.php:244
 msgid "Activate"
 msgstr ""
@@ -537,6 +537,7 @@ msgstr ""
 #: includes/Admin/Integrations.php:371
 #: includes/Admin/Integrations.php:401
 #: includes/Admin/Integrations.php:431
+#: includes/Admin/Integrations.php:461
 #: includes/Admin/Settings.php:51
 #: includes/Admin/Settings.php:52
 #: includes/Admin/Settings.php:373
@@ -552,12 +553,13 @@ msgstr ""
 #: includes/Admin/Integrations.php:365
 #: includes/Admin/Integrations.php:395
 #: includes/Admin/Integrations.php:425
-#: includes/Admin/Integrations.php:464
-#: includes/Admin/Integrations.php:493
-#: includes/Admin/Integrations.php:552
-#: includes/Admin/Integrations.php:582
-#: includes/Admin/Integrations.php:641
-#: includes/Admin/Integrations.php:700
+#: includes/Admin/Integrations.php:455
+#: includes/Admin/Integrations.php:490
+#: includes/Admin/Integrations.php:519
+#: includes/Admin/Integrations.php:578
+#: includes/Admin/Integrations.php:608
+#: includes/Admin/Integrations.php:667
+#: includes/Admin/Integrations.php:726
 msgid "Install Now"
 msgstr ""
 
@@ -592,59 +594,63 @@ msgstr ""
 msgid "Pay for subscriptions securely with Xendit for WooCommerce."
 msgstr ""
 
-#: includes/Admin/Integrations.php:454
+#: includes/Admin/Integrations.php:444
+msgid "Pay for subscriptions securely with Paystack for WooCommerce."
+msgstr ""
+
+#: includes/Admin/Integrations.php:480
 msgid "Restrict course access based on subscription status. Enroll and unenroll students automatically."
 msgstr ""
 
-#: includes/Admin/Integrations.php:475
-#: includes/Admin/Integrations.php:504
-#: includes/Admin/Integrations.php:533
-#: includes/Admin/Integrations.php:563
-#: includes/Admin/Integrations.php:652
+#: includes/Admin/Integrations.php:501
+#: includes/Admin/Integrations.php:530
+#: includes/Admin/Integrations.php:559
+#: includes/Admin/Integrations.php:589
+#: includes/Admin/Integrations.php:678
 msgid "Learn More"
 msgstr ""
 
-#: includes/Admin/Integrations.php:483
+#: includes/Admin/Integrations.php:509
 msgid "Connect subscriptions with LearnPress courses. Enroll users automatically when subscriptions are active."
 msgstr ""
 
-#: includes/Admin/Integrations.php:512
+#: includes/Admin/Integrations.php:538
 msgid "Sync subscription status with LearnDash group enrollment and course access."
 msgstr ""
 
-#: includes/Admin/Integrations.php:522
+#: includes/Admin/Integrations.php:548
 msgid "Get LearnDash"
 msgstr ""
 
-#: includes/Admin/Integrations.php:542
+#: includes/Admin/Integrations.php:568
 msgid "Trigger email sequences and manage contacts based on subscription events and status changes."
 msgstr ""
 
-#: includes/Admin/Integrations.php:572
+#: includes/Admin/Integrations.php:598
 msgid "Build powerful automations triggered by subscription events without writing any code."
 msgstr ""
 
-#: includes/Admin/Integrations.php:601
+#: includes/Admin/Integrations.php:627
 msgid "Sync subscription data with your CRM and marketing platforms through WP Fusion."
 msgstr ""
 
-#: includes/Admin/Integrations.php:611
+#: includes/Admin/Integrations.php:637
 msgid "Get WP Fusion"
 msgstr ""
 
-#: includes/Admin/Integrations.php:631
+#: includes/Admin/Integrations.php:657
 msgid "Add subscribers to MailPoet lists and trigger email automations based on subscription lifecycle events."
 msgstr ""
 
-#: includes/Admin/Integrations.php:661
+#: includes/Admin/Integrations.php:687
 msgid "Issue and validate software licenses for subscription-based digital products."
 msgstr ""
 
-#: includes/Admin/Integrations.php:671
+#: includes/Admin/Integrations.php:697
 msgid "Get Plugin"
 msgstr ""
 
-#: includes/Admin/Integrations.php:690
+#: includes/Admin/Integrations.php:716
 msgid "Generate and manage software license keys that are automatically tied to active subscriptions."
 msgstr ""
 
@@ -687,7 +693,7 @@ msgstr ""
 
 #: includes/Admin/Menu.php:170
 #: includes/Admin/Menu.php:171
-#: includes/Admin/Menu.php:974
+#: includes/Admin/Menu.php:1099
 msgid "Setup Wizard"
 msgstr ""
 
@@ -696,7 +702,7 @@ msgstr ""
 #: includes/Admin/Menu.php:273
 #: includes/Admin/Menu.php:274
 #: includes/Admin/Menu.php:535
-#: includes/Admin/Menu.php:864
+#: includes/Admin/Menu.php:906
 #: includes/Admin/views/health-preview.php:147
 #: includes/Admin/views/subscription-list.php:41
 #: includes/Frontend/MyAccount.php:305
@@ -708,19 +714,19 @@ msgstr ""
 
 #: includes/Admin/Menu.php:204
 #: includes/Admin/Menu.php:205
-#: includes/Admin/views/subscription-details.php:501
+#: includes/Admin/views/subscription-details.php:504
 msgid "Subscription Details"
 msgstr ""
 
 #: includes/Admin/Menu.php:214
 #: includes/Admin/Menu.php:215
-#: includes/Admin/Menu.php:883
+#: includes/Admin/Menu.php:1008
 msgid "Reports"
 msgstr ""
 
 #: includes/Admin/Menu.php:224
 #: includes/Admin/Menu.php:225
-#: includes/Admin/Menu.php:899
+#: includes/Admin/Menu.php:1024
 msgid "Health"
 msgstr ""
 
@@ -771,7 +777,7 @@ msgstr ""
 #: includes/Admin/views/health-preview.php:119
 #: includes/Admin/views/pro-upgrade-modal.php:42
 #: includes/Admin/views/reports-preview.php:186
-#: includes/Admin/views/subscription-details.php:637
+#: includes/Admin/views/subscription-details.php:640
 #: includes/Admin/views/support.php:59
 msgid "Upgrade to Pro"
 msgstr ""
@@ -782,7 +788,8 @@ msgstr ""
 
 #: includes/Admin/Menu.php:553
 #: includes/Admin/Menu.php:798
-#: includes/Admin/Menu.php:993
+#: includes/Admin/Menu.php:814
+#: includes/Admin/Menu.php:1118
 msgid "Security check failed."
 msgstr ""
 
@@ -799,115 +806,145 @@ msgstr ""
 msgid "You do not have permission to view this subscription."
 msgstr ""
 
-#: includes/Admin/Menu.php:813
+#: includes/Admin/Menu.php:829
+msgid "Next payment date updated. Later renewals follow from the new date."
+msgstr ""
+
+#: includes/Admin/Menu.php:830
+msgid "Enter a valid date."
+msgstr ""
+
+#: includes/Admin/Menu.php:831
+msgid "The next payment date must be in the future."
+msgstr ""
+
+#: includes/Admin/Menu.php:832
+msgid "The next payment date of this subscription cannot be changed."
+msgstr ""
+
+#: includes/Admin/Menu.php:849
 msgid "Activate Subscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:817
+#: includes/Admin/Menu.php:853
 msgid "Pending Subscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:821
+#: includes/Admin/Menu.php:857
 msgid "Expire Subscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:825
+#: includes/Admin/Menu.php:861
 msgid "Pending Cancel Subscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:829
+#: includes/Admin/Menu.php:865
 msgid "Cancel Subscription"
 msgstr ""
 
-#: includes/Admin/Menu.php:883
+#: includes/Admin/Menu.php:933
+msgid "Only an active subscription's next payment date can be changed."
+msgstr ""
+
+#: includes/Admin/Menu.php:939
+msgid "PayPal bills this subscription on its own schedule, so its next payment date cannot be changed here."
+msgstr ""
+
+#. translators: 1: old next payment date, 2: new next payment date, 3: admin display name.
+#: includes/Admin/Menu.php:989
+#, php-format
+msgid "Next payment date changed from %1$s to %2$s by %3$s."
+msgstr ""
+
+#: includes/Admin/Menu.php:1008
 msgid "View your subscription analytics"
 msgstr ""
 
-#: includes/Admin/Menu.php:899
+#: includes/Admin/Menu.php:1024
 msgid "Monitor your subscription health"
 msgstr ""
 
-#: includes/Admin/Menu.php:916
+#: includes/Admin/Menu.php:1041
 #: includes/Admin/views/delivery-preview.php:126
 msgid "Delivery Schedules"
 msgstr ""
 
-#: includes/Admin/Menu.php:916
+#: includes/Admin/Menu.php:1041
 #: includes/Admin/views/delivery-preview.php:127
 msgid "Track and manage subscription delivery schedules."
 msgstr ""
 
-#: includes/Admin/Menu.php:943
+#: includes/Admin/Menu.php:1068
 #: includes/Admin/ProSettingsFields.php:465
 #: includes/Admin/views/boxes-preview.php:174
 msgid "Subscription Boxes"
 msgstr ""
 
-#: includes/Admin/Menu.php:943
+#: includes/Admin/Menu.php:1068
 #: includes/Admin/views/boxes-preview.php:175
 msgid "Plan box editions, lock contents before renewal, and pack what is due."
 msgstr ""
 
-#: includes/Admin/Menu.php:958
+#: includes/Admin/Menu.php:1083
 #: includes/Admin/views/support.php:46
 msgid "Help & Resources"
 msgstr ""
 
-#: includes/Admin/Menu.php:958
+#: includes/Admin/Menu.php:1083
 #: includes/Admin/views/support.php:47
 msgid "Documentation, community links, and ways to get help with WPSubscription."
 msgstr ""
 
-#: includes/Admin/Menu.php:974
+#: includes/Admin/Menu.php:1099
 msgid "Create your first subscription plan"
 msgstr ""
 
-#: includes/Admin/Menu.php:998
+#: includes/Admin/Menu.php:1123
 msgid "You do not have permission to perform this action."
 msgstr ""
 
-#: includes/Admin/Menu.php:1006
+#: includes/Admin/Menu.php:1131
 msgid "No subscriptions selected."
 msgstr ""
 
 #. translators: Subscription ID.
-#: includes/Admin/Menu.php:1017
+#: includes/Admin/Menu.php:1142
 #, php-format
 msgid "Subscription #%d not found."
 msgstr ""
 
 #. translators: Subscription ID.
-#: includes/Admin/Menu.php:1029
+#: includes/Admin/Menu.php:1154
 #, php-format
 msgid "Failed to move subscription #%d to trash."
 msgstr ""
 
 #. translators: Subscription ID.
-#: includes/Admin/Menu.php:1041
+#: includes/Admin/Menu.php:1166
 #, php-format
 msgid "Failed to restore subscription #%d."
 msgstr ""
 
 #. translators: Subscription ID.
-#: includes/Admin/Menu.php:1053
+#: includes/Admin/Menu.php:1178
 #, php-format
 msgid "Failed to delete subscription #%d."
 msgstr ""
 
 #. translators: Bulk action.
-#: includes/Admin/Menu.php:1062
+#: includes/Admin/Menu.php:1187
 #, php-format
 msgid "Unknown action: %s"
 msgstr ""
 
 #. translators: Subscription ID, Error message.
-#: includes/Admin/Menu.php:1070
+#: includes/Admin/Menu.php:1195
 #, php-format
 msgid "Error processing subscription #%1$d: %2$s"
 msgstr ""
 
 #. translators: Number of subscriptions.
-#: includes/Admin/Menu.php:1084
+#: includes/Admin/Menu.php:1209
 #, php-format
 msgid "%d subscription moved to trash."
 msgid_plural "%d subscriptions moved to trash."
@@ -915,7 +952,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: Number of subscriptions.
-#: includes/Admin/Menu.php:1091
+#: includes/Admin/Menu.php:1216
 #, php-format
 msgid "%d subscription restored."
 msgid_plural "%d subscriptions restored."
@@ -923,18 +960,18 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: Number of subscriptions.
-#: includes/Admin/Menu.php:1098
+#: includes/Admin/Menu.php:1223
 #, php-format
 msgid "%d subscription permanently deleted."
 msgid_plural "%d subscriptions permanently deleted."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Menu.php:1106
+#: includes/Admin/Menu.php:1231
 msgid "Some errors occurred:"
 msgstr ""
 
-#: includes/Admin/Menu.php:1112
+#: includes/Admin/Menu.php:1237
 msgid "No subscriptions were processed."
 msgstr ""
 
@@ -2391,7 +2428,7 @@ msgstr ""
 #: includes/Admin/views/integrations.php:201
 #: includes/Admin/views/plans/tab-products.php:68
 #: includes/Admin/views/related-subscriptions.php:28
-#: includes/Admin/views/subscription-details.php:524
+#: includes/Admin/views/subscription-details.php:527
 #: includes/Admin/views/subscription-list.php:231
 #: includes/Frontend/Order.php:82
 #: includes/Illuminate/views/subscription-table.php:56
@@ -2412,7 +2449,7 @@ msgstr ""
 #: includes/Admin/views/onboarding-wizard.php:527
 #: includes/Admin/views/onboarding-wizard.php:534
 #: includes/Admin/views/related-subscriptions.php:24
-#: includes/Admin/views/subscription-details.php:406
+#: includes/Admin/views/subscription-details.php:409
 #: templates/emails/renew-reminder-html.php:44
 #: templates/emails/status-changed-admin-html.php:39
 #: templates/emails/subscription-cancelled-html.php:37
@@ -2440,7 +2477,7 @@ msgid "Qty"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:233
-#: includes/Admin/views/subscription-details.php:150
+#: includes/Admin/views/subscription-details.php:153
 #: templates/myaccount/single.php:194
 msgid "Total Payments"
 msgstr ""
@@ -2454,7 +2491,7 @@ msgid "Payment due date"
 msgstr ""
 
 #: includes/Admin/Subscriptions.php:252
-#: includes/Admin/views/subscription-details.php:453
+#: includes/Admin/views/subscription-details.php:456
 msgid "Payment Method"
 msgstr ""
 
@@ -2795,8 +2832,8 @@ msgstr ""
 
 #: includes/Admin/views/delivery-preview.php:93
 #: includes/Admin/views/delivery-preview.php:169
-#: includes/Admin/views/subscription-details.php:293
-#: includes/Admin/views/subscription-details.php:300
+#: includes/Admin/views/subscription-details.php:296
+#: includes/Admin/views/subscription-details.php:303
 #: includes/Admin/views/subscription-list.php:109
 msgid "All Dates"
 msgstr ""
@@ -3046,7 +3083,7 @@ msgid "Automation"
 msgstr ""
 
 #: includes/Admin/views/integrations.php:50
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:234
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:241
 msgid "Email"
 msgstr ""
 
@@ -3073,7 +3110,7 @@ msgstr ""
 #: includes/Admin/views/integrations.php:425
 #: includes/Admin/views/reports-preview.php:360
 #: includes/Admin/views/reports-preview.php:594
-#: includes/Admin/views/subscription-details.php:56
+#: includes/Admin/views/subscription-details.php:59
 #: includes/Admin/views/subscription-list.php:63
 #: includes/Admin/views/subscription-list.php:323
 #: includes/Illuminate/Helper.php:74
@@ -3144,7 +3181,7 @@ msgstr ""
 #: includes/Admin/views/onboarding-wizard.php:36
 #: includes/Admin/views/onboarding-wizard.php:498
 #: includes/Admin/views/related-subscriptions.php:25
-#: includes/Admin/views/subscription-details.php:132
+#: includes/Admin/views/subscription-details.php:135
 #: includes/Illuminate/Order.php:191
 #: templates/myaccount/single.php:206
 #: assets/js/admin/onboarding-wizard.js:296
@@ -3518,7 +3555,7 @@ msgid "Select all plans"
 msgstr ""
 
 #: includes/Admin/views/plans/list.php:87
-#: includes/Admin/views/subscription-details.php:522
+#: includes/Admin/views/subscription-details.php:525
 #: templates/myaccount/single.php:422
 msgid "Type"
 msgstr ""
@@ -4248,7 +4285,7 @@ msgid "Subscription Performance"
 msgstr ""
 
 #: includes/Admin/views/reports-preview.php:594
-#: includes/Admin/views/subscription-details.php:526
+#: includes/Admin/views/subscription-details.php:529
 #: templates/myaccount/single.php:317
 #: templates/myaccount/single.php:425
 #: templates/myaccount/subscriptions.php:29
@@ -4295,7 +4332,7 @@ msgid "All Settings"
 msgstr ""
 
 #. translators: %s: Subscription ID
-#: includes/Admin/views/subscription-details.php:69
+#: includes/Admin/views/subscription-details.php:72
 #: includes/Frontend/MyAccount.php:289
 #, php-format
 msgid "Subscription #%s"
@@ -4303,49 +4340,49 @@ msgstr ""
 
 #. translators: %d: days remaining
 #. translators: %d: number of days left in the grace period.
-#: includes/Admin/views/subscription-details.php:79
+#: includes/Admin/views/subscription-details.php:82
 #: includes/Admin/views/subscription-list.php:337
 #, php-format
 msgid "%d days remaining in grace period"
 msgstr ""
 
 #. translators: %s: next payment date
-#: includes/Admin/views/subscription-details.php:93
+#: includes/Admin/views/subscription-details.php:96
 #, php-format
 msgid "Next payment on %s"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:138
+#: includes/Admin/views/subscription-details.php:141
 #: includes/Admin/views/subscription-list.php:235
 msgid "Started"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:144
+#: includes/Admin/views/subscription-details.php:147
 #: templates/myaccount/subscriptions.php:28
 #: templates/myaccount/subscriptions.php:117
 #: templates/myaccount/subscriptions.php:119
 msgid "Next Payment"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:244
+#: includes/Admin/views/subscription-details.php:247
 msgid "Billing & Shipping"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:255
+#: includes/Admin/views/subscription-details.php:258
 msgid "Additional Details"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:377
+#: includes/Admin/views/subscription-details.php:380
 msgid "Grace Period"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:382
+#: includes/Admin/views/subscription-details.php:385
 msgid "Remaining"
 msgstr ""
 
 #. translators: %d: days
 #. translators: %d: number of days.
-#: includes/Admin/views/subscription-details.php:383
+#: includes/Admin/views/subscription-details.php:386
 #: assets/js/admin/onboarding-wizard.js:354
 #, php-format,js-format
 msgid "%d day"
@@ -4353,110 +4390,127 @@ msgid_plural "%d days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/views/subscription-details.php:387
+#: includes/Admin/views/subscription-details.php:390
 msgid "End Date"
 msgstr ""
 
 #. translators: %s: plan name
 #. translators: %s: plan name.
-#: includes/Admin/views/subscription-details.php:422
+#: includes/Admin/views/subscription-details.php:425
 #: templates/myaccount/single.php:337
 #, php-format
 msgid "Plan: %s"
 msgstr ""
 
 #. translators: %s: quantity
-#: includes/Admin/views/subscription-details.php:429
+#: includes/Admin/views/subscription-details.php:432
 #, php-format
 msgid "Quantity: %s"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:472
+#: includes/Admin/views/subscription-details.php:475
 msgid "No payment method."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:503
+#: includes/Admin/views/subscription-details.php:506
 msgid "No subscription details available."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:511
+#: includes/Admin/views/subscription-details.php:514
 #: templates/myaccount/single.php:417
 msgid "Related Orders"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:520
+#: includes/Admin/views/subscription-details.php:523
 #: templates/myaccount/single.php:421
 msgid "#"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:521
+#: includes/Admin/views/subscription-details.php:524
 #: templates/myaccount/single.php:64
 msgid "Order"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:523
+#: includes/Admin/views/subscription-details.php:526
 #: templates/myaccount/single.php:423
 msgid "Date"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:525
+#: includes/Admin/views/subscription-details.php:528
 #: templates/myaccount/single.php:286
 msgid "Payment"
 msgstr ""
 
 #. translators: %s: WooCommerce order number.
-#: includes/Admin/views/subscription-details.php:553
+#: includes/Admin/views/subscription-details.php:556
 #, php-format
 msgid "Order ID: #%s"
 msgstr ""
 
 #. translators: %1$s: first item number, %2$s: last item number, %3$s: total items
-#: includes/Admin/views/subscription-details.php:579
+#: includes/Admin/views/subscription-details.php:582
 #, php-format
 msgid "Showing %1$s–%2$s of %3$s related orders"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:585
+#: includes/Admin/views/subscription-details.php:588
 #: templates/myaccount/single.php:432
 msgid "No related orders found."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:593
+#: includes/Admin/views/subscription-details.php:596
 msgid "Subscription Activities"
 msgstr ""
 
 #. translators: %1$s: first item number, %2$s: last item number, %3$s: total items
-#: includes/Admin/views/subscription-details.php:624
+#: includes/Admin/views/subscription-details.php:627
 #, php-format
 msgid "Showing %1$s–%2$s of %3$s activities"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:634
+#: includes/Admin/views/subscription-details.php:637
 msgid "Track subscription activity history, automation, and more."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:673
+#: includes/Admin/views/subscription-details.php:676
 msgid "Subscription Action"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:691
+#: includes/Admin/views/subscription-details.php:694
 msgid "Choose Action"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:699
+#: includes/Admin/views/subscription-details.php:702
 msgid "Process"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:703
+#: includes/Admin/views/subscription-details.php:706
 msgid "No actions available for this status."
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:710
+#: includes/Admin/views/subscription-details.php:713
+msgid "Next Payment Date"
+msgstr ""
+
+#: includes/Admin/views/subscription-details.php:718
+#: templates/myaccount/single.php:126
+msgid "Next payment date"
+msgstr ""
+
+#: includes/Admin/views/subscription-details.php:720
+msgid "Later renewals follow from the new date."
+msgstr ""
+
+#: includes/Admin/views/subscription-details.php:722
+msgid "Update Date"
+msgstr ""
+
+#: includes/Admin/views/subscription-details.php:733
 msgid "Customer Details"
 msgstr ""
 
-#: includes/Admin/views/subscription-details.php:728
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1966
+#: includes/Admin/views/subscription-details.php:751
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:2233
 msgid "Order not found."
 msgstr ""
 
@@ -5441,272 +5495,327 @@ msgstr ""
 msgid "Accept wp subscription recurring payments through PayPal. Only WPSubscription is supported."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:176
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:183
 msgid "Enable/Disable"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:178
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:185
 msgid "Enable PayPal for WPSubscription"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:180
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:187
 msgid "Enable or Disable PayPal for WPSubscription payment gateway"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:185
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:192
 msgid "Test Mode"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:187
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:194
 msgid "Enable PayPal Sandbox"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:189
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:196
 msgid "PayPal sandbox can be used to test payments without using real money."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:195
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:202
 msgid "Title"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:197
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:204
 msgid "This controls the title which the user sees during checkout."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:198
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:205
 #: assets/js/wp_subscription_paypal-block.js:27
 msgid "PayPal"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:202
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:209
 msgid "Description"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:204
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:211
 msgid "This controls the description which the user sees during checkout."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:205
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:212
 msgid "Pay via PayPal; you can pay with your credit card if you do not have a PayPal account."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:211
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:218
 msgid "PayPal Credentials"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:217
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:224
 msgid "PayPal Sandbox Credentials"
 msgstr ""
 
 #. Translators: %1$s is the link to PayPal developer account, %2$s is the link to My Apps & Credentials.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:228
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:235
 #, php-format
 msgid "Create a <a href=\"%1$s\" target=\"_blank\">PayPal developer account</a>, go to <a href=\"%2$s\" target=\"_blank\">My Apps & Credentials</a>, select the toggle ( Sandbox or Live ), create an app, and copy <b>Client ID</b> and <b>Secret</b>."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:236
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:243
 msgid "PayPal Email Address (used to receive payments)"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:243
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:269
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:250
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:276
 msgid "Client ID"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:245
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:271
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:252
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:278
 msgid "Enter your PayPal Client ID copied from PayPal Apps & Credentials."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:251
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:277
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:258
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:284
 msgid "Secret"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:253
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:279
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:260
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:286
 msgid "Enter your PayPal Secret copied from PayPal Apps & Credentials."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:259
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:285
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:266
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:292
 msgid "Webhook ID"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:261
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:287
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:268
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:294
 msgid "Enter your Webhook ID copied from PayPal Apps & Credentials for webhook validation."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:294
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:301
 msgid "Webhook URL"
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:296
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:303
 msgid "<p>In the <strong style=\"color:#1d4ed8\">Apps & Credentials</strong> page of PayPal developer account open the newly created application and click <strong style=\"color:#1d4ed8\">Add Webhook</strong> button.<br> On the <strong>Webhook URL</strong> field use this webhook link"
 msgstr ""
 
 #. Translators: %s is the title of the payment gateway.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:331
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:338
 #, php-format
 msgid "<strong>%s</strong> options are disabled. PayPal Standard does not support your store currency."
 msgstr ""
 
 #. Translators: %d is the order ID.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:376
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:383
 #, php-format
 msgid "Order %d was already completed. Skipping PayPal check."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:447
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:454
 msgid "PayPal payment completed successfully."
 msgstr ""
 
 #. translators: %s: event name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:664
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:671
 #, php-format
 msgid "PayPal webhook received [%s]. Order not found. Queuing for retry."
 msgstr ""
 
 #. translators: %1$s: alert name; %2$s: order id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:680
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:687
 #, php-format
 msgid "PayPal webhook received [%s]. No actions taken."
 msgstr ""
 
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:954
+msgid "PayPal can only bill one subscription per order. Please check out each subscription separately."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1033
+msgid "PayPal cannot bill this order total. Please choose another payment method or check out the subscription separately."
+msgstr ""
+
 #. translators: %s: transaction id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1152
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1172
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1282
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1302
 #, php-format
 msgid "Transaction webhook [PAYMENT.SALE.COMPLETED] already processed for transaction #%s. Skipping."
 msgstr ""
 
 #. translators: %s: transaction id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1182
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1312
+#, php-format
+msgid "PayPal signup payment recorded by webhook. Transaction ID: %s"
+msgstr ""
+
+#. translators: %s: transaction id.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1317
+#, php-format
+msgid "Transaction webhook [PAYMENT.SALE.COMPLETED] recorded signup transaction #%s on the subscription order."
+msgstr ""
+
+#. translators: %s: transaction id.
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1327
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1335
 #, php-format
 msgid "Renewal order created by PayPal webhook. Transaction ID: %s"
 msgstr ""
 
 #. translators: %1$s: event; %2$s: subscription id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1195
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1251
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1348
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1405
 #, php-format
 msgid "Transaction webhook received [%1$s]. No order found for subscription #%2$s."
 msgstr ""
 
 #. translators: %s: subscription id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1207
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1360
 #, php-format
 msgid "Transaction webhook received [PAYMENT.SALE.COMPLETED]. Failed to create renewal order for subscription #%s."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1219
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1373
 msgid "PayPal transaction ID recorded by webhook."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1223
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1377
 #, php-format
 msgid "Transaction webhook received [%s]. Order already completed; transaction ID updated."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1229
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1383
 msgid "Payment completed by paypal webhook."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1233
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1387
 #, php-format
 msgid "Transaction webhook received [%s]. Payment completed."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1237
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1391
 msgid "Failed to complete payment. Requested by paypal webhook."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1241
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1395
 #, php-format
 msgid "Transaction webhook received [%s]. Payment completion failed."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1270
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1424
 msgid "Full payment refunded by PayPal webhook."
 msgstr ""
 
 #. translators: %s: refunded amount.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1273
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1427
 #, php-format
 msgid "Partial payment refunded by PayPal webhook. Amount: %s"
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1280
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1434
 #, php-format
 msgid "Transaction webhook received [%s]. Payment refunded."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1288
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1442
 #, php-format
 msgid "Transaction webhook received [%s]. No actions taken."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1318
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1472
 #, php-format
 msgid "Subscription webhook received [%s]. Subscription not found. Attempting to get from order item."
 msgstr ""
 
 #. translators: %s: subscription id.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1334
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1488
 #, php-format
 msgid "Subscription found [ID: %s]. Processing webhook."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1349
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1503
 #, php-format
 msgid "Subscription webhook received [%s]. Subscription not found. Stopping Process."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1369
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1523
 msgid "Subscription activated by PayPal webhook."
 msgstr ""
 
 #. translators: %s: alert name.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1375
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1392
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1409
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1417
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1529
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1546
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1563
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1571
 #, php-format
 msgid "Subscription webhook received [%s]. No actions taken."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1386
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1540
 msgid "Subscription expired by PayPal webhook."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1403
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:1557
 msgid "Subscription cancelled by PayPal webhook."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1796
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:2058
 msgid "PayPal Product Creation Error: Product data is incomplete. Name and type are required."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1971
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:2238
 msgid "PayPal capture ID not found on this order."
 msgstr ""
 
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:1976
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:2290
+msgid "The refund is larger than what is left to refund on this order's PayPal payments."
+msgstr ""
+
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:2308
 msgid "Failed to get PayPal access token."
 msgstr ""
 
 #. translators: %s: PayPal refund ID.
-#: includes/Illuminate/Gateways/Paypal/Paypal.php:2013
+#: includes/Illuminate/Gateways/Paypal/Paypal.php:2345
 #, php-format
 msgid "PayPal refund initiated. Refund ID: %s"
+msgstr ""
+
+#. translators: %s: error message.
+#: includes/Illuminate/Gateways/PaypalPayments/PaypalPayments.php:185
+#, php-format
+msgid "PayPal renewal payment failed: %s"
+msgstr ""
+
+#: includes/Illuminate/Gateways/PaypalPayments/PaypalPayments.php:206
+msgid "PayPal did not authorize the renewal payment."
+msgstr ""
+
+#: includes/Illuminate/Gateways/PaypalPayments/PaypalPayments.php:211
+msgid "PayPal authorized the renewal payment. Capture it from the order to complete the renewal."
+msgstr ""
+
+#. translators: %s: PayPal capture id.
+#: includes/Illuminate/Gateways/PaypalPayments/PaypalPayments.php:222
+#, php-format
+msgid "Renewal paid with the payment method saved in PayPal (capture %s)."
+msgstr ""
+
+#: includes/Illuminate/Gateways/PaypalPayments/PaypalPayments.php:228
+msgid "PayPal is holding the renewal payment for review."
+msgstr ""
+
+#. translators: %s: PayPal capture status.
+#: includes/Illuminate/Gateways/PaypalPayments/PaypalPayments.php:233
+#, php-format
+msgid "PayPal returned capture status \"%s\"."
 msgstr ""
 
 #: includes/Illuminate/Gateways/Stripe/Stripe.php:130
@@ -5906,42 +6015,42 @@ msgid "Please <a href=\"%s\">pay now</a>."
 msgstr ""
 
 #. translators: %s: why the renewal order was not created.
-#: includes/Illuminate/Helper.php:1484
+#: includes/Illuminate/Helper.php:1490
 #, php-format
 msgid "Renewal failed. %s"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:1695
+#: includes/Illuminate/Helper.php:1701
 msgid "The renewal price could not be set. The product's default renewal variation may have been deleted."
 msgstr ""
 
-#: includes/Illuminate/Helper.php:1696
+#: includes/Illuminate/Helper.php:1702
 msgid "The subscribed product no longer exists."
 msgstr ""
 
 #. translators: 1: order item ID, 2: order ID.
-#: includes/Illuminate/Helper.php:1703
+#: includes/Illuminate/Helper.php:1709
 #, php-format
 msgid "Item #%1$d on order #%2$d has no billing interval saved."
 msgstr ""
 
 #. translators: %s: WooCommerce error message.
-#: includes/Illuminate/Helper.php:1717
+#: includes/Illuminate/Helper.php:1723
 #, php-format
 msgid "WooCommerce could not create the order: %s"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:1722
+#: includes/Illuminate/Helper.php:1728
 msgid "WooCommerce could not save the new order. The WooCommerce log has the error."
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/Illuminate/Helper.php:1745
+#: includes/Illuminate/Helper.php:1751
 #, php-format
 msgid "An error stopped the order being created: %s"
 msgstr ""
 
-#: includes/Illuminate/Helper.php:1769
+#: includes/Illuminate/Helper.php:1775
 msgid "Subscription renewal isn't possible due to previous order not completed or deletion."
 msgstr ""
 
@@ -6343,10 +6452,6 @@ msgstr ""
 
 #: templates/myaccount/single.php:116
 msgid "Trial End & First Billing"
-msgstr ""
-
-#: templates/myaccount/single.php:126
-msgid "Next payment date"
 msgstr ""
 
 #: templates/myaccount/single.php:200

@@ -1,5 +1,13 @@
 *** WPSubscription Changelog ***
 
+2026-11-11 - version 2.5.2
+* fix: Subscription requests in My Account and the admin list now verify the post type and action name before acting.
+* fix: Retention offers can only be claimed once per subscription, and only while it is active or pending cancellation.
+* fix: The PayPal order-received page now validates that the returned subscription or token belongs to the order before marking it paid.
+* fix: My Account subscription actions now check the subscription status and refuse actions that don't apply.
+* fix: PayPal webhooks, guest checkout, subscription-driven role changes and unpaid activations are now more strictly verified.
+* fix: PayPal API errors now include the detailed reason in the WooCommerce log, and retried block checkouts no longer create duplicate subscriptions.
+
 2026-11-08 - version 2.5.1
 * fix: Customers who pay an early renewal with Google Pay are no longer charged twice or left with a duplicate subscription.
 * fix: Minor bug fixes and improvements.
