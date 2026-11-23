@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim, parvezvai, jakariaistauk
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.5.2
+Stable tag: 2.5.3
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -364,6 +364,17 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.5.3 - Nov 23, 2026 =
+-   new: Admins can change a subscription's next payment date from the subscription details page, and later renewals follow from the new date.
+-   new: Payment gateways added by other plugins can now count as automatic renewal gateways on the dashboard and show the auto renewal toggle in My Account.
+-   fix: PayPal can now bill an order with one subscription plus regular products, charging the regular products once at signup.
+-   fix: PayPal subscriptions with a free trial are accepted by PayPal again, and a fixed number of payments is billed on the regular cycle.
+-   fix: PayPal webhooks are no longer rejected when the server sends lowercase headers.
+-   fix: PayPal subscriptions now bill the plan the customer selected, including its trial, price, signup fee and number of payments.
+-   fix: The first PayPal renewal now creates a renewal order, and a signup paid as two PayPal sales no longer creates an extra renewal order.
+-   fix: Active PayPal subscriptions are kept active for 3 days past their due date while PayPal processes the payment.
+-   fix: Refunds on a PayPal order paid by two sales can now refund the full amount.
 
 = 2.5.2 - Nov 11, 2026 =
 -   fix: Subscription requests in My Account and the admin list now verify the post type and action name before acting.
