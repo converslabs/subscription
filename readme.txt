@@ -366,15 +366,11 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 == Changelog ==
 
 = 2.5.3 - Nov 23, 2026 =
--   new: Admins can change a subscription's next payment date from the subscription details page, and later renewals follow from the new date.
--   new: Payment gateways added by other plugins can now count as automatic renewal gateways on the dashboard and show the auto renewal toggle in My Account.
--   fix: PayPal can now bill an order with one subscription plus regular products, charging the regular products once at signup.
--   fix: PayPal subscriptions with a free trial are accepted by PayPal again, and a fixed number of payments is billed on the regular cycle.
--   fix: PayPal webhooks are no longer rejected when the server sends lowercase headers.
--   fix: PayPal subscriptions now bill the plan the customer selected, including its trial, price, signup fee and number of payments.
--   fix: The first PayPal renewal now creates a renewal order, and a signup paid as two PayPal sales no longer creates an extra renewal order.
--   fix: Active PayPal subscriptions are kept active for 3 days past their due date while PayPal processes the payment.
--   fix: Refunds on a PayPal order paid by two sales can now refund the full amount.
+-   new: Change a subscription's next payment date from the subscription page.
+-   fix: PayPal now works for orders with a subscription and regular products together.
+-   fix: PayPal subscriptions with a free trial work again.
+-   fix: PayPal now charges the plan the customer picked.
+-   fix: PayPal renewals and refunds are now recorded correctly.
 
 = 2.5.2 - Nov 11, 2026 =
 -   fix: Subscription requests in My Account and the admin list now verify the post type and action name before acting.
