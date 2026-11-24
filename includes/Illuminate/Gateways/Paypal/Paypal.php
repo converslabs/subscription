@@ -1048,20 +1048,23 @@ class Paypal extends \WC_Payment_Gateway {
 			];
 		}
 
-		// Regular products on the order: charge them once at signup by overriding
-		// this subscription's setup fee, so PayPal's first charge equals the order total.
+		// Charge what the plan does not bill at signup (regular products on the order,
+		// shipping during a trial or when renewals carry none) once, by overriding this
+		// subscription's setup fee, so PayPal's first charge equals the order total.
 		// The stored plan is shared by every buyer of the product and is not changed.
-		if ( $has_other_items ) {
-			$setup_fee = $plan_product ? $this->get_mixed_order_setup_fee( $order, $plan_product, $order_item, (float) $renewal_shipping ) : null;
+		$setup_fee = $plan_product ? $this->get_mixed_order_setup_fee( $order, $plan_product, $order_item, (float) $renewal_shipping ) : null;
 
-			if ( null === $setup_fee ) {
-				return [
-					'result'   => 'error',
-					'redirect' => '',
-					'response' => __( 'PayPal cannot bill this order total. Please choose another payment method or check out the subscription separately.', 'subscription' ),
-				];
-			}
+		if ( $has_other_items && null === $setup_fee ) {
+			return [
+				'result'   => 'error',
+				'redirect' => '',
+				'response' => __( 'PayPal cannot bill this order total. Please choose another payment method or check out the subscription separately.', 'subscription' ),
+			];
+		}
 
+		// A lone subscription keeps the plan's own signup fee unless the order total needs more.
+		$plan_signup_fee = $plan_product ? $this->get_billing_terms( $plan_product, $order_item )['signup_fee'] : 0.0;
+		if ( null !== $setup_fee && ( $has_other_items || abs( $setup_fee - $plan_signup_fee ) >= 0.01 ) ) {
 			$paypal_subscription_data['plan'] = ( $paypal_subscription_data['plan'] ?? [] ) + [
 				'payment_preferences' => [
 					'setup_fee' => [
