@@ -1159,6 +1159,7 @@ class Helper {
 		$renewal_order_id = $new_order->get_id();
 		try {
 			self::clone_order_metadata( $new_order, $old_order );
+			self::add_renewal_shipping( $new_order, $old_order, (int) $subscription_id, $order_item );
 
 			// Allow modification of the renewal order before saving.
 			$new_order = apply_filters( 'subscrpt_before_saving_renewal_order', $new_order, $old_order, $subscription_id );
@@ -1187,6 +1188,72 @@ class Helper {
 		}
 
 		return $new_order;
+	}
+
+	/**
+	 * Put the shipping chosen at checkout on a renewal order.
+	 *
+	 * Off unless the store turns on "Renewal Shipping": charging it by default
+	 * would bill existing subscribers something they never agreed to. Copies the
+	 * previous order's shipping, or the first order's when the previous one has
+	 * none (a renewal made before the setting was turned on).
+	 *
+	 * @param \WC_Order              $new_order       Renewal order being built.
+	 * @param \WC_Order              $old_order       Order it was cloned from.
+	 * @param int                    $subscription_id Subscription id.
+	 * @param \WC_Order_Item_Product $order_item      Subscription line on the old order.
+	 *
+	 * @return void
+	 */
+	public static function add_renewal_shipping( $new_order, $old_order, int $subscription_id, $order_item ) {
+		if ( 'copy' !== get_option( 'subscrpt_renewal_shipping', 'none' ) ) {
+			return;
+		}
+
+		// Never add a second shipping line.
+		if ( $new_order->get_shipping_methods() ) {
+			return;
+		}
+
+		// A virtual subscription bought with a physical product ships nothing on renewal.
+		$product = $order_item ? $order_item->get_product() : null;
+		if ( ! $product || ! $product->needs_shipping() ) {
+			return;
+		}
+
+		$source = $old_order->get_shipping_methods() ? $old_order : self::get_parent_order( $subscription_id );
+		if ( ! $source || ! $source->get_shipping_methods() ) {
+			return;
+		}
+
+		/**
+		 * Whether this renewal is charged shipping.
+		 *
+		 * A gateway that bills a fixed amount returns false when that amount
+		 * does not include shipping, so the order matches what was charged.
+		 *
+		 * @param bool      $copy            True to copy shipping.
+		 * @param int       $subscription_id Subscription id.
+		 * @param \WC_Order $new_order       Renewal order being built.
+		 * @param \WC_Order $old_order       Order it was cloned from.
+		 */
+		if ( ! apply_filters( 'subscrpt_renewal_copy_shipping', true, $subscription_id, $new_order, $old_order ) ) {
+			return;
+		}
+
+		foreach ( $source->get_shipping_methods() as $old_shipping ) {
+			$shipping = new \WC_Order_Item_Shipping();
+			$shipping->set_props(
+				array(
+					'method_title' => $old_shipping->get_method_title(),
+					'method_id'    => $old_shipping->get_method_id(),
+					'instance_id'  => $old_shipping->get_instance_id(),
+					'total'        => $old_shipping->get_total(),
+					'taxes'        => $old_shipping->get_taxes(),
+				)
+			);
+			$new_order->add_item( $shipping );
+		}
 	}
 
 	/**
