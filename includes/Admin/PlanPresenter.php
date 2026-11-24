@@ -414,12 +414,51 @@ class PlanPresenter {
 			return $plan['data']['pricing_breakdown'];
 		}
 
-		$freq     = max( 1, (int) $plan['billing_frequency'] );
-		$interval = self::interval_label( (int) $plan['billing_interval'] );
-		$every    = 1 === $freq ? strtolower( $interval ) : $freq . ' ' . strtolower( $interval ) . 's';
+		$every = self::interval_phrase( (int) $plan['billing_frequency'], (int) $plan['billing_interval'] );
 
 		/* translators: %s: billing interval, e.g. "month" or "2 weeks". */
 		return sprintf( __( 'Billed every %s', 'subscription' ), $every );
+	}
+
+	/**
+	 * A billing interval as a phrase: "month", "2 weeks", or "1 month" when the
+	 * count of one is wanted.
+	 *
+	 * Each unit is a whole translatable phrase with its own plural forms, so no
+	 * language is forced into English pluralisation or English letter case.
+	 *
+	 * @param int  $freq      How many units, at least 1.
+	 * @param int  $interval  1=day, 2=week, 3=month, 4=year; anything else is month.
+	 * @param bool $count_one Whether a single unit reads "1 month" rather than "month".
+	 *
+	 * @return string
+	 */
+	public static function interval_phrase( int $freq, int $interval, bool $count_one = false ): string {
+		$freq = max( 1, $freq );
+
+		switch ( $interval ) {
+			case 1:
+				$single = __( 'day', 'subscription' );
+				/* translators: %d: number of days. */
+				$counted = _n( '%d day', '%d days', $freq, 'subscription' );
+				break;
+			case 2:
+				$single = __( 'week', 'subscription' );
+				/* translators: %d: number of weeks. */
+				$counted = _n( '%d week', '%d weeks', $freq, 'subscription' );
+				break;
+			case 4:
+				$single = __( 'year', 'subscription' );
+				/* translators: %d: number of years. */
+				$counted = _n( '%d year', '%d years', $freq, 'subscription' );
+				break;
+			default:
+				$single = __( 'month', 'subscription' );
+				/* translators: %d: number of months. */
+				$counted = _n( '%d month', '%d months', $freq, 'subscription' );
+		}
+
+		return ( 1 === $freq && ! $count_one ) ? $single : sprintf( $counted, $freq );
 	}
 
 	/**

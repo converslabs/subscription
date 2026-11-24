@@ -235,9 +235,7 @@ class PlanGroups {
 	 * @return string
 	 */
 	private static function term_note( array $row, string $type_key, float $price_num ): string {
-		$interval = strtolower( PlanPresenter::interval_label( (int) $row['billing_interval'] ) );
-		$freq     = max( 1, (int) $row['billing_frequency'] );
-		$every    = 1 === $freq ? $interval : $freq . ' ' . $interval . 's';
+		$every = PlanPresenter::interval_phrase( (int) $row['billing_frequency'], (int) $row['billing_interval'] );
 
 		if ( 'installments' === $type_key ) {
 			$count = self::installment_count( $row );
@@ -312,14 +310,12 @@ class PlanGroups {
 	 * @return string
 	 */
 	private static function interval_text( array $row, string $type_key = 'recurring' ): string {
-		$title = trim( (string) $row['plan_title'] );
-		$freq  = max( 1, (int) $row['billing_frequency'] );
-		$unit  = strtolower( PlanPresenter::interval_label( (int) $row['billing_interval'] ) );
-		$every = $freq . ' ' . $unit . ( 1 === $freq ? '' : 's' );
+		$title    = trim( (string) $row['plan_title'] );
+		$freq     = (int) $row['billing_frequency'];
+		$interval = (int) $row['billing_interval'];
+		$every    = PlanPresenter::interval_phrase( $freq, $interval, true );
 
-		$phrase = '/^(every\s+)?(\d+\s*)?(day|week|month|year)s?$|^(daily|weekly|monthly|yearly|annual|annually|quarterly)$/i';
-
-		$text = ( '' === $title || preg_match( $phrase, $title ) ) ? $every : $title;
+		$text = ( '' === $title || self::is_interval_title( $title, $freq, $interval ) ) ? $every : $title;
 
 		if ( 'installments' === $type_key ) {
 			$count = self::installment_count( $row );
@@ -332,6 +328,34 @@ class PlanGroups {
 		}
 
 		return $text;
+	}
+
+	/**
+	 * Whether a plan title only restates its interval ("Monthly", "2 weeks"),
+	 * in English or as this plan's interval reads in the site's language, so
+	 * the chip can show the computed interval instead.
+	 *
+	 * @param string $title    Plan title, trimmed.
+	 * @param int    $freq     Billing frequency.
+	 * @param int    $interval Billing interval (1=day … 4=year).
+	 *
+	 * @return bool
+	 */
+	private static function is_interval_title( string $title, int $freq, int $interval ): bool {
+		$english = '/^(every\s+)?(\d+\s*)?(day|week|month|year)s?$|^(daily|weekly|monthly|yearly|annual|annually|quarterly)$/i';
+
+		if ( preg_match( $english, $title ) ) {
+			return true;
+		}
+
+		$lower      = function_exists( 'mb_strtolower' ) ? 'mb_strtolower' : 'strtolower';
+		$translated = array(
+			PlanPresenter::interval_phrase( $freq, $interval ),
+			PlanPresenter::interval_phrase( $freq, $interval, true ),
+			PlanPresenter::interval_label( $interval ),
+		);
+
+		return in_array( $lower( $title ), array_map( $lower, $translated ), true );
 	}
 
 	/**
