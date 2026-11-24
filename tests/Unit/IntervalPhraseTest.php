@@ -141,6 +141,25 @@ class IntervalPhraseTest extends TestCase {
 	}
 
 	/**
+	 * The admin trial chip comes from a phrase, never the stored English key.
+	 */
+	public function test_trial_chip_is_translatable() {
+		$plan = [
+			'billing_frequency' => 1,
+			'billing_interval'  => 3,
+			'free_trial'        => 14,
+			'data'              => [ 'free_trial_interval' => 'day' ],
+		];
+
+		$this->assertContains( '14-day free trial', PlanPresenter::term_meta( $plan ) );
+
+		$GLOBALS['test_translations'] = [ '%d-day free trial' => [ '%d Tag kostenlos testen', '%d Tage kostenlos testen' ] ];
+		$plan['data']['free_trial_interval'] = 'days';
+
+		$this->assertContains( '14 Tage kostenlos testen', PlanPresenter::term_meta( $plan ) );
+	}
+
+	/**
 	 * A recurring monthly plan row.
 	 *
 	 * @param int    $freq    Billing frequency.
