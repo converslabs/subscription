@@ -159,6 +159,9 @@ class Paypal extends \WC_Payment_Gateway {
 		// Keep PayPal as the payment method on renewal orders.
 		add_filter( 'subscrpt_before_saving_renewal_order', [ $this, 'copy_payment_method_to_renewal' ], 10, 2 );
 
+		// No shipping on a renewal PayPal bills without it.
+		add_filter( 'subscrpt_renewal_copy_shipping', [ $this, 'maybe_skip_renewal_shipping' ], 10, 4 );
+
 		// Cancel subscription.
 		add_action( 'subscrpt_subscription_expired', [ $this, 'handle_subscription_cancellation' ] );
 		add_action( 'subscrpt_subscription_cancelled', [ $this, 'handle_subscription_cancellation' ] );
@@ -933,8 +936,9 @@ class Paypal extends \WC_Payment_Gateway {
 
 		// Pick the subscription line. The order may also hold regular products
 		// (a mixed cart), which are charged once at signup through the setup fee.
-		$order_item      = null;
-		$has_other_items = false;
+		$order_item       = null;
+		$subscription_row = null;
+		$has_other_items  = false;
 		foreach ( $order->get_items() as $item ) {
 			if ( ! $item instanceof WC_Order_Item_Product ) {
 				continue;
@@ -942,7 +946,8 @@ class Paypal extends \WC_Payment_Gateway {
 
 			// A line is a subscription when checkout recorded one for it; a plan
 			// product bought one-time has no relation and is a regular product.
-			if ( ! Helper::get_subscription_from_order_item_id( $item->get_id() ) ) {
+			$item_subscription = Helper::get_subscription_from_order_item_id( $item->get_id() );
+			if ( ! $item_subscription ) {
 				$has_other_items = true;
 				continue;
 			}
@@ -955,7 +960,8 @@ class Paypal extends \WC_Payment_Gateway {
 				];
 			}
 
-			$order_item = $item;
+			$order_item       = $item;
+			$subscription_row = $item_subscription;
 		}
 
 		// No subscription line found: keep the previous behaviour and use the first item.
@@ -1019,12 +1025,34 @@ class Paypal extends \WC_Payment_Gateway {
 			],
 		];
 
+		$plan_product = $wc_variation_id ? wc_get_product( $wc_variation_id ) : $wc_product;
+
+		// Renewal Shipping on: every cycle bills the plan price plus this order's
+		// shipping. Overridden on this subscription only; the stored plan is shared.
+		$renewal_shipping = $plan_product ? $this->get_renewal_shipping_amount( $order, $plan_product ) : null;
+		if ( null !== $renewal_shipping && $renewal_shipping > 0 ) {
+			$terms = $this->get_billing_terms( $plan_product, $order_item );
+
+			$paypal_subscription_data['plan'] = [
+				'billing_cycles' => [
+					[
+						'sequence'       => $terms['trial_count'] > 0 ? 2 : 1,
+						'pricing_scheme' => [
+							'fixed_price' => [
+								'value'         => number_format( $terms['price'] + $renewal_shipping, 2, '.', '' ),
+								'currency_code' => get_woocommerce_currency(),
+							],
+						],
+					],
+				],
+			];
+		}
+
 		// Regular products on the order: charge them once at signup by overriding
 		// this subscription's setup fee, so PayPal's first charge equals the order total.
 		// The stored plan is shared by every buyer of the product and is not changed.
 		if ( $has_other_items ) {
-			$plan_product = $wc_variation_id ? wc_get_product( $wc_variation_id ) : $wc_product;
-			$setup_fee    = $plan_product ? $this->get_mixed_order_setup_fee( $order, $plan_product, $order_item ) : null;
+			$setup_fee = $plan_product ? $this->get_mixed_order_setup_fee( $order, $plan_product, $order_item, (float) $renewal_shipping ) : null;
 
 			if ( null === $setup_fee ) {
 				return [
@@ -1034,7 +1062,7 @@ class Paypal extends \WC_Payment_Gateway {
 				];
 			}
 
-			$paypal_subscription_data['plan'] = [
+			$paypal_subscription_data['plan'] = ( $paypal_subscription_data['plan'] ?? [] ) + [
 				'payment_preferences' => [
 					'setup_fee' => [
 						'value'         => number_format( $setup_fee, 2, '.', '' ),
@@ -1057,6 +1085,11 @@ class Paypal extends \WC_Payment_Gateway {
 		// Save PayPal Subscription ID in order meta.
 		$order->update_meta_data( $this->get_meta_key( 'subscription_id' ), $paypal_subscription->id );
 		$order->save();
+
+		// Renewals of this subscription may carry shipping: PayPal bills it.
+		if ( null !== $renewal_shipping && ! empty( $subscription_row->subscription_id ) ) {
+			update_post_meta( (int) $subscription_row->subscription_id, '_wpsubs_paypal_bills_shipping', '1' );
+		}
 
 		// Get payment link.
 		$paypal_subscription_pay_link = null;
@@ -1824,14 +1857,51 @@ class Paypal extends \WC_Payment_Gateway {
 	 * @param WC_Order   $order      The order.
 	 * @param WC_Product $wc_product Subscription product (simple or variation) the plan is built from.
 	 * @param mixed      $order_item Order item carrying the selected plan, or null.
+	 * @param float      $shipping   Shipping added to every regular cycle, or 0.
 	 * @return float|null Setup fee, or null when PayPal cannot bill the order total.
 	 */
-	private function get_mixed_order_setup_fee( WC_Order $order, WC_Product $wc_product, $order_item = null ): ?float {
+	private function get_mixed_order_setup_fee( WC_Order $order, WC_Product $wc_product, $order_item = null, float $shipping = 0.0 ): ?float {
 		$terms       = $this->get_billing_terms( $wc_product, $order_item );
-		$first_cycle = $terms['trial_count'] > 0 ? 0.0 : $terms['price'];
+		$first_cycle = $terms['trial_count'] > 0 ? 0.0 : $terms['price'] + $shipping;
 		$setup_fee   = round( (float) $order->get_total() - $first_cycle, 2 );
 
 		return $setup_fee >= 0 ? $setup_fee : null;
+	}
+
+	/**
+	 * Shipping PayPal bills on every cycle when Renewal Shipping is on.
+	 *
+	 * @param WC_Order   $order      The order.
+	 * @param WC_Product $wc_product Subscription product (simple or variation).
+	 * @return float|null Shipping with its tax, or null when renewals carry no shipping.
+	 */
+	public function get_renewal_shipping_amount( WC_Order $order, WC_Product $wc_product ): ?float {
+		if ( 'copy' !== get_option( 'subscrpt_renewal_shipping', 'none' ) || ! $wc_product->needs_shipping() || ! $order->get_shipping_methods() ) {
+			return null;
+		}
+
+		return round( (float) $order->get_shipping_total() + (float) $order->get_shipping_tax(), 2 );
+	}
+
+	/**
+	 * Keep shipping off a PayPal renewal when PayPal does not bill it.
+	 *
+	 * Hooked to `subscrpt_renewal_copy_shipping`. A PayPal subscription bills the
+	 * amount fixed at checkout, so one bought before Renewal Shipping was turned
+	 * on must not get a shipping line the customer was never charged.
+	 *
+	 * @param bool     $copy            Whether to copy shipping.
+	 * @param int      $subscription_id Subscription id.
+	 * @param WC_Order $new_order       Renewal order being built.
+	 * @param WC_Order $old_order       Order it was cloned from.
+	 * @return bool
+	 */
+	public function maybe_skip_renewal_shipping( $copy, $subscription_id, $new_order, $old_order ) {
+		if ( $copy && $old_order instanceof WC_Order && $old_order->get_payment_method() === $this->id ) {
+			return '1' === get_post_meta( (int) $subscription_id, '_wpsubs_paypal_bills_shipping', true );
+		}
+
+		return $copy;
 	}
 
 	/**
