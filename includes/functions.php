@@ -47,17 +47,26 @@ function subscrpt_get_action_url( $action, $nonce, $subscription_id ) {
  * @return string
  */
 function subscrpt_get_typos( $number, $typo ) {
-	if ( $number == 1 && $typo == 'days' ) {
-		return ucfirst( __( 'day', 'subscription' ) );
-	} elseif ( $number == 1 && $typo == 'weeks' ) {
-		return ucfirst( __( 'week', 'subscription' ) );
-	} elseif ( $number == 1 && $typo == 'months' ) {
-		return ucfirst( __( 'month', 'subscription' ) );
-	} elseif ( $number == 1 && $typo == 'years' ) {
-		return ucfirst( __( 'year', 'subscription' ) );
-	} else {
-		return ucfirst( $typo );
+	$number = (int) $number;
+
+	switch ( $typo ) {
+		case 'days':
+			$word = _n( 'day', 'days', $number, 'subscription' );
+			break;
+		case 'weeks':
+			$word = _n( 'week', 'weeks', $number, 'subscription' );
+			break;
+		case 'months':
+			$word = _n( 'month', 'months', $number, 'subscription' );
+			break;
+		case 'years':
+			$word = _n( 'year', 'years', $number, 'subscription' );
+			break;
+		default:
+			return ucfirst( $typo );
 	}
+
+	return ucfirst( $word );
 }
 
 /**
