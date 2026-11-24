@@ -376,12 +376,7 @@ class PlanPresenter {
 		$trial_days = (int) ( $plan['free_trial'] ?? 0 );
 		if ( $trial_days > 0 ) {
 			$trial_unit = isset( $plan['data']['free_trial_interval'] ) ? (string) $plan['data']['free_trial_interval'] : 'day';
-			$chips[]    = sprintf(
-				/* translators: 1: number, 2: unit (day/week/month/year). */
-				__( '%1$d-%2$s free trial', 'subscription' ),
-				$trial_days,
-				$trial_unit
-			);
+			$chips[]    = self::trial_chip( $trial_days, $trial_unit );
 		}
 
 		$signup_fee = isset( $plan['signup_fee']['amount'] ) ? (float) $plan['signup_fee']['amount'] : 0.0;
@@ -418,6 +413,39 @@ class PlanPresenter {
 
 		/* translators: %s: billing interval, e.g. "month" or "2 weeks". */
 		return sprintf( __( 'Billed every %s', 'subscription' ), $every );
+	}
+
+	/**
+	 * A plan's free trial as a chip: "30-day free trial".
+	 *
+	 * One whole translatable phrase per unit; the stored unit is an English key
+	 * and is never shown as it is.
+	 *
+	 * @param int    $count How many units.
+	 * @param string $unit  Stored trial interval: day, week, month or year (a trailing "s" is ignored).
+	 *
+	 * @return string
+	 */
+	private static function trial_chip( int $count, string $unit ): string {
+		switch ( rtrim( strtolower( $unit ), 's' ) ) {
+			case 'week':
+				/* translators: %d: number of weeks. */
+				$phrase = _n( '%d-week free trial', '%d-week free trial', $count, 'subscription' );
+				break;
+			case 'month':
+				/* translators: %d: number of months. */
+				$phrase = _n( '%d-month free trial', '%d-month free trial', $count, 'subscription' );
+				break;
+			case 'year':
+				/* translators: %d: number of years. */
+				$phrase = _n( '%d-year free trial', '%d-year free trial', $count, 'subscription' );
+				break;
+			default:
+				/* translators: %d: number of days. */
+				$phrase = _n( '%d-day free trial', '%d-day free trial', $count, 'subscription' );
+		}
+
+		return sprintf( $phrase, $count );
 	}
 
 	/**
