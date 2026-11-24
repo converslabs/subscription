@@ -6231,3 +6231,8 @@ msgid "%d-year free trial"
 msgid_plural "%d-year free trial"
 msgstr[0] "%d Jahr kostenlos testen"
 msgstr[1] "%d Jahre kostenlos testen"
+
+#: includes/Frontend/MyAccount.php:148
+msgctxt "end a subscription"
+msgid "Cancel"
+msgstr "Kündigen"
