@@ -723,7 +723,10 @@ class Helper {
 		$recurring_ratio = $basis > 0 ? ( $basis - $discounts['recurring'] ) / $basis : 1.0;
 		$first_ratio     = $basis > 0 ? ( $basis - $discounts['total'] ) / $basis : 1.0;
 
-		$total       = $full_total * $recurring_ratio;
+		// Shipping charged on every renewal, so the recurring total shown is what renewals cost.
+		$shipping    = self::get_cart_renewal_shipping( $cart_item );
+		$full_total += $shipping;
+		$total       = ( $full_total - $shipping ) * $recurring_ratio + $shipping;
 		$timing_html = "<span class='wpsubs-subscription-timing'>&nbsp;/&nbsp;{$type_label}</span>";
 
 		$has_recurring_discount = $discounts['recurring'] > 0;
@@ -735,11 +738,12 @@ class Helper {
 		return array(
 			'price_html'             => $price_html,
 			'full_price_html'        => $full_price_html,
-			'price'                  => $per_cost * $recurring_ratio,
-			'full_price'             => $per_cost,
+			'price'                  => $per_cost * $recurring_ratio + $shipping,
+			'full_price'             => $per_cost + $shipping,
 			'total'                  => $total,
 			'full_total'             => $full_total,
-			'first_total'            => $full_total * $first_ratio,
+			'first_total'            => ( $full_total - $shipping ) * $first_ratio,
+			'shipping'               => $shipping,
 			'has_recurring_discount' => $has_recurring_discount,
 			'has_one_time_discount'  => $discounts['non_recurring'] > 0,
 			'recurring_limit'        => $discounts['recurring_limit'],
@@ -1188,6 +1192,37 @@ class Helper {
 		}
 
 		return $new_order;
+	}
+
+	/**
+	 * Shipping each renewal of a cart item will be charged, with its tax.
+	 *
+	 * The cart's chosen shipping, when Renewal Shipping is on and the item ships.
+	 *
+	 * @param array         $cart_item Cart item.
+	 * @param \WC_Cart|null $cart      Cart, or null for the current one.
+	 *
+	 * @return float
+	 */
+	public static function get_cart_renewal_shipping( $cart_item, $cart = null ) {
+		$amount  = 0.0;
+		$product = $cart_item['data'] ?? null;
+
+		if ( ! $cart && function_exists( 'WC' ) && isset( WC()->cart ) ) {
+			$cart = WC()->cart;
+		}
+
+		if ( $cart && 'copy' === get_option( 'subscrpt_renewal_shipping', 'none' ) && $product && $product->needs_shipping() ) {
+			$amount = (float) $cart->get_shipping_total() + (float) $cart->get_shipping_tax();
+		}
+
+		/**
+		 * Shipping each renewal of this cart item will be charged.
+		 *
+		 * @param float $amount    Shipping with its tax.
+		 * @param array $cart_item Cart item.
+		 */
+		return (float) apply_filters( 'subscrpt_cart_renewal_shipping', $amount, $cart_item );
 	}
 
 	/**
