@@ -51,7 +51,10 @@ $types = array(
 		<div class="wpsubs-modal__body">
 
 			<label for="subscrpt-create-name" style="display:block;font-weight:600;margin:0 0 6px;"><?php esc_html_e( 'Name', 'subscription' ); ?></label>
-			<input type="text" id="subscrpt-create-name" class="wpsubs-input" placeholder="<?php esc_attr_e( 'e.g. Premium Membership', 'subscription' ); ?>" autocomplete="off" />
+			<input type="text" id="subscrpt-create-name" class="wpsubs-input" placeholder="<?php esc_attr_e( 'e.g. Premium Membership', 'subscription' ); ?>" autocomplete="off" aria-describedby="subscrpt-create-name-help" />
+			<p id="subscrpt-create-name-help" style="color:var(--wpsubs-text-muted);font-size:12px;margin:6px 0 0;">
+				<?php esc_html_e( 'Customers see this name on the product page, so write it in your store\'s language.', 'subscription' ); ?>
+			</p>
 
 			<p style="font-weight:600;margin:16px 0 8px;"><?php esc_html_e( 'Plan Type', 'subscription' ); ?></p>
 
