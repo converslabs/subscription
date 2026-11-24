@@ -20,7 +20,7 @@
     "prepare": "husky",
     "release": "scripts/release.sh",
     "svn": "scripts/svn.sh",
-    "update-lang-files": "wp i18n make-pot . ./languages/subscription.pot --exclude=node_modules,vendor,svn",
+    "update-lang-files": "wp i18n make-pot . ./languages/subscription.pot --exclude=node_modules,vendor,svn && wp i18n update-po ./languages/subscription.pot ./languages/ && wp i18n make-mo ./languages/ && wp i18n make-json ./languages/ --no-purge",
     "listen-webhook": "NODE_TLS_REJECT_UNAUTHORIZED=0 node ./scripts/smee.js"
   },
   "devDependencies": {
