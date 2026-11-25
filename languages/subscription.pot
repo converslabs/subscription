@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Subscriptions for WooCommerce with Stripe Recurring Payments 2.5.2\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/subscription\n"
+"Project-Id-Version: Subscriptions for WooCommerce with Stripe Recurring Payments 2.5.3\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wt-subscription\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-19T05:50:21+00:00\n"
+"POT-Creation-Date: 2026-11-25T04:17:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: subscription\n"
@@ -705,7 +705,7 @@ msgstr ""
 #: includes/Admin/Menu.php:906
 #: includes/Admin/views/health-preview.php:147
 #: includes/Admin/views/subscription-list.php:41
-#: includes/Frontend/MyAccount.php:305
+#: includes/Frontend/MyAccount.php:314
 #: includes/Illuminate/Post.php:81
 #: includes/Illuminate/Post.php:87
 #: includes/Illuminate/Post.php:101
@@ -4333,7 +4333,7 @@ msgstr ""
 
 #. translators: %s: Subscription ID
 #: includes/Admin/views/subscription-details.php:72
-#: includes/Frontend/MyAccount.php:289
+#: includes/Frontend/MyAccount.php:298
 #, php-format
 msgid "Subscription #%s"
 msgstr ""
@@ -5127,15 +5127,15 @@ msgstr ""
 msgid "Pay now"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:197
+#: includes/Frontend/MyAccount.php:206
 msgid "Turn on Auto Renewal"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:205
+#: includes/Frontend/MyAccount.php:214
 msgid "Turn off Auto Renewal"
 msgstr ""
 
-#: includes/Frontend/MyAccount.php:274
+#: includes/Frontend/MyAccount.php:283
 msgid "My Subscriptions"
 msgstr ""
 

@@ -1,5 +1,12 @@
 *** WPSubscription Changelog ***
 
+2026-11-23 - version 2.5.3
+* new: Change a subscription's next payment date from the subscription page.
+* fix: PayPal now works for orders with a subscription and regular products together.
+* fix: PayPal subscriptions with a free trial work again.
+* fix: PayPal now charges the plan the customer picked.
+* fix: PayPal renewals and refunds are now recorded correctly.
+
 2026-11-11 - version 2.5.2
 * fix: Subscription requests in My Account and the admin list now verify the post type and action name before acting.
 * fix: Retention offers can only be claimed once per subscription, and only while it is active or pending cancellation.
