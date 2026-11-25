@@ -145,7 +145,7 @@ class MyAccount {
 
 		if ( 'cancelled' !== $status ) {
 			if ( in_array( $status, array( 'pending', 'active', 'on_hold' ), true ) && $user_cancel ) {
-				$label = __( 'Cancel', 'subscription' );
+				$label = _x( 'Cancel', 'end a subscription', 'subscription' );
 				$label = apply_filters( 'subscrpt_split_payment_button_text', $label, 'cancel', $id, $status );
 
 				$action_buttons['cancel'] = array(

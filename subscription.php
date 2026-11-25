@@ -261,13 +261,14 @@ final class Sdevs_Subscription {
 	}
 
 	/**
-	 * Initialize plugin for localization
+	 * Initialize plugin for localization.
 	 *
-	 * Note: WordPress automatically loads translations for plugins hosted on WordPress.org
-	 * since version 4.6, so manual loading is not required.
+	 * A WordPress.org language pack in wp-content/languages/plugins/ wins when one
+	 * exists; the translations shipped in the plugin's own languages/ folder cover
+	 * the locales that have no pack yet.
 	 */
 	public function localization_setup() {
-		// WordPress auto-loads translations for plugins hosted on WordPress.org since v4.6.
+		load_plugin_textdomain( 'subscription', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
 	/**
