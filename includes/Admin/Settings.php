@@ -142,6 +142,21 @@ class Settings {
 				],
 			],
 			[
+				'type'       => 'select',
+				'group'      => 'renewals',
+				'priority'   => 5,
+				'field_data' => [
+					'id'          => 'subscrpt_renewal_shipping',
+					'title'       => __( 'Renewal Shipping', 'subscription' ),
+					'description' => __( 'Whether renewals of a subscription that ships charge the shipping chosen at checkout. PayPal subscriptions bought before this is turned on keep their current amount.', 'subscription' ),
+					'options'     => [
+						'none' => __( 'Do not charge shipping on renewals', 'subscription' ),
+						'copy' => __( 'Charge the shipping from the first order', 'subscription' ),
+					],
+					'selected'    => esc_attr( get_option( 'subscrpt_renewal_shipping', 'none' ) ),
+				],
+			],
+			[
 				'type'       => 'heading',
 				'group'      => 'stock_management',
 				'priority'   => 0,
@@ -284,6 +299,14 @@ class Settings {
 	 * Register settings options.
 	 **/
 	public function register_settings() {
+		register_setting(
+			'wp_subscription_settings',
+			'subscrpt_renewal_shipping',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
 		register_setting(
 			'wp_subscription_settings',
 			'wp_subscription_renewal_process',
