@@ -3,7 +3,7 @@ Contributors: converswp, shamsbd71, aushamim, parvezvai, jakariaistauk
 Tags: woocommerce subscriptions, subscriptions, recurring payments, stripe, payments
 Requires at least: 6.2
 Tested up to: 7.1
-Stable tag: 2.5.2
+Stable tag: 2.5.3
 Requires PHP: 7.4
 WC requires at least: 6.0
 WC tested up to: 10.3
@@ -364,6 +364,13 @@ Learn more: [WPSubscription Pro](https://wpsubscription.co/?utm_source=wporg&utm
 13. Subscription Health (Pro)
 
 == Changelog ==
+
+= 2.5.3 - Nov 23, 2026 =
+-   new: Change a subscription's next payment date from the subscription page.
+-   fix: PayPal now works for orders with a subscription and regular products together.
+-   fix: PayPal subscriptions with a free trial work again.
+-   fix: PayPal now charges the plan the customer picked.
+-   fix: PayPal renewals and refunds are now recorded correctly.
 
 = 2.5.2 - Nov 11, 2026 =
 -   fix: Subscription requests in My Account and the admin list now verify the post type and action name before acting.
