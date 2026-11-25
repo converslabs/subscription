@@ -1,93 +1,45 @@
 #!/usr/bin/env bash
-VERSION=$(cat ./package.json | jq -r '.version')
+# Packages releases/subscription_v<version>.zip,
+# and unzips it to releases/subscription/, the folder the wordpress.org deploy
+# (.github/workflows/deploy-wordpress-org.yml) uploads.
+#
+# The file set is everything `.distignore` does not exclude; `wp dist-archive`
+# (wp-cli/dist-archive-command) builds the zip. Run through `./wps release
+# free`, or anywhere with composer, yarn, jq and wp-cli.
+set -euo pipefail
+
+VERSION=$(jq -r '.version' package.json)
 PLUGIN_NAME='subscription'
-ZIP_NAME='subscription'
-PLUGIN_CONSTANT='WPSUBS'
+ZIP="releases/${PLUGIN_NAME}_v${VERSION}.zip"
+CHANGELOG_FILE="./changelog.txt"
 
 clean() {
-  rm -rf ./releases
-  rm -rf ./vendor
+  rm -rf ./releases ./vendor
+  mkdir -p ./releases
+}
+
+ensureDistArchive() {
+  if ! wp help dist-archive >/dev/null 2>&1; then
+    echo "[+] Installing wp-cli/dist-archive-command"
+    wp package install wp-cli/dist-archive-command:^3
+  fi
 }
 
 build() {
-  echo "[+] Starting combingFiles"
-
-  echo "[+] Installing composer packages"
+  echo "[+] Installing production composer packages"
   composer install --no-dev --no-ansi --no-cache --no-interaction --ignore-platform-req=php --quiet
 
-  echo "[+] Installing yarn packages"
+  echo "[+] Building assets"
   yarn install --ignore-engines
-
-  echo "[+] Building package"
   yarn build
   yarn update-lang-files
-
-  mkdir -p releases/$PLUGIN_NAME
-
-  cp -r ./assets ./releases/$PLUGIN_NAME
-  cp -r ./build ./releases/$PLUGIN_NAME
-  cp -r ./includes ./releases/$PLUGIN_NAME
-  cp -r ./languages ./releases/$PLUGIN_NAME
-  cp -r ./src ./releases/$PLUGIN_NAME
-  cp -r ./templates ./releases/$PLUGIN_NAME
-  cp -r ./vendor ./releases/$PLUGIN_NAME
-  cp -r ./readme-template.txt ./releases/$PLUGIN_NAME
-  cp -r ./changelog.txt ./releases/$PLUGIN_NAME
-  cp -r ./index.php ./releases/$PLUGIN_NAME
-  cp -r ./wpml-config.xml ./releases/$PLUGIN_NAME
-  cp -r ./composer.json ./releases/$PLUGIN_NAME
-  cp -r ./$PLUGIN_NAME.php ./releases/$PLUGIN_NAME
-
-  echo "[+] Finished combingFiles"
 }
 
-setVersion(){
-  echo "[+] Setting up version"
+buildChangelogs() {
+  echo "[+] Generating readme.txt from readme-template.txt and changelog.txt"
 
-  FILES=(
-    "./releases/$PLUGIN_NAME/$PLUGIN_NAME.php"
-    "./releases/$PLUGIN_NAME/readme-template.txt"
-    "./releases/$PLUGIN_NAME/languages/subscription.pot"
-  )
+  TMP_CHANGELOG_FILE="./releases/tmp_changelog.txt"
 
-  for FILE in "${FILES[@]}"; do
-    if [[ -f "$FILE" ]]; then
-      # Cross-platform approach using temporary file
-      sed "s/#${PLUGIN_CONSTANT}_VERSION/$VERSION/g" "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
-    else
-      echo "[+] File $FILE not found!"
-    fi
-  done
-
-  echo "[+] Version setting complete"
-}
-
-zipFolder(){
-  echo "[+] Creating zip"
-  current_dir=$(pwd)
-  cd "${current_dir}/releases" && zip -qr "${current_dir}/releases/${ZIP_NAME}_v${VERSION}.zip" .
-  echo "[+] Finished creating zip"
-}
-
-reInstallPackages(){
-  echo "[+] Re-installing dependencies"
-
-  cd ..
-  composer install --no-interaction --quiet
-
-  echo "[+] Finished re-installing dependencies"
-}
-
-buildChangelogs(){
-  echo "[+] Formatting & Copying changelogs"
-
-  CHANGELOG_FILE="./releases/$PLUGIN_NAME/changelog.txt"
-  README_FILE="./releases/$PLUGIN_NAME/readme.txt"
-  README_TEMPLATE_FILE="./releases/$PLUGIN_NAME/readme-template.txt"
-  ROOT_README_FILE="./readme.txt"
-  TMP_CHANGELOG_FILE="./releases/$PLUGIN_NAME/tmp_changelog.txt"
-
-  # Use a more portable date formatting approach
   awk '
       function format_date(date_str) {
           split(date_str, parts, "-")
@@ -118,32 +70,34 @@ buildChangelogs(){
       END { print output }
   ' "$CHANGELOG_FILE" > "$TMP_CHANGELOG_FILE"
 
-  # Cross-platform sed approach using temporary file
   sed "/\[autofill_changelogs___DO_NOT_TOUCH_THIS_LINE\]/{
     r $TMP_CHANGELOG_FILE
     d
-  }" "$README_TEMPLATE_FILE" > "$README_TEMPLATE_FILE.tmp" && mv "$README_TEMPLATE_FILE.tmp" "$README_TEMPLATE_FILE"
+  }" readme-template.txt > readme.txt
 
-  cp "$README_TEMPLATE_FILE" "$ROOT_README_FILE"
-  mv "$README_TEMPLATE_FILE" "$README_FILE"
   rm "$TMP_CHANGELOG_FILE"
-
-  echo "[+] Finished formatting & Copying changelogs"
 }
 
-buildThePackage() {
-  clean
-  build
-  setVersion
-  buildChangelogs
-  zipFolder
-  reInstallPackages
+archive() {
+  echo "[+] Creating $ZIP"
+  wp dist-archive . "$ZIP" --plugin-dirname="$PLUGIN_NAME" --force
+  unzip -q "$ZIP" -d ./releases
 }
 
-# Fixed: Use parameter expansion that works on both macOS and Ubuntu
-CAPITALIZED_PLUGIN_NAME="$(echo ${PLUGIN_NAME:0:1} | tr '[:lower:]' '[:upper:]')${PLUGIN_NAME:1}"
-echo "[+] $CAPITALIZED_PLUGIN_NAME is packaging..."
+# Runs however the script ends: clean() removed the development vendor/, and
+# the bench cannot load the plugin without it.
+finish() {
+  echo "[+] Re-installing development dependencies"
+  composer install --no-interaction --quiet
+}
+trap finish EXIT
 
-buildThePackage
+echo "[+] ${PLUGIN_NAME} is packaging..."
 
-echo "[+] Done"
+ensureDistArchive
+clean
+build
+buildChangelogs
+archive
+
+echo "[+] Done: $ZIP"

@@ -91,6 +91,10 @@ class MyAccount {
 		$current_user_id = get_current_user_id();
 		$user_is_admin   = current_user_can( 'manage_options' );
 
+		if ( ! $subs_post || 'subscrpt_order' !== $subs_post->post_type ) {
+			return wp_safe_redirect( '/404' );
+		}
+
 		if ( ! $user_is_admin && (int) $author_id !== (int) $current_user_id ) {
 			return wp_safe_redirect( '/404' );
 		}
@@ -186,7 +190,16 @@ class MyAccount {
 
 		$saved_methods = wc_get_customer_saved_methods_list( get_current_user_id() );
 		$has_methods   = isset( $saved_methods['cc'] );
-		if ( $has_methods && $renewal_setting && class_exists( 'WC_Stripe' ) && $order && 'stripe' === $order->get_payment_method() ) {
+		/**
+		 * Filters whether the customer can turn auto-renewal on and off for this subscription.
+		 *
+		 * @param bool           $supported       Whether the order's gateway renews automatically. Stripe only by default.
+		 * @param \WC_Order|false $order           The subscription's latest order.
+		 * @param int            $subscription_id Subscription ID.
+		 */
+		$toggle_supported = (bool) apply_filters( 'subscrpt_auto_renew_toggle_supported', class_exists( 'WC_Stripe' ) && $order && 'stripe' === $order->get_payment_method(), $order, $id );
+
+		if ( $has_methods && $renewal_setting && $order && $toggle_supported ) {
 			// Check maximum payment limit for auto-renewal buttons too
 			if ( ! subscrpt_is_max_payments_reached( $id ) ) {
 				if ( ! $is_auto_renew ) {

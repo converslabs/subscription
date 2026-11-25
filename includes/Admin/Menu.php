@@ -560,6 +560,14 @@ class Menu {
 				if ( $bulk_action && $action && $action !== '-1' && isset( $_POST['subscription_ids'] ) && is_array( $_POST['subscription_ids'] ) ) {
 					$subscription_ids = array_map( 'intval', $_POST['subscription_ids'] );
 
+					// Only subscriptions; any other id in the request is skipped.
+					$subscription_ids = array_filter(
+						$subscription_ids,
+						static function ( $sub_id ) {
+							return 'subscrpt_order' === get_post_type( $sub_id );
+						}
+					);
+
 					if ( $action === 'trash' ) {
 						foreach ( $subscription_ids as $sub_id ) {
 							wp_trash_post( $sub_id );
@@ -668,13 +676,19 @@ class Menu {
 						}
 						break;
 					case 'trash':
-						wp_trash_post( $sub_id );
+						if ( 'subscrpt_order' === get_post_type( $sub_id ) ) {
+							wp_trash_post( $sub_id );
+						}
 						break;
 					case 'restore':
-						wp_untrash_post( $sub_id );
+						if ( 'subscrpt_order' === get_post_type( $sub_id ) ) {
+							wp_untrash_post( $sub_id );
+						}
 						break;
 					case 'delete':
-						wp_delete_post( $sub_id, true );
+						if ( 'subscrpt_order' === get_post_type( $sub_id ) ) {
+							wp_delete_post( $sub_id, true );
+						}
 						$redirect_url = admin_url( 'admin.php?page=wp-subscription-list&subscrpt_status=trash' );
 						break;
 				}
@@ -793,6 +807,42 @@ class Menu {
 			exit;
 		}
 
+		// Handle the next-payment-date submission.
+		if ( 'POST' === $request_method && isset( $_POST['subscrpt_next_date'] ) ) {
+			$nonce = isset( $_POST['subscrpt_next_date_nonce_field'] ) ? sanitize_text_field( wp_unslash( $_POST['subscrpt_next_date_nonce_field'] ) ) : '';
+			if ( ! wp_verify_nonce( $nonce, 'subscrpt_next_date_nonce' ) ) {
+				wp_die( esc_html__( 'Security check failed.', 'subscription' ) );
+			}
+
+			$result = $this->change_next_payment_date( $subscription_id, sanitize_text_field( wp_unslash( $_POST['subscrpt_next_date'] ) ) );
+
+			wp_safe_redirect( add_query_arg( 'subscrpt_next_date_result', $result, $form_action ) );
+			exit;
+		}
+
+		$next_date_result = isset( $_GET['subscrpt_next_date_result'] ) ? sanitize_key( wp_unslash( $_GET['subscrpt_next_date_result'] ) ) : '';
+		if ( '' !== $next_date_result ) {
+			add_filter(
+				'subscrpt_admin_notices',
+				function ( $notices ) use ( $next_date_result ) {
+					$messages = array(
+						'updated'     => array( 'success', __( 'Next payment date updated. Later renewals follow from the new date.', 'subscription' ) ),
+						'invalid'     => array( 'error', __( 'Enter a valid date.', 'subscription' ) ),
+						'past'        => array( 'error', __( 'The next payment date must be in the future.', 'subscription' ) ),
+						'not_allowed' => array( 'error', __( 'The next payment date of this subscription cannot be changed.', 'subscription' ) ),
+					);
+					if ( isset( $messages[ $next_date_result ] ) ) {
+						$notices[] = array(
+							'id'      => 'subscrpt-next-date-' . $next_date_result,
+							'type'    => $messages[ $next_date_result ][0],
+							'message' => $messages[ $next_date_result ][1],
+						);
+					}
+					return $notices;
+				}
+			);
+		}
+
 		// Allowed actions for the current status (mirrors Subscriptions::subscrpt_order_save_post()).
 		$actions_data = array(
 			'active'       => array(
@@ -839,6 +889,12 @@ class Menu {
 
 		$rows = Subscriptions::get_info_rows( $subscription_id );
 
+		// Next payment date editor.
+		$next_date_lock  = $this->get_next_payment_date_lock( $subscription_id );
+		$next_date_ts    = (int) get_post_meta( $subscription_id, '_subscrpt_next_date', true );
+		$next_date_value = $next_date_ts > 0 ? wp_date( 'Y-m-d', $next_date_ts ) : '';
+		$next_date_min   = wp_date( 'Y-m-d', time() + DAY_IN_SECONDS );
+
 		// Related orders.
 		$order_histories = Helper::get_related_orders( $subscription_id );
 
@@ -860,6 +916,89 @@ class Menu {
 		include __DIR__ . '/views/subscription-details.php';
 
 		$this->render_admin_footer();
+	}
+
+	/**
+	 * Why the next payment date of a subscription cannot be changed by hand.
+	 *
+	 * Only active subscriptions renew on the stored date. PayPal subscriptions
+	 * are billed on PayPal's own schedule, so moving the date here would not
+	 * move the charge.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @return string Reason shown to the admin, or an empty string when the date can be changed.
+	 */
+	private function get_next_payment_date_lock( $subscription_id ) {
+		if ( 'active' !== get_post_status( $subscription_id ) ) {
+			return __( 'Only an active subscription\'s next payment date can be changed.', 'subscription' );
+		}
+
+		$order_id = get_post_meta( $subscription_id, '_subscrpt_order_id', true );
+		$order    = $order_id ? wc_get_order( $order_id ) : null;
+		if ( $order && 'wp_subscription_paypal' === $order->get_payment_method() ) {
+			return __( 'PayPal bills this subscription on its own schedule, so its next payment date cannot be changed here.', 'subscription' );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Move a subscription's next payment date.
+	 *
+	 * Keeps the time of day of the current date. Renewals anchor to the stored
+	 * date, so every later cycle follows from the new one.
+	 *
+	 * @param int    $subscription_id Subscription ID.
+	 * @param string $date            New date, Y-m-d in the site's timezone.
+	 * @return string Result: updated, invalid, past or not_allowed.
+	 */
+	private function change_next_payment_date( $subscription_id, $date ) {
+		if ( '' !== $this->get_next_payment_date_lock( $subscription_id ) ) {
+			return 'not_allowed';
+		}
+
+		$timezone = wp_timezone();
+		$new_date = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date, $timezone );
+		if ( ! $new_date || $new_date->format( 'Y-m-d' ) !== $date ) {
+			return 'invalid';
+		}
+
+		$old_ts = (int) get_post_meta( $subscription_id, '_subscrpt_next_date', true );
+		if ( $old_ts > 0 ) {
+			$old_date = ( new \DateTimeImmutable( '@' . $old_ts ) )->setTimezone( $timezone );
+			$new_date = $new_date->setTime( (int) $old_date->format( 'G' ), (int) $old_date->format( 'i' ), (int) $old_date->format( 's' ) );
+		}
+
+		if ( $new_date->getTimestamp() <= time() ) {
+			return 'past';
+		}
+
+		if ( $new_date->getTimestamp() === $old_ts ) {
+			return 'updated';
+		}
+
+		Helper::update_subscription_next_payment_date( $subscription_id, $new_date->format( DATE_ATOM ) );
+
+		$date_format = get_option( 'date_format' );
+		$user        = wp_get_current_user();
+		$comment_id  = wp_insert_comment(
+			array(
+				'comment_author'  => 'Subscription for WooCommerce',
+				'comment_content' => sprintf(
+					/* translators: 1: old next payment date, 2: new next payment date, 3: admin display name. */
+					__( 'Next payment date changed from %1$s to %2$s by %3$s.', 'subscription' ),
+					$old_ts > 0 ? wp_date( $date_format, $old_ts ) : '-',
+					wp_date( $date_format, $new_date->getTimestamp() ),
+					$user->display_name
+				),
+				'comment_post_ID' => $subscription_id,
+				'comment_type'    => 'order_note',
+			)
+		);
+		update_comment_meta( $comment_id, '_subscrpt_activity', 'Next Payment Date Changed' );
+		update_comment_meta( $comment_id, '_subscrpt_activity_type', 'subs_next_date_changed' );
+
+		return 'updated';
 	}
 
 	/**

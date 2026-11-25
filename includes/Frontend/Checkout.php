@@ -35,6 +35,16 @@ class Checkout {
 	 * @param \WC_Order $order Order Object.
 	 */
 	public function create_subscription_after_checkout_storeapi( $order ) {
+		// The Store API retries a pending or failed order whose cart is unchanged (e.g. the
+		// customer left PayPal and placed the order again) without firing
+		// `woocommerce_resume_order`, so the subscriptions from the earlier attempt are still
+		// attached. Drop them as the classic checkout does, or each retry adds another one.
+		// Only orders that started new subscriptions; a renewal order keeps its relation.
+		$histories = Helper::get_subscriptions_from_order( $order->get_id() );
+		if ( ! empty( $histories ) && empty( array_diff( array_unique( wp_list_pluck( $histories, 'type' ) ), array( 'new' ) ) ) ) {
+			$this->remove_subscriptions( $order->get_id() );
+		}
+
 		$this->create_subscription_after_checkout( $order->get_id() );
 	}
 
@@ -45,6 +55,15 @@ class Checkout {
 	 */
 	public function create_subscription_after_checkout( $order_id ) {
 		$order = wc_get_order( $order_id );
+
+		// Paying an existing renewal order fires this hook too: an express wallet on the
+		// pay-for-order page goes through the Store API's checkout/{order_id} route. That
+		// order renews a subscription, so it must never start a new one.
+		foreach ( Helper::get_subscriptions_from_order( $order_id ) as $history ) {
+			if ( in_array( $history->type, array( 'renew', 'early-renew' ), true ) ) {
+				return;
+			}
+		}
 
 		// Grab the post status based on order status.
 		$post_status = 'active';

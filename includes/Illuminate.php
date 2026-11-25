@@ -22,6 +22,7 @@ use SpringDevs\Subscription\Illuminate\Order;
 use SpringDevs\Subscription\Illuminate\Post;
 use SpringDevs\Subscription\Illuminate\Stats;
 use SpringDevs\Subscription\Illuminate\Gateways\Stripe\Stripe;
+use SpringDevs\Subscription\Illuminate\Gateways\PaypalPayments\PaypalPayments;
 use SpringDevs\Subscription\Illuminate\GuestCheckout;
 use SpringDevs\Subscription\Illuminate\RoleManagement;
 use SpringDevs\Subscription\Illuminate\Subscription\Subscription;
@@ -38,6 +39,11 @@ class Illuminate {
 		$this->stripe_initialization();
 		$this->paypal_initialization();
 		add_filter( 'woocommerce_payment_gateways', [ $this, 'register_mercadopago_gateway' ] );
+
+		// WooCommerce PayPal Payments: charge its vaulted PayPal accounts for renewals.
+		if ( class_exists( '\WooCommerce\PayPalCommerce\PPCP' ) ) {
+			new PaypalPayments();
+		}
 
 		new Subscription();
 		new RoleManagement();
