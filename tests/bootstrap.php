@@ -29,6 +29,7 @@ namespace {
 	$GLOBALS['applied_filters']   = []; // [hook] => [ [value, args...], ... ].
 	$GLOBALS['wp_filter_returns'] = []; // [hook] => forced filter return.
 	$GLOBALS['wp_hooks_registry'] = []; // [hook][priority][] => [callback, accepted_args].
+	$GLOBALS['test_translations'] = []; // [msgid] => translation; _n() takes [singular, plural].
 
 	if ( ! function_exists( 'get_post_meta' ) ) {
 		function get_post_meta( $post_id, $key = '', $single = false ) {
@@ -105,13 +106,15 @@ namespace {
 
 	if ( ! function_exists( '__' ) ) {
 		function __( $text, $domain = 'default' ) {
-			return $text;
+			return $GLOBALS['test_translations'][ $text ] ?? $text;
 		}
 	}
 
 	if ( ! function_exists( '_n' ) ) {
 		function _n( $single, $plural, $number, $domain = 'default' ) {
-			return 1 === (int) $number ? $single : $plural;
+			$forms = $GLOBALS['test_translations'][ $single ] ?? [ $single, $plural ];
+
+			return 1 === (int) $number ? $forms[0] : $forms[1];
 		}
 	}
 

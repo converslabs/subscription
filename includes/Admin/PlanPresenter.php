@@ -376,12 +376,7 @@ class PlanPresenter {
 		$trial_days = (int) ( $plan['free_trial'] ?? 0 );
 		if ( $trial_days > 0 ) {
 			$trial_unit = isset( $plan['data']['free_trial_interval'] ) ? (string) $plan['data']['free_trial_interval'] : 'day';
-			$chips[]    = sprintf(
-				/* translators: 1: number, 2: unit (day/week/month/year). */
-				__( '%1$d-%2$s free trial', 'subscription' ),
-				$trial_days,
-				$trial_unit
-			);
+			$chips[]    = self::trial_chip( $trial_days, $trial_unit );
 		}
 
 		$signup_fee = isset( $plan['signup_fee']['amount'] ) ? (float) $plan['signup_fee']['amount'] : 0.0;
@@ -414,12 +409,84 @@ class PlanPresenter {
 			return $plan['data']['pricing_breakdown'];
 		}
 
-		$freq     = max( 1, (int) $plan['billing_frequency'] );
-		$interval = self::interval_label( (int) $plan['billing_interval'] );
-		$every    = 1 === $freq ? strtolower( $interval ) : $freq . ' ' . strtolower( $interval ) . 's';
+		$every = self::interval_phrase( (int) $plan['billing_frequency'], (int) $plan['billing_interval'] );
 
 		/* translators: %s: billing interval, e.g. "month" or "2 weeks". */
 		return sprintf( __( 'Billed every %s', 'subscription' ), $every );
+	}
+
+	/**
+	 * A plan's free trial as a chip: "30-day free trial".
+	 *
+	 * One whole translatable phrase per unit; the stored unit is an English key
+	 * and is never shown as it is.
+	 *
+	 * @param int    $count How many units.
+	 * @param string $unit  Stored trial interval: day, week, month or year (a trailing "s" is ignored).
+	 *
+	 * @return string
+	 */
+	private static function trial_chip( int $count, string $unit ): string {
+		switch ( rtrim( strtolower( $unit ), 's' ) ) {
+			case 'week':
+				/* translators: %d: number of weeks. */
+				$phrase = _n( '%d-week free trial', '%d-week free trial', $count, 'subscription' );
+				break;
+			case 'month':
+				/* translators: %d: number of months. */
+				$phrase = _n( '%d-month free trial', '%d-month free trial', $count, 'subscription' );
+				break;
+			case 'year':
+				/* translators: %d: number of years. */
+				$phrase = _n( '%d-year free trial', '%d-year free trial', $count, 'subscription' );
+				break;
+			default:
+				/* translators: %d: number of days. */
+				$phrase = _n( '%d-day free trial', '%d-day free trial', $count, 'subscription' );
+		}
+
+		return sprintf( $phrase, $count );
+	}
+
+	/**
+	 * A billing interval as a phrase: "month", "2 weeks", or "1 month" when the
+	 * count of one is wanted.
+	 *
+	 * Each unit is a whole translatable phrase with its own plural forms, so no
+	 * language is forced into English pluralisation or English letter case.
+	 *
+	 * @param int  $freq      How many units, at least 1.
+	 * @param int  $interval  1=day, 2=week, 3=month, 4=year; anything else is month.
+	 * @param bool $count_one Whether a single unit reads "1 month" rather than "month".
+	 *
+	 * @return string
+	 */
+	public static function interval_phrase( int $freq, int $interval, bool $count_one = false ): string {
+		$freq = max( 1, $freq );
+
+		switch ( $interval ) {
+			case 1:
+				$single = __( 'day', 'subscription' );
+				/* translators: %d: number of days. */
+				$counted = _n( '%d day', '%d days', $freq, 'subscription' );
+				break;
+			case 2:
+				$single = __( 'week', 'subscription' );
+				/* translators: %d: number of weeks. */
+				$counted = _n( '%d week', '%d weeks', $freq, 'subscription' );
+				break;
+			case 4:
+				$single = __( 'year', 'subscription' );
+				/* translators: %d: number of years. */
+				$counted = _n( '%d year', '%d years', $freq, 'subscription' );
+				break;
+			default:
+				$single = __( 'month', 'subscription' );
+				/* translators: %d: number of months. */
+				$counted = _n( '%d month', '%d months', $freq, 'subscription' );
+		}
+
+		return ( 1 === $freq && ! $count_one ) ? $single : sprintf( $counted, $freq );
 	}
 
 	/**
