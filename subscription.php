@@ -33,6 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry;
 use SpringDevs\Subscription\Illuminate\Gateways\Paypal\Paypal_Blocks_Integration;
+use SpringDevs\Subscription\Illuminate\Gateways\MercadoPago\MercadoPago_Blocks_Integration;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -336,6 +337,29 @@ if ( ! function_exists( 'subscrpt_register_paypal_block' ) ) {
  */
 function sdevs_subscription() {
 	return Sdevs_Subscription::init();
+}
+
+// Add Mercado Pago Gateway Blocks.
+if ( ! function_exists( 'subscrpt_register_mercadopago_block' ) ) {
+	/**
+	 * Register the Mercado Pago block for WooCommerce Blocks.
+	 */
+	function subscrpt_register_mercadopago_block() {
+		if ( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+			return;
+		}
+
+		add_action(
+			'woocommerce_blocks_payment_method_type_registration',
+			function ( PaymentMethodRegistry $payment_method_registry ) {
+				$payment_method_registry->register( new MercadoPago_Blocks_Integration() );
+			}
+		);
+	}
+
+	if ( function_exists( 'add_action' ) ) {
+		add_action( 'woocommerce_blocks_loaded', 'subscrpt_register_mercadopago_block' );
+	}
 }
 
 // phpcs:enable Universal.Files.SeparateFunctionsFromOO.Mixed

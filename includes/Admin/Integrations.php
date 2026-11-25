@@ -292,6 +292,23 @@ class Integrations {
 					// ],
 				],
 			],
+			'mercadopago' => [
+				'title'              => 'Mercado Pago',
+				'description'        => __( 'Accept recurring subscription payments with Mercado Pago (Latin America).', 'subscription' ),
+				'icon_url'           => SUBSCRPT_ASSETS . '/images/integrations/mercadopago.svg',
+				'type'               => 'payment_gateway',
+				'is_installed'       => true,
+				'is_active'          => self::is_gateway_enabled( 'wp_subscription_mercadopago' ),
+				'supports_recurring' => true,
+				'actions'            => [
+					[
+						'action' => 'settings',
+						'label'  => __( 'Settings', 'subscription' ),
+						'type'   => 'link',
+						'url'    => admin_url( 'admin.php?page=wc-settings&tab=checkout&section=wp_subscription_mercadopago' ),
+					],
+				],
+			],
 			'stripe'   => [
 				'title'              => 'Stripe',
 				'description'        => __( 'Process subscription payments securely with Stripe.', 'subscription' ),

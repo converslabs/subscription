@@ -647,7 +647,7 @@ class Dashboard {
 		 *
 		 * @param string[] $gateway_ids Payment gateway IDs.
 		 */
-		$gateway_ids = apply_filters( 'subscrpt_renewal_gateway_ids', array( 'wp_subscription_paypal', 'stripe', 'smartpay_paddle' ) );
+		$gateway_ids = apply_filters( 'subscrpt_renewal_gateway_ids', array( 'wp_subscription_paypal', 'wp_subscription_mercadopago', 'stripe', 'smartpay_paddle' ) );
 
 		foreach ( (array) $gateway_ids as $gateway ) {
 			if ( Integrations::is_gateway_enabled( $gateway ) ) {

@@ -38,6 +38,7 @@ class Illuminate {
 	public function __construct() {
 		$this->stripe_initialization();
 		$this->paypal_initialization();
+		add_filter( 'woocommerce_payment_gateways', [ $this, 'register_mercadopago_gateway' ] );
 
 		// WooCommerce PayPal Payments: charge its vaulted PayPal accounts for renewals.
 		if ( class_exists( '\WooCommerce\PayPalCommerce\PPCP' ) ) {
@@ -133,6 +134,17 @@ class Illuminate {
 		if ( $is_paypal_integration_enabled ) {
 			add_filter( 'woocommerce_payment_gateways', [ $this, 'register_paypal_gateway' ] );
 		}
+	}
+
+	/**
+	 * Register the Mercado Pago gateway with WooCommerce.
+	 *
+	 * @param array $gateways Gateways.
+	 * @return array
+	 */
+	public function register_mercadopago_gateway( $gateways ) {
+		$gateways[] = 'SpringDevs\\Subscription\\Illuminate\\Gateways\\MercadoPago\\MercadoPago';
+		return $gateways;
 	}
 
 	/**
